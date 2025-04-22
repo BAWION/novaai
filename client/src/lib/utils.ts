@@ -34,20 +34,17 @@ export function calculateStrokeDashoffset(percent: number, circumference: number
 
 // Function to calculate position for orbital items in a circle
 export function calculateOrbitalPosition(
-  index: number,
-  total: number,
   radius: number,
-  centerX: number = 50,
-  centerY: number = 50
-): { top: string; left: string } {
-  const angle = (index / total) * Math.PI * 2;
-  const x = centerX + radius * Math.cos(angle);
-  const y = centerY + radius * Math.sin(angle);
+  angle: number
+): { x: number; y: number } {
+  // Convert angle from degrees to radians
+  const radians = (angle * Math.PI) / 180;
   
-  return {
-    top: `${y}%`,
-    left: `${x}%`,
-  };
+  // Calculate coordinates (x, y are both relative to center point)
+  const x = radius * Math.cos(radians);
+  const y = radius * Math.sin(radians);
+  
+  return { x, y };
 }
 
 // Helper for calculating the angle between two points
