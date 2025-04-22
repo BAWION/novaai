@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Glassmorphism } from "@/components/ui/glassmorphism";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
+import { BusinessBreadcrumbs } from "@/components/business/breadcrumbs";
 
 export default function BusinessAIOverview() {
   // Карта отраслей и соответствующих им уровней применения ИИ
@@ -72,6 +73,9 @@ export default function BusinessAIOverview() {
       subtitle="Внедрение ИИ-решений в бизнес-процессы"
     >
       <div className="space-y-8">
+        {/* Breadcrumbs */}
+        <BusinessBreadcrumbs className="mb-4" />
+        
         {/* Hero секция */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
