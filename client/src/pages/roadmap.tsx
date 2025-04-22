@@ -182,34 +182,31 @@ export default function Roadmap() {
     }
   };
 
-  // Render nodes recursively
-  const renderNodes = (nodeId: string, level = 0, xPosition = 0) => {
+  // Render nodes recursively with fixed layout
+  const renderNodes = (nodeId: string, level = 0) => {
     const node = roadmapData[nodeId];
     if (!node) return null;
-    
-    const children = node.children.map((childId, index) => {
-      const childWidth = 100 / node.children.length;
-      const childXPosition = xPosition + (index * childWidth);
-      return renderNodes(childId, level + 1, childXPosition);
-    });
     
     const statusColor = getStatusColor(node.status);
     const statusIcon = getStatusIcon(node.status);
     
+    // Use a fixed layout with pre-defined coordinates
+    const nodeStyle = getRoadmapNodeStyle(nodeId, level);
+    
     return (
-      <div key={node.id} className="flex flex-col items-center">
+      <React.Fragment key={node.id}>
         <motion.div 
-          className={`relative mb-8 cursor-pointer ${selectedNode === nodeId ? 'scale-110' : ''}`}
+          className={`absolute cursor-pointer ${selectedNode === nodeId ? 'z-20 scale-110' : 'z-10'}`}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setSelectedNode(nodeId)}
-          style={{ marginLeft: `${xPosition}%` }}
+          style={nodeStyle}
         >
           <div className={`w-16 h-16 rounded-full ${statusColor} flex items-center justify-center text-white shadow-lg`}>
             <i className={`fas ${statusIcon} text-xl`}></i>
           </div>
           <div className="mt-2 text-center">
-            <p className="font-medium text-sm">{node.title}</p>
+            <p className="font-medium text-sm whitespace-nowrap">{node.title}</p>
             <div className="w-16 h-1.5 bg-white/10 rounded-full mt-1">
               <div 
                 className={`h-full rounded-full ${statusColor}`} 
@@ -217,25 +214,151 @@ export default function Roadmap() {
               ></div>
             </div>
           </div>
-          
-          {/* Lines connecting to children */}
-          {node.children.length > 0 && (
-            <div className="absolute w-full h-8 bottom-0 left-0 transform translate-y-full">
-              <div className="w-0.5 h-4 bg-white/30 mx-auto"></div>
-              {node.children.length > 1 && (
-                <div className="w-full h-0.5 bg-white/30 absolute bottom-0"></div>
-              )}
-            </div>
-          )}
         </motion.div>
         
-        {children.length > 0 && (
-          <div className="flex w-full justify-around mt-4">
-            {children}
-          </div>
-        )}
-      </div>
+        {/* Render connections */}
+        {node.children.map(childId => {
+          if (!roadmapData[childId]) return null;
+          const connectionStyle = getConnectionStyle(nodeId, childId);
+          const status = roadmapData[nodeId].status;
+          const connectionClass = status === 'completed' ? 'absolute bg-gradient-to-b from-green-500 to-emerald-500' : 
+                                  status === 'in-progress' ? 'absolute bg-gradient-to-b from-[#6E3AFF] to-[#2EBAE1]' : 
+                                  'absolute bg-white/30';
+          return (
+            <div 
+              key={`${nodeId}-${childId}`} 
+              className={connectionClass}
+              style={connectionStyle}
+            ></div>
+          );
+        })}
+        
+        {/* Render children */}
+        {node.children.map(childId => renderNodes(childId, level + 1))}
+      </React.Fragment>
     );
+  };
+  
+  // Function to get node position based on predefined layout
+  const getRoadmapNodeStyle = (nodeId: string, level: number): React.CSSProperties => {
+    // Define fixed positions for each node
+    const nodePositions: {[key: string]: {top: string, left: string}} = {
+      'root': { top: '50px', left: '50%' },
+      'python-basics': { top: '180px', left: '30%' },
+      'math-foundations': { top: '180px', left: '70%' },
+      'data-structures': { top: '310px', left: '30%' },
+      'numpy-pandas': { top: '440px', left: '30%' },
+      'data-visualization': { top: '440px', left: '50%' },
+      'ml-intro': { top: '310px', left: '70%' },
+      'deep-learning': { top: '440px', left: '70%' },
+      'ml-research': { top: '570px', left: '60%' },
+      'ml-deployment': { top: '570px', left: '80%' }
+    };
+    
+    const position = nodePositions[nodeId] || { top: `${level * 150}px`, left: '50%' };
+    
+    return {
+      top: position.top,
+      left: position.left,
+      transform: 'translate(-50%, 0)'
+    };
+  };
+  
+  // Function to draw connections between nodes with better line layout
+  const getConnectionStyle = (parentId: string, childId: string): React.CSSProperties => {
+    const parentPos = getRoadmapNodeStyle(parentId, 0);
+    const childPos = getRoadmapNodeStyle(childId, 0);
+    
+    // Parse positions to get numeric values
+    const parentTop = parseInt(parentPos.top as string);
+    const parentLeft = parseInt(parentPos.left as string);
+    const childTop = parseInt(childPos.top as string);
+    const childLeft = parseInt(childPos.left as string);
+    
+    // Calculate middle point for connecting two nodes vertically
+    const verticalLineHeight = (childTop - parentTop - 70) + 'px';
+    
+    // Special connections for specific node pairs
+    const connectionKey = `${parentId}-${childId}`;
+    
+    switch (connectionKey) {
+      case 'root-python-basics':
+        return {
+          top: (parentTop + 70) + 'px',
+          left: '40%',
+          width: '2px',
+          height: (childTop - parentTop - 70) + 'px',
+        };
+      
+      case 'root-math-foundations':
+        return {
+          top: (parentTop + 70) + 'px',
+          left: '60%',
+          width: '2px',
+          height: (childTop - parentTop - 70) + 'px',
+        };
+        
+      case 'python-basics-data-structures':
+        return {
+          top: (parentTop + 70) + 'px',
+          left: '30%',
+          width: '2px',
+          height: (childTop - parentTop - 70) + 'px',
+        };
+        
+      case 'data-structures-numpy-pandas':
+        return {
+          top: (parentTop + 70) + 'px',
+          left: '30%',
+          width: '2px',
+          height: (childTop - parentTop - 70) + 'px',
+        };
+        
+      case 'math-foundations-ml-intro':
+        return {
+          top: (parentTop + 70) + 'px',
+          left: '70%',
+          width: '2px',
+          height: (childTop - parentTop - 70) + 'px',
+        };
+        
+      case 'ml-intro-deep-learning':
+        return {
+          top: (parentTop + 70) + 'px',
+          left: '70%',
+          width: '2px',
+          height: (childTop - parentTop - 70) + 'px',
+        };
+    }
+    
+    // Default vertical connection
+    if (Math.abs(childLeft - parentLeft) < 5) {
+      return {
+        top: (parentTop + 70) + 'px',
+        left: 'calc(' + parentLeft + '% - 1px)',
+        width: '2px',
+        height: verticalLineHeight,
+      };
+    }
+    
+    // For other connections, create a horizontal line
+    // First create the vertical segment from parent
+    if (parentTop < childTop) {
+      return {
+        top: (parentTop + 70) + 'px',
+        left: 'calc(' + parentLeft + '% - 1px)',
+        width: '2px',
+        height: (childTop - parentTop - 40) + 'px',
+      };
+    }
+    
+    // Default case: simple vertical line
+    return {
+      top: (parentTop + 70) + 'px',
+      left: 'calc(' + parentLeft + '% - 1px)',
+      width: '2px',
+      height: (Math.abs(childTop - parentTop) - 70) + 'px',
+    };
   };
 
   return (
@@ -252,7 +375,7 @@ export default function Roadmap() {
           
           <Glassmorphism className="rounded-xl p-6 min-h-[500px]">
             <div className="overflow-x-auto pb-6">
-              <div className="min-w-[800px] pt-6">
+              <div className="min-w-[800px] min-h-[600px] pt-6 relative">
                 {Object.keys(roadmapData).length > 0 && renderNodes('root')}
               </div>
             </div>
