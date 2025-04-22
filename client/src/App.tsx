@@ -20,8 +20,13 @@ import Profile from "@/pages/profile";
 import Settings from "@/pages/settings";
 import NotFound from "@/pages/not-found";
 
+interface ProtectedRouteProps {
+  component: React.ComponentType;
+  path: string;
+}
+
 // Protected route component
-const ProtectedRoute = ({ component: Component, ...rest }: { component: React.ComponentType, path: string }) => {
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ component: Component, path }) => {
   const { isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
   
@@ -31,7 +36,12 @@ const ProtectedRoute = ({ component: Component, ...rest }: { component: React.Co
     }
   }, [isAuthenticated, setLocation]);
   
-  return isAuthenticated ? <Component {...rest} /> : null;
+  // Use Route from wouter to handle the path
+  return (
+    <Route path={path}>
+      {isAuthenticated ? <Component /> : null}
+    </Route>
+  );
 };
 
 function Router() {
