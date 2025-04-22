@@ -1,62 +1,51 @@
-import React, { useEffect, useState } from "react";
-import { cn, calculateStrokeDashoffset } from "@/lib/utils";
+import React from "react";
+import { cn } from "@/lib/utils";
+import { calculateStrokeDashoffset } from "@/lib/utils";
 
 interface ProgressRingProps {
   percent: number;
-  size?: number;
-  strokeWidth?: number;
-  className?: string;
+  size: number;
+  strokeWidth: number;
   children?: React.ReactNode;
+  className?: string;
 }
 
 export function ProgressRing({
   percent,
-  size = 60,
-  strokeWidth = 6,
-  className,
+  size,
+  strokeWidth,
   children,
+  className
 }: ProgressRingProps) {
-  const [offset, setOffset] = useState(0);
-  
-  // Calculate the properties of the circle
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
-  
-  useEffect(() => {
-    const progressOffset = calculateStrokeDashoffset(percent, circumference);
-    setOffset(progressOffset);
-  }, [percent, circumference]);
+  const strokeDashoffset = calculateStrokeDashoffset(percent, circumference);
 
   return (
-    <div className={cn("relative inline-block", className)}>
-      <svg className="transform -rotate-90" width={size} height={size}>
+    <div className={cn("relative inline-block", className)} style={{ width: size, height: size }}>
+      <svg width={size} height={size} className="rotate-[-90deg]">
+        {/* Background circle */}
         <circle
-          className="text-space-700"
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke="rgba(255, 255, 255, 0.1)"
+          strokeWidth={strokeWidth}
+        />
+        {/* Progress circle */}
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
           stroke="currentColor"
           strokeWidth={strokeWidth}
-          fill="transparent"
-          r={radius}
-          cx={size / 2}
-          cy={size / 2}
-        />
-        <circle
-          className="text-transparent transition-all duration-500 ease-in-out"
-          stroke="url(#progressGradient)"
-          strokeWidth={strokeWidth}
           strokeDasharray={circumference}
-          strokeDashoffset={offset}
+          strokeDashoffset={strokeDashoffset}
           strokeLinecap="round"
-          fill="transparent"
-          r={radius}
-          cx={size / 2}
-          cy={size / 2}
+          className="transition-all duration-500 ease-in-out"
         />
-        <defs>
-          <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#2EBAE1" />
-            <stop offset="100%" stopColor="#6E3AFF" />
-          </linearGradient>
-        </defs>
       </svg>
       {children && (
         <div className="absolute inset-0 flex items-center justify-center">
