@@ -19,6 +19,8 @@ import Community from "@/pages/community";
 import Profile from "@/pages/profile";
 import Settings from "@/pages/settings";
 import NotFound from "@/pages/not-found";
+import BusinessAIOverview from "@/pages/business";
+import CaseLibrary from "@/pages/business/cases";
 
 interface ProtectedRouteProps {
   component: React.ComponentType;
@@ -90,6 +92,10 @@ function Router() {
           <ProtectedRoute path="/profile" component={Profile} />
           <ProtectedRoute path="/settings" component={Settings} />
           <ProtectedRoute path="/orbital-lobby" component={OrbitalLobby} />
+          
+          {/* Business AI Module Routes */}
+          <ProtectedRoute path="/business" component={BusinessAIOverview} />
+          <ProtectedRoute path="/business/cases" component={CaseLibrary} />
           
           <Route component={NotFound} />
         </Switch>
