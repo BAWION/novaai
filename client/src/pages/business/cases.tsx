@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Link } from "wouter";
+import { BusinessBreadcrumbs } from "@/components/business/breadcrumbs";
 
 // Типы данных для кейсов
 interface Case {
@@ -203,6 +204,9 @@ export default function CaseLibrary() {
       subtitle="Каталог внедрений ИИ в российских компаниях"
     >
       <div className="space-y-6">
+        {/* Breadcrumbs */}
+        <BusinessBreadcrumbs className="mb-4" />
+        
         {/* Панель фильтров */}
         <Glassmorphism className="p-5 rounded-xl">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
