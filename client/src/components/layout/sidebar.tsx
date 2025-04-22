@@ -21,34 +21,35 @@ const NavItem = ({ icon, label, to, isActive, onClick }: NavItemProps) => {
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.98 }}
     >
-      <Link href={to}>
-        <a 
-          onClick={onClick}
-          className={`flex items-center py-3 px-4 rounded-lg transition-all duration-300 mb-2 ${
-            isActive
-              ? "bg-gradient-to-r from-[#6E3AFF]/20 to-[#2EBAE1]/10 border border-[#6E3AFF]/30 shadow-[0_0_15px_rgba(110,58,255,0.15)] translate-z-4"
-              : "hover:bg-white/5"
-          }`}
-        >
-          <div className={`w-10 h-10 flex items-center justify-center rounded-lg ${
-            isActive
-              ? "bg-gradient-to-br from-[#6E3AFF] to-[#2EBAE1] text-white"
-              : "bg-white/10 text-white/60"
-          }`}>
-            <i className={`fas ${icon} text-lg`}></i>
-          </div>
-          <span className={`ml-3 font-medium ${isActive ? "text-white" : "text-white/70"}`}>
-            {label}
-          </span>
-          {isActive && (
-            <motion.div
-              className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-[#6E3AFF] to-[#2EBAE1] rounded-l-md"
-              layoutId="activeIndicator"
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            />
-          )}
-        </a>
-      </Link>
+      <div
+        onClick={() => {
+          if (onClick) onClick();
+          window.location.href = to;
+        }}
+        className={`flex items-center py-3 px-4 rounded-lg transition-all duration-300 mb-2 cursor-pointer ${
+          isActive
+            ? "bg-gradient-to-r from-[#6E3AFF]/20 to-[#2EBAE1]/10 border border-[#6E3AFF]/30 shadow-[0_0_15px_rgba(110,58,255,0.15)] translate-z-4"
+            : "hover:bg-white/5"
+        }`}
+      >
+        <div className={`w-10 h-10 flex items-center justify-center rounded-lg ${
+          isActive
+            ? "bg-gradient-to-br from-[#6E3AFF] to-[#2EBAE1] text-white"
+            : "bg-white/10 text-white/60"
+        }`}>
+          <i className={`fas ${icon} text-lg`}></i>
+        </div>
+        <span className={`ml-3 font-medium ${isActive ? "text-white" : "text-white/70"}`}>
+          {label}
+        </span>
+        {isActive && (
+          <motion.div
+            className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-[#6E3AFF] to-[#2EBAE1] rounded-l-md"
+            layoutId="activeIndicator"
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          />
+        )}
+      </div>
     </motion.div>
   );
 };
