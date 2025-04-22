@@ -1,13 +1,23 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { Glassmorphism } from "@/components/ui/glassmorphism";
 import { ParticlesBackground } from "@/components/particles-background";
 import { useAuth } from "@/context/auth-context";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function Login() {
   const [, navigate] = useLocation();
   const { login } = useAuth();
+  const { toast } = useToast();
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [showLoginForm, setShowLoginForm] = useState(false);
+  const [credentials, setCredentials] = useState({
+    username: "",
+    password: ""
+  });
+  const [error, setError] = useState("");
 
   const handleTelegramLogin = () => {
     // For demo purposes, simulate Telegram login
@@ -17,6 +27,52 @@ export default function Login() {
 
   const handleStartJourney = () => {
     navigate("/onboarding");
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setCredentials(prev => ({ ...prev, [name]: value }));
+    setError("");
+  };
+
+  const handleLoginSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoggingIn(true);
+    setError("");
+
+    try {
+      const response = await apiRequest("POST", "/api/auth/login", credentials);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Ошибка входа");
+      }
+      
+      const userData = await response.json();
+      login(userData);
+      
+      toast({
+        title: "Успешный вход",
+        description: `Добро пожаловать, ${userData.displayName || userData.username}!`,
+      });
+      
+      navigate("/orbital-lobby");
+    } catch (error) {
+      console.error("Login error:", error);
+      setError(error instanceof Error ? error.message : "Произошла ошибка при входе");
+      
+      toast({
+        variant: "destructive",
+        title: "Ошибка входа",
+        description: error instanceof Error ? error.message : "Произошла ошибка при входе",
+      });
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+
+  const toggleLoginForm = () => {
+    setShowLoginForm(prev => !prev);
+    setError("");
   };
 
   return (
@@ -56,29 +112,115 @@ export default function Login() {
               <p className="text-white/60 mt-1">Начните свой путь в мир ИИ</p>
             </div>
 
-            <div className="mb-6">
-              <button
-                onClick={handleTelegramLogin}
-                className="w-full bg-[#0088cc] hover:bg-[#0099dd] text-white py-3 px-4 rounded-lg flex items-center justify-center transition duration-300"
-              >
-                <i className="fab fa-telegram mr-3 text-xl"></i>
-                Войти через Telegram
-              </button>
-            </div>
+            {!showLoginForm ? (
+              <>
+                <div className="mb-6">
+                  <button
+                    onClick={handleTelegramLogin}
+                    className="w-full bg-[#0088cc] hover:bg-[#0099dd] text-white py-3 px-4 rounded-lg flex items-center justify-center transition duration-300"
+                  >
+                    <i className="fab fa-telegram mr-3 text-xl"></i>
+                    Войти через Telegram
+                  </button>
+                </div>
 
-            <div className="flex items-center my-6">
-              <div className="flex-grow h-px bg-white/10"></div>
-              <span className="px-3 text-white/50 text-sm">или</span>
-              <div className="flex-grow h-px bg-white/10"></div>
-            </div>
+                <div className="flex items-center my-6">
+                  <div className="flex-grow h-px bg-white/10"></div>
+                  <span className="px-3 text-white/50 text-sm">или</span>
+                  <div className="flex-grow h-px bg-white/10"></div>
+                </div>
 
-            <button
-              onClick={handleStartJourney}
-              className="w-full bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:from-[#4922B2] hover:to-[#1682A1] text-white py-3 px-4 rounded-lg font-medium transition duration-300 flex items-center justify-center"
-            >
-              <span>Начать знакомство</span>
-              <i className="fas fa-arrow-right ml-2"></i>
-            </button>
+                <div className="space-y-4">
+                  <button
+                    onClick={toggleLoginForm}
+                    className="w-full bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:from-[#4922B2] hover:to-[#1682A1] text-white py-3 px-4 rounded-lg font-medium transition duration-300 flex items-center justify-center"
+                  >
+                    <i className="fas fa-user mr-2"></i>
+                    <span>Войти с паролем</span>
+                  </button>
+
+                  <button
+                    onClick={handleStartJourney}
+                    className="w-full border border-white/20 hover:bg-white/10 text-white py-3 px-4 rounded-lg font-medium transition duration-300 flex items-center justify-center"
+                  >
+                    <span>Начать знакомство</span>
+                    <i className="fas fa-arrow-right ml-2"></i>
+                  </button>
+                </div>
+              </>
+            ) : (
+              <form onSubmit={handleLoginSubmit} className="space-y-4">
+                <div>
+                  <label htmlFor="username" className="block text-white/80 text-sm font-medium mb-1">
+                    Имя пользователя
+                  </label>
+                  <input
+                    id="username"
+                    name="username"
+                    type="text"
+                    value={credentials.username}
+                    onChange={handleInputChange}
+                    className="w-full bg-white/10 border border-white/20 rounded-lg py-2 px-3 text-white placeholder:text-white/50 focus:ring-2 focus:ring-[#6E3AFF]/50 focus:border-[#6E3AFF] transition-all"
+                    placeholder="Введите имя пользователя"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="password" className="block text-white/80 text-sm font-medium mb-1">
+                    Пароль
+                  </label>
+                  <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    value={credentials.password}
+                    onChange={handleInputChange}
+                    className="w-full bg-white/10 border border-white/20 rounded-lg py-2 px-3 text-white placeholder:text-white/50 focus:ring-2 focus:ring-[#6E3AFF]/50 focus:border-[#6E3AFF] transition-all"
+                    placeholder="Введите пароль"
+                    required
+                  />
+                </div>
+
+                {error && (
+                  <div className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-sm text-white">
+                    {error}
+                  </div>
+                )}
+
+                <div className="flex space-x-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={toggleLoginForm}
+                    className="flex-1 border border-white/20 hover:bg-white/10 text-white py-2 px-4 rounded-lg transition duration-300"
+                    disabled={isLoggingIn}
+                  >
+                    Назад
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:from-[#4922B2] hover:to-[#1682A1] text-white py-2 px-4 rounded-lg font-medium transition duration-300 flex items-center justify-center"
+                    disabled={isLoggingIn}
+                  >
+                    {isLoggingIn ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Вход...
+                      </>
+                    ) : (
+                      'Войти'
+                    )}
+                  </button>
+                </div>
+                
+                <div className="text-center text-white/50 text-xs">
+                  Подсказка: Логин - админ13, Пароль - 54321
+                </div>
+              </form>
+            )}
 
             <div className="mt-6 text-center text-white/50 text-sm">
               Создавая аккаунт, вы соглашаетесь с{" "}

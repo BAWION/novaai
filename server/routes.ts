@@ -41,27 +41,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Authentication routes
   app.post("/api/auth/login", async (req, res) => {
     try {
-      const { username, displayName } = req.body;
+      const { username, password, displayName } = req.body;
       
-      // Find or create user
-      let user = await storage.getUserByUsername(username);
-      
-      if (!user) {
-        // For demo purposes, create a new user if not found
-        user = await storage.createUser({ 
-          username, 
-          password: "placeholder-password" // In a real app, we'd use proper password hashing
-        });
+      // Check for admin credentials
+      if (username === "админ13" && password === "54321") {
+        // Create admin session
+        req.session.user = {
+          id: 999,
+          username: "админ13",
+          displayName: "Администратор"
+        };
+        return res.json({ id: 999, username: "админ13", displayName: "Администратор" });
       }
       
-      // Store user in session
-      req.session.user = {
-        id: user.id,
-        username: user.username,
-        displayName: displayName || user.displayName
-      };
+      // For telegram login (which doesn't use password)
+      if (!password && username) {
+        // Find or create user
+        let user = await storage.getUserByUsername(username);
+        
+        if (!user) {
+          // For demo purposes, create a new user if not found
+          user = await storage.createUser({ 
+            username, 
+            password: "placeholder-password" // In a real app, we'd use proper password hashing
+          });
+        }
+        
+        // Store user in session
+        req.session.user = {
+          id: user.id,
+          username: user.username,
+          displayName: displayName || user.displayName
+        };
+        
+        return res.json({ id: user.id, username: user.username, displayName: displayName || user.displayName });
+      }
       
-      res.json({ id: user.id, username: user.username, displayName: displayName || user.displayName });
+      // Regular username/password login
+      if (username && password) {
+        let user = await storage.getUserByUsername(username);
+        
+        if (!user) {
+          return res.status(401).json({ message: "Неверное имя пользователя или пароль" });
+        }
+        
+        // In a real app, we would compare hashed passwords
+        // For demo, we'll just check if the password matches
+        if (user.password !== password) {
+          return res.status(401).json({ message: "Неверное имя пользователя или пароль" });
+        }
+        
+        // Store user in session
+        req.session.user = {
+          id: user.id,
+          username: user.username,
+          displayName: user.displayName || undefined
+        };
+        
+        return res.json({ id: user.id, username: user.username, displayName: user.displayName });
+      }
+      
+      res.status(400).json({ message: "Необходимо указать имя пользователя и пароль" });
     } catch (error) {
       console.error("Login error:", error);
       res.status(500).json({ message: "Login failed" });
@@ -87,8 +127,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User profile routes
   app.get("/api/profile", authMiddleware, async (req, res) => {
     try {
-      const userId = req.session.user.id;
-      const profile = await storage.getUserProfile(userId);
+      const userId = req.session.user!.id;
+      let profile = await storage.getUserProfile(userId);
+      
+      // Если это администратор и профиль не найден, создаем дефолтный профиль
+      if (!profile && userId === 999) {
+        // Создаем профиль администратора
+        profile = await storage.createUserProfile({
+          userId: 999,
+          role: "teacher",
+          pythonLevel: 5,
+          experience: "expert",
+          interest: "machine-learning",
+          goal: "find-internship",
+          recommendedTrack: "research-ai"
+        });
+      }
       
       if (!profile) {
         return res.status(404).json({ message: "Profile not found" });
@@ -103,7 +157,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         recommendedTrack: profile.recommendedTrack,
         progress: profile.progress,
         streakDays: profile.streakDays,
-        displayName: req.session.user.displayName
+        displayName: req.session.user!.displayName || "Пользователь"
       });
     } catch (error) {
       console.error("Get profile error:", error);
@@ -113,7 +167,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.patch("/api/profile", authMiddleware, async (req, res) => {
     try {
-      const userId = req.session.user.id;
+      const userId = req.session.user!.id;
       const updateData = req.body;
       
       // Check if profile exists
@@ -176,7 +230,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User course progress routes
   app.get("/api/user/courses", authMiddleware, async (req, res) => {
     try {
-      const userId = req.session.user.id;
+      const userId = req.session.user!.id;
       const courseProgress = await storage.getUserCourseProgress(userId);
       res.json(courseProgress);
     } catch (error) {
@@ -187,7 +241,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.post("/api/user/courses/:courseId/progress", authMiddleware, async (req, res) => {
     try {
-      const userId = req.session.user.id;
+      const userId = req.session.user!.id;
       const courseId = parseInt(req.params.courseId);
       const { progress, completedModules } = req.body;
       
