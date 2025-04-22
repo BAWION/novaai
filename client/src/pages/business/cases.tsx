@@ -151,7 +151,7 @@ export default function CaseLibrary() {
       >
         <Glassmorphism className="p-5 rounded-xl h-full flex flex-col border border-white/5 hover:border-white/20 transition-all">
           <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-12 rounded-lg bg-space-700 flex items-center justify-center text-2xl">
+            <div className="w-12 h-12 rounded-lg bg-slate-700 flex items-center justify-center text-2xl">
               {caseItem.logo}
             </div>
             <div>
@@ -161,13 +161,13 @@ export default function CaseLibrary() {
           </div>
           
           <div className="flex flex-wrap gap-2 mb-3">
-            <span className="text-xs px-2 py-1 rounded-full bg-space-700/50 border border-white/10">
+            <span className="text-xs px-2 py-1 rounded-full bg-blue-600/20 border border-blue-600/30 text-blue-300">
               {caseItem.industry}
             </span>
-            <span className="text-xs px-2 py-1 rounded-full bg-space-700/50 border border-white/10">
+            <span className="text-xs px-2 py-1 rounded-full bg-indigo-600/20 border border-indigo-600/30 text-indigo-300">
               {caseItem.aiType}
             </span>
-            <span className="text-xs px-2 py-1 rounded-full bg-space-700/50 border border-white/10">
+            <span className="text-xs px-2 py-1 rounded-full bg-slate-600/30 border border-slate-500/20 text-slate-300">
               {caseItem.budget}
             </span>
           </div>
@@ -183,7 +183,7 @@ export default function CaseLibrary() {
           </div>
           
           <div className="mt-auto">
-            <div className="mb-3 bg-gradient-to-r from-blue-500/20 to-purple-500/20 p-3 rounded-lg border border-blue-500/10">
+            <div className="mb-3 bg-blue-600/10 p-3 rounded-lg border border-blue-600/20">
               <h5 className="text-sm font-medium text-blue-400">Ключевой KPI:</h5>
               <p className="text-lg font-semibold text-white">{caseItem.kpi}</p>
             </div>
@@ -214,7 +214,7 @@ export default function CaseLibrary() {
                 placeholder="Проблема или решение..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="bg-space-800/50"
+                className="bg-slate-800/50"
               />
             </div>
             
