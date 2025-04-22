@@ -22,7 +22,13 @@ export default function Login() {
   const handleTelegramLogin = () => {
     // For demo purposes, simulate Telegram login
     login({ id: 1, username: "anna", displayName: "Анна" });
-    navigate("/onboarding");
+    
+    toast({
+      title: "Успешный вход",
+      description: "Добро пожаловать, Анна!",
+    });
+    
+    navigate("/dashboard");
   };
 
   const handleStartJourney = () => {
@@ -55,7 +61,7 @@ export default function Login() {
         description: `Добро пожаловать, ${userData.displayName || userData.username}!`,
       });
       
-      navigate("/orbital-lobby");
+      navigate("/dashboard");
     } catch (error) {
       console.error("Login error:", error);
       setError(error instanceof Error ? error.message : "Произошла ошибка при входе");
@@ -224,11 +230,12 @@ export default function Login() {
 
             <div className="mt-6 text-center text-white/50 text-sm">
               Создавая аккаунт, вы соглашаетесь с{" "}
-              <Link href="/terms">
-                <a className="text-[#B28DFF] hover:text-primary-200">
-                  условиями использования
-                </a>
-              </Link>
+              <span 
+                className="text-[#B28DFF] hover:text-[#D2B8FF] cursor-pointer"
+                onClick={() => navigate("/terms")}
+              >
+                условиями использования
+              </span>
             </div>
           </Glassmorphism>
         </motion.div>

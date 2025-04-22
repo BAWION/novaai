@@ -30,16 +30,17 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ component: Component, p
   const { isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
   
-  useEffect(() => {
-    if (!isAuthenticated) {
-      setLocation("/login");
-    }
-  }, [isAuthenticated, setLocation]);
+  // Проверяем авторизацию и перенаправляем при необходимости
+  if (!isAuthenticated) {
+    // Перенаправляем на страницу авторизации
+    setTimeout(() => setLocation("/login"), 0);
+    return null;
+  }
   
-  // Use Route from wouter to handle the path
+  // Если пользователь авторизован, отрисовываем компонент
   return (
     <Route path={path}>
-      {isAuthenticated ? <Component /> : null}
+      <Component />
     </Route>
   );
 };
