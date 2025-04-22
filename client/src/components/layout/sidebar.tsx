@@ -104,13 +104,12 @@ export function Sidebar() {
       {/* Sidebar */}
       <motion.div
         className={`fixed top-0 bottom-0 left-0 z-50 
-        transition-all duration-300 transform ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
-        } bg-space-800/90 backdrop-blur-sm border-r border-white/10 flex flex-col`}
+        transition-all duration-300 transform
+        bg-space-800/90 backdrop-blur-sm border-r border-white/10 flex flex-col`}
         initial={false}
         animate={{ 
-          width: isMobile ? (isOpen ? 256 : 0) : (isOpen ? 256 : 80),
-          x: isMobile && !isOpen ? -256 : 0
+          width: isOpen ? 256 : 80,
+          x: 0
         }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
       >
@@ -169,10 +168,10 @@ export function Sidebar() {
 
       {/* Toggle button (показываем всегда) */}
       <button
-        className={`fixed ${isMobile ? 'top-4 left-4' : 'top-4 left-4 md:left-[270px]'} z-50 w-10 h-10 rounded-lg bg-space-800 border border-white/20 flex items-center justify-center transform transition-all duration-300 ${isOpen && !isMobile ? 'translate-x-[180px]' : ''}`}
+        className={`fixed top-4 left-[240px] z-50 w-10 h-10 rounded-lg bg-space-800 border border-white/20 flex items-center justify-center transform transition-all duration-300 ${isOpen ? 'translate-x-0' : 'translate-x-[-160px]'}`}
         onClick={() => setIsOpen(!isOpen)}
       >
-        <i className={`fas ${isOpen ? "fa-chevron-left" : "fa-bars"} text-white`}></i>
+        <i className={`fas ${isOpen ? "fa-chevron-left" : "fa-chevron-right"} text-white`}></i>
       </button>
     </>
   );
