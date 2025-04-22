@@ -20,8 +20,8 @@ export function DashboardLayout({ children, title, subtitle }: DashboardLayoutPr
       
       <Sidebar />
 
-      <main className={`flex-1 transition-all duration-300 ${isMobile ? 'ml-0' : 'ml-20'}`}>
-        <div className="container mx-auto px-4 py-4 mt-16">
+      <main className={`flex-1 transition-all duration-300 ${isMobile ? 'pl-0' : 'pl-[90px]'}`}>
+        <div className="container mx-auto px-4 py-4 pt-16">
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -34,7 +34,7 @@ export function DashboardLayout({ children, title, subtitle }: DashboardLayoutPr
             {subtitle && <p className="text-white/70 text-md mt-1">{subtitle}</p>}
           </motion.div>
 
-          <Glassmorphism className="rounded-xl p-4 md:p-6 w-full mb-6">
+          <Glassmorphism className="rounded-xl p-4 md:p-6 w-full mb-6 overflow-x-auto">
             {children}
           </Glassmorphism>
         </div>
