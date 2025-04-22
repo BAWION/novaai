@@ -117,11 +117,12 @@ export default function Dashboard() {
                     </ProgressRing>
                   </div>
                 </div>
-                <Link href={`/courses/${lastActivity.courseId}/lessons`}>
-                  <a className="mt-4 inline-block bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:from-[#4922B2] hover:to-[#1682A1] text-white py-2 px-4 rounded-lg font-medium transition duration-300 w-full text-center">
-                    Продолжить <i className="fas fa-arrow-right ml-2"></i>
-                  </a>
-                </Link>
+                <button
+                  onClick={() => window.location.href = `/courses/${lastActivity.courseId}/lessons`}
+                  className="mt-4 inline-block bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:from-[#4922B2] hover:to-[#1682A1] text-white py-2 px-4 rounded-lg font-medium transition duration-300 w-full text-center"
+                >
+                  Продолжить <i className="fas fa-arrow-right ml-2"></i>
+                </button>
               </Glassmorphism>
             </motion.div>
           )}

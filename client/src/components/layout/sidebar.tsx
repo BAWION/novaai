@@ -76,12 +76,12 @@ export function Sidebar() {
   };
 
   const navigationItems = [
-    { icon: "fa-tachometer-alt", label: "Dashboard", to: "/dashboard" },
-    { icon: "fa-route", label: "Roadmap", to: "/roadmap" },
-    { icon: "fa-flask", label: "LabHub", to: "/labhub" },
-    { icon: "fa-book", label: "Courses", to: "/courses" },
-    { icon: "fa-users", label: "Community", to: "/community" },
-    { icon: "fa-user-astronaut", label: "Profile", to: "/profile" },
+    { icon: "fa-tachometer-alt", label: "Панель управления", to: "/dashboard" },
+    { icon: "fa-route", label: "Дорожная карта", to: "/roadmap" },
+    { icon: "fa-flask", label: "Лаборатория", to: "/labhub" },
+    { icon: "fa-book", label: "Курсы", to: "/courses" },
+    { icon: "fa-users", label: "Сообщество", to: "/community" },
+    { icon: "fa-user-astronaut", label: "Профиль", to: "/profile" },
   ];
 
   return (
@@ -96,11 +96,8 @@ export function Sidebar() {
 
       {/* Sidebar */}
       <motion.div
-        className={`fixed top-0 bottom-0 left-0 z-50 ${
-          isMobile 
-            ? "w-64" 
-            : "w-20 hover:w-64"
-        } transition-all duration-300 transform ${
+        className={`fixed top-0 bottom-0 left-0 z-50 
+        transition-all duration-300 transform ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         } bg-space-800/90 backdrop-blur-sm border-r border-white/10 flex flex-col`}
         initial={false}
@@ -145,7 +142,7 @@ export function Sidebar() {
           <div className="pt-6 mt-6 border-t border-white/10">
             <NavItem
               icon="fa-cog"
-              label="Settings"
+              label="Настройки"
               to="/settings"
               isActive={location === "/settings"}
               onClick={closeSidebar}
@@ -157,21 +154,19 @@ export function Sidebar() {
               <div className="w-10 h-10 flex items-center justify-center rounded-lg bg-white/10 text-white/60">
                 <i className="fas fa-sign-out-alt text-lg"></i>
               </div>
-              <span className="ml-3 font-medium text-white/70">Logout</span>
+              <span className="ml-3 font-medium text-white/70">Выйти</span>
             </button>
           </div>
         </div>
       </motion.div>
 
-      {/* Mobile toggle button */}
-      {isMobile && (
-        <button
-          className="fixed top-4 left-4 z-50 w-10 h-10 rounded-lg bg-space-800 border border-white/20 flex items-center justify-center"
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          <i className={`fas ${isOpen ? "fa-times" : "fa-bars"} text-white`}></i>
-        </button>
-      )}
+      {/* Toggle button (показываем всегда) */}
+      <button
+        className={`fixed ${isMobile ? 'top-4 left-4' : 'top-4 left-4 md:left-[270px]'} z-50 w-10 h-10 rounded-lg bg-space-800 border border-white/20 flex items-center justify-center transform transition-all duration-300 ${isOpen && !isMobile ? 'translate-x-[180px]' : ''}`}
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <i className={`fas ${isOpen ? "fa-chevron-left" : "fa-bars"} text-white`}></i>
+      </button>
     </>
   );
 }
