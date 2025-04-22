@@ -13,13 +13,13 @@ interface OrbitalLayoutProps {
 
 export function OrbitalLayout({ onCourseSelect }: OrbitalLayoutProps) {
   const [hoveredCourse, setHoveredCourse] = useState<string | null>(null);
-  const [orbitRadius, setOrbitRadius] = useState(150);
+  const [orbitRadius, setOrbitRadius] = useState(180);
 
   // Adjust orbit radius based on container size
   useEffect(() => {
     function handleResize() {
       const containerWidth = document.getElementById('orbital-container')?.clientWidth || 300;
-      setOrbitRadius(Math.min(containerWidth / 2 - 80, 220));
+      setOrbitRadius(Math.min(containerWidth / 2 - 100, 250));
     }
 
     handleResize();
