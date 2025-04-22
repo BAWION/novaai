@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { Glassmorphism } from "@/components/ui/glassmorphism";
@@ -8,8 +8,8 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 
 export default function Login() {
-  const [, navigate] = useLocation();
-  const { login } = useAuth();
+  const [location, navigate] = useLocation();
+  const { login, isAuthenticated, user } = useAuth();
   const { toast } = useToast();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [showLoginForm, setShowLoginForm] = useState(false);
@@ -18,17 +18,61 @@ export default function Login() {
     password: ""
   });
   const [error, setError] = useState("");
+  
+  // Если пользователь уже авторизован и пытается открыть страницу логина,
+  // автоматически перенаправляем его на главную страницу
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      console.log("Пользователь уже авторизован, перенаправление на dashboard");
+      navigate("/dashboard");
+    }
+  }, [isAuthenticated, user, navigate]);
 
-  const handleTelegramLogin = () => {
-    // For demo purposes, simulate Telegram login
-    login({ id: 1, username: "anna", displayName: "Анна" });
+  const handleTelegramLogin = async () => {
+    // Показываем индикатор загрузки
+    setIsLoggingIn(true);
     
-    toast({
-      title: "Успешный вход",
-      description: "Добро пожаловать, Анна!",
-    });
-    
-    navigate("/dashboard");
+    try {
+      // Для демо-версии, имитируем вход через Telegram, используя наш API
+      const telegramUser = {
+        username: "telegram_user", 
+        displayName: "Пользователь Telegram"
+      };
+      
+      // Сначала пытаемся получить сессию от сервера
+      const response = await apiRequest("POST", "/api/auth/login", telegramUser);
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Ошибка входа через Telegram");
+      }
+      
+      const userData = await response.json();
+      
+      // После успешного ответа обновляем состояние аутентификации
+      login(userData);
+      
+      toast({
+        title: "Успешный вход через Telegram",
+        description: `Добро пожаловать, ${userData.displayName || userData.username}!`,
+      });
+      
+      // Делаем небольшую задержку перед переходом
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 100);
+    } catch (error) {
+      console.error("Telegram login error:", error);
+      setError(error instanceof Error ? error.message : "Произошла ошибка при входе через Telegram");
+      
+      toast({
+        variant: "destructive",
+        title: "Ошибка входа через Telegram",
+        description: error instanceof Error ? error.message : "Произошла ошибка при входе",
+      });
+    } finally {
+      setIsLoggingIn(false);
+    }
   };
 
   const handleStartJourney = () => {

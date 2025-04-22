@@ -27,14 +27,33 @@ interface ProtectedRouteProps {
 
 // Protected route component
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ component: Component, path }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const [, setLocation] = useLocation();
   
-  // Проверяем авторизацию и перенаправляем при необходимости
-  if (!isAuthenticated) {
-    // Перенаправляем на страницу авторизации
-    setTimeout(() => setLocation("/login"), 0);
-    return null;
+  // Используем useEffect для выполнения проверки и перенаправления после рендеринга
+  useEffect(() => {
+    // Получаем актуальное состояние авторизации пользователя
+    if (!isAuthenticated || !user) {
+      // Перенаправляем на страницу авторизации с небольшой задержкой
+      // чтобы уйти от ситуации race condition
+      const redirectTimer = setTimeout(() => {
+        console.log("Перенаправление на /login, так как пользователь не авторизован");
+        setLocation("/login");
+      }, 50);
+      
+      return () => clearTimeout(redirectTimer);
+    }
+  }, [isAuthenticated, user, setLocation]);
+  
+  // Отображаем загрузку или пустой экран во время проверки авторизации 
+  if (!isAuthenticated || !user) {
+    return (
+      <Route path={path}>
+        <div className="flex items-center justify-center min-h-screen bg-space-900">
+          <div className="w-12 h-12 rounded-full border-4 border-primary/30 border-t-primary animate-spin"></div>
+        </div>
+      </Route>
+    );
   }
   
   // Если пользователь авторизован, отрисовываем компонент
