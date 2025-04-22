@@ -301,13 +301,13 @@ export default function CaseLibrary() {
         </div>
         
         {/* CTA для добавления кейса */}
-        <Glassmorphism className="p-6 rounded-xl border border-[#6E3AFF]/30">
+        <Glassmorphism className="p-6 rounded-xl border border-blue-600/30">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div>
               <h3 className="text-xl font-semibold mb-2">У вас есть кейс внедрения ИИ?</h3>
               <p className="text-white/70">Поделитесь своим опытом с сообществом и получите экспертную оценку ROI</p>
             </div>
-            <Button className="bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:from-[#5E2AFF] hover:to-[#1E9AE1] whitespace-nowrap">
+            <Button className="bg-blue-600 hover:bg-blue-700 whitespace-nowrap">
               <i className="fas fa-plus-circle mr-2"></i>
               Добавить кейс
             </Button>
