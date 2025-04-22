@@ -20,8 +20,8 @@ export function DashboardLayout({ children, title, subtitle }: DashboardLayoutPr
       
       <Sidebar />
 
-      <main className={`flex-1 transition-all duration-300 ${isMobile ? 'pl-0' : 'pl-[100px]'}`}>
-        <div className="container mx-auto px-4 py-4 pt-16 md:pl-6">
+      <main className={`flex-1 transition-all duration-300 ${isMobile ? 'pl-0' : 'pl-[260px]'}`}>
+        <div className="container mx-auto px-6 py-4 pt-16">
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
