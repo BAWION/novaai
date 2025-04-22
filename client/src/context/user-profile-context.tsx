@@ -18,6 +18,7 @@ interface UserProfileData {
   goal: UserGoal;
   recommendedTrack: CourseTrack;
   displayName?: string;
+  streakDays: number;
 }
 
 interface UserProfileContextType {
@@ -60,7 +61,8 @@ export function UserProfileProvider({ children }: { children: React.ReactNode })
           interest: "machine-learning",
           goal: "find-internship",
           recommendedTrack: "zero-to-hero",
-          displayName: user.displayName || "Анна"
+          displayName: user.displayName || "Анна",
+          streakDays: Math.floor(Math.random() * 7) + 1 // Random streak between 1-7 days
         });
       }
     }
@@ -83,7 +85,8 @@ export function UserProfileProvider({ children }: { children: React.ReactNode })
             interest: data.interest || "machine-learning",
             goal: data.goal || "find-internship",
             recommendedTrack: data.recommendedTrack || "zero-to-hero",
-            displayName: user?.displayName || "Анна"
+            displayName: user?.displayName || "Анна",
+            streakDays: data.streakDays || Math.floor(Math.random() * 7) + 1
           };
         }
         return { ...prevProfile, ...data };
