@@ -22,17 +22,21 @@ export function DashboardLayout({ children, title, subtitle }: DashboardLayoutPr
 
       <main className={`flex-1 transition-all duration-300 ${isMobile ? 'pl-0' : 'pl-[260px]'}`}>
         <div className="container mx-auto px-6 py-4 pt-16">
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="mb-6"
-          >
-            <h1 className="font-orbitron text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#B28DFF] via-[#8BE0F7] to-[#B28DFF]">
-              {title}
-            </h1>
-            {subtitle && <p className="text-white/70 text-md mt-1">{subtitle}</p>}
-          </motion.div>
+          {(title || subtitle) && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="mb-6"
+            >
+              {title && (
+                <h1 className="font-orbitron text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#B28DFF] via-[#8BE0F7] to-[#B28DFF]">
+                  {title}
+                </h1>
+              )}
+              {subtitle && <p className="text-white/70 text-md mt-1">{subtitle}</p>}
+            </motion.div>
+          )}
 
           <Glassmorphism className="rounded-xl p-4 md:p-6 w-full mb-6 overflow-x-auto">
             {children}
