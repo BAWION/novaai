@@ -47,21 +47,32 @@ export default function Login() {
     setError("");
 
     try {
+      // 1. Получаем данные с сервера
       const response = await apiRequest("POST", "/api/auth/login", credentials);
+      
+      // 2. Проверяем ответ
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || "Ошибка входа");
       }
       
+      // 3. Парсим данные пользователя
       const userData = await response.json();
+      
+      // 4. Обновляем состояние авторизации
       login(userData);
       
+      // 5. Показываем сообщение об успешном входе
       toast({
         title: "Успешный вход",
         description: `Добро пожаловать, ${userData.displayName || userData.username}!`,
       });
       
-      navigate("/dashboard");
+      // 6. Перенаправляем на dashboard с небольшой задержкой,
+      // чтобы состояние Auth Context успело обновиться
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 100);
     } catch (error) {
       console.error("Login error:", error);
       setError(error instanceof Error ? error.message : "Произошла ошибка при входе");

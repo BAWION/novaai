@@ -44,16 +44,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = async (userData: User) => {
-    // In a real app, you would make an API call here
-    // For demo purposes, we'll just set the user directly
+    // Сначала устанавливаем пользователя локально для быстрого отклика UI
     setUser(userData);
     
-    // Try to save the user in the backend
-    try {
-      await apiRequest("POST", "/api/auth/login", userData);
-    } catch (error) {
-      console.error("Failed to sync login with server", error);
-    }
+    // При этом мы НЕ синхронизируем с сервером здесь:
+    // синхронизация с сервером происходит в самом компоненте Login,
+    // который вызывает API и только после успешного ответа вызывает login()
   };
 
   const logout = async () => {
