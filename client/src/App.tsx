@@ -23,6 +23,7 @@ import NotFound from "@/pages/not-found";
 import BusinessAIOverview from "@/pages/business";
 import CaseLibrary from "@/pages/business/cases";
 import CourseAI from "@/pages/course-ai";
+import CoursePage from "@/pages/course-page";
 
 interface ProtectedRouteProps {
   component: React.ComponentType;
@@ -102,6 +103,9 @@ function Router() {
           
           {/* Курсы с ИИ-ассистентом */}
           <ProtectedRoute path="/course-ai/:courseId?" component={CourseAI} />
+          
+          {/* Детальная страница курса */}
+          <ProtectedRoute path="/courses/:slug" component={CoursePage} />
           
           <Route component={NotFound} />
         </Switch>

@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { CourseOutline, QuizComponent, AIAssistantPanel } from "@/components/courses";
 import { Button } from "@/components/ui/button";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
-import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts.jsx";
 import { cn } from "@/lib/utils";
 
 // Пример данных для демонстрации UI
