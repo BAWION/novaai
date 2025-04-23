@@ -423,21 +423,22 @@ export default function Courses() {
                   <i className="fas fa-chevron-down text-xs"></i>
                 </div>
                 
-                {/* Этот блок был бы скрыт в реальном приложении и показывался по клику */}
-                {/* Но для демонстрации в макете мы делаем его видимым */}
-                <div className="absolute z-10 top-[105%] left-0 right-0 bg-space-900 border border-white/10 rounded-lg overflow-hidden shadow-lg py-1">
-                  <div className={`px-4 py-2 cursor-pointer ${!selectedCategory ? 'bg-primary/20 text-white' : 'hover:bg-space-800 text-white/70'}`}>
-                    Все категории
-                  </div>
-                  {categories.map(category => (
-                    <div 
-                      key={category} 
-                      className={`px-4 py-2 cursor-pointer ${selectedCategory === category ? 'bg-primary/20 text-white' : 'hover:bg-space-800 text-white/70'}`}
-                    >
-                      {category}
+                {/* В реальном приложении тут было бы условие вида {isOpen && (... */}
+                {false && (
+                  <div className="absolute z-10 top-[105%] left-0 right-0 bg-space-900 border border-white/10 rounded-lg overflow-hidden shadow-lg py-1">
+                    <div className={`px-4 py-2 cursor-pointer ${!selectedCategory ? 'bg-primary/20 text-white' : 'hover:bg-space-800 text-white/70'}`}>
+                      Все категории
                     </div>
-                  ))}
-                </div>
+                    {categories.map(category => (
+                      <div 
+                        key={category} 
+                        className={`px-4 py-2 cursor-pointer ${selectedCategory === category ? 'bg-primary/20 text-white' : 'hover:bg-space-800 text-white/70'}`}
+                      >
+                        {category}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
               
               <div className="relative w-1/2">
@@ -455,21 +456,23 @@ export default function Courses() {
                   <i className="fas fa-chevron-down text-xs"></i>
                 </div>
                 
-                {/* Демонстрационное открытое выпадающее меню */}
-                <div className="absolute z-10 top-[105%] left-0 right-0 bg-space-900 border border-white/10 rounded-lg overflow-hidden shadow-lg py-1">
-                  <div className={`px-4 py-2 cursor-pointer ${!selectedLevel ? 'bg-primary/20 text-white' : 'hover:bg-space-800 text-white/70'}`}>
-                    Все уровни
+                {/* В реальном приложении тут было бы условие вида {isOpen && (... */}
+                {false && (
+                  <div className="absolute z-10 top-[105%] left-0 right-0 bg-space-900 border border-white/10 rounded-lg overflow-hidden shadow-lg py-1">
+                    <div className={`px-4 py-2 cursor-pointer ${!selectedLevel ? 'bg-primary/20 text-white' : 'hover:bg-space-800 text-white/70'}`}>
+                      Все уровни
+                    </div>
+                    <div className={`px-4 py-2 cursor-pointer ${selectedLevel === 'beginner' ? 'bg-primary/20 text-white' : 'hover:bg-space-800 text-white/70'}`}>
+                      Начальный
+                    </div>
+                    <div className={`px-4 py-2 cursor-pointer ${selectedLevel === 'intermediate' ? 'bg-primary/20 text-white' : 'hover:bg-space-800 text-white/70'}`}>
+                      Средний
+                    </div>
+                    <div className={`px-4 py-2 cursor-pointer ${selectedLevel === 'advanced' ? 'bg-primary/20 text-white' : 'hover:bg-space-800 text-white/70'}`}>
+                      Продвинутый
+                    </div>
                   </div>
-                  <div className={`px-4 py-2 cursor-pointer ${selectedLevel === 'beginner' ? 'bg-primary/20 text-white' : 'hover:bg-space-800 text-white/70'}`}>
-                    Начальный
-                  </div>
-                  <div className={`px-4 py-2 cursor-pointer ${selectedLevel === 'intermediate' ? 'bg-primary/20 text-white' : 'hover:bg-space-800 text-white/70'}`}>
-                    Средний
-                  </div>
-                  <div className={`px-4 py-2 cursor-pointer ${selectedLevel === 'advanced' ? 'bg-primary/20 text-white' : 'hover:bg-space-800 text-white/70'}`}>
-                    Продвинутый
-                  </div>
-                </div>
+                )}
               </div>
             </div>
           </div>
