@@ -26,14 +26,12 @@ export function DashboardLayout({ children, title, subtitle }: DashboardLayoutPr
     <div className="min-h-screen w-full flex flex-col bg-space-900">
       {!isBusinessSection && <ParticlesBackground />}
       
-      <Sidebar />
+      {!isMobile && <Sidebar />}
       <BottomNavigation />
 
       <main 
         className={`flex-1 transition-all will-change-transform duration-300 ease-out ${
-          isMobile ? 
-          (isOpen ? 'ml-0' : 'ml-0') : 
-          (isOpen ? 'ml-[256px]' : 'ml-[80px]')
+          isMobile ? 'ml-0' : (isOpen ? 'ml-[256px]' : 'ml-[80px]')
         } ${isMobile ? 'pb-20' : ''}`}
         style={{ 
           transform: 'translateZ(0)', 
