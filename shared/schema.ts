@@ -34,16 +34,24 @@ export const userProfiles = pgTable("user_profiles", {
   progress: integer("progress").default(0), // 0-100
   streakDays: integer("streak_days").default(0),
   lastActiveAt: timestamp("last_active_at").defaultNow(),
+  // Расширенные поля профиля для онбординга
+  industry: text("industry"), // it, finance, healthcare, education, manufacturing, etc.
+  jobTitle: text("job_title"), // Текущая позиция пользователя
+  specificGoals: text("specific_goals").array(), // Конкретные цели, например ["изучить_машинное_обучение", "построить_портфолио"]
+  preferredLearningStyle: text("preferred_learning_style"), // visual, practical, theoretical, mixed
+  availableTimePerWeek: integer("available_time_per_week"), // Доступное время в часах
+  preferredDifficulty: text("preferred_difficulty"), // easy, moderate, challenging
+  completedOnboarding: integer("completed_onboarding").default(0), // 0 - не пройден онбординг, 1 - пройден
+  recommendedCourseIds: json("recommended_course_ids").$type<number[]>(), // ID рекомендованных курсов
+  onboardingCompletedAt: timestamp("onboarding_completed_at"), // Когда был завершен онбординг
 });
 
-export const insertUserProfileSchema = createInsertSchema(userProfiles).pick({
-  userId: true,
-  role: true,
-  pythonLevel: true,
-  experience: true,
-  interest: true,
-  goal: true,
-  recommendedTrack: true,
+export const insertUserProfileSchema = createInsertSchema(userProfiles).omit({
+  id: true,
+  progress: true,
+  streakDays: true,
+  lastActiveAt: true,
+  onboardingCompletedAt: true,
 });
 
 // Skills model
