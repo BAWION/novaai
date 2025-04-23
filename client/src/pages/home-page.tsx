@@ -6,10 +6,10 @@ import { Link } from "wouter";
 import { ParticlesBackground } from "@/components/particles-background";
 
 // Пути к скриншотам для демонстрации (для Vite)
-const coursesCatalogImage = '/screenshots/courses-catalog.png';
-const labhubImage = '/screenshots/labhub.png';
-const businessAiImage = '/screenshots/business-ai.png';
-const profileImage = '/screenshots/profile.png';
+const coursesCatalogImage = './screenshots/courses-catalog.png';
+const labhubImage = './screenshots/labhub.png';
+const businessAiImage = './screenshots/business-ai.png';
+const profileImage = './screenshots/profile.png';
 
 export default function HomePage() {
 
@@ -230,6 +230,57 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* Platform Demo */}
+        <section className="py-12 px-6 bg-black/30">
+          <div className="container mx-auto">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7 }}
+            >
+              <Glassmorphism className="px-6 py-10 rounded-xl border border-white/10">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="max-w-lg">
+                    <h2 className="text-3xl font-bold mb-6">
+                      Ваш персональный путь <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">в мир AI</span>
+                    </h2>
+                    <p className="text-white/80 text-lg mb-8">
+                      NovaAI University создает персонализированный маршрут обучения на основе ваших целей, опыта и темпа обучения.
+                    </p>
+                    <ul className="space-y-4 mb-8">
+                      <li className="flex gap-3 items-start">
+                        <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-primary flex-shrink-0 mt-1">
+                          <i className="fas fa-check text-sm"></i>
+                        </div>
+                        <p className="text-white/80">Интерактивные дашборды для отслеживания прогресса</p>
+                      </li>
+                      <li className="flex gap-3 items-start">
+                        <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-primary flex-shrink-0 mt-1">
+                          <i className="fas fa-check text-sm"></i>
+                        </div>
+                        <p className="text-white/80">AI-подбор курсов на основе ваших целей и опыта</p>
+                      </li>
+                      <li className="flex gap-3 items-start">
+                        <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-primary flex-shrink-0 mt-1">
+                          <i className="fas fa-check text-sm"></i>
+                        </div>
+                        <p className="text-white/80">Визуализация прогресса в освоении навыков</p>
+                      </li>
+                    </ul>
+                    <Link href="/onboarding">
+                      <Button>Персонализировать свой путь</Button>
+                    </Link>
+                  </div>
+                  <div className="relative overflow-hidden rounded-lg border border-white/10">
+                    <img src="./screenshots/courses-catalog.png" alt="Dashboard Preview" className="w-full h-auto" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-black/0 pointer-events-none"></div>
+                  </div>
+                </div>
+              </Glassmorphism>
+            </motion.div>
+          </div>
+        </section>
+
         {/* Platform Screenshots */}
         <section id="screenshots" className="py-20 px-6 bg-black/20">
           <div className="container mx-auto">
@@ -260,11 +311,13 @@ export default function HomePage() {
                       </div>
                     </div>
                   </div>
-                  <img 
-                    src={screenshot.image} 
-                    alt={screenshot.title}
-                    className="w-full h-auto"
-                  />
+                  <div className="p-2 bg-black/40">
+                    <img 
+                      src={screenshot.image} 
+                      alt={screenshot.title}
+                      className="w-full h-auto object-contain block border border-white/10 rounded"
+                    />
+                  </div>
                 </motion.div>
               ))}
             </div>
