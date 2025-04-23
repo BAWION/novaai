@@ -308,12 +308,38 @@ export default function HomePage() {
                     </div>
                   </div>
                 </div>
-                <div className="bg-black/40 p-2 flex-grow overflow-hidden">
-                  <img 
-                    src="/screenshots_new/courses-catalog.png" 
-                    alt="Каталог курсов NovaAI" 
-                    className="w-full h-auto rounded border border-white/10"
-                  />
+                <div className="bg-black/40 p-2 flex-grow">
+                  <div className="rounded border border-white/10 bg-[#070218] p-3 h-full text-left">
+                    <h3 className="text-lg font-semibold text-purple-300 mb-2">Каталог курсов</h3>
+                    <p className="text-sm text-gray-300 mb-4">Исследуйте нашу библиотеку курсов по AI и Data Science</p>
+                    
+                    <div className="relative rounded-lg bg-[#0a0225] p-2 mb-3">
+                      <div className="bg-slate-700/20 rounded h-8 w-full mb-3"></div>
+                      
+                      <div className="grid grid-cols-3 gap-4 mt-4">
+                        <div className="rounded-lg bg-[#1a0d3a] p-3">
+                          <div className="w-8 h-8 rounded-lg bg-purple-600/50 mb-2"></div>
+                          <div className="h-4 w-32 bg-white/10 rounded mb-2"></div>
+                          <div className="h-3 w-24 bg-white/5 rounded mb-4"></div>
+                          <div className="h-2 w-full bg-purple-500/30 rounded-full mt-4"></div>
+                        </div>
+                        
+                        <div className="rounded-lg bg-[#0d2636] p-3">
+                          <div className="w-8 h-8 rounded-lg bg-cyan-600/50 mb-2"></div>
+                          <div className="h-4 w-40 bg-white/10 rounded mb-2"></div>
+                          <div className="h-3 w-24 bg-white/5 rounded mb-4"></div>
+                          <div className="h-2 w-full bg-cyan-500/30 rounded-full mt-4"></div>
+                        </div>
+                        
+                        <div className="rounded-lg bg-[#301a28] p-3">
+                          <div className="w-8 h-8 rounded-lg bg-pink-600/50 mb-2"></div>
+                          <div className="h-4 w-36 bg-white/10 rounded mb-2"></div>
+                          <div className="h-3 w-24 bg-white/5 rounded mb-4"></div>
+                          <div className="h-2 w-full bg-pink-500/30 rounded-full mt-4"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </motion.div>
               
@@ -334,12 +360,44 @@ export default function HomePage() {
                     </div>
                   </div>
                 </div>
-                <div className="bg-black/40 p-2 flex-grow overflow-hidden">
-                  <img 
-                    src="/screenshots_new/labhub.png" 
-                    alt="LabHub - Интерактивная лаборатория" 
-                    className="w-full h-auto rounded border border-white/10"
-                  />
+                <div className="bg-black/40 p-2 flex-grow">
+                  <div className="rounded border border-white/10 bg-[#070218] p-3 h-full text-left">
+                    <h3 className="text-lg font-semibold text-purple-300 mb-2">LabHub</h3>
+                    <p className="text-sm text-gray-300 mb-4">Интерактивная лаборатория для практики Data Science и ML</p>
+                    
+                    <div className="flex mb-4">
+                      <div className="bg-slate-800/50 px-3 py-1 rounded-l-md border-r border-slate-700">Задания</div>
+                      <div className="bg-slate-900/30 px-3 py-1 rounded-r-md">История</div>
+                    </div>
+                    
+                    <h4 className="text-white font-medium mb-3">Доступные задания</h4>
+                    
+                    <div className="space-y-3">
+                      <div className="rounded-lg border-l-4 border-l-violet-600 bg-[#0a0225] p-3">
+                        <div className="flex justify-between mb-1">
+                          <div className="font-medium">Линейная регрессия</div>
+                          <div className="text-xs text-amber-400">Средняя</div>
+                        </div>
+                        <p className="text-xs text-gray-400 mb-3">Реализуйте алгоритм линейной регрессии...</p>
+                        <div className="flex justify-between items-center">
+                          <div className="text-xs text-gray-500">2-3 часа</div>
+                          <div className="px-3 py-0.5 rounded bg-slate-800 text-xs">Начать</div>
+                        </div>
+                      </div>
+                      
+                      <div className="rounded-lg border-l-4 border-l-red-600 bg-[#0a0225] p-3">
+                        <div className="flex justify-between mb-1">
+                          <div className="font-medium">Анализ текстовых данных</div>
+                          <div className="text-xs text-red-400">Сложная</div>
+                        </div>
+                        <p className="text-xs text-gray-400 mb-3">Используйте NLP-библиотеки для анализа...</p>
+                        <div className="flex justify-between items-center">
+                          <div className="text-xs text-gray-500">3-4 часа</div>
+                          <div className="px-3 py-0.5 rounded bg-slate-800 text-xs">Начать</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </motion.div>
               
@@ -360,12 +418,44 @@ export default function HomePage() {
                     </div>
                   </div>
                 </div>
-                <div className="bg-black/40 p-2 flex-grow overflow-hidden">
-                  <img 
-                    src="/screenshots_new/business-ai.png" 
-                    alt="Business AI Module" 
-                    className="w-full h-auto rounded border border-white/10"
-                  />
+                <div className="bg-black/40 p-2 flex-grow">
+                  <div className="rounded border border-white/10 bg-[#070218] p-3 h-full text-left">
+                    <h3 className="text-lg font-semibold text-blue-300 mb-2">Business AI Module</h3>
+                    <p className="text-sm text-gray-300 mb-4">Внедрение ИИ-решений в бизнес-процессы</p>
+                    
+                    <div className="mb-4 bg-black/30 rounded-lg p-3">
+                      <h4 className="text-white font-medium mb-2">Трансформируйте бизнес с помощью ИИ</h4>
+                      <p className="text-xs text-gray-400 mb-3">Business AI Module поможет руководителям и продукт-менеджерам быстро определить, какие ИИ-решения из экосистемы NovaAI подойдут для бизнеса, оценить стоимость внедрения и рассчитать ожидаемый ROI.</p>
+                      <div className="flex gap-2 mb-3">
+                        <div className="px-3 py-1 rounded bg-blue-800/30 text-xs flex items-center gap-1">
+                          <i className="fas fa-play-circle"></i>
+                          <span>Смотреть видео-обзор (1 мин)</span>
+                        </div>
+                        <div className="px-3 py-1 rounded bg-slate-800/50 text-xs flex items-center gap-1">
+                          <i className="fas fa-chart-bar"></i>
+                          <span>Оценить готовность к ИИ</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <h4 className="text-white text-sm font-medium mb-2">Карта применения ИИ по отраслям</h4>
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs">Финансы & FinTech</span>
+                        <div className="w-1/2 bg-slate-800/30 rounded-full h-1.5">
+                          <div className="bg-blue-500 h-1.5 rounded-full" style={{width: '85%'}}></div>
+                        </div>
+                        <span className="text-xs">85%</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs">Розничная торговля</span>
+                        <div className="w-1/2 bg-slate-800/30 rounded-full h-1.5">
+                          <div className="bg-purple-500 h-1.5 rounded-full" style={{width: '75%'}}></div>
+                        </div>
+                        <span className="text-xs">75%</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </motion.div>
               
@@ -386,12 +476,58 @@ export default function HomePage() {
                     </div>
                   </div>
                 </div>
-                <div className="bg-black/40 p-2 flex-grow overflow-hidden">
-                  <img 
-                    src="/screenshots_new/profile.png" 
-                    alt="Профиль пользователя" 
-                    className="w-full h-auto rounded border border-white/10"
-                  />
+                <div className="bg-black/40 p-2 flex-grow">
+                  <div className="rounded border border-white/10 bg-[#070218] p-3 h-full text-left">
+                    <h3 className="text-lg font-semibold text-purple-300 mb-2">Профиль пользователя</h3>
+                    <p className="text-sm text-gray-300 mb-4">Управление профилем, достижения и сертификаты</p>
+                    
+                    <div className="flex mb-4 bg-[#0a0225] rounded-md overflow-hidden">
+                      <div className="bg-slate-800/50 px-3 py-1 rounded-l-md border-r border-slate-700">Обзор</div>
+                      <div className="bg-slate-900/30 px-3 py-1">Сертификаты</div>
+                      <div className="bg-slate-900/30 px-3 py-1">Курсы</div>
+                      <div className="bg-slate-900/30 px-3 py-1 rounded-r-md">Достижения</div>
+                    </div>
+                    
+                    <div className="grid grid-cols-3 gap-4 mb-4">
+                      <div className="col-span-1">
+                        <div className="w-20 h-20 rounded-full bg-slate-800/50 mx-auto mb-2"></div>
+                        <div className="text-center text-sm font-medium">Анна</div>
+                        <div className="text-center text-xs text-purple-300 mb-3">Преподаватель</div>
+                        
+                        <div className="flex justify-center gap-4 mb-3">
+                          <div className="text-center">
+                            <div className="text-sm">3</div>
+                            <div className="text-xs text-gray-500">Курсы</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-sm">2</div>
+                            <div className="text-xs text-gray-500">Сертификаты</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-sm">8</div>
+                            <div className="text-xs text-gray-500">Бейджи</div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="col-span-2 space-y-3">
+                        <div className="bg-black/30 p-2 rounded">
+                          <div className="text-sm font-medium mb-1">Обо мне</div>
+                          <p className="text-xs text-gray-400">Data Scientist и ML-инженер с интересом к NLP и компьютерному зрению</p>
+                        </div>
+                        
+                        <div className="bg-black/30 p-2 rounded">
+                          <div className="text-sm font-medium mb-2">Общий прогресс</div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="flex-grow h-1.5 bg-slate-800/50 rounded-full">
+                              <div className="bg-purple-500 h-1.5 rounded-full w-[68%]"></div>
+                            </div>
+                            <div className="text-sm text-purple-400">68%</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </motion.div>
             </div>
