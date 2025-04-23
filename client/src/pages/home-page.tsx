@@ -295,7 +295,7 @@ export default function HomePage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="overflow-hidden rounded-xl border border-white/10"
+                className="overflow-hidden rounded-xl border border-white/10 h-full flex flex-col"
               >
                 <div className="p-6 bg-black/50 backdrop-blur-sm">
                   <div className="flex items-center gap-4 mb-4">
@@ -307,12 +307,13 @@ export default function HomePage() {
                       <p className="text-white/70">Библиотека AI и Data Science курсов для всех уровней</p>
                     </div>
                   </div>
-                  <div className="p-4 flex items-center justify-center bg-black/30 rounded-md border border-white/5">
-                    <div className="text-center w-full">
-                      <i className="fas fa-book text-5xl text-primary/70 mb-4 block"></i>
-                      <p className="text-white/90 text-center">Обширная коллекция курсов по искусственному интеллекту и Data Science</p>
-                    </div>
-                  </div>
+                </div>
+                <div className="bg-black/40 p-2 flex-grow overflow-hidden">
+                  <img 
+                    src="/screenshots_new/courses-catalog.png" 
+                    alt="Каталог курсов NovaAI" 
+                    className="w-full h-auto rounded border border-white/10"
+                  />
                 </div>
               </motion.div>
               
@@ -320,7 +321,7 @@ export default function HomePage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
-                className="overflow-hidden rounded-xl border border-white/10"
+                className="overflow-hidden rounded-xl border border-white/10 h-full flex flex-col"
               >
                 <div className="p-6 bg-black/50 backdrop-blur-sm">
                   <div className="flex items-center gap-4 mb-4">
@@ -332,12 +333,13 @@ export default function HomePage() {
                       <p className="text-white/70">Интерактивная лаборатория для практики ML и Data Science</p>
                     </div>
                   </div>
-                  <div className="p-4 flex items-center justify-center bg-black/30 rounded-md border border-white/5">
-                    <div className="text-center w-full">
-                      <i className="fas fa-flask text-5xl text-primary/70 mb-4 block"></i>
-                      <p className="text-white/90 text-center">Интерактивное пространство для экспериментов с алгоритмами и данными</p>
-                    </div>
-                  </div>
+                </div>
+                <div className="bg-black/40 p-2 flex-grow overflow-hidden">
+                  <img 
+                    src="/screenshots_new/labhub.png" 
+                    alt="LabHub - Интерактивная лаборатория" 
+                    className="w-full h-auto rounded border border-white/10"
+                  />
                 </div>
               </motion.div>
               
@@ -345,7 +347,7 @@ export default function HomePage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className="overflow-hidden rounded-xl border border-white/10"
+                className="overflow-hidden rounded-xl border border-white/10 h-full flex flex-col"
               >
                 <div className="p-6 bg-black/50 backdrop-blur-sm">
                   <div className="flex items-center gap-4 mb-4">
@@ -357,12 +359,13 @@ export default function HomePage() {
                       <p className="text-white/70">Внедрение ИИ-решений в бизнес-процессы</p>
                     </div>
                   </div>
-                  <div className="p-4 flex items-center justify-center bg-black/30 rounded-md border border-white/5">
-                    <div className="text-center w-full">
-                      <i className="fas fa-briefcase text-5xl text-primary/70 mb-4 block"></i>
-                      <p className="text-white/90 text-center">Специализированные инструменты для внедрения AI в бизнес</p>
-                    </div>
-                  </div>
+                </div>
+                <div className="bg-black/40 p-2 flex-grow overflow-hidden">
+                  <img 
+                    src="/screenshots_new/business-ai.png" 
+                    alt="Business AI Module" 
+                    className="w-full h-auto rounded border border-white/10"
+                  />
                 </div>
               </motion.div>
               
@@ -370,7 +373,7 @@ export default function HomePage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
-                className="overflow-hidden rounded-xl border border-white/10"
+                className="overflow-hidden rounded-xl border border-white/10 h-full flex flex-col"
               >
                 <div className="p-6 bg-black/50 backdrop-blur-sm">
                   <div className="flex items-center gap-4 mb-4">
@@ -382,12 +385,13 @@ export default function HomePage() {
                       <p className="text-white/70">Управление прогрессом, достижения и сертификаты</p>
                     </div>
                   </div>
-                  <div className="p-4 flex items-center justify-center bg-black/30 rounded-md border border-white/5">
-                    <div className="text-center w-full">
-                      <i className="fas fa-user-graduate text-5xl text-primary/70 mb-4 block"></i>
-                      <p className="text-white/90 text-center">Отслеживание прогресса и персональных достижений в обучении</p>
-                    </div>
-                  </div>
+                </div>
+                <div className="bg-black/40 p-2 flex-grow overflow-hidden">
+                  <img 
+                    src="/screenshots_new/profile.png" 
+                    alt="Профиль пользователя" 
+                    className="w-full h-auto rounded border border-white/10"
+                  />
                 </div>
               </motion.div>
             </div>
