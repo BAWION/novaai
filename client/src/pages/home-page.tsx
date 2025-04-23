@@ -326,18 +326,21 @@ export default function HomePage() {
                         
                         {/* Выпадающий список категорий */}
                         <div className="w-1/3 relative">
-                          <div className="bg-[#0A051F] rounded p-3 flex items-center justify-between text-white/70">
-                            <span className="text-sm">Все категории</span>
-                            <i className="fas fa-chevron-down text-xs"></i>
-                          </div>
-                          {/* Скрываем выпадающий список */}
-                          {false && (
-                            <div className="absolute top-[110%] left-0 right-0 bg-[#0A051F] rounded p-1 border border-white/10">
-                              <div className="py-1.5 px-3 text-white hover:bg-white/10 rounded text-sm cursor-pointer">Все категории</div>
-                              <div className="py-1.5 px-3 text-white/70 hover:bg-white/10 rounded text-sm cursor-pointer">Python</div>
-                              <div className="py-1.5 px-3 text-white/70 hover:bg-white/10 rounded text-sm cursor-pointer">Machine Learning</div>
-                            </div>
-                          )}
+                          <select 
+                            className="w-full appearance-none bg-[#0A051F] rounded p-3 text-white/70 border border-white/10 focus:outline-none focus:ring-1 focus:ring-primary"
+                            style={{ 
+                              backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgba(255, 255, 255, 0.5)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
+                              backgroundRepeat: 'no-repeat',
+                              backgroundPosition: 'right 1rem center',
+                              backgroundSize: '1rem',
+                              paddingRight: '2.5rem'
+                            }}
+                          >
+                            <option value="">Все категории</option>
+                            <option value="python">Python</option>
+                            <option value="ml">Machine Learning</option>
+                            <option value="dl">Deep Learning</option>
+                          </select>
                         </div>
                       </div>
                       
