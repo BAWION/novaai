@@ -266,8 +266,12 @@ export default function HomePage() {
                       <Button>Персонализировать свой путь</Button>
                     </Link>
                   </div>
-                  <div className="relative overflow-hidden rounded-lg border border-white/10">
-                    <img src="./screenshots/courses-catalog.png" alt="Dashboard Preview" className="w-full h-auto" />
+                  <div className="relative overflow-hidden rounded-lg border border-white/10 bg-black/30 h-full flex items-center justify-center">
+                    <div className="text-center p-8">
+                      <i className="fas fa-chart-line text-6xl text-primary/60 mb-6 block"></i>
+                      <h3 className="text-xl font-bold mb-4">Адаптивное обучение</h3>
+                      <p className="text-white/70">Платформа формирует индивидуальную траекторию обучения и рекомендует наиболее релевантные курсы</p>
+                    </div>
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-black/0 pointer-events-none"></div>
                   </div>
                 </div>
@@ -287,34 +291,105 @@ export default function HomePage() {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {platformScreenshots.map((screenshot, index) => (
-                <motion.div 
-                  key={screenshot.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.1 * index }}
-                  className="overflow-hidden rounded-xl border border-white/10"
-                >
-                  <div className="p-4 bg-black/50 backdrop-blur-sm">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary">
-                        <i className={`fas ${screenshot.icon} text-xl`}></i>
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-bold">{screenshot.title}</h3>
-                        <p className="text-white/70">{screenshot.description}</p>
-                      </div>
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="overflow-hidden rounded-xl border border-white/10"
+              >
+                <div className="p-6 bg-black/50 backdrop-blur-sm">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+                      <i className="fas fa-book-open text-2xl"></i>
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold">Каталог курсов</h3>
+                      <p className="text-white/70">Библиотека AI и Data Science курсов для всех уровней</p>
                     </div>
                   </div>
-                  <div className="p-2 bg-black/40">
-                    <img 
-                      src={screenshot.image} 
-                      alt={screenshot.title}
-                      className="w-full h-auto object-contain block border border-white/10 rounded"
-                    />
+                  <div className="mt-4 h-40 flex items-center justify-center bg-black/30 rounded-md border border-white/5">
+                    <div className="text-center">
+                      <i className="fas fa-book-open text-4xl text-primary/70 mb-3 block"></i>
+                      <p className="text-white/60">Обширная коллекция курсов по искусственному интеллекту и Data Science</p>
+                    </div>
                   </div>
-                </motion.div>
-              ))}
+                </div>
+              </motion.div>
+              
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+                className="overflow-hidden rounded-xl border border-white/10"
+              >
+                <div className="p-6 bg-black/50 backdrop-blur-sm">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+                      <i className="fas fa-flask text-2xl"></i>
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold">LabHub</h3>
+                      <p className="text-white/70">Интерактивная лаборатория для практики ML и Data Science</p>
+                    </div>
+                  </div>
+                  <div className="mt-4 h-40 flex items-center justify-center bg-black/30 rounded-md border border-white/5">
+                    <div className="text-center">
+                      <i className="fas fa-flask text-4xl text-primary/70 mb-3 block"></i>
+                      <p className="text-white/60">Интерактивное пространство для экспериментов с алгоритмами и данными</p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+              
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="overflow-hidden rounded-xl border border-white/10"
+              >
+                <div className="p-6 bg-black/50 backdrop-blur-sm">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+                      <i className="fas fa-briefcase text-2xl"></i>
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold">Business AI Module</h3>
+                      <p className="text-white/70">Внедрение ИИ-решений в бизнес-процессы</p>
+                    </div>
+                  </div>
+                  <div className="mt-4 h-40 flex items-center justify-center bg-black/30 rounded-md border border-white/5">
+                    <div className="text-center">
+                      <i className="fas fa-briefcase text-4xl text-primary/70 mb-3 block"></i>
+                      <p className="text-white/60">Специализированные инструменты для внедрения AI в бизнес</p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+              
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+                className="overflow-hidden rounded-xl border border-white/10"
+              >
+                <div className="p-6 bg-black/50 backdrop-blur-sm">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+                      <i className="fas fa-user-graduate text-2xl"></i>
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold">Профиль пользователя</h3>
+                      <p className="text-white/70">Управление прогрессом, достижения и сертификаты</p>
+                    </div>
+                  </div>
+                  <div className="mt-4 h-40 flex items-center justify-center bg-black/30 rounded-md border border-white/5">
+                    <div className="text-center">
+                      <i className="fas fa-user-graduate text-4xl text-primary/70 mb-3 block"></i>
+                      <p className="text-white/60">Отслеживание прогресса и персональных достижений в обучении</p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
             </div>
           </div>
         </section>
