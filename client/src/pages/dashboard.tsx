@@ -7,6 +7,7 @@ import { Glassmorphism } from "@/components/ui/glassmorphism";
 import { useUserProfile } from "@/context/user-profile-context";
 import { apiRequest } from "@/lib/queryClient";
 import { Link, useLocation } from "wouter";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export default function Dashboard() {
   const { userProfile } = useUserProfile();
@@ -18,6 +19,13 @@ export default function Dashboard() {
     currentXP: 680,
     levelXP: 1000,
     level: 3
+  });
+  const [userLevel, setUserLevel] = useState({
+    title: "Продвинутый",
+    level: 3,
+    nextMilestone: "Эксперт",
+    progress: 72,
+    description: "Подходит для всех пользователей от новичка до эксперта"
   });
   const [nextEvent, setNextEvent] = useState({
     id: "ev123",
@@ -143,7 +151,49 @@ export default function Dashboard() {
           <h1 className="font-orbitron text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#B28DFF] via-[#8BE0F7] to-[#B28DFF]">
             Мой образовательный путь
           </h1>
-          <p className="text-white/70 text-md mt-1">Персонализированная траектория развития в NovaAI</p>
+          <div className="flex items-center gap-2 mt-1">
+            <p className="text-white/70 text-md">Персонализированная траектория развития в NovaAI</p>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <div className="inline-flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r from-[#6E3AFF]/20 to-[#2EBAE1]/20 rounded-full border border-[#6E3AFF]/30 cursor-help">
+                    <div className="w-3 h-3 rounded-full bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1]"></div>
+                    <span className="text-xs font-medium text-white/80">{userLevel.title}</span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  <div>
+                    <div className="mb-2">
+                      <span className="font-semibold">{userLevel.title} уровень</span>
+                      <p className="text-sm opacity-80">{userLevel.description}</p>
+                    </div>
+                    <div className="mb-1 flex justify-between text-xs">
+                      <span>Новичок</span>
+                      <span>Продвинутый</span>
+                      <span>Эксперт</span>
+                    </div>
+                    <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden relative mb-2">
+                      <div 
+                        className="h-full bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] rounded-full" 
+                        style={{ width: `${userLevel.progress}%` }}
+                      ></div>
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <div 
+                          key={i} 
+                          className={`absolute top-0 w-px h-full bg-white/30 ${i < userLevel.level ? 'opacity-0' : 'opacity-100'}`} 
+                          style={{ left: `${(i + 1) * 20}%` }}
+                        ></div>
+                      ))}
+                    </div>
+                    <p className="text-xs text-center">
+                      <span>До следующего уровня: </span>
+                      <span className="font-semibold">{userLevel.nextMilestone}</span>
+                    </p>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
         </motion.div>
         
         {/* Content columns */}
@@ -188,7 +238,7 @@ export default function Dashboard() {
               </div>
             </motion.div>
             
-            {/* AI Advice Section */}
+            {/* AI Analysis Section */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -197,16 +247,48 @@ export default function Dashboard() {
               <Glassmorphism className="rounded-xl p-5 border border-[#2EBAE1]/30">
                 <div className="flex items-center mb-3">
                   <div className="w-12 h-12 flex items-center justify-center rounded-full bg-gradient-to-br from-[#2EBAE1]/20 to-[#2EBAE1]/10 text-[#8BE0F7]">
-                    <i className="fas fa-robot text-xl"></i>
+                    <i className="fas fa-brain text-xl"></i>
                   </div>
                   <div className="ml-3">
-                    <h3 className="font-medium text-lg">{aiAdvice.title}</h3>
-                    <p className="text-white/50 text-xs">{aiAdvice.area}</p>
+                    <h3 className="font-medium text-lg">ИИ анализирует ваш прогресс</h3>
+                    <p className="text-white/50 text-xs">Адаптивная персонализация обучения</p>
                   </div>
                 </div>
-                <p className="text-white/80 text-sm mb-3">
-                  {aiAdvice.content}
-                </p>
+                
+                <div className="bg-black/20 rounded-lg p-3 mb-3">
+                  <div className="flex items-center mb-2">
+                    <div className="text-[#2EBAE1] mr-2">
+                      <i className="fas fa-chart-line"></i>
+                    </div>
+                    <p className="text-white/80 text-sm font-medium">Обнаружен паттерн обучения:</p>
+                  </div>
+                  <p className="text-white/70 text-sm ml-6 mb-2">
+                    ИИ выявил ваши сильные стороны в обработке данных, но заметил затруднения с алгоритмами оптимизации.
+                  </p>
+                  <div className="flex items-center mb-2 mt-3">
+                    <div className="text-[#2EBAE1] mr-2">
+                      <i className="fas fa-robot"></i>
+                    </div>
+                    <p className="text-white/80 text-sm font-medium">Адаптация контента:</p>
+                  </div>
+                  <p className="text-white/70 text-sm ml-6">
+                    {aiAdvice.content}
+                  </p>
+                </div>
+                
+                <div className="mb-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <p className="text-white/60 text-xs">Персонализация контента:</p>
+                    <p className="text-[#2EBAE1] text-xs font-medium">86%</p>
+                  </div>
+                  <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-gradient-to-r from-[#2EBAE1] to-[#6E3AFF] rounded-full" 
+                      style={{ width: '86%' }}
+                    ></div>
+                  </div>
+                </div>
+                
                 <div className="flex gap-2 mt-3">
                   <button 
                     onClick={() => setLocation('/roadmap')}
