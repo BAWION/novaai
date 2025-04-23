@@ -51,13 +51,23 @@ export const skills = pgTable("skills", {
   id: serial("id").primaryKey(),
   name: text("name").notNull().unique(),
   description: text("description"),
-  category: text("category"), // programming, ml, data-science, etc.
+  category: text("category").notNull(), // programming, ml, data-science, etc.
+  level: integer("level").default(1).notNull(), // от 1 (начальный) до 5 (экспертный)
+  taxonomy: text("taxonomy"), // иерархия, например "programming.python.data-structures"
+  prerequisites: text("prerequisites").array(), // массив имен навыков-пререквизитов
+  weight: integer("weight").default(1).notNull(), // вес навыка в общей оценке прогресса (1-10)
+  isCore: integer("is_core").default(0).notNull() // 0 - нет, 1 - да
 });
 
 export const insertSkillSchema = createInsertSchema(skills).pick({
   name: true,
   description: true,
   category: true,
+  level: true,
+  taxonomy: true,
+  prerequisites: true,
+  weight: true,
+  isCore: true,
 });
 
 // Courses model
@@ -352,6 +362,49 @@ export const insertAiChatHistorySchema = createInsertSchema(aiChatHistory).pick(
   userMessage: true,
   aiResponse: true,
   context: true,
+});
+
+// User Skills (для отслеживания уровня навыков пользователя)
+export const userSkills = pgTable("user_skills", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  skillId: integer("skill_id").notNull().references(() => skills.id),
+  level: integer("level").notNull().default(0), // 0-100, процент владения навыком
+  lastAssessedAt: timestamp("last_assessed_at").defaultNow(),
+  source: text("source").notNull().default("system"), // откуда получена оценка: system, quiz, self-assessment
+  history: json("history").$type<{date: string, level: number}[]>(), // история изменения уровня
+});
+
+export const insertUserSkillSchema = createInsertSchema(userSkills).pick({
+  userId: true,
+  skillId: true,
+  level: true,
+  source: true,
+  history: true,
+});
+
+// User Skill Gap (для отслеживания пробелов в навыках)
+export const userSkillGaps = pgTable("user_skill_gaps", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  skillId: integer("skill_id").notNull().references(() => skills.id),
+  targetLevel: integer("target_level").notNull(), // целевой уровень для достижения
+  currentLevel: integer("current_level").notNull().default(0), // текущий уровень
+  priority: integer("priority").notNull().default(1), // приоритет (1-5)
+  status: text("status").notNull().default("identified"), // identified, in_progress, addressed
+  recommendedModules: json("recommended_modules").$type<number[]>(), // ID рекомендуемых модулей
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertUserSkillGapSchema = createInsertSchema(userSkillGaps).pick({
+  userId: true,
+  skillId: true,
+  targetLevel: true,
+  currentLevel: true,
+  priority: true,
+  status: true,
+  recommendedModules: true,
 });
 
 // Export types

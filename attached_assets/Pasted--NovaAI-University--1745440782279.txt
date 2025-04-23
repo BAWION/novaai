@@ -1,0 +1,63 @@
+Какая «главная генеральная функция» NovaAI University
+Коротко: ИИ-ядро персонализированного обучения (Adaptive Learning Engine), которое само строит, адаптирует и пополняет траекторию знаний пользователя на основе его целей, навыков и результатов.
+
+1. Зачем выделять именно эту функцию
+
+Боль пользователя	Что даёт ядро	Метрика успеха
+«С чего начать? Контента слишком много»	1-клик-онбординг → чёткий Roadmap	A1 (Signup → Start Lesson 1) ≥ 60 %
+«Я застрял / мне скучно»	Адаптивная сложность, рекомендации практик	D7 Retention ≥ 30 %
+«Хочу понимать пользу»	Прогресс-бар навыков, XP-геймификация, ROI-виджет	Completion rate ≥ 45 %
+2. Из чего состоит Adaptive Learning Engine
+pgsql
+Копировать
+Редактировать
+┌───────── User Profile ─────────┐
+│ role, skills, goals, time      │
+└───────────┬───────────▲────────┘
+            │           │ feedback (quiz, time-on-task)
+            ▼           │
+┌────── Skill Graph ────┐        ┌────────── Content DB ──────────┐
+│ nodes = навыки        │        │ lessons, modules, metadata     │
+│ edges = prerequisite   │◀──────┤ difficulty, duration, tags     │
+└───────┬───────────────┘        └───────────┬────────────────────┘
+        │                                   │
+        ▼                                   ▼
+┌──────── Recommender ────────┐   ┌───── Progress Tracker ─────┐
+│ • rule-based filters        │   │ stores % per lesson        │
+│ • ML-ranker (xgboost/rl)    │   │ streak, ETA, scores        │
+└─────────┬───────────────────┘   └─────────┬──────────────────┘
+          │ next-lesson payload              │ events
+          ▼                                   ▼
+        Frontend  ➜  отображение Galaxy/Roadmap + CTA «Start»
+3. Как эта функция работает шаг-за-шагом
+
+Шаг	Действие	Технологии
+1. Onboarding	Вопросы → JSON профиля	React Form + Zod
+2. Gap-анализ	Профиль × Skill Graph → список пробелов	Neo4j cypher / pgvector
+3. Первая рекомендация	Rule («beginner» ⇒ Python-Zero) + ML-скор	FastAPI / Scikit-Learn
+4. Обучение	Пользователь проходит урок, отправляет events	React Query mutation
+5. Обратная связь	Tracker пишет время, ошибки, викторину	Prisma → progress
+6. Адаптация	Re-score path каждые 3 урока или по fail ≥ 2	Background job (BullMQ)
+7. Динамическое пополнение	CRON scraper → новый курс → новая планета	WebSocket push «new-cluster»
+4. Куда «вшить» в интерфейсе
+Панель управления / Galaxy
+
+«Пульсирующая» планета = следующий рекомендованный модуль.
+
+Tooltip «ПОЧЕМУ именно это?» — показывает навыки-пробелы.
+
+Вкладка “Ассистент” в уроке
+
+Нода progress → prompt «дай подсказку с учётом того, что у юзера низкий score по мат. статистике».
+
+Roadmap
+
+Линия «AI-ядро» рисует динамический путь; серый — скрытые модули future.
+
+5. Что доработать в текущей схеме, чтобы ядро заработало
+
+Пункт	Что добавить	Почему
+Модель Skill	Skill { id, name, taxonomy } + связи Lesson↔Skill	Gap-анализ невозможен без нормализованных навыков
+События	Унифицированный event learn.lesion.completed, learn.quiz.failed	ML-ранкер учится на единых данных
+ML-флаги	Таблица feature_flags для A/B алгоритмов	Позволяет тестировать новую логику без отката кода
+Explainability	В API ответе /recommend добавить reason	Прозрачность → доверие пользователя
