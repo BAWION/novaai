@@ -308,6 +308,89 @@ export default function Dashboard() {
               </Glassmorphism>
             </motion.div>
             
+            {/* User Level Progression */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+            >
+              <Glassmorphism className="rounded-xl p-5 border border-[#6E3AFF]/30">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 flex items-center justify-center rounded-full bg-gradient-to-br from-[#6E3AFF]/20 to-[#6E3AFF]/10 text-[#B28DFF]">
+                    <i className="fas fa-graduation-cap text-xl"></i>
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-lg">Ваш уровень: {userLevel.title}</h3>
+                    <p className="text-white/50 text-xs">Платформа NovaAI для всех уровней: от новичка до эксперта</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-20 h-20 relative rounded-full flex items-center justify-center border-4 border-[#6E3AFF]/30 bg-space-900/30">
+                    <div 
+                      className="absolute inset-1 rounded-full"
+                      style={{ 
+                        background: `conic-gradient(#6E3AFF ${userLevel.progress}%, transparent 0%)`,
+                        mask: 'radial-gradient(transparent 55%, black 56%)',
+                        WebkitMask: 'radial-gradient(transparent 55%, black 56%)'
+                      }}
+                    ></div>
+                    <span className="text-lg font-semibold">{userLevel.level}</span>
+                  </div>
+                  
+                  <div className="flex-1">
+                    <div className="flex justify-between text-xs mb-1">
+                      <span>Новичок</span>
+                      <span>Продвинутый</span>
+                      <span>Эксперт</span>
+                    </div>
+                    <div className="h-2 bg-space-800 rounded-full relative mb-3">
+                      <div 
+                        className="absolute top-0 left-0 h-full bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] rounded-full"
+                        style={{ width: `${userLevel.progress}%` }}
+                      ></div>
+                      <div className="absolute top-0 h-full w-full flex justify-between px-[2%]">
+                        {[1, 2, 3, 4, 5].map(level => (
+                          <div 
+                            key={level}
+                            className={`w-4 h-4 rounded-full border-2 border-space-800 flex items-center justify-center relative -top-1 ${level <= userLevel.level ? 'bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1]' : 'bg-space-900/90'}`}
+                          >
+                            <span className="text-[9px] font-bold">{level}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <p className="text-xs text-white/70">
+                      <span className="text-white/90">Следующая цель: </span> 
+                      <span className="font-medium text-[#B28DFF]">{userLevel.nextMilestone}</span>
+                      <span className="text-white/50 ml-2">{`(${userLevel.progress}% выполнено)`}</span>
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-3 gap-3 bg-space-900/40 p-3 rounded-lg mb-1">
+                  <div className="text-center border-r border-white/10 pr-2">
+                    <p className="text-white/50 text-xs mb-1">Доступный контент</p>
+                    <p className="text-sm font-medium">Все уровни</p>
+                  </div>
+                  <div className="text-center border-r border-white/10 pr-2">
+                    <p className="text-white/50 text-xs mb-1">Сложность</p>
+                    <div className="flex justify-center items-center">
+                      <i className="fas fa-star text-amber-400 text-xs"></i>
+                      <i className="fas fa-star text-amber-400 text-xs mx-0.5"></i>
+                      <i className="fas fa-star text-amber-400 text-xs"></i>
+                      <i className="fas fa-star text-white/20 text-xs mx-0.5"></i>
+                      <i className="fas fa-star text-white/20 text-xs"></i>
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-white/50 text-xs mb-1">Доступ</p>
+                    <p className="text-xs px-2 py-1 bg-green-500/20 text-green-400 rounded-full inline-block">Полный</p>
+                  </div>
+                </div>
+              </Glassmorphism>
+            </motion.div>
+            
             {/* Personal Statistics */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
