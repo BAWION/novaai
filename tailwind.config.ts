@@ -44,6 +44,20 @@ export default {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
+        // Космическая цветовая палитра
+        space: {
+          '50': '#f5f6ff',
+          '100': '#edeeff',
+          '200': '#dbe0ff',
+          '300': '#bdc4ff',
+          '400': '#9ba1ff',
+          '500': '#7a7efa',
+          '600': '#6159ef',
+          '700': '#5347d6',
+          '800': '#333a87',
+          '900': '#0e1035',
+          '950': '#060818',
+        },
         chart: {
           "1": "hsl(var(--chart-1))",
           "2": "hsl(var(--chart-2))",

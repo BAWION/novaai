@@ -178,7 +178,11 @@ export default function Dashboard() {
                   </button>
                 </div>
               </div>
-              <OrbitalLayout />
+              {viewMode === 'orbital' ? (
+                <GalaxyOrbitalLayout />
+              ) : (
+                <OrbitalLayout />
+              )}
             </motion.div>
             
             {/* AI Advice Section */}
