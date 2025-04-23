@@ -6,7 +6,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 const navItems = [
   { icon: "fa-tachometer-alt", label: "Главная", to: "/dashboard" },
   { icon: "fa-book", label: "Курсы", to: "/courses" },
-  { icon: "fa-route", label: "Карта", to: "/roadmap" },
+  { icon: "fa-save", label: "Знания", to: "/knowledge-vault" },
   { icon: "fa-flask", label: "Практика", to: "/labhub" },
   { icon: "fa-user-astronaut", label: "Профиль", to: "/profile" },
 ];
