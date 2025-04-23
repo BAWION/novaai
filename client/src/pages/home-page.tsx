@@ -330,11 +330,14 @@ export default function HomePage() {
                             <span className="text-sm">Все категории</span>
                             <i className="fas fa-chevron-down text-xs"></i>
                           </div>
-                          <div className="absolute top-[110%] left-0 right-0 bg-[#0A051F] rounded p-1 border border-white/10" style={{display: 'block'}}>
-                            <div className="py-1.5 px-3 text-white hover:bg-white/10 rounded text-sm cursor-pointer">Все категории</div>
-                            <div className="py-1.5 px-3 text-white/70 hover:bg-white/10 rounded text-sm cursor-pointer">Python</div>
-                            <div className="py-1.5 px-3 text-white/70 hover:bg-white/10 rounded text-sm cursor-pointer">Machine Learning</div>
-                          </div>
+                          {/* Скрываем выпадающий список */}
+                          {false && (
+                            <div className="absolute top-[110%] left-0 right-0 bg-[#0A051F] rounded p-1 border border-white/10">
+                              <div className="py-1.5 px-3 text-white hover:bg-white/10 rounded text-sm cursor-pointer">Все категории</div>
+                              <div className="py-1.5 px-3 text-white/70 hover:bg-white/10 rounded text-sm cursor-pointer">Python</div>
+                              <div className="py-1.5 px-3 text-white/70 hover:bg-white/10 rounded text-sm cursor-pointer">Machine Learning</div>
+                            </div>
+                          )}
                         </div>
                       </div>
                       
