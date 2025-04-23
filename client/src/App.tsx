@@ -118,7 +118,7 @@ function Router() {
           <ProtectedRoute path="/knowledge-vault" component={KnowledgeVault} />
           
           {/* Карта навыков и учебный прогресс */}
-          <ProtectedRoute path="/skills" component={SkillsPage} />
+          <Route path="/skills" component={SkillsPage} />
           
           <Route component={NotFound} />
         </Switch>
