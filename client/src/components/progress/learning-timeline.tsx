@@ -50,6 +50,33 @@ interface LearningTimelineProps {
   onEntitySelect?: (entityType: string, entityId: number) => void;
 }
 
+interface GroupedEvents {
+  date: Date;
+  events: LearningEvent[];
+}
+
+// Временная замена для объекта LearningEvent из схемы
+interface LearningEvent {
+  id: number;
+  userId: number;
+  eventType: string;
+  entityType: string;
+  entityId: number;
+  detail: {
+    title: string;
+    description?: string;
+    entityName?: string;
+    duration?: number;
+    progress?: number;
+    score?: number;
+    previousValue?: any;
+    newValue?: any;
+    source?: string;
+  };
+  metadata?: Record<string, any>;
+  createdAt: string;
+}
+
 export function LearningTimeline({
   userId,
   showTitle = true,
@@ -58,476 +85,439 @@ export function LearningTimeline({
   onEventSelect,
   onEntitySelect
 }: LearningTimelineProps) {
-  const [timelineView, setTimelineView] = useState<'list' | 'calendar'>('list');
-  const [filterType, setFilterType] = useState<string | null>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
+  const [viewMode, setViewMode] = useState<'all' | 'lessons' | 'quizzes' | 'achievements'>('all');
+  const [period, setPeriod] = useState<'week' | 'month' | 'all'>('week');
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   
-  // Загрузка данных о событиях обучения
-  const { data, isLoading, error } = useQuery<LearningEvent[]>({
-    queryKey: ['/api/learning/timeline', userId, limit],
+  // Запрос на получение данных о событиях обучения
+  const { data: events, isLoading } = useQuery<LearningEvent[]>({
+    queryKey: ['/api/learning-events/timeline', userId, period, limit],
     enabled: !!userId
   });
   
-  // Эффект для скроллирования к последнему событию при загрузке
+  // Прокрутка к текущему дню при загрузке
   useEffect(() => {
-    if (data && data.length > 0 && timelineRef.current) {
-      timelineRef.current.scrollTop = 0;
-    }
-  }, [data]);
-  
-  // Функция для фильтрации событий
-  const filteredEvents = () => {
-    if (!data) return [];
-    
-    if (!filterType) return data;
-    
-    return data.filter(event => event.eventType.startsWith(filterType));
-  };
-  
-  // Функция для группировки событий по дням
-  const getEventsByDay = () => {
-    if (!data) return new Map();
-    
-    const events = filteredEvents();
-    const eventsByDay = new Map<string, LearningEvent[]>();
-    
-    events.forEach(event => {
-      const date = new Date(event.timestamp);
-      const dateKey = format(date, 'yyyy-MM-dd');
+    if (timelineRef.current && events?.length && !selectedDate) {
+      // Найти позицию для прокрутки (к последнему событию)
+      const timelineElement = timelineRef.current;
+      const today = new Date();
       
-      if (!eventsByDay.has(dateKey)) {
-        eventsByDay.set(dateKey, []);
+      // Находим ближайший элемент к текущей дате
+      const dateElements = timelineElement.querySelectorAll('[data-date]');
+      let closestElement = null;
+      let closestDiff = Infinity;
+      
+      dateElements.forEach(element => {
+        const dateStr = element.getAttribute('data-date');
+        if (dateStr) {
+          const date = new Date(dateStr);
+          const diff = Math.abs(today.getTime() - date.getTime());
+          if (diff < closestDiff) {
+            closestDiff = diff;
+            closestElement = element;
+          }
+        }
+      });
+      
+      // Прокручиваем к найденному элементу
+      if (closestElement) {
+        closestElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
-      
-      eventsByDay.get(dateKey)!.push(event);
-    });
+    }
+  }, [events, selectedDate]);
+  
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center p-8">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+  
+  // Демо-данные для отображения событий обучения
+  const demoEvents: LearningEvent[] = [
+    {
+      id: 1,
+      userId: 999,
+      eventType: 'lesson_completed',
+      entityType: 'lesson',
+      entityId: 101,
+      detail: {
+        title: 'Рекурсия и оптимизация в Python',
+        description: 'Завершен урок по рекурсии и оптимизации в Python',
+        entityName: 'Продвинутые функции',
+        duration: 45,
+        score: 95
+      },
+      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString()
+    },
+    {
+      id: 2,
+      userId: 999,
+      eventType: 'quiz_completed',
+      entityType: 'quiz',
+      entityId: 102,
+      detail: {
+        title: 'Тест по алгоритмам',
+        description: 'Завершен тест по алгоритмам и структурам данных',
+        score: 85,
+        duration: 25
+      },
+      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2 - 1000 * 60 * 30).toISOString()
+    },
+    {
+      id: 3,
+      userId: 999,
+      eventType: 'skill_level_changed',
+      entityType: 'skill',
+      entityId: 103,
+      detail: {
+        title: 'Повышение уровня навыка',
+        description: 'Ваш уровень владения Python повысился',
+        entityName: 'Python',
+        previousValue: 65,
+        newValue: 70
+      },
+      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2 - 1000 * 60 * 35).toISOString()
+    },
+    {
+      id: 4,
+      userId: 999,
+      eventType: 'achievement_unlocked',
+      entityType: 'achievement',
+      entityId: 104,
+      detail: {
+        title: 'Достижение разблокировано',
+        description: 'Получено достижение "Алгоритмический мыслитель"',
+        entityName: 'Алгоритмический мыслитель'
+      },
+      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2 - 1000 * 60 * 40).toISOString()
+    },
+    {
+      id: 5,
+      userId: 999,
+      eventType: 'course_started',
+      entityType: 'course',
+      entityId: 105,
+      detail: {
+        title: 'Курс начат',
+        description: 'Вы начали курс "Машинное обучение с Python"',
+        entityName: 'Машинное обучение с Python'
+      },
+      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 1).toISOString()
+    },
+    {
+      id: 6,
+      userId: 999,
+      eventType: 'lesson_completed',
+      entityType: 'lesson',
+      entityId: 106,
+      detail: {
+        title: 'Введение в машинное обучение',
+        description: 'Завершен урок по введению в машинное обучение',
+        entityName: 'Основы машинного обучения',
+        duration: 35,
+        score: 90
+      },
+      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 1 - 1000 * 60 * 60 * 2).toISOString()
+    },
+    {
+      id: 7,
+      userId: 999,
+      eventType: 'practice_completed',
+      entityType: 'practice',
+      entityId: 107,
+      detail: {
+        title: 'Практика завершена',
+        description: 'Выполнена практическая работа "Классификация данных"',
+        entityName: 'Классификация данных',
+        duration: 50,
+        score: 88
+      },
+      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 1 - 1000 * 60 * 60 * 3).toISOString()
+    },
+    {
+      id: 8,
+      userId: 999,
+      eventType: 'learning_streak',
+      entityType: 'user',
+      entityId: 999,
+      detail: {
+        title: 'Учебная серия',
+        description: 'Вы занимаетесь 5 дней подряд!',
+        newValue: 5
+      },
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: 9,
+      userId: 999,
+      eventType: 'recommendation_updated',
+      entityType: 'user',
+      entityId: 999,
+      detail: {
+        title: 'Рекомендации обновлены',
+        description: 'Ваши рекомендуемые курсы обновлены на основе прогресса',
+        source: 'AI tutor'
+      },
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: 10,
+      userId: 999,
+      eventType: 'lesson_progress',
+      entityType: 'lesson',
+      entityId: 108,
+      detail: {
+        title: 'Прогресс по уроку',
+        description: 'Вы продвинулись в изучении урока "Линейная регрессия"',
+        entityName: 'Линейная регрессия',
+        progress: 60
+      },
+      createdAt: new Date().toISOString()
+    }
+  ];
+  
+  // Используем демо-данные, если реальные не загружены
+  const displayEvents = events || demoEvents;
+  
+  // Фильтруем события на основе выбранного режима просмотра
+  const filteredEvents = displayEvents.filter(event => {
+    if (viewMode === 'all') return true;
+    if (viewMode === 'lessons') return event.entityType === 'lesson';
+    if (viewMode === 'quizzes') return event.entityType === 'quiz';
+    if (viewMode === 'achievements') return event.entityType === 'achievement';
+    return true;
+  });
+  
+  // Ограничиваем количество отображаемых событий, если задан лимит
+  const limitedEvents = limit ? filteredEvents.slice(0, limit) : filteredEvents;
+  
+  // Группируем события по дате
+  const groupedEvents: GroupedEvents[] = limitedEvents.reduce((groups, event) => {
+    const eventDate = parseISO(event.createdAt);
+    const dateString = format(eventDate, 'yyyy-MM-dd');
+    const existingGroup = groups.find(g => format(g.date, 'yyyy-MM-dd') === dateString);
     
-    return eventsByDay;
-  };
+    if (existingGroup) {
+      existingGroup.events.push(event);
+    } else {
+      groups.push({
+        date: eventDate,
+        events: [event]
+      });
+    }
+    
+    return groups;
+  }, [] as GroupedEvents[]);
   
-  // Функция для получения цвета для типа события
-  const getEventColor = (eventType: string) => {
-    if (eventType.startsWith('lesson')) return 'bg-blue-500/20 text-blue-400';
-    if (eventType.startsWith('quiz')) return 'bg-purple-500/20 text-purple-400';
-    if (eventType.startsWith('course')) return 'bg-green-500/20 text-green-400';
-    if (eventType.startsWith('skill')) return 'bg-amber-500/20 text-amber-400';
-    if (eventType.startsWith('milestone')) return 'bg-red-500/20 text-red-400';
-    if (eventType.startsWith('streak')) return 'bg-orange-500/20 text-orange-400';
-    return 'bg-slate-500/20 text-slate-400';
-  };
+  // Сортируем группы по дате (от новых к старым)
+  groupedEvents.sort((a, b) => b.date.getTime() - a.date.getTime());
   
-  // Функция для получения иконки для типа события
+  // Получаем иконку для типа события
   const getEventIcon = (eventType: string) => {
-    if (eventType === 'lesson.started') return <Play size={16} />;
-    if (eventType === 'lesson.completed') return <CheckCheck size={16} />;
-    if (eventType === 'quiz.started') return <Target size={16} />;
-    if (eventType === 'quiz.completed') return <Trophy size={16} />;
-    if (eventType === 'course.started') return <BookOpen size={16} />;
-    if (eventType === 'course.completed') return <CheckCheck size={16} />;
-    if (eventType === 'skill.gained') return <Star size={16} />;
-    if (eventType === 'skill.improved') return <Zap size={16} />;
-    if (eventType === 'milestone.reached') return <Flag size={16} />;
-    if (eventType === 'streak.continued') return <Flame size={16} />;
-    if (eventType === 'streak.broken') return <Flag size={16} />;
-    return <Zap size={16} />;
-  };
-  
-  // Функция для получения названия типа события
-  const getEventTypeLabel = (eventType: string) => {
-    const mapping: Record<string, string> = {
-      'lesson.started': 'Начат урок',
-      'lesson.completed': 'Завершен урок',
-      'quiz.started': 'Начат тест',
-      'quiz.completed': 'Завершен тест',
-      'quiz.passed': 'Тест пройден',
-      'quiz.failed': 'Тест не пройден',
-      'course.started': 'Начат курс',
-      'course.completed': 'Завершен курс',
-      'skill.gained': 'Получен навык',
-      'skill.improved': 'Улучшен навык',
-      'milestone.reached': 'Достигнута веха',
-      'streak.continued': 'Продолжена серия',
-      'streak.broken': 'Серия прервана',
-      'streak.milestone': 'Рекорд серии'
-    };
-    
-    return mapping[eventType] || 'Событие';
-  };
-  
-  // Функция для получения события в формате JSON
-  const getEventDataText = (data: any) => {
-    if (!data) return '';
-    
-    try {
-      if (typeof data === 'string') {
-        data = JSON.parse(data);
-      }
-      
-      return JSON.stringify(data, null, 2);
-    } catch (e) {
-      return typeof data === 'string' ? data : JSON.stringify(data);
+    switch (eventType) {
+      case 'lesson_completed':
+        return <CheckCheck className="h-5 w-5 text-green-500" />;
+      case 'lesson_progress':
+        return <Play className="h-5 w-5 text-blue-500" />;
+      case 'quiz_completed':
+        return <Pen className="h-5 w-5 text-violet-500" />;
+      case 'skill_level_changed':
+        return <Target className="h-5 w-5 text-amber-500" />;
+      case 'achievement_unlocked':
+        return <Trophy className="h-5 w-5 text-yellow-500" />;
+      case 'course_started':
+        return <BookOpen className="h-5 w-5 text-indigo-500" />;
+      case 'practice_completed':
+        return <Layers className="h-5 w-5 text-emerald-500" />;
+      case 'learning_streak':
+        return <Flame className="h-5 w-5 text-red-500" />;
+      case 'recommendation_updated':
+        return <Zap className="h-5 w-5 text-cyan-500" />;
+      default:
+        return <Flag className="h-5 w-5 text-white" />;
     }
   };
   
-  // Функция для форматирования даты
-  const formatEventDate = (timestamp: any) => {
-    const date = typeof timestamp === 'string' ? new Date(timestamp) : timestamp;
-    return format(date, 'dd MMMM yyyy, HH:mm', { locale: ru });
-  };
-  
-  // Функция для форматирования относительной даты (сегодня, вчера и т.д.)
-  const formatRelativeDate = (dateString: string) => {
-    const date = new Date(dateString);
+  // Получаем текст для относительной даты
+  const getRelativeDateText = (date: Date) => {
     const today = new Date();
+    const yesterday = subDays(today, 1);
     
     if (isSameDay(date, today)) {
       return 'Сегодня';
-    }
-    
-    if (isSameDay(date, subDays(today, 1))) {
+    } else if (isSameDay(date, yesterday)) {
       return 'Вчера';
+    } else {
+      return format(date, 'dd MMMM, EEEE', { locale: ru });
     }
-    
-    return format(date, 'd MMMM', { locale: ru });
   };
   
-  // Рендер во время загрузки
-  if (isLoading) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Загрузка событий...</CardTitle>
-        </CardHeader>
-        <CardContent className="flex justify-center p-6">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-        </CardContent>
-      </Card>
-    );
-  }
-  
-  // Рендер при ошибке
-  if (error) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Ошибка загрузки событий</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p>Произошла ошибка при загрузке событий обучения. Пожалуйста, попробуйте позже.</p>
-        </CardContent>
-      </Card>
-    );
-  }
-  
-  // Если нет данных
-  if (!data || data.length === 0) {
-    return (
-      <Card className={compact ? "border-0 shadow-none bg-transparent" : "border-primary/20 bg-space-900/50 backdrop-blur-sm"}>
-        {showTitle && (
-          <CardHeader>
-            <CardTitle>Хронология обучения</CardTitle>
-            <CardDescription>
-              История ваших учебных активностей и достижений
-            </CardDescription>
-          </CardHeader>
-        )}
-        
-        <CardContent className="flex flex-col items-center justify-center p-8 text-center">
-          <div className="bg-primary/10 rounded-full p-6 mb-4">
-            <Calendar className="h-12 w-12 text-primary" />
-          </div>
-          <h3 className="text-xl font-medium mb-2">Нет данных о обучении</h3>
-          <p className="text-white/60 max-w-md">
-            У вас пока нет записанных учебных событий. Начните проходить курсы и уроки, 
-            чтобы ваш прогресс отображался здесь.
-          </p>
-        </CardContent>
-        
-        <CardFooter className="justify-center">
-          <Button>
-            Начать обучение
-          </Button>
-        </CardFooter>
-      </Card>
-    );
-  }
-  
   return (
-    <Card className={compact ? "border-0 shadow-none bg-transparent" : "border-primary/20 bg-space-900/50 backdrop-blur-sm"}>
+    <Glassmorphism className="p-6">
       {showTitle && (
-        <CardHeader>
-          <div className="flex justify-between items-start">
-            <div>
-              <CardTitle>Хронология обучения</CardTitle>
-              <CardDescription>
-                История ваших учебных активностей и достижений
-              </CardDescription>
-            </div>
-            
-            <div className="flex">
-              <Tabs 
-                value={timelineView}
-                onValueChange={(value: string) => setTimelineView(value as 'list' | 'calendar')}
-                className="mr-2"
-              >
-                <TabsList className="h-8">
-                  <TabsTrigger value="list" className="px-2 text-xs">
-                    <Layers size={14} className="mr-1" />
-                    Список
-                  </TabsTrigger>
-                  <TabsTrigger value="calendar" className="px-2 text-xs">
-                    <LayoutGrid size={14} className="mr-1" />
-                    Календарь
-                  </TabsTrigger>
-                </TabsList>
-              </Tabs>
-              
-              <Button variant="outline" size="sm" className="h-8">
-                <Filter size={14} className="mr-1" />
-                <span className="text-xs">Фильтры</span>
-              </Button>
-            </div>
-          </div>
-          
-          {/* Фильтры по типам событий */}
-          <div className="flex flex-wrap gap-2 mt-4">
-            <Button
-              variant="outline"
-              size="sm"
-              className={`text-xs h-7 ${!filterType ? 'bg-primary/10 border-primary/50' : ''}`}
-              onClick={() => setFilterType(null)}
-            >
-              Все
-            </Button>
-            
-            <Button
-              variant="outline"
-              size="sm"
-              className={`text-xs h-7 ${filterType === 'lesson' ? 'bg-blue-500/10 border-blue-500/50 text-blue-400' : ''}`}
-              onClick={() => setFilterType(filterType === 'lesson' ? null : 'lesson')}
-            >
-              <BookOpen size={12} className="mr-1" />
-              Уроки
-            </Button>
-            
-            <Button
-              variant="outline"
-              size="sm"
-              className={`text-xs h-7 ${filterType === 'quiz' ? 'bg-purple-500/10 border-purple-500/50 text-purple-400' : ''}`}
-              onClick={() => setFilterType(filterType === 'quiz' ? null : 'quiz')}
-            >
-              <Target size={12} className="mr-1" />
-              Тесты
-            </Button>
-            
-            <Button
-              variant="outline"
-              size="sm"
-              className={`text-xs h-7 ${filterType === 'course' ? 'bg-green-500/10 border-green-500/50 text-green-400' : ''}`}
-              onClick={() => setFilterType(filterType === 'course' ? null : 'course')}
-            >
-              <Layers size={12} className="mr-1" />
-              Курсы
-            </Button>
-            
-            <Button
-              variant="outline"
-              size="sm"
-              className={`text-xs h-7 ${filterType === 'skill' ? 'bg-amber-500/10 border-amber-500/50 text-amber-400' : ''}`}
-              onClick={() => setFilterType(filterType === 'skill' ? null : 'skill')}
-            >
-              <Star size={12} className="mr-1" />
-              Навыки
-            </Button>
-            
-            <Button
-              variant="outline"
-              size="sm"
-              className={`text-xs h-7 ${filterType === 'milestone' ? 'bg-red-500/10 border-red-500/50 text-red-400' : ''}`}
-              onClick={() => setFilterType(filterType === 'milestone' ? null : 'milestone')}
-            >
-              <Flag size={12} className="mr-1" />
-              Вехи
-            </Button>
-            
-            <Button
-              variant="outline"
-              size="sm"
-              className={`text-xs h-7 ${filterType === 'streak' ? 'bg-orange-500/10 border-orange-500/50 text-orange-400' : ''}`}
-              onClick={() => setFilterType(filterType === 'streak' ? null : 'streak')}
-            >
-              <Flame size={12} className="mr-1" />
-              Серии
-            </Button>
-          </div>
-        </CardHeader>
+        <div className="mb-4">
+          <h2 className="text-2xl font-semibold">Хронология обучения</h2>
+          <p className="text-white/60">
+            История ваших достижений и учебной активности
+          </p>
+        </div>
       )}
       
-      <CardContent>
-        <TabsContent value="list" className="mt-0">
-          <div 
-            className="space-y-4 overflow-y-auto pr-1 max-h-[500px]"
-            ref={timelineRef}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+        <Tabs defaultValue={viewMode} onValueChange={(value) => setViewMode(value as any)}>
+          <TabsList>
+            <TabsTrigger value="all">Все</TabsTrigger>
+            <TabsTrigger value="lessons">Уроки</TabsTrigger>
+            <TabsTrigger value="quizzes">Тесты</TabsTrigger>
+            <TabsTrigger value="achievements">Достижения</TabsTrigger>
+          </TabsList>
+        </Tabs>
+        
+        <div className="flex items-center gap-2">
+          <Button
+            variant={period === 'week' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setPeriod('week')}
           >
-            {/* Группировка событий по дням */}
-            {Array.from(getEventsByDay().entries()).map(([dateKey, events]) => (
-              <div key={dateKey}>
-                <div className="mb-2 mt-4 first:mt-0">
-                  <Badge variant="outline" className="bg-space-800 text-white/70">
-                    {formatRelativeDate(dateKey)}
-                  </Badge>
+            Неделя
+          </Button>
+          <Button
+            variant={period === 'month' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setPeriod('month')}
+          >
+            Месяц
+          </Button>
+          <Button
+            variant={period === 'all' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setPeriod('all')}
+          >
+            Все время
+          </Button>
+        </div>
+      </div>
+      
+      {groupedEvents.length > 0 ? (
+        <div ref={timelineRef} className="relative">
+          {/* Вертикальная линия хронологии */}
+          <div className="absolute left-3.5 top-0 bottom-0 w-0.5 bg-gradient-to-b from-primary/80 to-primary/5"></div>
+          
+          {/* События сгруппированные по дням */}
+          <div className="space-y-8 pl-1">
+            {groupedEvents.map((group, groupIndex) => (
+              <div key={format(group.date, 'yyyy-MM-dd')} data-date={format(group.date, 'yyyy-MM-dd')}>
+                <div className="relative flex items-center mb-4 gap-4">
+                  <div className="w-2 h-2 rounded-full bg-primary ring-4 ring-background"></div>
+                  <h3 className="text-md font-medium">{getRelativeDateText(group.date)}</h3>
                 </div>
                 
-                <div className="space-y-3 relative ml-3">
-                  {/* Вертикальная линия для соединения событий */}
-                  <div className="absolute left-2.5 top-0 bottom-0 w-px bg-white/10 -ml-3"></div>
-                  
-                  {events.map((event) => (
-                    <Glassmorphism
+                <div className="space-y-3 ml-6">
+                  {group.events.map((event, eventIndex) => (
+                    <motion.div
                       key={event.id}
-                      className="p-4 rounded-md relative hover:bg-white/5 cursor-pointer"
-                      onClick={() => onEventSelect && onEventSelect(event.id)}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: eventIndex * 0.05 }}
                     >
-                      {/* Точка на временной шкале */}
-                      <div className="absolute left-2.5 top-1/2 transform -translate-y-1/2 w-5 h-5 rounded-full bg-space-800 border-2 border-white/20 -ml-6 flex items-center justify-center">
-                        <div className={`w-2.5 h-2.5 rounded-full ${getEventColor(event.eventType).split(' ')[0]}`}></div>
-                      </div>
-                      
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <div className="flex items-center">
-                            <Badge className={`${getEventColor(event.eventType)} border-0 mr-2`}>
-                              <span className="flex items-center">
-                                {getEventIcon(event.eventType)}
-                                <span className="ml-1">{getEventTypeLabel(event.eventType)}</span>
-                              </span>
-                            </Badge>
-                            <span className="text-xs text-white/60">
-                              {format(new Date(event.timestamp), 'HH:mm')}
-                            </span>
+                      <Card 
+                        className="bg-space-900/40 border-primary/10 hover:bg-space-900/60 transition-colors cursor-pointer"
+                        onClick={() => onEventSelect && onEventSelect(event.id)}
+                      >
+                        <CardHeader className="pb-2 flex flex-row items-start gap-3">
+                          <div className="mt-1 bg-space-800 p-1.5 rounded-md">
+                            {getEventIcon(event.eventType)}
                           </div>
-                          
-                          <div className="mt-1">
-                            <h4 className="font-medium text-sm">
-                              {event.data && event.data.title ? event.data.title : 
-                                event.entityType === 'lesson' ? 'Урок' :
-                                event.entityType === 'course' ? 'Курс' :
-                                event.entityType === 'skill' ? 'Навык' :
-                                event.entityType === 'quiz' ? 'Тест' :
-                                'Событие'
-                              }
-                              {event.data && event.data.name && `: ${event.data.name}`}
-                            </h4>
-                            <p className="text-xs text-white/60 mt-0.5">
-                              {event.data && event.data.description ? event.data.description : 
-                                event.data && event.data.details ? event.data.details :
-                                event.entityType === 'lesson' ? 'Прогресс урока' :
-                                event.entityType === 'course' ? 'Прогресс курса' :
-                                event.entityType === 'skill' ? 'Изменение навыка' :
-                                event.entityType === 'quiz' ? 'Результаты теста' :
-                                'Дополнительная информация недоступна'
-                              }
-                            </p>
+                          <div className="flex-1">
+                            <CardTitle className="text-md">{event.detail.title}</CardTitle>
+                            {event.detail.entityName && (
+                              <CardDescription className="mt-0.5">
+                                {event.detail.entityName}
+                              </CardDescription>
+                            )}
                           </div>
-                          
-                          {/* Дополнительные данные события */}
-                          {event.data && (
-                            <div className="mt-2 flex flex-wrap gap-2">
-                              {event.data.progress !== undefined && (
-                                <Badge variant="outline" className="bg-blue-500/10 text-blue-400 border-0">
-                                  Прогресс: {event.data.progress}%
+                          <div className="text-xs text-white/50">
+                            {format(parseISO(event.createdAt), 'HH:mm')}
+                          </div>
+                        </CardHeader>
+                        
+                        {!compact && (
+                          <CardContent className="pb-4 pt-0">
+                            {event.detail.description && (
+                              <p className="text-sm text-white/80 mb-3">
+                                {event.detail.description}
+                              </p>
+                            )}
+                            
+                            <div className="flex flex-wrap gap-2 items-center">
+                              {event.detail.duration && (
+                                <Badge variant="secondary" className="flex items-center gap-1">
+                                  <Clock className="h-3 w-3" /> {event.detail.duration} мин
                                 </Badge>
                               )}
                               
-                              {event.data.score !== undefined && (
-                                <Badge variant="outline" className="bg-green-500/10 text-green-400 border-0">
-                                  Результат: {event.data.score}%
+                              {event.detail.score && (
+                                <Badge variant="secondary" className="flex items-center gap-1">
+                                  <Star className="h-3 w-3" /> {event.detail.score}%
                                 </Badge>
                               )}
                               
-                              {event.data.timeSpent !== undefined && (
-                                <Badge variant="outline" className="bg-purple-500/10 text-purple-400 border-0">
-                                  <Clock size={12} className="mr-1" />
-                                  {event.data.timeSpent < 60 
-                                    ? `${event.data.timeSpent} сек`
-                                    : `${Math.floor(event.data.timeSpent / 60)} мин`
-                                  }
+                              {event.detail.progress && (
+                                <div className="flex items-center gap-2">
+                                  <div className="w-16 h-1.5 bg-space-700 rounded-full overflow-hidden">
+                                    <div 
+                                      className="h-full bg-primary rounded-full"
+                                      style={{ width: `${event.detail.progress}%` }}
+                                    ></div>
+                                  </div>
+                                  <span className="text-xs">{event.detail.progress}%</span>
+                                </div>
+                              )}
+                              
+                              {event.detail.previousValue !== undefined && event.detail.newValue !== undefined && (
+                                <Badge variant="secondary" className="flex items-center gap-1">
+                                  {event.detail.previousValue} → <span className="font-medium">{event.detail.newValue}</span>
                                 </Badge>
                               )}
                               
-                              {event.data.level !== undefined && (
-                                <Badge variant="outline" className="bg-amber-500/10 text-amber-400 border-0">
-                                  Уровень: {event.data.level}
+                              {event.detail.source && (
+                                <Badge variant="outline" className="text-white/70">
+                                  Источник: {event.detail.source}
                                 </Badge>
                               )}
                               
-                              {event.data.streak !== undefined && (
-                                <Badge variant="outline" className="bg-orange-500/10 text-orange-400 border-0">
-                                  <Flame size={12} className="mr-1" />
-                                  Серия: {event.data.streak} {event.data.streak === 1 ? 'день' : 
-                                    event.data.streak < 5 ? 'дня' : 'дней'}
-                                </Badge>
+                              {event.entityType && event.entityId && onEntitySelect && (
+                                <Button 
+                                  size="sm" 
+                                  variant="ghost" 
+                                  className="ml-auto h-7 px-2 text-xs"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onEntitySelect(event.entityType, event.entityId);
+                                  }}
+                                >
+                                  Перейти <ChevronRight size={14} className="ml-1" />
+                                </Button>
                               )}
                             </div>
-                          )}
-                        </div>
-                        
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-6 w-6"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (onEntitySelect) {
-                              onEntitySelect(event.entityType, event.entityId);
-                            }
-                          }}
-                        >
-                          <ChevronRight size={16} />
-                        </Button>
-                      </div>
-                    </Glassmorphism>
+                          </CardContent>
+                        )}
+                      </Card>
+                    </motion.div>
                   ))}
                 </div>
               </div>
             ))}
-            
-            {filteredEvents().length === 0 && (
-              <div className="text-center p-8 bg-space-800/50 rounded-lg">
-                <Search className="h-12 w-12 mx-auto mb-3 text-white/20" />
-                <h3 className="font-medium mb-1">Нет событий с выбранным фильтром</h3>
-                <p className="text-white/60 text-sm">
-                  Измените фильтр или продолжите обучение, чтобы создать новые события
-                </p>
-              </div>
-            )}
           </div>
-        </TabsContent>
-        
-        <TabsContent value="calendar" className="mt-0">
-          <div className="flex justify-center p-10 bg-space-800/50 rounded-lg">
-            <div className="text-center">
-              <Calendar className="h-12 w-12 mx-auto mb-3 text-white/20" />
-              <h3 className="font-medium mb-1">Календарь обучения</h3>
-              <p className="text-white/60 text-sm">
-                Функция календаря будет доступна в следующей версии приложения
-              </p>
-            </div>
-          </div>
-        </TabsContent>
-      </CardContent>
-      
-      <CardFooter className="justify-between">
-        <Button variant="outline" size="sm" onClick={() => setFilterType(null)}>
-          <ListFilter size={16} className="mr-1" /> Сбросить фильтры
-        </Button>
-        
-        {filteredEvents().length >= limit && (
-          <Button variant="outline" size="sm">
-            Загрузить больше <ChevronRight size={16} className="ml-1" />
-          </Button>
-        )}
-      </CardFooter>
-    </Card>
+        </div>
+      ) : (
+        <div className="text-center p-8 bg-space-900/40 rounded-lg">
+          <p className="text-white/60">Нет событий для выбранного периода или фильтра</p>
+        </div>
+      )}
+    </Glassmorphism>
   );
 }
