@@ -253,11 +253,18 @@ export default function Courses() {
   }));
 
   // Обработчик клика по карточке курса
-  const handleCourseSelect = (id: number) => {
-    const course = SAMPLE_COURSES.find(c => c.id === id);
-    if (course) {
-      setSelectedCourse(course);
+  const handleCourseSelect = (course: {id: number}) => {
+    const selectedCourse = SAMPLE_COURSES.find(c => c.id === course.id);
+    if (selectedCourse) {
+      setSelectedCourse(selectedCourse);
     }
+  };
+  
+  // Обработчик изменения фильтров
+  const handleFilterChange = (filters: { level: string; access: string; search: string }) => {
+    setSearchTerm(filters.search);
+    setSelectedLevel(filters.level ? filters.level : null);
+    // setSelectedAccess если бы он был реализован
   };
 
   return (
@@ -267,6 +274,15 @@ export default function Courses() {
     >
       {selectedCourse ? (
         <div className="space-y-6">
+          {/* Кнопка "Назад к каталогу" */}
+          <button 
+            onClick={() => setSelectedCourse(null)}
+            className="flex items-center text-white/70 hover:text-white transition-colors mb-4"
+          >
+            <i className="fas fa-arrow-left mr-2"></i>
+            Назад к каталогу
+          </button>
+          
           {/* Course Details */}
           <div className="flex flex-col lg:flex-row gap-6">
             {/* Main Info */}
@@ -503,6 +519,13 @@ export default function Courses() {
             columns={3}
             showFilters={true}
             className="mb-8"
+            onCourseSelect={handleCourseSelect}
+            filterInitialState={{
+              level: selectedLevel || "",
+              access: "",
+              search: searchTerm
+            }}
+            onFilterChange={handleFilterChange}
           />
         </div>
       )}
