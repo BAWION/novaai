@@ -31,8 +31,18 @@ export default function OnboardingPage() {
   
   // Обработчик завершения онбординга
   const handleOnboardingComplete = (courseIds: number[]) => {
+    // Обновляем локально состояние
     setCompletedOnboarding(true);
     setRecommendedCourseIds(courseIds);
+    
+    // Если пользователь авторизован, обновляем данные в профиле
+    if (userId > 0 && userProfile) {
+      // Обновляем профиль, отмечая что онбординг пройден
+      updateUserProfile({
+        ...userProfile,
+        completedOnboarding: true
+      });
+    }
   };
   
   // Обработчик для быстрого старта курса
