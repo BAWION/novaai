@@ -932,19 +932,29 @@ export default function CourseAI() {
               <p className="text-white/70 mt-1 max-w-2xl">{course.description}</p>
             </div>
             
-            <div className="flex items-center bg-space-900/70 rounded-lg px-3 py-1.5">
-              <span 
-                className={`px-2 py-0.5 rounded text-xs font-medium ${
-                  course.level === 'beginner' ? 'bg-green-500/20 text-green-400' :
-                  course.level === 'intermediate' ? 'bg-blue-500/20 text-blue-400' :
-                  'bg-purple-500/20 text-purple-400'
-                }`}
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={goToCoursesCatalog}
+                className="flex items-center gap-2 bg-space-800 hover:bg-space-700 text-white px-3 py-2 rounded-lg transition-all"
               >
-                {course.level === 'beginner' ? 'Начинающий' :
-                 course.level === 'intermediate' ? 'Средний' : 'Продвинутый'}
-              </span>
-              <div className="mx-2 text-white/30">•</div>
-              <span className="text-white/70 text-sm">{course.duration} часов</span>
+                <i className="fas fa-arrow-left"></i>
+                <span>Вернуться к курсам</span>
+              </button>
+              
+              <div className="flex items-center bg-space-900/70 rounded-lg px-3 py-1.5">
+                <span 
+                  className={`px-2 py-0.5 rounded text-xs font-medium ${
+                    course.level === 'beginner' ? 'bg-green-500/20 text-green-400' :
+                    course.level === 'intermediate' ? 'bg-blue-500/20 text-blue-400' :
+                    'bg-purple-500/20 text-purple-400'
+                  }`}
+                >
+                  {course.level === 'beginner' ? 'Начинающий' :
+                   course.level === 'intermediate' ? 'Средний' : 'Продвинутый'}
+                </span>
+                <div className="mx-2 text-white/30">•</div>
+                <span className="text-white/70 text-sm">{course.duration} часов</span>
+              </div>
             </div>
           </div>
         </div>
