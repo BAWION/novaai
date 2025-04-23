@@ -292,6 +292,9 @@ export class MemStorage implements IStorage {
     const user: User = { 
       ...insertUser, 
       id,
+      displayName: insertUser.displayName || null,
+      avatarUrl: insertUser.avatarUrl || null,
+      telegramId: insertUser.telegramId || null,
       createdAt: now
     };
     this.users.set(id, user);
@@ -349,7 +352,22 @@ export class MemStorage implements IStorage {
   
   async createCourse(course: InsertCourse): Promise<Course> {
     const id = this.courseIdCounter++;
-    const newCourse: Course = { ...course, id };
+    const now = new Date();
+    
+    // Ensuring all required fields have proper values
+    const newCourse: Course = { 
+      ...course, 
+      id,
+      createdAt: now,
+      updatedAt: now,
+      difficulty: course.difficulty || 1,
+      access: course.access || "free",
+      version: course.version || "1.0",
+      estimatedDuration: course.estimatedDuration || null,
+      tags: course.tags || null,
+      authorId: null
+    };
+    
     this.courses.set(id, newCourse);
     return newCourse;
   }
@@ -378,12 +396,17 @@ export class MemStorage implements IStorage {
     if (!progress) {
       // Create new progress entry if it doesn't exist
       const id = this.progressIdCounter++;
+      const course = await this.getCourse(courseId);
+      
       progress = {
         id,
         userId,
         courseId,
         progress: data.progress || 0,
-        completedModules: data.completedModules || [],
+        completedModules: data.completedModules || null,
+        currentModuleId: data.currentModuleId || null,
+        currentLessonId: data.currentLessonId || null,
+        lastContentVersion: course?.version || null,
         startedAt: now,
         lastAccessedAt: now
       };
@@ -417,23 +440,31 @@ export class MemStorage implements IStorage {
       // Determine streak days (this would be more complex in a real app)
       const now = new Date();
       const lastActive = profile.lastActiveAt;
-      const oneDayMs = 24 * 60 * 60 * 1000;
       
-      let streakDays = profile.streakDays;
-      
-      // If last active was yesterday, increment streak
-      if ((now.getTime() - lastActive.getTime()) <= oneDayMs) {
-        streakDays += 1;
-      } else if ((now.getTime() - lastActive.getTime()) > (2 * oneDayMs)) {
-        // If more than 2 days since last active, reset streak
-        streakDays = 1;
+      if (lastActive) {
+        const oneDayMs = 24 * 60 * 60 * 1000;
+        let streakDays = profile.streakDays || 0;
+        
+        // If last active was yesterday, increment streak
+        if ((now.getTime() - lastActive.getTime()) <= oneDayMs) {
+          streakDays += 1;
+        } else if ((now.getTime() - lastActive.getTime()) > (2 * oneDayMs)) {
+          // If more than 2 days since last active, reset streak
+          streakDays = 1;
+        }
+        
+        // Update profile
+        this.updateUserProfile(userId, {
+          progress: averageProgress,
+          streakDays
+        });
+      } else {
+        // No last active date, just update progress
+        this.updateUserProfile(userId, {
+          progress: averageProgress,
+          streakDays: 1
+        });
       }
-      
-      // Update profile
-      this.updateUserProfile(userId, {
-        progress: averageProgress,
-        streakDays
-      });
     }
   }
   
