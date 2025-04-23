@@ -16,6 +16,8 @@ import memorystore from "memorystore";
 import { checkSecrets } from "./routes/check-secrets";
 import { learningEventsRouter } from "./routes/learning-events";
 import { lessonProgressRouter } from "./routes/lesson-progress";
+import onboardingRouter from "./routes/onboarding";
+import recommendedCoursesRouter from "./routes/recommended-courses";
 
 // Add any middleware needed
 const authMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -414,6 +416,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Маршруты для отслеживания прогресса уроков
   app.use("/api/lessons/progress", lessonProgressRouter);
+  
+  // Маршруты для расширенного онбординга
+  app.use("/api/profiles", onboardingRouter);
+  
+  // Маршруты для рекомендованных курсов
+  app.use("/api/courses/recommended", recommendedCoursesRouter);
 
   const httpServer = createServer(app);
   return httpServer;

@@ -14,6 +14,7 @@ import { ConnectionStatus, PWAModeBadge } from "@/components/pwa/offline-status"
 import HomePage from "@/pages/home-page";
 import Login from "@/pages/login";
 import Onboarding from "@/pages/onboarding";
+import OnboardingPage from "@/pages/onboarding-page";
 import OrbitalLobby from "@/pages/orbital-lobby";
 import Dashboard from "@/pages/dashboard";
 import Roadmap from "@/pages/roadmap";
@@ -78,7 +79,7 @@ function Router() {
   const [location] = useLocation();
   
   // Check if we're on public pages
-  const isPublicPage = location === "/" || location === "/login" || location === "/onboarding";
+  const isPublicPage = location === "/" || location === "/login" || location === "/onboarding" || location === "/onboarding-page";
   
   return (
     <div className="flex flex-col min-h-screen">
@@ -90,6 +91,7 @@ function Router() {
           <Route path="/" component={HomePage} />
           <Route path="/login" component={Login} />
           <Route path="/onboarding" component={Onboarding} />
+          <Route path="/onboarding-page" component={OnboardingPage} />
           
           {/* Protected Routes */}
           <ProtectedRoute path="/dashboard" component={Dashboard} />
