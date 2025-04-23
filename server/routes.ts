@@ -11,6 +11,7 @@ import {
 import { z } from "zod";
 import session from "express-session";
 import memorystore from "memorystore";
+import { checkSecrets } from "./routes/check-secrets";
 
 // Add any middleware needed
 const authMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -256,6 +257,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to update course progress" });
     }
   });
+
+  // Маршрут для проверки секретов
+  app.post("/api/check-secrets", checkSecrets);
 
   const httpServer = createServer(app);
   return httpServer;
