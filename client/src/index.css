@@ -38,6 +38,17 @@
   body {
     @apply font-sans antialiased bg-[#0A0E17] text-foreground;
   }
+  
+  /* Исправление для select и option */
+  select {
+    color: white !important;
+    background-color: #1a1a2e !important;
+  }
+  
+  option {
+    color: white !important;
+    background-color: #1a1a2e !important;
+  }
 }
 
 /* Star background */

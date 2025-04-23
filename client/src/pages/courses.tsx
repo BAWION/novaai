@@ -430,37 +430,39 @@ export default function Courses() {
             </div>
             <div className="w-full md:w-1/2 lg:w-1/3 flex gap-2">
               <select 
-                className="w-1/2 mr-2 bg-space-800/50 border border-white/10 px-4 py-3 rounded-lg text-white/70 appearance-none focus:outline-none focus:ring-1 focus:ring-primary relative"
+                className="w-1/2 mr-2 bg-space-800/50 border border-white/10 px-4 py-3 rounded-lg text-white appearance-none focus:outline-none focus:ring-1 focus:ring-primary relative"
                 value={selectedCategory || ''}
                 onChange={(e) => setSelectedCategory(e.target.value || null)}
                 style={{ 
                   backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgba(255, 255, 255, 0.5)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
                   backgroundRepeat: 'no-repeat',
                   backgroundPosition: 'right 1rem center',
-                  backgroundSize: '1rem'
+                  backgroundSize: '1rem',
+                  color: 'white'
                 }}
               >
-                <option value="">Все категории</option>
+                <option value="" style={{backgroundColor: '#1a1a2e', color: 'white'}}>Все категории</option>
                 {categories.map(category => (
-                  <option key={category} value={category}>{category}</option>
+                  <option key={category} value={category} style={{backgroundColor: '#1a1a2e', color: 'white'}}>{category}</option>
                 ))}
               </select>
               
               <select 
-                className="w-1/2 bg-space-800/50 border border-white/10 px-4 py-3 rounded-lg text-white/70 appearance-none focus:outline-none focus:ring-1 focus:ring-primary"
+                className="w-1/2 bg-space-800/50 border border-white/10 px-4 py-3 rounded-lg text-white appearance-none focus:outline-none focus:ring-1 focus:ring-primary"
                 value={selectedLevel || ''}
                 onChange={(e) => setSelectedLevel(e.target.value || null)}
                 style={{ 
                   backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgba(255, 255, 255, 0.5)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
                   backgroundRepeat: 'no-repeat',
                   backgroundPosition: 'right 1rem center',
-                  backgroundSize: '1rem'
+                  backgroundSize: '1rem',
+                  color: 'white'
                 }}
               >
-                <option value="">Все уровни</option>
-                <option value="beginner">Начальный</option>
-                <option value="intermediate">Средний</option>
-                <option value="advanced">Продвинутый</option>
+                <option value="" style={{backgroundColor: '#1a1a2e', color: 'white'}}>Все уровни</option>
+                <option value="beginner" style={{backgroundColor: '#1a1a2e', color: 'white'}}>Начальный</option>
+                <option value="intermediate" style={{backgroundColor: '#1a1a2e', color: 'white'}}>Средний</option>
+                <option value="advanced" style={{backgroundColor: '#1a1a2e', color: 'white'}}>Продвинутый</option>
               </select>
             </div>
           </div>
