@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -35,44 +35,50 @@ interface ModuleAccordionProps {
   expanded?: boolean;
   onLessonClick?: (lessonId: number) => void;
   onExpandToggle?: (moduleId: number, expanded: boolean) => void;
-  className?: string;
 }
 
 export function ModuleAccordion({
   module,
   currentLessonId,
-  expanded: initialExpanded = false,
+  expanded = false,
   onLessonClick,
   onExpandToggle,
-  className,
 }: ModuleAccordionProps) {
-  const [expanded, setExpanded] = React.useState(initialExpanded);
+  const [isExpanded, setIsExpanded] = useState(expanded);
 
-  React.useEffect(() => {
-    setExpanded(initialExpanded);
-  }, [initialExpanded]);
+  // Синхронизация с внешним состоянием развернутости
+  useEffect(() => {
+    setIsExpanded(expanded);
+  }, [expanded]);
 
-  const toggleExpanded = () => {
-    const newExpanded = !expanded;
-    setExpanded(newExpanded);
+  // Обработчик нажатия на аккордеон
+  const handleToggle = () => {
+    const newExpandedState = !isExpanded;
+    setIsExpanded(newExpandedState);
     if (onExpandToggle) {
-      onExpandToggle(module.id, newExpanded);
+      onExpandToggle(module.id, newExpandedState);
     }
   };
 
-  // Иконки для разных типов уроков
-  const lessonTypeIcons = {
-    video: "video",
-    text: "file-alt",
-    quiz: "question",
-    interactive: "laptop-code",
-    practice: "code",
+  // Обработчик клика по уроку
+  const handleLessonClick = (lesson: Lesson) => {
+    if (lesson.locked) return;
+    
+    if (onLessonClick) {
+      onLessonClick(lesson.id);
+    }
   };
 
-  // Расчет общего времени для модуля (если не предоставлено)
-  const calculateTotalDuration = () => {
-    if (module.estimatedDuration) return module.estimatedDuration;
+  // Расчет общего количества уроков
+  const totalLessons = module.sections.reduce(
+    (sum, section) => sum + section.lessons.length,
+    0
+  );
 
+  // Расчет общего времени на модуль
+  const calculateTotalDuration = () => {
+    if (module.estimatedDuration !== undefined) return module.estimatedDuration;
+    
     let total = 0;
     module.sections.forEach((section) => {
       section.lessons.forEach((lesson) => {
@@ -81,70 +87,116 @@ export function ModuleAccordion({
         }
       });
     });
+    
     return total;
   };
 
-  // Отображение значков сложности
-  const renderDifficulty = (difficulty: number = 1) => {
-    return (
-      <div className="flex">
-        {[...Array(difficulty)].map((_, i) => (
-          <i key={i} className="fas fa-circle text-xs text-primary mr-0.5" />
-        ))}
-      </div>
-    );
+  // Расчет адаптивного ETA (оставшееся время)
+  const calculateRemainingTime = () => {
+    if (!module.progress || module.progress >= 100) return 0;
+    
+    const totalDuration = calculateTotalDuration();
+    const remainingPercentage = (100 - (module.progress || 0)) / 100;
+    return Math.round(totalDuration * remainingPercentage);
+  };
+
+  // Иконка для типа урока
+  const getLessonTypeIcon = (type: string) => {
+    switch (type) {
+      case "video":
+        return "fas fa-video";
+      case "text":
+        return "fas fa-file-alt";
+      case "quiz":
+        return "fas fa-question-circle";
+      case "interactive":
+        return "fas fa-laptop-code";
+      case "practice":
+        return "fas fa-flask";
+      default:
+        return "fas fa-file";
+    }
   };
 
   return (
-    <div className={cn("border border-white/10 rounded-xl overflow-hidden", className)}>
+    <div className="border border-white/10 rounded-xl overflow-hidden bg-space-800/50">
       {/* Заголовок модуля */}
       <div
         className={cn(
-          "flex items-center justify-between p-4 cursor-pointer transition",
-          expanded ? "bg-space-800" : "bg-space-900",
-          module.completed ? "border-l-4 border-l-green-500" : ""
+          "p-4 flex justify-between items-center cursor-pointer hover:bg-space-700/50 transition",
+          isExpanded ? "border-b border-white/10" : ""
         )}
-        onClick={toggleExpanded}
+        onClick={handleToggle}
       >
         <div className="flex items-center">
-          <motion.div
-            animate={{ rotate: expanded ? 90 : 0 }}
-            transition={{ duration: 0.2 }}
+          <div
+            className={cn(
+              "w-8 h-8 rounded-lg flex items-center justify-center mr-3",
+              module.completed
+                ? "bg-green-500/20 text-green-400"
+                : "bg-primary/20 text-primary"
+            )}
           >
-            <i className="fas fa-chevron-right text-white/70 mr-3" />
-          </motion.div>
-          <div>
-            <h3 className="font-medium">{module.title}</h3>
-            {module.description && (
-              <p className="text-sm text-white/60">{module.description}</p>
+            {module.completed ? (
+              <i className="fas fa-check"></i>
+            ) : (
+              <i className="fas fa-book"></i>
             )}
           </div>
+          <div>
+            <h3 className="font-medium">{module.title}</h3>
+            <div className="text-xs text-white/60 flex space-x-3 mt-0.5">
+              <span>
+                <i className="fas fa-graduation-cap mr-1"></i>
+                {totalLessons} {totalLessons === 1 ? "урок" : 
+                  totalLessons >= 2 && totalLessons <= 4 ? "урока" : "уроков"}
+              </span>
+              <span>
+                <i className="fas fa-clock mr-1"></i>
+                {calculateTotalDuration()} мин
+              </span>
+            </div>
+          </div>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center">
+          {/* Прогресс модуля */}
           {module.progress !== undefined && module.progress > 0 && (
-            <div className="flex items-center">
-              <div className="w-16 h-1.5 bg-white/10 rounded-full overflow-hidden">
-                <div
-                  className={cn(
-                    "h-full rounded-full",
-                    module.completed ? "bg-green-500" : "bg-primary"
-                  )}
-                  style={{ width: `${module.progress}%` }}
-                />
+            <div className="mr-4">
+              <div className="flex items-center space-x-2">
+                <div className="w-20 h-2 bg-white/10 rounded-full overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${module.progress}%` }}
+                    transition={{ duration: 0.8, type: "spring", bounce: 0.2 }}
+                    className={cn(
+                      "h-full rounded-full",
+                      module.progress === 100 ? "bg-green-500" : "bg-primary"
+                    )}
+                  />
+                </div>
+                <span className="text-xs text-white/60">{module.progress}%</span>
               </div>
-              <span className="text-xs text-white/60 ml-2">{module.progress}%</span>
+              
+              {/* Адаптивное ETA */}
+              {module.progress < 100 && calculateRemainingTime() > 0 && (
+                <div className="text-xs text-white/50 mt-0.5">
+                  Осталось ~{calculateRemainingTime()} мин
+                </div>
+              )}
             </div>
           )}
-          <div className="text-xs text-white/60">
-            <i className="fas fa-clock mr-1" />
-            {calculateTotalDuration()} мин
-          </div>
+          
+          <i
+            className={`fas fa-chevron-down text-white/60 transition-transform transform ${
+              isExpanded ? "rotate-180" : ""
+            }`}
+          />
         </div>
       </div>
 
       {/* Содержимое модуля */}
       <AnimatePresence>
-        {expanded && (
+        {isExpanded && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
@@ -152,93 +204,100 @@ export function ModuleAccordion({
             transition={{ duration: 0.3 }}
             className="overflow-hidden"
           >
-            {module.sections.map((section) => (
-              <div key={section.id} className="border-t border-white/10">
-                {/* Заголовок секции */}
-                {(section.title || section.description) && (
-                  <div className="px-4 py-3 bg-space-800/50">
-                    {section.title && <h4 className="font-medium">{section.title}</h4>}
-                    {section.description && (
-                      <p className="text-sm text-white/60">{section.description}</p>
-                    )}
-                  </div>
-                )}
+            {module.description && (
+              <div className="px-4 py-3 text-sm text-white/70 border-b border-white/10 bg-space-900/30">
+                {module.description}
+              </div>
+            )}
+            
+            <div className="p-2">
+              {module.sections.map((section) => (
+                <div key={section.id} className="mb-3">
+                  {/* Заголовок секции */}
+                  {section.title && (
+                    <div className="px-3 py-2 text-primary text-sm font-medium">
+                      {section.title}
+                    </div>
+                  )}
 
-                {/* Уроки в секции */}
-                <div className="divide-y divide-white/5">
-                  {section.lessons.map((lesson) => (
-                    <div
-                      key={lesson.id}
-                      className={cn(
-                        "px-4 py-3 flex items-center justify-between",
-                        currentLessonId === lesson.id
-                          ? "bg-primary/10 border-l-4 border-l-primary"
-                          : "hover:bg-space-800",
-                        lesson.locked ? "opacity-50 cursor-not-allowed" : "cursor-pointer",
-                        lesson.completed ? "border-l-4 border-l-green-500" : ""
-                      )}
-                      onClick={() => {
-                        if (!lesson.locked && onLessonClick) {
-                          onLessonClick(lesson.id);
-                        }
-                      }}
-                    >
-                      <div className="flex items-center">
+                  {/* Уроки в секции */}
+                  <div className="space-y-1">
+                    {section.lessons.map((lesson) => (
+                      <div
+                        key={lesson.id}
+                        onClick={() => handleLessonClick(lesson)}
+                        className={cn(
+                          "px-3 py-2 rounded-lg flex items-center transition",
+                          lesson.locked
+                            ? "cursor-not-allowed opacity-50"
+                            : "cursor-pointer hover:bg-space-700/80",
+                          currentLessonId === lesson.id
+                            ? "bg-primary/20 border-l-2 border-primary"
+                            : "",
+                          lesson.completed
+                            ? "bg-green-500/10 border-l-2 border-green-400"
+                            : ""
+                        )}
+                      >
                         <div
                           className={cn(
-                            "w-8 h-8 rounded-full flex items-center justify-center mr-3",
+                            "w-8 h-8 rounded-lg flex items-center justify-center mr-3 text-sm",
                             lesson.completed
                               ? "bg-green-500/20 text-green-400"
+                              : currentLessonId === lesson.id
+                              ? "bg-primary/20 text-primary"
                               : "bg-space-700 text-white/70"
                           )}
                         >
                           {lesson.completed ? (
-                            <i className="fas fa-check" />
+                            <i className="fas fa-check"></i>
                           ) : (
-                            <i className={`fas fa-${lessonTypeIcons[lesson.type]}`} />
+                            <i className={getLessonTypeIcon(lesson.type)}></i>
                           )}
                         </div>
-                        <div>
-                          <div className="flex items-center">
-                            <span className={lesson.locked ? "text-white/50" : ""}>
+                        <div className="flex-1">
+                          <div className="flex justify-between">
+                            <span
+                              className={cn(
+                                currentLessonId === lesson.id
+                                  ? "font-medium text-primary"
+                                  : lesson.completed
+                                  ? "text-green-400"
+                                  : ""
+                              )}
+                            >
                               {lesson.title}
                             </span>
-                            {lesson.locked && (
-                              <i className="fas fa-lock text-white/50 ml-2 text-xs" />
+                            {lesson.duration && (
+                              <span className="text-xs text-white/50 ml-2">
+                                {lesson.duration} мин
+                              </span>
                             )}
                           </div>
                           {lesson.difficulty && (
-                            <div className="mt-1">{renderDifficulty(lesson.difficulty)}</div>
+                            <div className="flex items-center mt-1">
+                              {[...Array(5)].map((_, i) => (
+                                <i
+                                  key={i}
+                                  className={`text-xs fas fa-star ${
+                                    i < lesson.difficulty!
+                                      ? "text-amber-400"
+                                      : "text-white/20"
+                                  }`}
+                                />
+                              ))}
+                            </div>
                           )}
                         </div>
-                      </div>
-                      <div className="flex items-center">
-                        {lesson.duration && (
-                          <span className="text-xs text-white/60">
-                            <i className="fas fa-clock mr-1" />
-                            {lesson.duration} мин
-                          </span>
+                        {lesson.locked && (
+                          <i className="fas fa-lock text-white/40 ml-2"></i>
                         )}
-                        <div
-                          className={cn(
-                            "ml-3 w-6 h-6 rounded flex items-center justify-center",
-                            lesson.type === "video"
-                              ? "bg-blue-500/20 text-blue-400"
-                              : lesson.type === "quiz"
-                              ? "bg-amber-500/20 text-amber-400"
-                              : lesson.type === "interactive" || lesson.type === "practice"
-                              ? "bg-green-500/20 text-green-400"
-                              : "bg-white/10 text-white/70"
-                          )}
-                        >
-                          <i className={`fas fa-${lessonTypeIcons[lesson.type]} text-xs`} />
-                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
