@@ -411,26 +411,66 @@ export default function Courses() {
               </div>
             </div>
             <div className="w-full md:w-1/2 lg:w-1/3 flex gap-2">
-              <select 
-                className="bg-space-800/50 border-white/10 px-4 py-3 rounded-lg w-1/2 text-white/70"
-                value={selectedCategory || ''}
-                onChange={(e) => setSelectedCategory(e.target.value || null)}
-              >
-                <option value="">Все категории</option>
-                {categories.map(category => (
-                  <option key={category} value={category}>{category}</option>
-                ))}
-              </select>
-              <select 
-                className="bg-space-800/50 border-white/10 px-4 py-3 rounded-lg w-1/2 text-white/70"
-                value={selectedLevel || ''}
-                onChange={(e) => setSelectedLevel(e.target.value || null)}
-              >
-                <option value="">Все уровни</option>
-                <option value="beginner">Начальный</option>
-                <option value="intermediate">Средний</option>
-                <option value="advanced">Продвинутый</option>
-              </select>
+              <div className="relative w-1/2 mr-2">
+                <div 
+                  className="flex items-center justify-between bg-space-800/50 border border-white/10 px-4 py-3 rounded-lg w-full text-white/70 cursor-pointer"
+                  onClick={() => {
+                    // В реальном приложении здесь будет переключение состояния видимости
+                    // Но для нашего демо макета мы ничего не делаем
+                  }}
+                >
+                  <span>{selectedCategory || "Все категории"}</span>
+                  <i className="fas fa-chevron-down text-xs"></i>
+                </div>
+                
+                {/* Этот блок был бы скрыт в реальном приложении и показывался по клику */}
+                {/* Но для демонстрации в макете мы делаем его видимым */}
+                <div className="absolute z-10 top-[105%] left-0 right-0 bg-space-900 border border-white/10 rounded-lg overflow-hidden shadow-lg py-1">
+                  <div className={`px-4 py-2 cursor-pointer ${!selectedCategory ? 'bg-primary/20 text-white' : 'hover:bg-space-800 text-white/70'}`}>
+                    Все категории
+                  </div>
+                  {categories.map(category => (
+                    <div 
+                      key={category} 
+                      className={`px-4 py-2 cursor-pointer ${selectedCategory === category ? 'bg-primary/20 text-white' : 'hover:bg-space-800 text-white/70'}`}
+                    >
+                      {category}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="relative w-1/2">
+                <div 
+                  className="flex items-center justify-between bg-space-800/50 border border-white/10 px-4 py-3 rounded-lg w-full text-white/70 cursor-pointer"
+                  onClick={() => {
+                    // В реальном приложении здесь будет переключение состояния видимости
+                  }}
+                >
+                  <span>
+                    {selectedLevel === 'beginner' ? 'Начальный' :
+                    selectedLevel === 'intermediate' ? 'Средний' :
+                    selectedLevel === 'advanced' ? 'Продвинутый' : 'Все уровни'}
+                  </span>
+                  <i className="fas fa-chevron-down text-xs"></i>
+                </div>
+                
+                {/* Демонстрационное открытое выпадающее меню */}
+                <div className="absolute z-10 top-[105%] left-0 right-0 bg-space-900 border border-white/10 rounded-lg overflow-hidden shadow-lg py-1">
+                  <div className={`px-4 py-2 cursor-pointer ${!selectedLevel ? 'bg-primary/20 text-white' : 'hover:bg-space-800 text-white/70'}`}>
+                    Все уровни
+                  </div>
+                  <div className={`px-4 py-2 cursor-pointer ${selectedLevel === 'beginner' ? 'bg-primary/20 text-white' : 'hover:bg-space-800 text-white/70'}`}>
+                    Начальный
+                  </div>
+                  <div className={`px-4 py-2 cursor-pointer ${selectedLevel === 'intermediate' ? 'bg-primary/20 text-white' : 'hover:bg-space-800 text-white/70'}`}>
+                    Средний
+                  </div>
+                  <div className={`px-4 py-2 cursor-pointer ${selectedLevel === 'advanced' ? 'bg-primary/20 text-white' : 'hover:bg-space-800 text-white/70'}`}>
+                    Продвинутый
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
           
