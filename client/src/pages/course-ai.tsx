@@ -4,7 +4,7 @@ import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { Glassmorphism } from "@/components/ui/glassmorphism";
 import { useParams, useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
-import { check_secrets } from "@/check-secrets";
+import { check_secrets } from "../check-secrets";
 
 // Interfaces для модели данных
 interface Lesson {
@@ -619,7 +619,7 @@ export default function CourseAI() {
                 <li><strong>str</strong> - строки текста (например, "Привет, мир!")</li>
                 <li><strong>bool</strong> - логические значения (True или False)</li>
                 <li><strong>list</strong> - списки (например, [1, 2, 3])</li>
-                <li><strong>dict</strong> - словари (например, {"name": "Anna"})</li>
+                <li><strong>dict</strong> - словари (например, {`{"name": "Anna"}`})</li>
               </ul>
             </div>
             
@@ -644,7 +644,7 @@ export default function CourseAI() {
                   <div>name = "Python"</div>
                   <div>is_awesome = True</div>
                   <div>fruits = ["apple", "banana", "cherry"]</div>
-                  <div>person = {"name": "Анна", "age": 25}</div>
+                  <div>person = {`{"name": "Анна", "age": 25}`}</div>
                   <div> </div>
                   <div># Выведите типы переменных, используя функцию type()</div>
                   <div>print(type(number))</div>
