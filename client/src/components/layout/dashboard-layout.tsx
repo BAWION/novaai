@@ -27,7 +27,7 @@ export function DashboardLayout({ children, title, subtitle }: DashboardLayoutPr
       
       <Sidebar />
 
-      <main className={`flex-1 transition-all duration-300 ${
+      <main className={`flex-1 will-change-transform transition-all duration-300 ${
         isMobile ? 
         (isOpen ? 'ml-0' : 'ml-0') : 
         (isOpen ? 'ml-[256px]' : 'ml-[80px]')
