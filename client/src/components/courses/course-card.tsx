@@ -21,6 +21,11 @@ interface CourseCardProps {
   className?: string;
   variant?: "default" | "compact" | "featured";
   onClick?: () => void;
+  skillMatch?: {
+    percentage: number;
+    label: string;
+    isRecommended?: boolean;
+  };
 }
 
 export function CourseCard({
@@ -39,6 +44,7 @@ export function CourseCard({
   className,
   variant = "default",
   onClick,
+  skillMatch,
 }: CourseCardProps) {
   const [, setLocation] = useLocation();
   const [showQuickView, setShowQuickView] = useState(false);
@@ -156,6 +162,34 @@ export function CourseCard({
       </>
     );
   };
+  
+  // Отображение соответствия навыков
+  const renderSkillMatch = () => {
+    if (!skillMatch) return null;
+    
+    const matchColorClass = (() => {
+      if (skillMatch.percentage >= 90) return "bg-green-500/20 text-green-400 border-green-500/30";
+      if (skillMatch.percentage >= 70) return "bg-blue-500/20 text-blue-400 border-blue-500/30";
+      if (skillMatch.percentage >= 50) return "bg-amber-500/20 text-amber-400 border-amber-500/30";
+      return "bg-gray-500/20 text-gray-400 border-gray-500/30";
+    })();
+    
+    return (
+      <div 
+        className={cn(
+          "absolute -top-2 -right-2 px-2 py-1 rounded-full text-xs font-medium border",
+          matchColorClass,
+          skillMatch.isRecommended && "animate-pulse"
+        )}
+        title={`Соответствие вашим навыкам: ${skillMatch.percentage}%`}
+      >
+        <div className="flex items-center gap-1">
+          {skillMatch.isRecommended && <i className="fas fa-check-circle"></i>}
+          <span>{skillMatch.label}</span>
+        </div>
+      </div>
+    );
+  };
 
   // Компактный вариант карточки
   if (variant === "compact") {
@@ -164,7 +198,7 @@ export function CourseCard({
         whileHover={{ y: -5 }}
         whileTap={{ scale: 0.98 }}
         className={cn(
-          "flex space-x-3 p-3 border rounded-xl cursor-pointer",
+          "flex space-x-3 p-3 border rounded-xl cursor-pointer relative",
           styles.border,
           styles.hover,
           "bg-gradient-to-br",
@@ -180,6 +214,7 @@ export function CourseCard({
           <h3 className="font-semibold">{title}</h3>
           {renderProgress()}
         </div>
+        {renderSkillMatch()}
       </motion.div>
     );
   }
@@ -191,7 +226,7 @@ export function CourseCard({
         whileHover={{ y: -5 }}
         whileTap={{ scale: 0.98 }}
         className={cn(
-          "flex flex-col p-5 border rounded-xl cursor-pointer",
+          "flex flex-col p-5 border rounded-xl cursor-pointer relative",
           styles.border,
           styles.hover,
           "bg-gradient-to-br",
@@ -200,6 +235,7 @@ export function CourseCard({
         )}
         onClick={handleClick}
       >
+        {renderSkillMatch()}
         <div className="flex justify-between items-start mb-3">
           <div className={cn("rounded-xl p-3", styles.icon)}>
             <i className={`fas fa-${icon} text-2xl`}></i>
@@ -347,6 +383,7 @@ export function CourseCard({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
+      {renderSkillMatch()}
       <div className="flex justify-between items-start">
         <div className={cn("rounded-lg p-2", styles.icon)}>
           <i className={`fas fa-${icon} text-lg`}></i>
