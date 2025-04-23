@@ -8,6 +8,8 @@ import { useUserProfile } from "@/context/user-profile-context";
 import { apiRequest } from "@/lib/queryClient";
 import { Link, useLocation } from "wouter";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import LearningTimeline from "@/components/progress/learning-timeline";
+import SkillProgress from "@/components/progress/skill-progress";
 
 export default function Dashboard() {
   const { userProfile } = useUserProfile();
@@ -951,6 +953,34 @@ export default function Dashboard() {
                   <div className="text-white/50 text-xs text-center">Приобретенных навыков</div>
                 </div>
               </Glassmorphism>
+            </motion.div>
+            
+            {/* Skills Progress */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.6 }}
+            >
+              {userProfile?.id && (
+                <SkillProgress 
+                  userId={userProfile.id} 
+                  limit={5}
+                />
+              )}
+            </motion.div>
+            
+            {/* Learning Timeline */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.65 }}
+            >
+              {userProfile?.id && (
+                <LearningTimeline 
+                  userId={userProfile.id} 
+                  limit={4}
+                />
+              )}
             </motion.div>
           </div>
 

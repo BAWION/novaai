@@ -1,53 +1,42 @@
 import React from "react";
-import { Progress } from "@/components/ui/progress";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
-
-interface Skill {
-  id: number;
-  name: string;
-  category: string;
-  level: number;
-}
+import { Loader2, BarChart2 } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 
 interface UserSkill {
   id: number;
   userId: number;
   skillId: number;
+  skillName: string;
   level: number;
-  lastAssessedAt: string;
-  source: string;
+  verified: boolean;
+  isActive: boolean;
+  lastUpdated: string;
 }
 
 interface SkillProgressProps {
   userId?: number;
-  showTitle?: boolean;
   limit?: number;
-  category?: string;
+  showTitle?: boolean;
+  showLevel?: boolean;
 }
 
 export default function SkillProgress({
   userId,
-  showTitle = true,
   limit = 5,
-  category
+  showTitle = true,
+  showLevel = true
 }: SkillProgressProps) {
-  // Получение списка навыков пользователя
-  const { data: userSkills, isLoading: isLoadingUserSkills } = useQuery<UserSkill[]>({
-    queryKey: ["/api/user/skills"],
+  // Запрос на получение навыков пользователя
+  const { data: skills, isLoading } = useQuery<UserSkill[]>({
+    queryKey: ["/api/skills/user"],
     enabled: !!userId,
     placeholderData: []
   });
   
-  // Получение списка всех навыков
-  const { data: allSkills, isLoading: isLoadingSkills } = useQuery<Skill[]>({
-    queryKey: ["/api/skills"],
-    placeholderData: []
-  });
-  
-  if (isLoadingUserSkills || isLoadingSkills) {
+  if (isLoading) {
     return (
       <div className="flex justify-center p-4">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -55,96 +44,87 @@ export default function SkillProgress({
     );
   }
   
-  // Если навыки пользователя не найдены, показываем сообщение
-  if (!userSkills?.length) {
+  if (!skills || skills.length === 0) {
     return (
       <Card>
         <CardHeader>
           {showTitle && <CardTitle>Ваши навыки</CardTitle>}
           <CardDescription>
-            Вы еще не освоили ни одного навыка. Начните обучение, чтобы увидеть свой прогресс!
+            Ваши навыки будут отображаться здесь по мере прохождения курсов
           </CardDescription>
         </CardHeader>
       </Card>
     );
   }
   
-  // Фильтруем навыки по категории, если указана
-  let filteredSkills = userSkills;
-  if (category && allSkills?.length) {
-    const skillsByCategory = allSkills.filter(skill => skill.category === category);
-    const skillIdsByCategory = skillsByCategory.map(skill => skill.id);
-    filteredSkills = userSkills.filter(userSkill => 
-      skillIdsByCategory.includes(userSkill.skillId)
-    );
-  }
+  // Сортировка навыков по уровню (от высокого к низкому) и ограничение количества
+  const sortedSkills = [...skills]
+    .sort((a, b) => b.level - a.level)
+    .slice(0, limit);
   
-  // Сортируем по уровню (от высшего к низшему) и ограничиваем количество
-  const sortedSkills = [...filteredSkills].sort((a, b) => b.level - a.level).slice(0, limit);
+  // Уровни опыта с описаниями
+  const skillLevels = [
+    { min: 0, max: 20, label: "Новичок", color: "text-blue-400" },
+    { min: 21, max: 40, label: "Начинающий", color: "text-green-400" },
+    { min: 41, max: 60, label: "Средний", color: "text-yellow-400" },
+    { min: 61, max: 80, label: "Продвинутый", color: "text-orange-400" },
+    { min: 81, max: 100, label: "Эксперт", color: "text-red-400" }
+  ];
   
-  // Находим соответствующую информацию о навыке
-  const skillsWithInfo = sortedSkills.map(userSkill => {
-    const skillInfo = allSkills?.find(skill => skill.id === userSkill.skillId) || {
-      name: `Навык #${userSkill.skillId}`,
-      category: "other",
-      level: 1
-    };
-    
-    return {
-      ...userSkill,
-      name: skillInfo.name,
-      category: skillInfo.category,
-      difficultyLevel: skillInfo.level
-    };
-  });
+  // Определение уровня навыка по его значению
+  const getSkillLevel = (level: number) => {
+    return skillLevels.find(l => level >= l.min && level <= l.max) || skillLevels[0];
+  };
   
   return (
     <Card>
       <CardHeader className="pb-2">
         {showTitle && <CardTitle>Ваши навыки</CardTitle>}
         <CardDescription>
-          Прогресс в освоении ключевых навыков
+          Навыки, которые вы приобрели в процессе обучения
         </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {skillsWithInfo.map(skill => (
-            <div key={skill.skillId} className="space-y-1">
-              <div className="flex justify-between items-center">
-                <div className="font-medium text-sm flex items-center">
-                  {skill.name}
-                  <Badge variant="outline" className="ml-2 text-xs">
-                    {getLevelLabel(skill.difficultyLevel)}
-                  </Badge>
+          {sortedSkills.map(skill => {
+            const skillLevel = getSkillLevel(skill.level);
+            
+            return (
+              <div key={skill.id} className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <BarChart2 className="h-4 w-4 text-primary" />
+                    <span className="font-medium text-sm">{skill.skillName}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {showLevel && (
+                      <span className={`text-xs ${skillLevel.color}`}>{skillLevel.label}</span>
+                    )}
+                    <span className="text-sm font-medium">{skill.level}%</span>
+                  </div>
                 </div>
-                <span className="text-sm text-muted-foreground">{skill.level}%</span>
+                <Progress 
+                  value={skill.level} 
+                  className={`h-2 ${
+                    skill.level > 80 ? "bg-red-200" : 
+                    skill.level > 60 ? "bg-orange-200" : 
+                    skill.level > 40 ? "bg-yellow-200" : 
+                    skill.level > 20 ? "bg-green-200" : 
+                    "bg-blue-200"
+                  }`}
+                />
+                {skill.verified && (
+                  <div className="flex justify-end mt-1">
+                    <Badge variant="outline" className="text-xs py-0 px-2 h-5">
+                      Подтверждено
+                    </Badge>
+                  </div>
+                )}
               </div>
-              <Progress value={skill.level} className="h-2" 
-                        style={{backgroundColor: getProgressColor(skill.level)}} />
-            </div>
-          ))}
+            );
+          })}
         </div>
       </CardContent>
     </Card>
   );
-}
-
-// Вспомогательные функции
-function getLevelLabel(level: number): string {
-  switch(level) {
-    case 1: return "Начальный";
-    case 2: return "Базовый";
-    case 3: return "Средний";
-    case 4: return "Продвинутый";
-    case 5: return "Эксперт";
-    default: return "Начальный";
-  }
-}
-
-function getProgressColor(level: number): string {
-  if (level < 20) return "#ef4444";
-  if (level < 40) return "#f97316";
-  if (level < 60) return "#eab308";
-  if (level < 80) return "#3b82f6";
-  return "#22c55e";
 }
