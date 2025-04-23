@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { OrbitalLayout } from "@/components/orbital-layout";
+import { GalaxyOrbitalLayout } from "@/components/galaxy-orbital-layout";
 import { ProgressRing } from "@/components/ui/progress-ring";
 import { Glassmorphism } from "@/components/ui/glassmorphism";
 import { useUserProfile } from "@/context/user-profile-context";
