@@ -27,18 +27,28 @@ export function DashboardLayout({ children, title, subtitle }: DashboardLayoutPr
       
       <Sidebar />
 
-      <main className={`flex-1 will-change-transform transition-all duration-300 ${
-        isMobile ? 
-        (isOpen ? 'ml-0' : 'ml-0') : 
-        (isOpen ? 'ml-[256px]' : 'ml-[80px]')
-      }`}>
-        <div className={`container mx-auto ${isMobile ? 'px-4' : 'px-6'} py-4 ${isMobile ? 'pt-20' : 'pt-16'}`}>
+      <main 
+        className={`flex-1 transition-all will-change-transform duration-300 ease-out ${
+          isMobile ? 
+          (isOpen ? 'ml-0' : 'ml-0') : 
+          (isOpen ? 'ml-[256px]' : 'ml-[80px]')
+        }`}
+        style={{ 
+          transform: 'translateZ(0)', 
+          backfaceVisibility: 'hidden' 
+        }}
+      >
+        <div 
+          className={`container mx-auto ${isMobile ? 'px-4' : 'px-6'} py-4 ${isMobile ? 'pt-20' : 'pt-16'}`}
+          style={{ willChange: 'contents' }}
+        >
           {(title || subtitle) && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.3, type: 'spring', damping: 25 }}
               className="mb-6"
+              layoutId="pageTitle"
             >
               {title && (
                 isBusinessSection ? (
@@ -58,9 +68,17 @@ export function DashboardLayout({ children, title, subtitle }: DashboardLayoutPr
             </motion.div>
           )}
 
-          <Glassmorphism className="rounded-xl p-4 md:p-6 w-full mb-6 overflow-x-auto">
-            {children}
-          </Glassmorphism>
+          <motion.div 
+            initial={{ opacity: 0.95 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.2 }}
+          >
+            <Glassmorphism 
+              className="rounded-xl p-4 md:p-6 w-full mb-6 overflow-x-auto"
+            >
+              {children}
+            </Glassmorphism>
+          </motion.div>
         </div>
       </main>
     </div>
