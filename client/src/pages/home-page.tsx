@@ -309,34 +309,32 @@ export default function HomePage() {
                   </div>
                 </div>
                 <div className="bg-black/40 p-2 flex-grow">
-                  <div className="rounded border border-white/10 bg-[#070218] p-3 h-full text-left">
-                    <h3 className="text-lg font-semibold text-purple-300 mb-2">Каталог курсов</h3>
-                    <p className="text-sm text-gray-300 mb-4">Исследуйте нашу библиотеку курсов по AI и Data Science</p>
+                  <div className="rounded border border-white/10 bg-[#070218] p-4 h-full text-left">
+                    <h3 className="text-xl font-semibold mb-2">Каталог курсов</h3>
+                    <p className="text-gray-300 mb-6">Исследуйте нашу библиотеку курсов по AI и Data Science</p>
                     
-                    <div className="relative rounded-lg bg-[#0a0225] p-2 mb-3">
-                      <div className="bg-slate-700/20 rounded h-8 w-full mb-3"></div>
+                    <div className="w-full h-12 rounded bg-[#0A051F] mb-6"></div>
+                    
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="rounded-lg bg-[#130A34] p-3">
+                        <div className="w-12 h-12 rounded-lg bg-purple-600/70 mb-4"></div>
+                        <div className="w-full h-4 bg-[#1E0D4D] rounded mb-3"></div>
+                        <div className="w-2/3 h-3 bg-[#1E0D4D] rounded mb-4"></div>
+                        <div className="w-full h-1.5 bg-purple-600/30 rounded-full mt-4"></div>
+                      </div>
                       
-                      <div className="grid grid-cols-3 gap-4 mt-4">
-                        <div className="rounded-lg bg-[#1a0d3a] p-3">
-                          <div className="w-8 h-8 rounded-lg bg-purple-600/50 mb-2"></div>
-                          <div className="h-4 w-32 bg-white/10 rounded mb-2"></div>
-                          <div className="h-3 w-24 bg-white/5 rounded mb-4"></div>
-                          <div className="h-2 w-full bg-purple-500/30 rounded-full mt-4"></div>
-                        </div>
-                        
-                        <div className="rounded-lg bg-[#0d2636] p-3">
-                          <div className="w-8 h-8 rounded-lg bg-cyan-600/50 mb-2"></div>
-                          <div className="h-4 w-40 bg-white/10 rounded mb-2"></div>
-                          <div className="h-3 w-24 bg-white/5 rounded mb-4"></div>
-                          <div className="h-2 w-full bg-cyan-500/30 rounded-full mt-4"></div>
-                        </div>
-                        
-                        <div className="rounded-lg bg-[#301a28] p-3">
-                          <div className="w-8 h-8 rounded-lg bg-pink-600/50 mb-2"></div>
-                          <div className="h-4 w-36 bg-white/10 rounded mb-2"></div>
-                          <div className="h-3 w-24 bg-white/5 rounded mb-4"></div>
-                          <div className="h-2 w-full bg-pink-500/30 rounded-full mt-4"></div>
-                        </div>
+                      <div className="rounded-lg bg-[#0B1F33] p-3">
+                        <div className="w-12 h-12 rounded-lg bg-cyan-600/70 mb-4"></div>
+                        <div className="w-full h-4 bg-[#0C2845] rounded mb-3"></div>
+                        <div className="w-2/3 h-3 bg-[#0C2845] rounded mb-4"></div>
+                        <div className="w-full h-1.5 bg-cyan-600/30 rounded-full mt-4"></div>
+                      </div>
+                      
+                      <div className="rounded-lg bg-[#291627] p-3">
+                        <div className="w-12 h-12 rounded-lg bg-pink-600/70 mb-4"></div>
+                        <div className="w-full h-4 bg-[#3A1D35] rounded mb-3"></div>
+                        <div className="w-2/3 h-3 bg-[#3A1D35] rounded mb-4"></div>
+                        <div className="w-full h-1.5 bg-pink-600/30 rounded-full mt-4"></div>
                       </div>
                     </div>
                   </div>
