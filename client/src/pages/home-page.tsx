@@ -159,7 +159,7 @@ export default function HomePage() {
                         <i className="fas fa-code text-3xl text-secondary/70"></i>
                       </div>
                       <div className="bg-white/5 p-3 rounded-lg">
-                        <i className="fas fa-chart-network text-3xl text-secondary/70"></i>
+                        <i className="fas fa-chart-pie text-3xl text-secondary/70"></i>
                       </div>
                     </div>
                     <p className="text-xl text-white/80">Искусственный интеллект • Машинное обучение • Data Science</p>
@@ -242,15 +242,23 @@ export default function HomePage() {
                   transition={{ duration: 0.5, delay: 0.1 * index }}
                   className="overflow-hidden rounded-xl border border-white/10"
                 >
-                  <div className="p-3 bg-black/50 backdrop-blur-sm">
-                    <h3 className="text-xl font-bold">{screenshot.title}</h3>
-                    <p className="text-white/70">{screenshot.description}</p>
+                  <div className="p-6 bg-black/50 backdrop-blur-sm">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+                        <i className={`fas ${screenshot.icon} text-2xl`}></i>
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-bold">{screenshot.title}</h3>
+                        <p className="text-white/70">{screenshot.description}</p>
+                      </div>
+                    </div>
                   </div>
-                  <img 
-                    src={screenshot.image}
-                    alt={screenshot.title}
-                    className="w-full h-auto"
-                  />
+                  <div className="p-12 bg-black/30 flex items-center justify-center">
+                    <div className="text-center">
+                      <i className={`fas ${screenshot.icon} text-6xl text-primary/60 mb-6 block`}></i>
+                      <p className="text-white/50 text-lg">Интерактивный интерфейс с интуитивной навигацией</p>
+                    </div>
+                  </div>
                 </motion.div>
               ))}
             </div>
