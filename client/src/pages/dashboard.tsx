@@ -27,6 +27,32 @@ export default function Dashboard() {
     progress: 72,
     description: "Подходит для всех пользователей от новичка до эксперта"
   });
+  const [practicalProjects, setPracticalProjects] = useState([
+    {
+      id: 1,
+      title: "Прогнозирование цен на недвижимость",
+      skillsUsed: ["Python", "Pandas", "Scikit-learn", "Data Visualization"],
+      complexity: "Средняя",
+      timeEstimate: "3-5 часов",
+      description: "Примените навыки машинного обучения и анализа данных к реальному набору данных о недвижимости."
+    },
+    {
+      id: 2,
+      title: "Чат-бот с GPT-4",
+      skillsUsed: ["API Integration", "Prompt Engineering", "JavaScript"],
+      complexity: "Легкая",
+      timeEstimate: "1-2 часа",
+      description: "Создайте простой чат-интерфейс и интегрируйте его с OpenAI API."
+    },
+    {
+      id: 3,
+      title: "Анализатор эмоций в тексте",
+      skillsUsed: ["NLP", "Python", "spaCy"],
+      complexity: "Средняя",
+      timeEstimate: "2-4 часа",
+      description: "Постройте систему для определения эмоционального тона в тексте с обучением на реальных данных."
+    }
+  ]);
   const [nextEvent, setNextEvent] = useState({
     id: "ev123",
     title: "AMA: Карьера в AI-исследованиях",
@@ -387,6 +413,74 @@ export default function Dashboard() {
                     <p className="text-white/50 text-xs mb-1">Доступ</p>
                     <p className="text-xs px-2 py-1 bg-green-500/20 text-green-400 rounded-full inline-block">Полный</p>
                   </div>
+                </div>
+              </Glassmorphism>
+            </motion.div>
+            
+            {/* Practical Application */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.35 }}
+            >
+              <Glassmorphism className="rounded-xl p-5 border border-[#FF3A8C]/30">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 flex items-center justify-center rounded-full bg-gradient-to-br from-[#FF3A8C]/20 to-[#FF3A8C]/10 text-[#FF3A8C]">
+                      <i className="fas fa-rocket text-xl"></i>
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-lg">Практическое применение</h3>
+                      <p className="text-white/50 text-xs">Применяйте полученные навыки в реальных проектах сразу же</p>
+                    </div>
+                  </div>
+                  <button className="text-white/60 hover:text-white/90 transition">
+                    <i className="fas fa-ellipsis-h"></i>
+                  </button>
+                </div>
+                
+                <div className="bg-black/20 rounded-lg mb-4">
+                  <div className="border-b border-white/10 px-4 py-3 flex justify-between items-center">
+                    <h4 className="font-medium">Проекты, доступные с вашими навыками</h4>
+                    <span className="text-xs bg-[#FF3A8C]/20 text-[#FF3A8C] px-2 py-0.5 rounded-full">Новые проекты</span>
+                  </div>
+                  
+                  <div className="divide-y divide-white/5">
+                    {practicalProjects.map((project) => (
+                      <div key={project.id} className="p-4 hover:bg-white/5 transition cursor-pointer">
+                        <div className="flex justify-between items-start mb-2">
+                          <h5 className="font-medium">{project.title}</h5>
+                          <div className="flex items-center text-xs">
+                            <span className="text-white/60">{project.complexity}</span>
+                            <span className="mx-2 text-white/30">•</span>
+                            <span className="text-white/60">{project.timeEstimate}</span>
+                          </div>
+                        </div>
+                        <p className="text-sm text-white/70 mb-3">{project.description}</p>
+                        <div className="flex flex-wrap gap-2">
+                          {project.skillsUsed.map((skill, index) => (
+                            <div key={index} className="text-xs bg-space-800 px-2 py-1 rounded-md text-white/70">
+                              {skill}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="flex justify-between">
+                  <button className="inline-flex items-center text-sm text-white/60 hover:text-white transition">
+                    <i className="fas fa-filter mr-1.5"></i>
+                    Фильтр проектов
+                  </button>
+                  <button
+                    onClick={() => setLocation('/projects')}
+                    className="inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-[#FF3A8C]/20 to-[#FF3A8C]/10 rounded-lg text-xs text-[#FF3A8C] hover:from-[#FF3A8C]/30 hover:to-[#FF3A8C]/20 transition"
+                  >
+                    <span>Все проекты</span>
+                    <i className="fas fa-arrow-right ml-1.5"></i>
+                  </button>
                 </div>
               </Glassmorphism>
             </motion.div>
