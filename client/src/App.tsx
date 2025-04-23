@@ -100,6 +100,9 @@ function Router() {
           <ProtectedRoute path="/business" component={BusinessAIOverview} />
           <ProtectedRoute path="/business/cases" component={CaseLibrary} />
           
+          {/* Progress and Analytics Routes */}
+          <ProtectedRoute path="/progress" component={Progress} />
+          
           <Route component={NotFound} />
         </Switch>
       </main>
