@@ -132,6 +132,10 @@ export function ExtendedOnboardingForm({
   // Мутация для отправки данных онбординга
   const onboardingMutation = useMutation({
     mutationFn: async (data: ExtendedOnboardingValues) => {
+      console.log("Sending onboarding data:", {
+        ...data,
+        userId,
+      });
       const res = await apiRequest("POST", "/api/profiles/onboarding", {
         ...data,
         userId,
