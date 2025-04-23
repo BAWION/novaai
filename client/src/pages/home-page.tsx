@@ -5,8 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { ParticlesBackground } from "@/components/particles-background";
 
-// Для иллюстраций используем встроенные FontAwesome иконки
-// и декларативное описание контента, так как это демо-версия
+// Пути к скриншотам для демонстрации (для Vite)
+const coursesCatalogImage = '/screenshots/courses-catalog.png';
+const labhubImage = '/screenshots/labhub.png';
+const businessAiImage = '/screenshots/business-ai.png';
+const profileImage = '/screenshots/profile.png';
 
 export default function HomePage() {
 
@@ -16,24 +19,28 @@ export default function HomePage() {
       id: "courses",
       title: "Каталог курсов",
       description: "Библиотека AI и Data Science курсов для всех уровней",
+      image: coursesCatalogImage,
       icon: "fa-book-open"
     },
     {
       id: "labhub",
       title: "LabHub",
       description: "Интерактивная лаборатория для практики ML и Data Science",
+      image: labhubImage,
       icon: "fa-flask"
     },
     {
       id: "business",
       title: "Business AI Module",
       description: "Внедрение ИИ-решений в бизнес-процессы",
+      image: businessAiImage,
       icon: "fa-briefcase"
     },
     {
       id: "profile",
       title: "Профиль пользователя",
       description: "Управление прогрессом, достижения и сертификаты",
+      image: profileImage,
       icon: "fa-user-graduate"
     }
   ];
@@ -242,10 +249,10 @@ export default function HomePage() {
                   transition={{ duration: 0.5, delay: 0.1 * index }}
                   className="overflow-hidden rounded-xl border border-white/10"
                 >
-                  <div className="p-6 bg-black/50 backdrop-blur-sm">
-                    <div className="flex items-center gap-4 mb-4">
-                      <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center text-primary">
-                        <i className={`fas ${screenshot.icon} text-2xl`}></i>
+                  <div className="p-4 bg-black/50 backdrop-blur-sm">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+                        <i className={`fas ${screenshot.icon} text-xl`}></i>
                       </div>
                       <div>
                         <h3 className="text-xl font-bold">{screenshot.title}</h3>
@@ -253,12 +260,11 @@ export default function HomePage() {
                       </div>
                     </div>
                   </div>
-                  <div className="p-12 bg-black/30 flex items-center justify-center">
-                    <div className="text-center">
-                      <i className={`fas ${screenshot.icon} text-6xl text-primary/60 mb-6 block`}></i>
-                      <p className="text-white/50 text-lg">Интерактивный интерфейс с интуитивной навигацией</p>
-                    </div>
-                  </div>
+                  <img 
+                    src={screenshot.image} 
+                    alt={screenshot.title}
+                    className="w-full h-auto"
+                  />
                 </motion.div>
               ))}
             </div>
