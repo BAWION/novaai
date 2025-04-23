@@ -27,6 +27,42 @@ export default function Dashboard() {
     progress: 72,
     description: "Подходит для всех пользователей от новичка до эксперта"
   });
+  const [personalizationData, setPersonalizationData] = useState({
+    personalizationScore: 87,
+    adjustments: [
+      {
+        id: 1,
+        title: "Адаптированный контент",
+        description: "Учебные материалы и упражнения изменены под ваш стиль обучения",
+        standard: "Универсальные материалы",
+        personalized: "Материалы с визуальными компонентами и интерактивными заданиями",
+        improvementPercent: 42
+      },
+      {
+        id: 2,
+        title: "Подбор проектов",
+        description: "Проекты подобраны под ваши интересы и цели в карьере",
+        standard: "Общие проекты для всех",
+        personalized: "Проекты в области анализа данных и прогнозирования",
+        improvementPercent: 65
+      },
+      {
+        id: 3,
+        title: "Скорость прохождения",
+        description: "Темп обучения адаптирован к вашей скорости усвоения материала",
+        standard: "Фиксированный темп",
+        personalized: "Ускоренное прохождение базовых тем, углубленное изучение сложных",
+        improvementPercent: 38
+      }
+    ],
+    learningStyle: {
+      visual: 65,
+      auditory: 30,
+      kinesthetic: 45,
+      reading: 80
+    },
+    recommendedLearningPath: "Аналитика данных с акцентом на практическое применение"
+  });
   const [practicalProjects, setPracticalProjects] = useState([
     {
       id: 1,
@@ -417,11 +453,157 @@ export default function Dashboard() {
               </Glassmorphism>
             </motion.div>
             
-            {/* Practical Application */}
+            {/* Personalization Indicator */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.35 }}
+            >
+              <Glassmorphism className="rounded-xl p-5 border border-[#2EBAE1]/30">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 flex items-center justify-center rounded-full bg-gradient-to-br from-[#2EBAE1]/20 to-[#2EBAE1]/10 text-[#8BE0F7]">
+                      <i className="fas fa-fingerprint text-xl"></i>
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-lg">Ваша уникальная программа</h3>
+                      <p className="text-white/50 text-xs">Персонализация NovaAI делает ваш путь обучения эффективнее</p>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-16 h-16 relative flex items-center justify-center">
+                        <div className="absolute inset-0 rounded-full" style={{ 
+                          background: `conic-gradient(#2EBAE1 ${personalizationData.personalizationScore}%, transparent 0%)`,
+                          mask: 'radial-gradient(transparent 55%, black 56%)',
+                          WebkitMask: 'radial-gradient(transparent 55%, black 56%)'
+                        }}></div>
+                        <div className="bg-space-900/80 absolute inset-2 rounded-full flex items-center justify-center">
+                          <span className="text-lg font-semibold">{personalizationData.personalizationScore}%</span>
+                        </div>
+                      </div>
+                      <div className="text-xs">
+                        <p className="text-white/70">Уровень</p>
+                        <p className="font-medium">персонализации</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-black/20 rounded-lg p-4 mb-4">
+                  <h4 className="font-medium mb-3">Отличия вашей программы от стандартной</h4>
+                  <div className="space-y-4">
+                    {personalizationData.adjustments.map((adjustment) => (
+                      <div key={adjustment.id} className="bg-space-900/50 rounded-lg p-3">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="font-medium">{adjustment.title}</span>
+                          <span className="text-xs bg-[#2EBAE1]/20 text-[#8BE0F7] rounded-full px-2 py-0.5">
+                            +{adjustment.improvementPercent}%
+                          </span>
+                        </div>
+                        <p className="text-sm text-white/70 mb-3">{adjustment.description}</p>
+                        <div className="flex gap-4 text-xs">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-1.5 mb-1">
+                              <div className="w-3 h-3 rounded-full bg-white/20"></div>
+                              <span className="text-white/60">Стандарт</span>
+                            </div>
+                            <div className="bg-white/5 rounded p-2 h-16 overflow-hidden">
+                              {adjustment.standard}
+                            </div>
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-1.5 mb-1">
+                              <div className="w-3 h-3 rounded-full bg-[#2EBAE1]"></div>
+                              <span className="text-[#8BE0F7]">Ваша программа</span>
+                            </div>
+                            <div className="bg-[#2EBAE1]/10 border border-[#2EBAE1]/20 rounded p-2 h-16 overflow-hidden">
+                              {adjustment.personalized}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="flex flex-col sm:flex-row justify-between gap-4">
+                  <div className="bg-space-900/40 rounded-lg p-3 flex-1">
+                    <h5 className="text-sm font-medium mb-2">Ваш стиль обучения</h5>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className="flex flex-col">
+                        <div className="flex justify-between mb-1">
+                          <span className="text-white/60">Визуальный</span>
+                          <span>{personalizationData.learningStyle.visual}%</span>
+                        </div>
+                        <div className="h-1.5 bg-space-800 rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-blue-400" 
+                            style={{ width: `${personalizationData.learningStyle.visual}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                      <div className="flex flex-col">
+                        <div className="flex justify-between mb-1">
+                          <span className="text-white/60">Аудиальный</span>
+                          <span>{personalizationData.learningStyle.auditory}%</span>
+                        </div>
+                        <div className="h-1.5 bg-space-800 rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-indigo-400" 
+                            style={{ width: `${personalizationData.learningStyle.auditory}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                      <div className="flex flex-col">
+                        <div className="flex justify-between mb-1">
+                          <span className="text-white/60">Кинестетический</span>
+                          <span>{personalizationData.learningStyle.kinesthetic}%</span>
+                        </div>
+                        <div className="h-1.5 bg-space-800 rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-purple-400" 
+                            style={{ width: `${personalizationData.learningStyle.kinesthetic}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                      <div className="flex flex-col">
+                        <div className="flex justify-between mb-1">
+                          <span className="text-white/60">Чтение/письмо</span>
+                          <span>{personalizationData.learningStyle.reading}%</span>
+                        </div>
+                        <div className="h-1.5 bg-space-800 rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-emerald-400" 
+                            style={{ width: `${personalizationData.learningStyle.reading}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-space-900/40 rounded-lg p-3 flex-1">
+                    <h5 className="text-sm font-medium mb-2">Рекомендованный путь</h5>
+                    <div className="text-xs text-white/80 mb-2 flex items-start">
+                      <i className="fas fa-route text-[#8BE0F7] mr-2 mt-0.5"></i>
+                      <span>{personalizationData.recommendedLearningPath}</span>
+                    </div>
+                    <button 
+                      onClick={() => setLocation('/personalization')}
+                      className="w-full mt-1 text-xs text-white/70 hover:text-white bg-black/30 hover:bg-black/40 transition rounded py-1.5"
+                    >
+                      <i className="fas fa-sliders-h mr-1.5"></i>
+                      Настроить персонализацию
+                    </button>
+                  </div>
+                </div>
+              </Glassmorphism>
+            </motion.div>
+            
+            {/* Practical Application */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
             >
               <Glassmorphism className="rounded-xl p-5 border border-[#FF3A8C]/30">
                 <div className="flex items-center justify-between mb-4">
@@ -489,7 +671,7 @@ export default function Dashboard() {
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
+              transition={{ duration: 0.5, delay: 0.45 }}
               className="flex flex-col md:flex-row gap-4"
             >
               <Glassmorphism className="rounded-xl p-4 md:w-1/3">
