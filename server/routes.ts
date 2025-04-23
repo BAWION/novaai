@@ -45,6 +45,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       secret: process.env.SESSION_SECRET || "nova-ai-university-secret",
     })
   );
+  
+  // Создаем тестового пользователя Vitaliy
+  (async () => {
+    try {
+      // Проверяем, существует ли пользователь
+      const vitaliy = await storage.getUserByUsername("Vitaliy");
+      
+      if (!vitaliy) {
+        // Создаем пользователя, если он не существует
+        const user = await storage.createUser({ 
+          username: "Vitaliy", 
+          password: "500500В",
+          displayName: "Виталий" 
+        });
+        
+        console.log("Тестовый пользователь Vitaliy создан:", user.id);
+      }
+    } catch (error) {
+      console.error("Ошибка при создании тестового пользователя:", error);
+    }
+  })();
 
   // Authentication routes
   app.post("/api/auth/login", async (req, res) => {
