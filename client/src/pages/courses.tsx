@@ -4,11 +4,14 @@ import { motion } from "framer-motion";
 import { Glassmorphism } from "@/components/ui/glassmorphism";
 import { ProgressRing } from "@/components/ui/progress-ring";
 import { Input } from "@/components/ui/input";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
+import { CourseGrid } from "@/components/courses/course-grid";
+import { CourseCard } from "@/components/courses/course-card";
 
 // Define course types and data
 interface Course {
   id: number;
+  slug: string;
   title: string;
   description: string;
   icon: string;
@@ -22,11 +25,15 @@ interface Course {
   progress?: number;
   updated: string;
   color: 'primary' | 'secondary' | 'accent';
+  difficulty?: number;
+  access?: string;
+  estimatedDuration?: number;
 }
 
 const SAMPLE_COURSES: Course[] = [
   {
     id: 0, // Специальный ID для нашего AI-курса (ставим первым в списке)
+    slug: "python-for-ai-beginners",
     title: "Python для начинающих в AI",
     description: "Курс знакомит с основами программирования на Python, библиотеками для анализа данных и простыми алгоритмами машинного обучения. Этот курс разработан специально для новичков без опыта программирования.",
     icon: "graduation-cap", // Используем иконку, которая точно существует
@@ -38,10 +45,14 @@ const SAMPLE_COURSES: Course[] = [
     rating: 4.9,
     enrolled: 1852,
     updated: "2025-04-22",
-    color: "primary"
+    color: "primary",
+    difficulty: 1,
+    access: "free",
+    estimatedDuration: 1200
   },
   {
     id: 1,
+    slug: "python-for-data-science",
     title: "Python для Data Science",
     description: "Основы Python и его применение для анализа данных, работы с библиотеками NumPy, Pandas и визуализации.",
     icon: "python",
@@ -54,10 +65,14 @@ const SAMPLE_COURSES: Course[] = [
     enrolled: 1245,
     progress: 45,
     updated: "2025-03-15",
-    color: "primary"
+    color: "primary",
+    difficulty: 2,
+    access: "free",
+    estimatedDuration: 1440
   },
   {
     id: 2,
+    slug: "machine-learning-basics",
     title: "Машинное обучение: основы",
     description: "Фундаментальные концепции и алгоритмы машинного обучения, от линейной регрессии до случайных лесов.",
     icon: "brain",
@@ -70,10 +85,14 @@ const SAMPLE_COURSES: Course[] = [
     enrolled: 980,
     progress: 15,
     updated: "2025-04-02",
-    color: "secondary"
+    color: "secondary",
+    difficulty: 3,
+    access: "free",
+    estimatedDuration: 1920
   },
   {
     id: 3,
+    slug: "deep-learning-pytorch",
     title: "Глубокое обучение с PyTorch",
     description: "Нейронные сети, архитектуры и обучение глубоких моделей с использованием фреймворка PyTorch.",
     icon: "network-wired",
@@ -85,10 +104,14 @@ const SAMPLE_COURSES: Course[] = [
     rating: 4.7,
     enrolled: 750,
     updated: "2025-04-10",
-    color: "accent"
+    color: "accent",
+    difficulty: 4,
+    access: "pro",
+    estimatedDuration: 2400
   },
   {
     id: 4,
+    slug: "mathematics-for-ml",
     title: "Математика для ML",
     description: "Основы линейной алгебры, дифференциального исчисления и статистики, необходимые для понимания ML алгоритмов.",
     icon: "calculator",
@@ -100,10 +123,14 @@ const SAMPLE_COURSES: Course[] = [
     rating: 4.6,
     enrolled: 1100,
     updated: "2025-04-05",
-    color: "primary"
+    color: "primary",
+    difficulty: 3,
+    access: "free",
+    estimatedDuration: 1800
   },
   {
     id: 5,
+    slug: "computer-vision",
     title: "Computer Vision",
     description: "Алгоритмы и методы компьютерного зрения, от классических методов до глубоких сверточных сетей.",
     icon: "eye",
@@ -115,10 +142,14 @@ const SAMPLE_COURSES: Course[] = [
     rating: 4.9,
     enrolled: 620,
     updated: "2025-04-15",
-    color: "secondary"
+    color: "secondary",
+    difficulty: 4,
+    access: "pro",
+    estimatedDuration: 2160
   },
   {
     id: 6,
+    slug: "nlp-text-processing",
     title: "NLP и обработка текстов",
     description: "Методы обработки естественного языка, от классических подходов до трансформеров и BERT.",
     icon: "comments",
@@ -130,7 +161,10 @@ const SAMPLE_COURSES: Course[] = [
     rating: 4.8,
     enrolled: 580,
     updated: "2025-04-20",
-    color: "accent"
+    color: "accent",
+    difficulty: 5,
+    access: "premium",
+    estimatedDuration: 1800
   }
 ];
 
