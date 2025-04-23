@@ -26,6 +26,21 @@ interface Course {
 
 const SAMPLE_COURSES: Course[] = [
   {
+    id: 999, // Специальный ID для нашего AI-курса
+    title: "Python для начинающих в AI",
+    description: "Курс знакомит с основами программирования на Python, библиотеками для анализа данных и простыми алгоритмами машинного обучения. Этот курс разработан специально для новичков без опыта программирования.",
+    icon: "robot",
+    modules: 3,
+    level: "beginner",
+    category: ["programming", "ai", "python"],
+    instructor: "NOVA AI Ассистент",
+    duration: "20 часов",
+    rating: 4.9,
+    enrolled: 1852,
+    updated: "2025-04-22",
+    color: "primary"
+  },
+  {
     id: 1,
     title: "Python для Data Science",
     description: "Основы Python и его применение для анализа данных, работы с библиотеками NumPy, Pandas и визуализации.",
@@ -306,10 +321,13 @@ export default function Courses() {
                   </div>
                   
                   <div className="mt-8 flex flex-wrap gap-3">
-                    <button className="bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:from-[#4922B2] hover:to-[#1682A1] text-white py-3 px-6 rounded-lg font-medium transition duration-300 flex items-center">
+                    <Link 
+                      to={selectedCourse.id === 999 ? "/course-ai/python-for-ai-beginners" : "#"}
+                      className="bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:from-[#4922B2] hover:to-[#1682A1] text-white py-3 px-6 rounded-lg font-medium transition duration-300 flex items-center"
+                    >
                       <i className="fas fa-play-circle mr-2"></i>
                       {selectedCourse.progress ? 'Продолжить обучение' : 'Начать обучение'}
-                    </button>
+                    </Link>
                     <button className="border border-white/20 hover:bg-white/10 text-white py-3 px-6 rounded-lg font-medium transition duration-300 flex items-center">
                       <i className="far fa-bookmark mr-2"></i>
                       Добавить в избранное
