@@ -119,6 +119,11 @@ export function Sidebar() {
   
   const [, setLocation] = useLocation();
   
+  // В мобильной версии не показываем сайдбар совсем
+  if (isMobile) {
+    return null;
+  }
+  
   // Функция для закрытия сайдбара на мобильных устройствах
   const closeSidebar = () => {
     if (isMobile) {
