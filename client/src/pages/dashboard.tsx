@@ -27,6 +27,60 @@ export default function Dashboard() {
     progress: 72,
     description: "Подходит для всех пользователей от новичка до эксперта"
   });
+  const [adaptiveAIData, setAdaptiveAIData] = useState({
+    currentTrajectory: {
+      title: "Текущие рекомендации",
+      description: "Основано на вашем прогрессе за последние 2 недели",
+      emphasis: ["Анализ данных", "Pandas", "Визуализация"],
+      skills: [
+        { name: "Python", level: 72, change: 0 },
+        { name: "Pandas", level: 58, change: 4 },
+        { name: "Data Visualization", level: 45, change: 8 },
+        { name: "SQL", level: 32, change: 2 },
+        { name: "Machine Learning", level: 29, change: -2 }
+      ],
+      adaptations: [
+        {
+          type: "Выделено больше времени",
+          reason: "Сложности с пониманием",
+          topic: "Продвинутый pandas",
+          previous: "2 часа",
+          current: "3.5 часа"
+        },
+        {
+          type: "Добавлены дополнительные упражнения",
+          reason: "Высокий интерес",
+          topic: "Визуализация данных",
+          previous: "3 упражнения",
+          current: "5 упражнений"
+        },
+        {
+          type: "Изменён порядок модулей",
+          reason: "Оптимизация последовательности",
+          topic: "Машинное обучение",
+          previous: "После SQL",
+          current: "После визуализации"
+        }
+      ],
+      historyItems: [
+        {
+          date: "2025-04-16",
+          change: "Увеличено время на модуль Pandas",
+          reason: "Анализ прогресса: 68% правильных ответов в тестах (ниже целевых 80%)"
+        },
+        {
+          date: "2025-04-19",
+          change: "Добавлены практические примеры визуализации",
+          reason: "Обнаружен высокий интерес: просмотрено 5 дополнительных материалов по теме"
+        },
+        {
+          date: "2025-04-22",
+          change: "Рекомендован курс по SQL",
+          reason: "Анализ выполненных проектов: требуется навык работы с базами данных"
+        }
+      ]
+    }
+  });
   const [personalizationData, setPersonalizationData] = useState({
     personalizationScore: 87,
     adjustments: [
@@ -453,11 +507,142 @@ export default function Dashboard() {
               </Glassmorphism>
             </motion.div>
             
-            {/* Personalization Indicator */}
+            {/* AI Adaptivity Demonstration */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.35 }}
+            >
+              <Glassmorphism className="rounded-xl p-5 border border-purple-500/30">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 flex items-center justify-center rounded-full bg-gradient-to-br from-purple-500/20 to-purple-500/10 text-purple-400">
+                      <i className="fas fa-robot text-xl"></i>
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-lg">Адаптивный ИИ в действии</h3>
+                      <p className="text-white/50 text-xs">ИИ постоянно корректирует вашу программу на основе результатов</p>
+                    </div>
+                  </div>
+                  <button className="bg-purple-500/20 text-purple-400 px-2 py-1 rounded-lg text-xs hover:bg-purple-500/30 transition">
+                    История изменений
+                  </button>
+                </div>
+                
+                <div className="bg-black/20 rounded-lg p-4 mb-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="font-medium">{adaptiveAIData.currentTrajectory.title}</h4>
+                    <span className="text-xs text-white/50">{adaptiveAIData.currentTrajectory.description}</span>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <h5 className="text-sm font-medium mb-2">Основной акцент</h5>
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {adaptiveAIData.currentTrajectory.emphasis.map((item, index) => (
+                          <div 
+                            key={index}
+                            className="bg-purple-500/20 border border-purple-500/30 text-white px-3 py-1 rounded-lg text-xs"
+                          >
+                            {item}
+                          </div>
+                        ))}
+                      </div>
+                      
+                      <h5 className="text-sm font-medium mb-2">Навыки в фокусе</h5>
+                      <div className="space-y-2">
+                        {adaptiveAIData.currentTrajectory.skills.map((skill, index) => (
+                          <div key={index} className="relative">
+                            <div className="flex justify-between items-center mb-1 text-xs">
+                              <span>{skill.name}</span>
+                              <div className="flex items-center">
+                                <span>{skill.level}%</span>
+                                {skill.change !== 0 && (
+                                  <span className={`ml-2 ${skill.change > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                    {skill.change > 0 ? '+' : ''}{skill.change}%
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="h-1.5 bg-space-800 rounded-full overflow-hidden">
+                              <div 
+                                className={`h-full ${
+                                  skill.change > 0 
+                                    ? 'bg-gradient-to-r from-purple-500 to-green-500' 
+                                    : skill.change < 0 
+                                      ? 'bg-gradient-to-r from-purple-500 to-red-500'
+                                      : 'bg-purple-500'
+                                }`}
+                                style={{ width: `${skill.level}%` }}
+                              ></div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h5 className="text-sm font-medium mb-2">Последние адаптации ИИ</h5>
+                      <div className="space-y-3">
+                        {adaptiveAIData.currentTrajectory.adaptations.map((adaptation, index) => (
+                          <div key={index} className="bg-space-900/70 rounded-lg p-3">
+                            <div className="flex justify-between items-start mb-1">
+                              <span className="font-medium text-xs">{adaptation.type}</span>
+                              <span className="text-xs bg-purple-500/20 text-purple-400 rounded px-1.5 py-0.5">
+                                {adaptation.topic}
+                              </span>
+                            </div>
+                            <p className="text-white/50 text-xs mb-2">{adaptation.reason}</p>
+                            <div className="flex text-xs">
+                              <div className="flex-1">
+                                <span className="text-white/50">Было:</span>
+                                <span className="ml-1 text-white/80">{adaptation.previous}</span>
+                              </div>
+                              <div className="flex-1">
+                                <span className="text-white/50">Стало:</span>
+                                <span className="ml-1 text-purple-400">{adaptation.current}</span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <h5 className="text-sm font-medium mb-2">История адаптаций</h5>
+                  <div className="relative pl-4 border-l border-purple-500/30 space-y-3">
+                    {adaptiveAIData.currentTrajectory.historyItems.map((item, index) => (
+                      <div key={index} className="relative">
+                        <div className="absolute -left-[17px] top-[2px] w-3 h-3 bg-space-900 rounded-full border-2 border-purple-500"></div>
+                        <div className="text-xs text-white/50 mb-0.5">{item.date}</div>
+                        <div className="text-sm">{item.change}</div>
+                        <div className="text-xs text-white/60 mt-0.5">{item.reason}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="flex justify-between">
+                  <button className="text-sm text-white/60 hover:text-white transition flex items-center">
+                    <i className="fas fa-sync-alt mr-1.5"></i>
+                    Запросить обновление
+                  </button>
+                  <button
+                    onClick={() => setLocation('/analytics')}
+                    className="inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-purple-500/20 to-purple-500/10 rounded-lg text-xs text-purple-400 hover:bg-purple-500/30 transition"
+                  >
+                    <span>Детальная статистика</span>
+                    <i className="fas fa-chart-line ml-1.5"></i>
+                  </button>
+                </div>
+              </Glassmorphism>
+            </motion.div>
+            
+            {/* Personalization Indicator */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.45 }}
             >
               <Glassmorphism className="rounded-xl p-5 border border-[#2EBAE1]/30">
                 <div className="flex items-center justify-between mb-4">
@@ -603,7 +788,7 @@ export default function Dashboard() {
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
             >
               <Glassmorphism className="rounded-xl p-5 border border-[#FF3A8C]/30">
                 <div className="flex items-center justify-between mb-4">
@@ -671,7 +856,7 @@ export default function Dashboard() {
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.45 }}
+              transition={{ duration: 0.5, delay: 0.55 }}
               className="flex flex-col md:flex-row gap-4"
             >
               <Glassmorphism className="rounded-xl p-4 md:w-1/3">
