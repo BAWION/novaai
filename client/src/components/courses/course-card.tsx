@@ -231,112 +231,13 @@ export function CourseCard({
     );
   }
 
-  // Компонент Quick View
-  const renderQuickView = () => {
-    return (
-      <AnimatePresence>
-        {showQuickView && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-            transition={{ duration: 0.2 }}
-            className="absolute z-50 w-72 bg-space-800/95 backdrop-blur-sm rounded-xl border border-white/20 shadow-xl p-4 left-full ml-4"
-            onClick={(e) => e.stopPropagation()}
-            style={{ top: "50%", transform: "translateY(-50%)" }}
-          >
-            <div className="flex space-x-3 items-center mb-3">
-              <div className={cn("rounded-lg p-2.5 text-xl", styles.icon)}>
-                <i className={`fas fa-${icon}`}></i>
-              </div>
-              <div>
-                <h4 className="font-semibold">{title}</h4>
-                <div className="flex space-x-1 mt-1">
-                  <span className={cn("px-1.5 py-0.5 rounded-sm text-xs font-medium", levelInfo.bgColor)}>
-                    {levelInfo.text}
-                  </span>
-                  {access !== "free" && (
-                    <span className={cn("px-1.5 py-0.5 rounded-sm text-xs font-medium", accessInfo.bgColor)}>
-                      {accessInfo.text}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-            
-            <p className="text-sm text-white/80 mb-3">{description}</p>
-            
-            <div className="text-xs text-white/60 mb-3">
-              <div className="flex justify-between mb-1">
-                <span><i className="fas fa-book-open mr-1"></i> Модулей: {modules}</span>
-                {estimatedDuration && (
-                  <span><i className="fas fa-clock mr-1"></i> {estimatedDuration} минут</span>
-                )}
-              </div>
-              <div className="flex justify-between">
-                <span><i className="fas fa-brain mr-1"></i> Сложность:</span>
-                {renderDifficultyStars()}
-              </div>
-            </div>
-            
-            {progress > 0 && (
-              <div className="mb-3">
-                <div className="flex justify-between text-xs mb-1">
-                  <span className="text-white/70">Прогресс:</span>
-                  <span className="text-white/70">{progress}%</span>
-                </div>
-                <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${progress}%` }}
-                    transition={{ duration: 0.8, ease: "easeOut" }}
-                    className={cn(
-                      "h-full rounded-full",
-                      progress === 100 ? "bg-green-500" : "bg-primary"
-                    )}
-                  />
-                </div>
-              </div>
-            )}
-            
-            <div className="space-y-1.5 mb-4">
-              <div className="text-xs font-medium text-white/80">Что вы изучите:</div>
-              <div className="text-xs text-white/60">
-                <div className="flex items-start space-x-1.5">
-                  <i className="fas fa-check-circle text-green-400 mt-0.5"></i>
-                  <span>Фундаментальные концепции {title}</span>
-                </div>
-                <div className="flex items-start space-x-1.5">
-                  <i className="fas fa-check-circle text-green-400 mt-0.5"></i>
-                  <span>Практические навыки работы</span>
-                </div>
-                <div className="flex items-start space-x-1.5">
-                  <i className="fas fa-check-circle text-green-400 mt-0.5"></i>
-                  <span>Современные подходы и технологии</span>
-                </div>
-              </div>
-            </div>
-            
-            <button 
-              className="w-full py-2 bg-primary hover:bg-primary/80 rounded-lg transition text-sm font-medium"
-              onClick={handleClick}
-            >
-              {progress > 0 ? "Продолжить курс" : "Начать обучение"}
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    );
-  };
-
   // Стандартный вариант карточки (по умолчанию)
   return (
     <motion.div
-      ref={cardRef}
       whileHover={{ y: -5 }}
       whileTap={{ scale: 0.98 }}
       className={cn(
-        "flex flex-col p-4 border rounded-xl cursor-pointer relative",
+        "flex flex-col p-0 border rounded-xl cursor-pointer",
         styles.border,
         styles.hover,
         "bg-gradient-to-br",
@@ -344,31 +245,71 @@ export function CourseCard({
         className
       )}
       onClick={handleClick}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
     >
-      <div className="flex justify-between items-start">
-        <div className={cn("rounded-lg p-2", styles.icon)}>
-          <i className={`fas fa-${icon} text-lg`}></i>
+      {/* Верхняя часть карточки с основной информацией */}
+      <div className="p-4">
+        <div className="flex justify-between items-start">
+          <div className={cn("rounded-lg p-2", styles.icon)}>
+            <i className={`fas fa-${icon} text-lg`}></i>
+          </div>
+          <div className="flex space-x-1">
+            <span className={cn("px-2 py-0.5 rounded text-xs font-medium", levelInfo.bgColor)}>
+              {levelInfo.text}
+            </span>
+            {access !== "free" && (
+              <span className={cn("px-2 py-0.5 rounded text-xs font-medium", accessInfo.bgColor)}>
+                {accessInfo.text}
+              </span>
+            )}
+          </div>
         </div>
-        <span className={cn("px-2 py-0.5 rounded text-xs font-medium", levelInfo.bgColor)}>
-          {levelInfo.text}
-        </span>
+        <h3 className="font-semibold mt-3">{title}</h3>
       </div>
-      <h3 className="font-semibold mt-3 mb-1">{title}</h3>
-      <p className="text-white/70 text-sm mb-3 line-clamp-2">{description}</p>
-      <div className="flex justify-between items-center mt-auto">
-        <div className="text-xs text-white/60">
-          <i className="fas fa-book-open mr-1"></i> {modules} модулей
+
+      {/* Нижняя часть карточки с подробной информацией */}
+      <div className="p-4 border-t border-white/10 bg-space-900/30 rounded-b-xl">
+        <p className="text-white/70 text-sm mb-3">{description}</p>
+        
+        <div className="space-y-2 mb-3">
+          <div className="text-xs font-medium text-white/80">Что вы изучите:</div>
+          <div className="text-xs text-white/60">
+            <div className="flex items-start space-x-1.5">
+              <i className="fas fa-check-circle text-green-400 mt-0.5"></i>
+              <span>Фундаментальные концепции и принципы</span>
+            </div>
+            <div className="flex items-start space-x-1.5">
+              <i className="fas fa-check-circle text-green-400 mt-0.5"></i>
+              <span>Практические навыки работы</span>
+            </div>
+            <div className="flex items-start space-x-1.5">
+              <i className="fas fa-check-circle text-green-400 mt-0.5"></i>
+              <span>Современные подходы и технологии</span>
+            </div>
+          </div>
         </div>
-        {access !== "free" && (
-          <span className={cn("px-2 py-0.5 rounded text-xs font-medium", accessInfo.bgColor)}>
-            {accessInfo.text}
-          </span>
-        )}
+        
+        <div className="flex justify-between items-center">
+          <div className="flex items-center space-x-2">
+            <div className="text-xs text-white/60">
+              <i className="fas fa-book-open mr-1"></i> {modules} модулей
+            </div>
+            {estimatedDuration && (
+              <div className="text-xs text-white/60">
+                <i className="fas fa-clock mr-1"></i> {estimatedDuration} мин
+              </div>
+            )}
+          </div>
+          {renderDifficultyStars()}
+        </div>
+        
+        {renderProgress()}
+        
+        <button 
+          className="w-full py-2 mt-3 bg-primary hover:bg-primary/80 rounded-lg transition text-sm font-medium"
+        >
+          {progress > 0 ? "Продолжить курс" : "Начать обучение"}
+        </button>
       </div>
-      {renderProgress()}
-      {renderQuickView()}
     </motion.div>
   );
 }
