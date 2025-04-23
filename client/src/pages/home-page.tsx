@@ -307,10 +307,10 @@ export default function HomePage() {
                       <p className="text-white/70">Библиотека AI и Data Science курсов для всех уровней</p>
                     </div>
                   </div>
-                  <div className="mt-4 h-40 flex items-center justify-center bg-black/30 rounded-md border border-white/5">
-                    <div className="text-center">
-                      <i className="fas fa-book-open text-4xl text-primary/70 mb-3 block"></i>
-                      <p className="text-white/60">Обширная коллекция курсов по искусственному интеллекту и Data Science</p>
+                  <div className="p-4 flex items-center justify-center bg-black/30 rounded-md border border-white/5">
+                    <div className="text-center w-full">
+                      <i className="fas fa-book text-5xl text-primary/70 mb-4 block"></i>
+                      <p className="text-white/90 text-center">Обширная коллекция курсов по искусственному интеллекту и Data Science</p>
                     </div>
                   </div>
                 </div>
@@ -332,10 +332,10 @@ export default function HomePage() {
                       <p className="text-white/70">Интерактивная лаборатория для практики ML и Data Science</p>
                     </div>
                   </div>
-                  <div className="mt-4 h-40 flex items-center justify-center bg-black/30 rounded-md border border-white/5">
-                    <div className="text-center">
-                      <i className="fas fa-flask text-4xl text-primary/70 mb-3 block"></i>
-                      <p className="text-white/60">Интерактивное пространство для экспериментов с алгоритмами и данными</p>
+                  <div className="p-4 flex items-center justify-center bg-black/30 rounded-md border border-white/5">
+                    <div className="text-center w-full">
+                      <i className="fas fa-flask text-5xl text-primary/70 mb-4 block"></i>
+                      <p className="text-white/90 text-center">Интерактивное пространство для экспериментов с алгоритмами и данными</p>
                     </div>
                   </div>
                 </div>
@@ -357,10 +357,10 @@ export default function HomePage() {
                       <p className="text-white/70">Внедрение ИИ-решений в бизнес-процессы</p>
                     </div>
                   </div>
-                  <div className="mt-4 h-40 flex items-center justify-center bg-black/30 rounded-md border border-white/5">
-                    <div className="text-center">
-                      <i className="fas fa-briefcase text-4xl text-primary/70 mb-3 block"></i>
-                      <p className="text-white/60">Специализированные инструменты для внедрения AI в бизнес</p>
+                  <div className="p-4 flex items-center justify-center bg-black/30 rounded-md border border-white/5">
+                    <div className="text-center w-full">
+                      <i className="fas fa-briefcase text-5xl text-primary/70 mb-4 block"></i>
+                      <p className="text-white/90 text-center">Специализированные инструменты для внедрения AI в бизнес</p>
                     </div>
                   </div>
                 </div>
@@ -382,10 +382,10 @@ export default function HomePage() {
                       <p className="text-white/70">Управление прогрессом, достижения и сертификаты</p>
                     </div>
                   </div>
-                  <div className="mt-4 h-40 flex items-center justify-center bg-black/30 rounded-md border border-white/5">
-                    <div className="text-center">
-                      <i className="fas fa-user-graduate text-4xl text-primary/70 mb-3 block"></i>
-                      <p className="text-white/60">Отслеживание прогресса и персональных достижений в обучении</p>
+                  <div className="p-4 flex items-center justify-center bg-black/30 rounded-md border border-white/5">
+                    <div className="text-center w-full">
+                      <i className="fas fa-user-graduate text-5xl text-primary/70 mb-4 block"></i>
+                      <p className="text-white/90 text-center">Отслеживание прогресса и персональных достижений в обучении</p>
                     </div>
                   </div>
                 </div>
