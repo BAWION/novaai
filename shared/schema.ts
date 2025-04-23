@@ -407,6 +407,54 @@ export const insertUserSkillGapSchema = createInsertSchema(userSkillGaps).pick({
   recommendedModules: true,
 });
 
+// Learning Events (для отслеживания событий обучения)
+export const learningEvents = pgTable("learning_events", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  eventType: text("event_type").notNull(), // lesson.view, lesson.complete, quiz.start, quiz.submit, etc.
+  entityType: text("entity_type").notNull(), // lesson, quiz, module, course
+  entityId: integer("entity_id").notNull(), // ID связанной сущности
+  data: json("data"), // Дополнительные данные о событии в формате JSON
+  duration: integer("duration"), // Длительность события в секундах (для времени просмотра/чтения)
+  createdAt: timestamp("created_at").defaultNow(),
+  sessionId: text("session_id"), // ID сессии пользователя для группировки событий
+});
+
+export const insertLearningEventSchema = createInsertSchema(learningEvents).pick({
+  userId: true,
+  eventType: true,
+  entityType: true,
+  entityId: true,
+  data: true,
+  duration: true,
+  sessionId: true,
+});
+
+// User Learning Sessions (для отслеживания сессий обучения)
+export const learningSessions = pgTable("learning_sessions", {
+  id: serial("id").primaryKey(),
+  sessionId: text("session_id").notNull().unique(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  startedAt: timestamp("started_at").defaultNow(),
+  endedAt: timestamp("ended_at"),
+  totalDuration: integer("total_duration"), // Общая длительность сессии в секундах
+  device: text("device"), // Информация об устройстве
+  platform: text("platform"), // web, mobile, tablet
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+});
+
+export const insertLearningSessionSchema = createInsertSchema(learningSessions).pick({
+  sessionId: true,
+  userId: true,
+  endedAt: true,
+  totalDuration: true,
+  device: true,
+  platform: true,
+  ipAddress: true,
+  userAgent: true,
+});
+
 // Export types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -495,3 +543,15 @@ export const insertCourseRatingSchema = createInsertSchema(courseRatings).pick({
 
 export type CourseRating = typeof courseRatings.$inferSelect;
 export type InsertCourseRating = z.infer<typeof insertCourseRatingSchema>;
+
+export type UserSkill = typeof userSkills.$inferSelect;
+export type InsertUserSkill = z.infer<typeof insertUserSkillSchema>;
+
+export type UserSkillGap = typeof userSkillGaps.$inferSelect;
+export type InsertUserSkillGap = z.infer<typeof insertUserSkillGapSchema>;
+
+export type LearningEvent = typeof learningEvents.$inferSelect;
+export type InsertLearningEvent = z.infer<typeof insertLearningEventSchema>;
+
+export type LearningSession = typeof learningSessions.$inferSelect;
+export type InsertLearningSession = z.infer<typeof insertLearningSessionSchema>;
