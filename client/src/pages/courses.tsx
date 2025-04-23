@@ -208,6 +208,7 @@ export default function Courses() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+  const [, setLocation] = useLocation();
 
   // Filter courses based on search and filters
   const filteredCourses = SAMPLE_COURSES.filter(course => {
@@ -233,6 +234,30 @@ export default function Courses() {
       month: 'long',
       day: 'numeric'
     });
+  };
+
+  // Подготовленные курсы для CourseGrid
+  const gridCourses = filteredCourses.map(course => ({
+    id: course.id,
+    slug: course.slug,
+    title: course.title,
+    description: course.description,
+    icon: course.icon,
+    modules: course.modules,
+    level: course.level,
+    color: course.color,
+    difficulty: course.difficulty || 1,
+    access: course.access || "free",
+    estimatedDuration: course.estimatedDuration,
+    progress: course.progress
+  }));
+
+  // Обработчик клика по карточке курса
+  const handleCourseSelect = (id: number) => {
+    const course = SAMPLE_COURSES.find(c => c.id === id);
+    if (course) {
+      setSelectedCourse(course);
+    }
   };
 
   return (
@@ -401,46 +426,67 @@ export default function Courses() {
                       <h4 className="font-medium">3. Продвинутые техники</h4>
                       <span className="text-xs text-white/50">4 урока</span>
                     </div>
-                    <p className="text-white/60 text-sm mt-1">Углубленное изучение методов и алгоритмов</p>
+                    <p className="text-white/60 text-sm mt-1">Углубленное изучение сложных тем</p>
                   </div>
-                  
-                  <div className="text-center pt-2">
-                    <button className="text-[#B28DFF] hover:text-[#D2B8FF] text-sm">
-                      Показать все модули ({selectedCourse.modules})
-                    </button>
+                </div>
+                <div className="mt-4 pt-4 border-t border-white/10">
+                  <div className="flex justify-between text-sm">
+                    <span>Всего</span>
+                    <span>{selectedCourse.modules} модулей • 12 уроков</span>
                   </div>
                 </div>
               </Glassmorphism>
               
-              {/* Requirements */}
+              {/* Stats */}
               <Glassmorphism className="p-5 rounded-xl">
-                <h3 className="font-medium mb-4">Требования</h3>
-                <ul className="space-y-2 pl-5 list-disc text-white/70 text-sm">
-                  <li>Базовые знания программирования</li>
-                  <li>Основы математики и статистики</li>
-                  <li>Python (начальный уровень)</li>
-                </ul>
-              </Glassmorphism>
-              
-              {/* Resources */}
-              <Glassmorphism className="p-5 rounded-xl">
-                <h3 className="font-medium mb-4">Ресурсы</h3>
-                <div className="space-y-2">
-                  <div className="flex items-center text-sm">
-                    <i className="fas fa-file-pdf text-red-400 mr-3 text-lg"></i>
-                    <span>Конспекты лекций (PDF)</span>
+                <h3 className="font-medium mb-4">Статистика</h3>
+                
+                {selectedCourse.progress !== undefined && (
+                  <div className="mb-4">
+                    <div className="flex justify-between text-sm mb-2">
+                      <span>Прогресс</span>
+                      <span>{selectedCourse.progress}%</span>
+                    </div>
+                    <div className="w-full h-1.5 bg-white/10 rounded-full">
+                      <div 
+                        className={`h-full rounded-full bg-gradient-to-r ${
+                          selectedCourse.color === 'primary' ? 'from-[#6E3AFF] to-[#9E6AFF]' :
+                          selectedCourse.color === 'secondary' ? 'from-[#2EBAE1] to-[#5ED1F9]' :
+                          'from-[#FF3A8C] to-[#FF6AB5]'
+                        }`}
+                        style={{ width: `${selectedCourse.progress}%` }}
+                      ></div>
+                    </div>
                   </div>
-                  <div className="flex items-center text-sm">
-                    <i className="fas fa-code text-green-400 mr-3 text-lg"></i>
-                    <span>Исходный код примеров</span>
+                )}
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-space-800/80 rounded-lg p-3">
+                    <div className="text-xs text-white/50 mb-1">Завершили</div>
+                    <div className="font-medium">{Math.round(selectedCourse.enrolled * 0.62)}</div>
                   </div>
-                  <div className="flex items-center text-sm">
-                    <i className="fas fa-file-csv text-blue-400 mr-3 text-lg"></i>
-                    <span>Наборы данных</span>
+                  <div className="bg-space-800/80 rounded-lg p-3">
+                    <div className="text-xs text-white/50 mb-1">Уровень</div>
+                    <div className="font-medium capitalize">
+                      {selectedCourse.level === 'beginner' ? 'Начальный' :
+                        selectedCourse.level === 'intermediate' ? 'Средний' :
+                        'Продвинутый'}
+                    </div>
                   </div>
-                  <div className="flex items-center text-sm">
-                    <i className="fas fa-video text-purple-400 mr-3 text-lg"></i>
-                    <span>Видео-материалы</span>
+                  <div className="bg-space-800/80 rounded-lg p-3">
+                    <div className="text-xs text-white/50 mb-1">Доступ</div>
+                    <div className="font-medium">
+                      {selectedCourse.access === 'free' ? 'Бесплатный' :
+                        selectedCourse.access === 'pro' ? 'Pro' :
+                        'Premium'}
+                    </div>
+                  </div>
+                  <div className="bg-space-800/80 rounded-lg p-3">
+                    <div className="text-xs text-white/50 mb-1">Оценки</div>
+                    <div className="font-medium flex items-center">
+                      <i className="fas fa-star text-yellow-400 mr-1 text-xs"></i>
+                      <span>{selectedCourse.rating.toFixed(1)}</span>
+                    </div>
                   </div>
                 </div>
               </Glassmorphism>
@@ -449,152 +495,15 @@ export default function Courses() {
         </div>
       ) : (
         <div className="space-y-6">
-          {/* Search and filters */}
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="w-full md:w-1/2 lg:w-2/3">
-              <div className="relative">
-                <i className="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-white/50"></i>
-                <Input 
-                  className="bg-space-800/50 border-white/10 pl-10 pr-4 py-3 w-full rounded-lg"
-                  placeholder="Поиск курсов..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-            </div>
-            <div className="w-full md:w-1/2 lg:w-1/3 flex gap-2">
-              <select 
-                className="w-1/2 mr-2 bg-space-800/50 border border-white/10 px-4 py-3 rounded-lg text-white appearance-none focus:outline-none focus:ring-1 focus:ring-primary relative"
-                value={selectedCategory || ''}
-                onChange={(e) => setSelectedCategory(e.target.value || null)}
-                style={{ 
-                  backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgba(255, 255, 255, 0.5)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
-                  backgroundRepeat: 'no-repeat',
-                  backgroundPosition: 'right 1rem center',
-                  backgroundSize: '1rem',
-                  color: 'white'
-                }}
-              >
-                <option value="" style={{backgroundColor: '#1a1a2e', color: 'white'}}>Все категории</option>
-                {categories.map(category => (
-                  <option key={category} value={category} style={{backgroundColor: '#1a1a2e', color: 'white'}}>{category}</option>
-                ))}
-              </select>
-              
-              <select 
-                className="w-1/2 bg-space-800/50 border border-white/10 px-4 py-3 rounded-lg text-white appearance-none focus:outline-none focus:ring-1 focus:ring-primary"
-                value={selectedLevel || ''}
-                onChange={(e) => setSelectedLevel(e.target.value || null)}
-                style={{ 
-                  backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgba(255, 255, 255, 0.5)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
-                  backgroundRepeat: 'no-repeat',
-                  backgroundPosition: 'right 1rem center',
-                  backgroundSize: '1rem',
-                  color: 'white'
-                }}
-              >
-                <option value="" style={{backgroundColor: '#1a1a2e', color: 'white'}}>Все уровни</option>
-                <option value="beginner" style={{backgroundColor: '#1a1a2e', color: 'white'}}>Начальный</option>
-                <option value="intermediate" style={{backgroundColor: '#1a1a2e', color: 'white'}}>Средний</option>
-                <option value="advanced" style={{backgroundColor: '#1a1a2e', color: 'white'}}>Продвинутый</option>
-              </select>
-            </div>
-          </div>
-          
-          {/* Course grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredCourses.map((course) => (
-              <motion.div
-                key={course.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: course.id * 0.1 }}
-                whileHover={{ y: -5, transition: { duration: 0.2 } }}
-                className="h-full"
-              >
-                <Glassmorphism className="p-0 rounded-xl overflow-hidden h-full flex flex-col">
-                  <div className={`bg-gradient-to-r ${
-                    course.color === 'primary' ? 'from-[#6E3AFF]/30 to-[#9E6AFF]/10' :
-                    course.color === 'secondary' ? 'from-[#2EBAE1]/30 to-[#5ED1F9]/10' :
-                    'from-[#FF3A8C]/30 to-[#FF6AB5]/10'
-                  } p-5`}>
-                    <div className="flex justify-between items-start">
-                      <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${
-                        course.color === 'primary' ? 'from-[#6E3AFF] to-[#9E6AFF]' :
-                        course.color === 'secondary' ? 'from-[#2EBAE1] to-[#5ED1F9]' :
-                        'from-[#FF3A8C] to-[#FF6AB5]'
-                      } flex items-center justify-center text-white`}>
-                        <i className={`fas fa-${course.icon} text-lg`}></i>
-                      </div>
-                      <LevelBadge level={course.level} />
-                    </div>
-                    <h3 className="font-semibold text-lg mt-4">{course.title}</h3>
-                    <div className="flex items-center mt-2 text-sm">
-                      <i className="fas fa-user-tie mr-1 text-white/50"></i>
-                      <span className="text-white/70">{course.instructor}</span>
-                    </div>
-                  </div>
-                  
-                  <div className="p-5 flex-1 flex flex-col">
-                    <p className="text-white/70 text-sm line-clamp-2 mb-4 flex-grow">
-                      {course.description}
-                    </p>
-                    
-                    <div className="grid grid-cols-2 gap-2 mb-4 text-xs text-white/60">
-                      <div className="flex items-center">
-                        <i className="far fa-clock mr-1"></i>
-                        <span>{course.duration}</span>
-                      </div>
-                      <div className="flex items-center">
-                        <i className="fas fa-book mr-1"></i>
-                        <span>{course.modules} модулей</span>
-                      </div>
-                      <div className="flex items-center">
-                        <i className="fas fa-users mr-1"></i>
-                        <span>{course.enrolled} студентов</span>
-                      </div>
-                      <div className="flex items-center">
-                        <i className="fas fa-star text-yellow-400 mr-1"></i>
-                        <span>{course.rating.toFixed(1)}</span>
-                      </div>
-                    </div>
-                    
-                    {course.progress !== undefined && (
-                      <div className="w-full h-1.5 bg-white/10 rounded-full mb-4">
-                        <div 
-                          className={`h-full rounded-full bg-gradient-to-r ${
-                            course.color === 'primary' ? 'from-[#6E3AFF] to-[#9E6AFF]' :
-                            course.color === 'secondary' ? 'from-[#2EBAE1] to-[#5ED1F9]' :
-                            'from-[#FF3A8C] to-[#FF6AB5]'
-                          }`}
-                          style={{ width: `${course.progress}%` }}
-                        ></div>
-                      </div>
-                    )}
-                    
-                    <button 
-                      onClick={() => setSelectedCourse(course)}
-                      className="w-full bg-white/10 hover:bg-white/20 text-white py-2 px-4 rounded-lg transition duration-300"
-                    >
-                      {course.progress ? 'Продолжить' : 'Подробнее'}
-                    </button>
-                  </div>
-                </Glassmorphism>
-              </motion.div>
-            ))}
-          </div>
-          
-          {filteredCourses.length === 0 && (
-            <div className="text-center py-12">
-              <div className="text-6xl mb-4 opacity-20">
-                <i className="fas fa-search"></i>
-              </div>
-              <h3 className="text-xl font-semibold mb-2">Курсы не найдены</h3>
-              <p className="text-white/60">
-                Попробуйте изменить параметры поиска или фильтры
-              </p>
-            </div>
-          )}
+          <CourseGrid 
+            courses={gridCourses}
+            loading={false}
+            emptyMessage="Курсы не найдены. Попробуйте изменить параметры поиска."
+            variant="default"
+            columns={3}
+            showFilters={true}
+            className="mb-8"
+          />
         </div>
       )}
     </DashboardLayout>
