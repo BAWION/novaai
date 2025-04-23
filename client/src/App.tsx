@@ -8,6 +8,7 @@ import { AuthProvider } from "@/context/auth-context";
 import { useAuth } from "@/context/auth-context";
 import { UserProfileProvider } from "@/context/user-profile-context";
 import { ParticlesBackground } from "@/components/particles-background";
+import HomePage from "@/pages/home-page";
 import Login from "@/pages/login";
 import Onboarding from "@/pages/onboarding";
 import OrbitalLobby from "@/pages/orbital-lobby";
@@ -70,8 +71,8 @@ function Router() {
   const { isAuthenticated } = useAuth();
   const [location] = useLocation();
   
-  // Check if we're on the login page or other public pages
-  const isPublicPage = location === "/login" || location === "/onboarding";
+  // Check if we're on public pages
+  const isPublicPage = location === "/" || location === "/login" || location === "/onboarding";
   
   return (
     <div className="flex flex-col min-h-screen">
@@ -79,11 +80,12 @@ function Router() {
       
       <main className="flex-grow">
         <Switch>
+          {/* Публичные маршруты */}
+          <Route path="/" component={HomePage} />
           <Route path="/login" component={Login} />
           <Route path="/onboarding" component={Onboarding} />
           
           {/* Protected Routes */}
-          <ProtectedRoute path="/" component={Dashboard} />
           <ProtectedRoute path="/dashboard" component={Dashboard} />
           <ProtectedRoute path="/roadmap" component={Roadmap} />
           <ProtectedRoute path="/courses" component={Courses} />
