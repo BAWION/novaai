@@ -32,7 +32,11 @@ import {
   type UserQuizAnswer,
   type InsertUserQuizAnswer,
   type AIChatHistory,
-  type InsertAIChatHistory
+  type InsertAIChatHistory,
+  type UserFavoriteCourse,
+  type InsertUserFavoriteCourse,
+  type CourseRating,
+  type InsertCourseRating
 } from "@shared/schema";
 
 export interface IStorage {
@@ -163,22 +167,30 @@ export class MemStorage implements IStorage {
   private userProfiles: Map<number, UserProfile>;
   private courses: Map<number, Course>;
   private userCourseProgress: Map<string, UserCourseProgress>;
+  private userFavoriteCourses: Map<string, UserFavoriteCourse>;
+  private courseRatings: Map<string, CourseRating>;
   
   private userIdCounter: number;
   private profileIdCounter: number;
   private courseIdCounter: number;
   private progressIdCounter: number;
+  private favoriteIdCounter: number;
+  private ratingIdCounter: number;
 
   constructor() {
     this.users = new Map();
     this.userProfiles = new Map();
     this.courses = new Map();
     this.userCourseProgress = new Map();
+    this.userFavoriteCourses = new Map();
+    this.courseRatings = new Map();
     
     this.userIdCounter = 1;
     this.profileIdCounter = 1;
     this.courseIdCounter = 1;
     this.progressIdCounter = 1;
+    this.favoriteIdCounter = 1;
+    this.ratingIdCounter = 1;
     
     // Initialize with some sample courses
     this.initSampleData();
@@ -191,42 +203,72 @@ export class MemStorage implements IStorage {
       {
         title: "Python Basics",
         description: "Основы программирования на Python",
+        slug: "python-basics",
         icon: "code",
         modules: 8,
         level: "basic",
-        color: "secondary"
+        color: "secondary",
+        difficulty: 1,
+        access: "free",
+        version: "1.0",
+        estimatedDuration: 900,
+        tags: ["python", "programming", "beginner"]
       },
       {
         title: "Math Lite",
         description: "Математика для машинного обучения",
+        slug: "math-lite",
         icon: "calculator",
         modules: 5,
         level: "basic",
-        color: "primary"
+        color: "primary",
+        difficulty: 2,
+        access: "free",
+        version: "1.0",
+        estimatedDuration: 720,
+        tags: ["math", "linear-algebra", "statistics"]
       },
       {
         title: "Data Analysis",
         description: "Анализ и визуализация данных",
+        slug: "data-analysis",
         icon: "database",
         modules: 6,
         level: "practice",
-        color: "secondary"
+        color: "secondary",
+        difficulty: 3,
+        access: "pro",
+        version: "1.0",
+        estimatedDuration: 840,
+        tags: ["data-science", "pandas", "visualization"]
       },
       {
         title: "ML Foundations",
         description: "Основы машинного обучения",
+        slug: "ml-foundations",
         icon: "brain",
         modules: 7,
         level: "in-progress",
-        color: "primary"
+        color: "primary",
+        difficulty: 4,
+        access: "pro",
+        version: "1.0",
+        estimatedDuration: 1200,
+        tags: ["machine-learning", "sklearn", "models"]
       },
       {
         title: "Capstone Project",
         description: "Выпускной проект",
+        slug: "capstone-project",
         icon: "project-diagram",
         modules: 3,
         level: "upcoming",
-        color: "accent"
+        color: "accent",
+        difficulty: 5,
+        access: "expert",
+        version: "1.0",
+        estimatedDuration: 1800,
+        tags: ["project", "advanced", "team-work"]
       }
     ];
     
@@ -393,6 +435,115 @@ export class MemStorage implements IStorage {
         streakDays
       });
     }
+  }
+  
+  // User Favorite Courses (Bookmarks) methods
+  async getUserFavoriteCourses(userId: number): Promise<UserFavoriteCourse[]> {
+    return Array.from(this.userFavoriteCourses.values()).filter(
+      favorite => favorite.userId === userId
+    );
+  }
+  
+  async getFavoriteCourse(userId: number, courseId: number): Promise<UserFavoriteCourse | undefined> {
+    const key = `${userId}-${courseId}`;
+    return this.userFavoriteCourses.get(key);
+  }
+  
+  async addCourseToFavorites(data: InsertUserFavoriteCourse): Promise<UserFavoriteCourse> {
+    const { userId, courseId } = data;
+    const key = `${userId}-${courseId}`;
+    
+    // Check if already in favorites
+    const existing = await this.getFavoriteCourse(userId, courseId);
+    if (existing) {
+      return existing;
+    }
+    
+    const id = this.favoriteIdCounter++;
+    const now = new Date();
+    
+    const favorite: UserFavoriteCourse = {
+      id,
+      userId,
+      courseId,
+      addedAt: now
+    };
+    
+    this.userFavoriteCourses.set(key, favorite);
+    return favorite;
+  }
+  
+  async removeCourseFromFavorites(userId: number, courseId: number): Promise<void> {
+    const key = `${userId}-${courseId}`;
+    this.userFavoriteCourses.delete(key);
+  }
+  
+  // Course Ratings methods
+  async getCourseRatings(courseId: number): Promise<CourseRating[]> {
+    return Array.from(this.courseRatings.values()).filter(
+      rating => rating.courseId === courseId
+    );
+  }
+  
+  async getUserCourseRating(userId: number, courseId: number): Promise<CourseRating | undefined> {
+    const key = `${userId}-${courseId}`;
+    return this.courseRatings.get(key);
+  }
+  
+  async getCourseAverageRating(courseId: number): Promise<number> {
+    const ratings = await this.getCourseRatings(courseId);
+    
+    if (ratings.length === 0) {
+      return 0;
+    }
+    
+    const sum = ratings.reduce((acc, rating) => acc + rating.rating, 0);
+    return parseFloat((sum / ratings.length).toFixed(1));
+  }
+  
+  async rateCourse(data: InsertCourseRating): Promise<CourseRating> {
+    const { userId, courseId, rating, review } = data;
+    const key = `${userId}-${courseId}`;
+    
+    // Check if user already rated this course
+    const existing = await this.getUserCourseRating(userId, courseId);
+    if (existing) {
+      return this.updateCourseRating(userId, courseId, { rating, review });
+    }
+    
+    const id = this.ratingIdCounter++;
+    const now = new Date();
+    
+    const courseRating: CourseRating = {
+      id,
+      userId,
+      courseId,
+      rating,
+      review: review || null,
+      createdAt: now,
+      updatedAt: now
+    };
+    
+    this.courseRatings.set(key, courseRating);
+    return courseRating;
+  }
+  
+  async updateCourseRating(userId: number, courseId: number, data: Partial<CourseRating>): Promise<CourseRating> {
+    const key = `${userId}-${courseId}`;
+    const existing = this.courseRatings.get(key);
+    
+    if (!existing) {
+      throw new Error(`Rating not found for user ${userId} and course ${courseId}`);
+    }
+    
+    const updated: CourseRating = {
+      ...existing,
+      ...data,
+      updatedAt: new Date()
+    };
+    
+    this.courseRatings.set(key, updated);
+    return updated;
   }
 }
 
