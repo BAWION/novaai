@@ -1,5 +1,6 @@
 import React, { ReactNode } from "react";
 import { Sidebar, useSidebarContext } from "./sidebar";
+import { BottomNavigation } from "./bottom-navigation";
 import { ParticlesBackground } from "@/components/particles-background";
 import { motion } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -26,13 +27,14 @@ export function DashboardLayout({ children, title, subtitle }: DashboardLayoutPr
       {!isBusinessSection && <ParticlesBackground />}
       
       <Sidebar />
+      <BottomNavigation />
 
       <main 
         className={`flex-1 transition-all will-change-transform duration-300 ease-out ${
           isMobile ? 
           (isOpen ? 'ml-0' : 'ml-0') : 
           (isOpen ? 'ml-[256px]' : 'ml-[80px]')
-        }`}
+        } ${isMobile ? 'pb-20' : ''}`}
         style={{ 
           transform: 'translateZ(0)', 
           backfaceVisibility: 'hidden' 
