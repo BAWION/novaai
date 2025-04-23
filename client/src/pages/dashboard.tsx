@@ -27,14 +27,14 @@ export default function Dashboard() {
     participants: 78
   });
   const [aiAdvice, setAiAdvice] = useState({
-    title: "AI-подсказка: MSE в регрессии",
-    content: "В последней лабораторной работе у вас заметно повышенный MSE. Попробуйте нормализовать входные данные перед тренировкой модели, это может решить проблему.",
-    area: "LabHub: Linear Regression"
+    title: "AI-рекомендация по обучению",
+    content: "Основываясь на вашем прогрессе, рекомендую сфокусироваться на модуле «Обработка данных». Это улучшит ваши навыки для следующего проекта и поможет лучше понять концепции машинного обучения.",
+    area: "Персональная образовательная траектория"
   });
   const [personalStats, setPersonalStats] = useState({
     totalHours: 47,
     completedModules: 12,
-    rank: 42
+    skillsAcquired: 8
   });
   const [forumTopic, setForumTopic] = useState({
     title: "Как оптимизировать pipeline для NLP?",
@@ -119,7 +119,7 @@ export default function Dashboard() {
           <div className="text-white/60 text-sm flex items-center gap-2">
             <span className="text-primary">NovaAI</span>
             <i className="fas fa-chevron-right text-xs"></i>
-            <span>Панель управления</span>
+            <span>Образовательный центр</span>
           </div>
           <div className="flex items-center gap-4">
             <div className="hidden md:flex items-center gap-2 bg-space-800/50 rounded-lg px-3 py-1.5 text-white/50 text-sm">
@@ -141,9 +141,9 @@ export default function Dashboard() {
           className="mb-2"
         >
           <h1 className="font-orbitron text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#B28DFF] via-[#8BE0F7] to-[#B28DFF]">
-            Мой космический центр
+            Мой образовательный путь
           </h1>
-          <p className="text-white/70 text-md mt-1">Добро пожаловать на персональную орбиту обучения</p>
+          <p className="text-white/70 text-md mt-1">Персонализированная траектория развития в NovaAI</p>
         </motion.div>
         
         {/* Content columns */}
@@ -158,7 +158,7 @@ export default function Dashboard() {
             >
               <div className="flex justify-between items-center mb-4">
                 <h2 className="font-orbitron text-xl font-semibold">
-                  Ваши образовательные орбиты
+                  Рекомендованные курсы
                 </h2>
                 <div className="flex items-center bg-space-900/50 rounded-lg overflow-hidden">
                   <button 
@@ -173,11 +173,19 @@ export default function Dashboard() {
                     className={`px-3 py-1.5 text-sm ${viewMode === 'tracks' ? 'bg-primary/30 text-white' : 'text-white/60'}`}
                   >
                     <i className="fas fa-road mr-1"></i>
-                    По трекам
+                    По навыкам
                   </button>
                 </div>
               </div>
               <OrbitalLayout />
+              <div className="flex justify-end mt-2">
+                <Link href="/courses">
+                  <div className="text-sm text-white/70 hover:text-white transition inline-flex items-center">
+                    Смотреть все курсы
+                    <i className="fas fa-chevron-right ml-1.5 text-xs"></i>
+                  </div>
+                </Link>
+              </div>
             </motion.div>
             
             {/* AI Advice Section */}
@@ -200,13 +208,19 @@ export default function Dashboard() {
                   {aiAdvice.content}
                 </p>
                 <div className="flex gap-2 mt-3">
-                  <button className="px-3 py-1 bg-[#2EBAE1]/20 hover:bg-[#2EBAE1]/30 rounded-lg text-xs text-[#8BE0F7] flex items-center">
-                    <i className="fas fa-code mr-1.5"></i>
-                    Показать пример кода
+                  <button 
+                    onClick={() => setLocation('/roadmap')}
+                    className="px-3 py-1 bg-[#2EBAE1]/20 hover:bg-[#2EBAE1]/30 rounded-lg text-xs text-[#8BE0F7] flex items-center"
+                  >
+                    <i className="fas fa-route mr-1.5"></i>
+                    Показать в дорожной карте
                   </button>
-                  <button className="px-3 py-1 bg-black/20 hover:bg-black/30 rounded-lg text-xs text-white/70 flex items-center">
-                    <i className="fas fa-check mr-1.5"></i>
-                    Полезно
+                  <button
+                    onClick={() => setLocation('/courses')}
+                    className="px-3 py-1 bg-black/20 hover:bg-black/30 rounded-lg text-xs text-white/70 flex items-center"
+                  >
+                    <i className="fas fa-book mr-1.5"></i>
+                    Найти курс
                   </button>
                 </div>
               </Glassmorphism>
@@ -237,9 +251,9 @@ export default function Dashboard() {
               
               <Glassmorphism className="rounded-xl p-4 md:w-1/3">
                 <div className="flex flex-col items-center justify-center h-full">
-                  <i className="fas fa-trophy text-2xl text-[#FF3A8C]/70 mb-1"></i>
-                  <div className="text-2xl font-orbitron">#{personalStats.rank}</div>
-                  <div className="text-white/50 text-xs text-center">Ваш ранг</div>
+                  <i className="fas fa-brain text-2xl text-[#FF3A8C]/70 mb-1"></i>
+                  <div className="text-2xl font-orbitron">{personalStats.skillsAcquired}</div>
+                  <div className="text-white/50 text-xs text-center">Приобретенных навыков</div>
                 </div>
               </Glassmorphism>
             </motion.div>
@@ -407,8 +421,17 @@ export default function Dashboard() {
                     </p>
                   </div>
                 </div>
-                <div className="mt-3 flex justify-end">
-                  <button className="text-xs text-white/70 hover:text-white transition flex items-center">
+                <div className="mt-3 flex justify-between items-center">
+                  <button 
+                    onClick={() => setLocation('/courses')}
+                    className="text-xs text-white/70 hover:text-white transition flex items-center"
+                  >
+                    <i className="fas fa-graduation-cap mr-1.5"></i>
+                    Назад к обучению
+                  </button>
+                  <button 
+                    className="text-xs text-white/70 hover:text-white transition flex items-center"
+                  >
                     Открыть обсуждение
                     <i className="fas fa-arrow-right ml-1.5"></i>
                   </button>
@@ -423,9 +446,12 @@ export default function Dashboard() {
               transition={{ duration: 0.5, delay: 0.7 }}
               className="flex justify-end"
             >
-              <button className="text-sm text-white/50 hover:text-white/80 transition flex items-center gap-1.5">
-                <i className="fas fa-cog"></i>
-                <span>Настроить панель</span>
+              <button 
+                onClick={() => setLocation('/roadmap')}
+                className="text-sm text-white/50 hover:text-white/80 transition flex items-center gap-1.5"
+              >
+                <i className="fas fa-map"></i>
+                <span>Перейти к карте обучения</span>
               </button>
             </motion.div>
           </div>
