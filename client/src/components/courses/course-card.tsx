@@ -1,8 +1,9 @@
-import React from "react";
-import { motion } from "framer-motion";
+import React, { useState, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from "wouter";
 import { Glassmorphism } from "@/components/ui/glassmorphism";
 import { cn } from "@/lib/utils";
+import { useOnClickOutside } from "@/hooks/use-on-click-outside";
 
 interface CourseCardProps {
   id: number;
@@ -40,6 +41,11 @@ export function CourseCard({
   onClick,
 }: CourseCardProps) {
   const [, setLocation] = useLocation();
+  const [showQuickView, setShowQuickView] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+  
+  // Закрываем Quick View при клике вне карточки
+  useOnClickOutside(cardRef, () => setShowQuickView(false));
 
   const handleClick = () => {
     if (onClick) {
@@ -47,6 +53,25 @@ export function CourseCard({
     } else {
       setLocation(`/courses/${slug}`);
     }
+  };
+  
+  // Управление отображением Quick View
+  const handleMouseEnter = () => {
+    // Задержка перед показом для избежания мерцания при случайном наведении
+    const timer = setTimeout(() => {
+      setShowQuickView(true);
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  };
+  
+  const handleMouseLeave = () => {
+    // Задержка перед скрытием, чтобы пользователь мог навести на Quick View
+    const timer = setTimeout(() => {
+      setShowQuickView(false);
+    }, 300);
+    
+    return () => clearTimeout(timer);
   };
 
   // Визуальные настройки для разных цветов
@@ -206,13 +231,112 @@ export function CourseCard({
     );
   }
 
+  // Компонент Quick View
+  const renderQuickView = () => {
+    return (
+      <AnimatePresence>
+        {showQuickView && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            transition={{ duration: 0.2 }}
+            className="absolute z-50 w-72 bg-space-800/95 backdrop-blur-sm rounded-xl border border-white/20 shadow-xl p-4 left-full ml-4"
+            onClick={(e) => e.stopPropagation()}
+            style={{ top: "50%", transform: "translateY(-50%)" }}
+          >
+            <div className="flex space-x-3 items-center mb-3">
+              <div className={cn("rounded-lg p-2.5 text-xl", styles.icon)}>
+                <i className={`fas fa-${icon}`}></i>
+              </div>
+              <div>
+                <h4 className="font-semibold">{title}</h4>
+                <div className="flex space-x-1 mt-1">
+                  <span className={cn("px-1.5 py-0.5 rounded-sm text-xs font-medium", levelInfo.bgColor)}>
+                    {levelInfo.text}
+                  </span>
+                  {access !== "free" && (
+                    <span className={cn("px-1.5 py-0.5 rounded-sm text-xs font-medium", accessInfo.bgColor)}>
+                      {accessInfo.text}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+            
+            <p className="text-sm text-white/80 mb-3">{description}</p>
+            
+            <div className="text-xs text-white/60 mb-3">
+              <div className="flex justify-between mb-1">
+                <span><i className="fas fa-book-open mr-1"></i> Модулей: {modules}</span>
+                {estimatedDuration && (
+                  <span><i className="fas fa-clock mr-1"></i> {estimatedDuration} минут</span>
+                )}
+              </div>
+              <div className="flex justify-between">
+                <span><i className="fas fa-brain mr-1"></i> Сложность:</span>
+                {renderDifficultyStars()}
+              </div>
+            </div>
+            
+            {progress > 0 && (
+              <div className="mb-3">
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="text-white/70">Прогресс:</span>
+                  <span className="text-white/70">{progress}%</span>
+                </div>
+                <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${progress}%` }}
+                    transition={{ duration: 0.8, ease: "easeOut" }}
+                    className={cn(
+                      "h-full rounded-full",
+                      progress === 100 ? "bg-green-500" : "bg-primary"
+                    )}
+                  />
+                </div>
+              </div>
+            )}
+            
+            <div className="space-y-1.5 mb-4">
+              <div className="text-xs font-medium text-white/80">Что вы изучите:</div>
+              <div className="text-xs text-white/60">
+                <div className="flex items-start space-x-1.5">
+                  <i className="fas fa-check-circle text-green-400 mt-0.5"></i>
+                  <span>Фундаментальные концепции {title}</span>
+                </div>
+                <div className="flex items-start space-x-1.5">
+                  <i className="fas fa-check-circle text-green-400 mt-0.5"></i>
+                  <span>Практические навыки работы</span>
+                </div>
+                <div className="flex items-start space-x-1.5">
+                  <i className="fas fa-check-circle text-green-400 mt-0.5"></i>
+                  <span>Современные подходы и технологии</span>
+                </div>
+              </div>
+            </div>
+            
+            <button 
+              className="w-full py-2 bg-primary hover:bg-primary/80 rounded-lg transition text-sm font-medium"
+              onClick={handleClick}
+            >
+              {progress > 0 ? "Продолжить курс" : "Начать обучение"}
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    );
+  };
+
   // Стандартный вариант карточки (по умолчанию)
   return (
     <motion.div
+      ref={cardRef}
       whileHover={{ y: -5 }}
       whileTap={{ scale: 0.98 }}
       className={cn(
-        "flex flex-col p-4 border rounded-xl cursor-pointer",
+        "flex flex-col p-4 border rounded-xl cursor-pointer relative",
         styles.border,
         styles.hover,
         "bg-gradient-to-br",
@@ -220,6 +344,8 @@ export function CourseCard({
         className
       )}
       onClick={handleClick}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       <div className="flex justify-between items-start">
         <div className={cn("rounded-lg p-2", styles.icon)}>
@@ -242,6 +368,7 @@ export function CourseCard({
         )}
       </div>
       {renderProgress()}
+      {renderQuickView()}
     </motion.div>
   );
 }
