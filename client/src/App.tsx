@@ -29,6 +29,7 @@ import CaseLibrary from "@/pages/business/cases";
 import CourseAI from "@/pages/course-ai";
 import CoursePage from "@/pages/course-page";
 import KnowledgeVault from "@/pages/knowledge-vault";
+import SkillsPage from "@/pages/skills-page";
 
 interface ProtectedRouteProps {
   component: React.ComponentType;
@@ -115,6 +116,9 @@ function Router() {
           
           {/* Knowledge Vault - Хранилище знаний */}
           <ProtectedRoute path="/knowledge-vault" component={KnowledgeVault} />
+          
+          {/* Карта навыков и учебный прогресс */}
+          <ProtectedRoute path="/skills" component={SkillsPage} />
           
           <Route component={NotFound} />
         </Switch>

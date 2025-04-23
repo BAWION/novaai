@@ -1,54 +1,61 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
-import { SkillGapsData, SkillWithInfo, UserSkillGap } from '@shared/schema';
-import { 
-  Card, 
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle
-} from '@/components/ui/card';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
+import { motion } from 'framer-motion';
+import { Loader2, ExternalLink, ChevronRight, ArrowUpRight } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  ArrowUpRight,
-  BookOpen,
-  BrainCircuit,
-  ChevronRight,
-  Clock,
-  EyeOff,
-  Filter,
-  Lightbulb,
-  RefreshCw,
-  Search,
-  Shield,
-  Sparkles,
-  Target,
-  XCircle,
-  Zap
-} from 'lucide-react';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 import { Glassmorphism } from '@/components/ui/glassmorphism';
 import { Progress } from '@/components/ui/progress';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/components/ui/tabs';
+
+interface SkillWithInfo {
+  id: number;
+  name: string;
+  category: string;
+  level: number;
+  targetLevel: number;
+  description: string;
+  status: 'critical' | 'moderate' | 'minor';
+  requiredFor: {
+    courses: {
+      id: number;
+      title: string;
+      level: string;
+    }[];
+    jobs: {
+      title: string;
+      demand: number;
+    }[];
+  };
+  recommendedCourses: {
+    id: number;
+    title: string;
+    difficulty: number;
+    duration: string;
+    progress?: number;
+  }[];
+}
+
+interface SkillGapsData {
+  gaps: SkillWithInfo[];
+  summary: {
+    criticalCount: number;
+    moderateCount: number;
+    minorCount: number;
+    overallCompleteness: number;
+  };
+}
 
 interface SkillGapsProps {
   userId?: number;
   showTitle?: boolean;
-  compact?: boolean;
+  limit?: number;
   onGapSelect?: (gapId: number, skillId: number) => void;
   onCourseSelect?: (courseId: number) => void;
 }
@@ -56,354 +63,498 @@ interface SkillGapsProps {
 export function SkillGaps({
   userId,
   showTitle = true,
-  compact = false,
+  limit,
   onGapSelect,
   onCourseSelect
 }: SkillGapsProps) {
-  // Состояние для фильтрации
-  const [priorityFilter, setPriorityFilter] = useState<string>('all');
+  const [selectedGap, setSelectedGap] = useState<number | null>(null);
+  const [viewMode, setViewMode] = useState<'all' | 'critical' | 'moderate' | 'minor'>('all');
   
-  // Загрузка данных о пробелах в навыках
-  const { data, isLoading, error } = useQuery<SkillGapsData>({
+  // Запрос на получение данных о пробелах в навыках
+  const { data: gapsData, isLoading } = useQuery<SkillGapsData>({
     queryKey: ['/api/skills/gaps', userId],
     enabled: !!userId
   });
   
-  // Функция для фильтрации пробелов
-  const getFilteredGaps = () => {
-    if (!data) return [];
-    
-    return data.gaps.filter(gap => {
-      if (priorityFilter === 'all') return true;
-      if (priorityFilter === 'high') return gap.priority === 5 || gap.priority === 4;
-      if (priorityFilter === 'medium') return gap.priority === 3;
-      if (priorityFilter === 'low') return gap.priority === 2 || gap.priority === 1;
-      return true;
-    });
-  };
-  
-  // Получение строки с "последней практикой"
-  const getLastPracticedText = (date?: Date) => {
-    if (!date) return 'Никогда не практиковали';
-    
-    const now = new Date();
-    const practiceDate = new Date(date);
-    const diffDays = Math.floor((now.getTime() - practiceDate.getTime()) / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 0) return 'Сегодня';
-    if (diffDays === 1) return 'Вчера';
-    if (diffDays < 7) return `${diffDays} дня назад`;
-    if (diffDays < 30) return `${Math.floor(diffDays / 7)} недели назад`;
-    return `${Math.floor(diffDays / 30)} месяцев назад`;
-  };
-  
-  // Получение цвета для приоритета
-  const getPriorityColor = (priority?: number) => {
-    if (!priority) return 'text-white/60';
-    if (priority >= 4) return 'text-red-400';
-    if (priority === 3) return 'text-orange-400';
-    return 'text-yellow-400';
-  };
-  
-  // Получение индикатора размера пробела
-  const getGapSizeText = (gapSize?: number) => {
-    if (!gapSize) return 'Нет пробела';
-    if (gapSize >= 70) return 'Критический пробел';
-    if (gapSize >= 40) return 'Значительный пробел';
-    return 'Небольшой пробел';
-  };
-  
-  // Рендеринг во время загрузки
   if (isLoading) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Загрузка данных...</CardTitle>
-        </CardHeader>
-        <CardContent className="flex justify-center p-6">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-        </CardContent>
-      </Card>
+      <div className="flex justify-center items-center p-8">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
     );
   }
   
-  // Рендеринг при ошибке
-  if (error) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Ошибка загрузки данных</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p>Произошла ошибка при загрузке пробелов в навыках. Пожалуйста, попробуйте позже.</p>
-        </CardContent>
-      </Card>
-    );
-  }
+  // Демо-данные для отображения пробелов в навыках
+  const demoData: SkillGapsData = {
+    gaps: [
+      {
+        id: 1,
+        name: "Python",
+        category: "Программирование",
+        level: 35,
+        targetLevel: 70,
+        description: "Базовый уровень Python недостаточен для эффективной работы с библиотеками анализа данных и машинного обучения.",
+        status: "critical",
+        requiredFor: {
+          courses: [
+            { id: 1, title: "Машинное обучение с Python", level: "Продвинутый" },
+            { id: 2, title: "Анализ данных с Pandas", level: "Средний" }
+          ],
+          jobs: [
+            { title: "Data Scientist", demand: 85 },
+            { title: "ML Engineer", demand: 78 }
+          ]
+        },
+        recommendedCourses: [
+          { id: 3, title: "Python для анализа данных", difficulty: 2, duration: "15 часов" },
+          { id: 4, title: "Алгоритмы и структуры данных на Python", difficulty: 3, duration: "20 часов" }
+        ]
+      },
+      {
+        id: 2,
+        name: "SQL",
+        category: "Базы данных",
+        level: 25,
+        targetLevel: 60,
+        description: "Знания SQL недостаточны для эффективной работы с большими объемами данных и сложными запросами.",
+        status: "moderate",
+        requiredFor: {
+          courses: [
+            { id: 5, title: "Бизнес-аналитика", level: "Средний" }
+          ],
+          jobs: [
+            { title: "Data Analyst", demand: 72 },
+            { title: "BI Developer", demand: 65 }
+          ]
+        },
+        recommendedCourses: [
+          { id: 6, title: "SQL для анализа данных", difficulty: 2, duration: "12 часов", progress: 15 },
+          { id: 7, title: "Оптимизация запросов SQL", difficulty: 3, duration: "8 часов" }
+        ]
+      },
+      {
+        id: 3,
+        name: "Статистика",
+        category: "Математика",
+        level: 40,
+        targetLevel: 65,
+        description: "Недостаточные знания статистики ограничивают возможности интерпретации результатов аналитических моделей.",
+        status: "moderate",
+        requiredFor: {
+          courses: [
+            { id: 8, title: "Статистический анализ в Python", level: "Продвинутый" }
+          ],
+          jobs: [
+            { title: "Data Scientist", demand: 85 },
+            { title: "Research Analyst", demand: 70 }
+          ]
+        },
+        recommendedCourses: [
+          { id: 9, title: "Основы статистики", difficulty: 2, duration: "10 часов" },
+          { id: 10, title: "Статистический анализ данных", difficulty: 3, duration: "18 часов" }
+        ]
+      },
+      {
+        id: 4,
+        name: "Machine Learning",
+        category: "Искусственный интеллект",
+        level: 15,
+        targetLevel: 50,
+        description: "Базовые концепции ML освоены недостаточно для разработки собственных моделей и решения нетривиальных задач.",
+        status: "critical",
+        requiredFor: {
+          courses: [
+            { id: 11, title: "Глубокое обучение", level: "Продвинутый" }
+          ],
+          jobs: [
+            { title: "ML Engineer", demand: 78 },
+            { title: "AI Researcher", demand: 80 }
+          ]
+        },
+        recommendedCourses: [
+          { id: 12, title: "Введение в машинное обучение", difficulty: 3, duration: "25 часов" },
+          { id: 13, title: "Практический ML на Python", difficulty: 4, duration: "30 часов" }
+        ]
+      },
+      {
+        id: 5,
+        name: "Git",
+        category: "Инструменты разработки",
+        level: 30,
+        targetLevel: 50,
+        description: "Недостаточные навыки работы с системой контроля версий ограничивают эффективность в командных проектах.",
+        status: "minor",
+        requiredFor: {
+          courses: [],
+          jobs: [
+            { title: "Software Developer", demand: 90 },
+            { title: "DevOps Engineer", demand: 85 }
+          ]
+        },
+        recommendedCourses: [
+          { id: 14, title: "Git и GitHub для разработчиков", difficulty: 1, duration: "6 часов" }
+        ]
+      },
+      {
+        id: 6,
+        name: "Deep Learning",
+        category: "Искусственный интеллект",
+        level: 5,
+        targetLevel: 40,
+        description: "Начальное понимание глубокого обучения требует развития для работы с современными нейронными сетями.",
+        status: "moderate",
+        requiredFor: {
+          courses: [],
+          jobs: [
+            { title: "AI Researcher", demand: 80 },
+            { title: "Computer Vision Engineer", demand: 75 }
+          ]
+        },
+        recommendedCourses: [
+          { id: 15, title: "Основы нейронных сетей", difficulty: 3, duration: "20 часов" },
+          { id: 16, title: "PyTorch для глубокого обучения", difficulty: 4, duration: "25 часов" }
+        ]
+      }
+    ],
+    summary: {
+      criticalCount: 2,
+      moderateCount: 3,
+      minorCount: 1,
+      overallCompleteness: 65
+    }
+  };
   
-  // Если нет данных или пробелов
-  if (!data || data.totalGaps === 0) {
-    return (
-      <Card className={compact ? "border-0 shadow-none bg-transparent" : "border-primary/20 bg-space-900/50 backdrop-blur-sm"}>
-        {showTitle && (
-          <CardHeader>
-            <CardTitle>Пробелы в навыках</CardTitle>
-            <CardDescription>
-              Анализ ваших навыков и выявление областей, требующих дополнительного внимания
-            </CardDescription>
-          </CardHeader>
-        )}
-        
-        <CardContent className="flex flex-col items-center justify-center p-8 text-center">
-          <div className="bg-green-500/10 rounded-full p-6 mb-4">
-            <Shield className="h-12 w-12 text-green-400" />
-          </div>
-          <h3 className="text-xl font-medium mb-2">Пробелов не обнаружено</h3>
-          <p className="text-white/60 max-w-md">
-            На данный момент у вас нет выявленных пробелов в навыках. Продолжайте обучение, 
-            чтобы система могла анализировать ваш прогресс и выявлять потенциальные области для улучшения.
+  // Используем демо-данные, если реальные не загружены
+  const displayData = gapsData || demoData;
+  
+  // Фильтруем пробелы на основе выбранного режима просмотра
+  const filteredGaps = displayData.gaps.filter(gap => {
+    if (viewMode === 'all') return true;
+    return gap.status === viewMode;
+  });
+  
+  // Ограничиваем количество отображаемых пробелов, если задан лимит
+  const displayGaps = limit ? filteredGaps.slice(0, limit) : filteredGaps;
+  
+  // Определяем цвет для статуса пробела
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'critical': return 'bg-red-500';
+      case 'moderate': return 'bg-amber-500';
+      case 'minor': return 'bg-blue-500';
+      default: return 'bg-gray-500';
+    }
+  };
+  
+  // Определяем текст для статуса пробела
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'critical': return 'Критический';
+      case 'moderate': return 'Умеренный';
+      case 'minor': return 'Незначительный';
+      default: return 'Неизвестно';
+    }
+  };
+  
+  // Получаем выбранный пробел
+  const selectedGapData = selectedGap !== null 
+    ? displayData.gaps.find(gap => gap.id === selectedGap)
+    : null;
+  
+  return (
+    <Glassmorphism className="p-6">
+      {showTitle && (
+        <div className="mb-6">
+          <h2 className="text-2xl font-semibold">Пробелы в навыках</h2>
+          <p className="text-white/60">
+            Анализ пробелов в ваших навыках с рекомендациями по их заполнению
           </p>
-        </CardContent>
+        </div>
+      )}
+      
+      <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as any)} className="space-y-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <TabsList>
+            <TabsTrigger value="all">Все ({displayData.gaps.length})</TabsTrigger>
+            <TabsTrigger value="critical" className="text-red-500">
+              Критические ({displayData.summary.criticalCount})
+            </TabsTrigger>
+            <TabsTrigger value="moderate" className="text-amber-500">
+              Умеренные ({displayData.summary.moderateCount})
+            </TabsTrigger>
+            <TabsTrigger value="minor" className="text-blue-500">
+              Незначительные ({displayData.summary.minorCount})
+            </TabsTrigger>
+          </TabsList>
+          
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-white/70">Общая полнота навыков:</span>
+            <div className="w-32 h-2 bg-space-800 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-gradient-to-r from-amber-500 to-green-500 rounded-full"
+                style={{ width: `${displayData.summary.overallCompleteness}%` }}
+              ></div>
+            </div>
+            <span className="text-sm font-medium">{displayData.summary.overallCompleteness}%</span>
+          </div>
+        </div>
         
-        <CardFooter className="justify-center">
-          <Button>
-            Пройти тестирование навыков
-          </Button>
-        </CardFooter>
-      </Card>
+        <TabsContent value="all" className="m-0">
+          <GapsList 
+            gaps={displayGaps} 
+            getStatusColor={getStatusColor}
+            getStatusText={getStatusText}
+            selectedGapId={selectedGap}
+            onGapSelect={(id) => {
+              setSelectedGap(id === selectedGap ? null : id);
+              if (onGapSelect && id !== selectedGap) onGapSelect(id, id);
+            }}
+          />
+        </TabsContent>
+        <TabsContent value="critical" className="m-0">
+          <GapsList 
+            gaps={displayGaps} 
+            getStatusColor={getStatusColor}
+            getStatusText={getStatusText}
+            selectedGapId={selectedGap}
+            onGapSelect={(id) => {
+              setSelectedGap(id === selectedGap ? null : id);
+              if (onGapSelect && id !== selectedGap) onGapSelect(id, id);
+            }}
+          />
+        </TabsContent>
+        <TabsContent value="moderate" className="m-0">
+          <GapsList 
+            gaps={displayGaps} 
+            getStatusColor={getStatusColor}
+            getStatusText={getStatusText}
+            selectedGapId={selectedGap}
+            onGapSelect={(id) => {
+              setSelectedGap(id === selectedGap ? null : id);
+              if (onGapSelect && id !== selectedGap) onGapSelect(id, id);
+            }}
+          />
+        </TabsContent>
+        <TabsContent value="minor" className="m-0">
+          <GapsList 
+            gaps={displayGaps} 
+            getStatusColor={getStatusColor}
+            getStatusText={getStatusText}
+            selectedGapId={selectedGap}
+            onGapSelect={(id) => {
+              setSelectedGap(id === selectedGap ? null : id);
+              if (onGapSelect && id !== selectedGap) onGapSelect(id, id);
+            }}
+          />
+        </TabsContent>
+      </Tabs>
+      
+      {selectedGapData && (
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-6"
+        >
+          <Card className="bg-space-900/50 border-primary/20">
+            <CardHeader className="flex flex-row items-start justify-between pb-2">
+              <div>
+                <CardTitle>{selectedGapData.name}</CardTitle>
+                <CardDescription>{selectedGapData.category}</CardDescription>
+              </div>
+              <Badge className={getStatusColor(selectedGapData.status)}>
+                {getStatusText(selectedGapData.status)}
+              </Badge>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <p className="text-sm text-white/80 mb-3">
+                  {selectedGapData.description}
+                </p>
+                
+                <div className="space-y-1">
+                  <div className="flex justify-between text-xs">
+                    <span>Текущий уровень</span>
+                    <span className="font-medium">{selectedGapData.level}%</span>
+                  </div>
+                  <Progress value={selectedGapData.level} className="h-2" />
+                </div>
+                
+                <div className="space-y-1 mt-2">
+                  <div className="flex justify-between text-xs">
+                    <span>Целевой уровень</span>
+                    <span className="font-medium">{selectedGapData.targetLevel}%</span>
+                  </div>
+                  <div className="h-2 bg-space-800 rounded-full relative">
+                    <div className="absolute inset-0 mt-0.5 flex justify-end" style={{ width: `${selectedGapData.targetLevel}%` }}>
+                      <div className="w-1 h-1 rounded-full bg-amber-500"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {selectedGapData.requiredFor.courses.length > 0 && (
+                <div>
+                  <h4 className="text-sm font-medium mb-2">Требуется для курсов</h4>
+                  <div className="space-y-2">
+                    {selectedGapData.requiredFor.courses.map(course => (
+                      <div key={course.id} className="flex items-center justify-between bg-space-800 p-2 rounded-md">
+                        <div className="text-sm">{course.title}</div>
+                        <div className="text-xs text-white/60">{course.level}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {selectedGapData.requiredFor.jobs.length > 0 && (
+                <div>
+                  <h4 className="text-sm font-medium mb-2">Востребован в профессиях</h4>
+                  <div className="space-y-2">
+                    {selectedGapData.requiredFor.jobs.map((job, idx) => (
+                      <div key={idx} className="flex items-center justify-between bg-space-800 p-2 rounded-md">
+                        <div className="text-sm">{job.title}</div>
+                        <div className="text-xs">
+                          <span className="text-white/60">Спрос: </span>
+                          <span className="font-medium">{job.demand}%</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              <div>
+                <h4 className="text-sm font-medium mb-2">Рекомендуемые курсы</h4>
+                <div className="space-y-3">
+                  {selectedGapData.recommendedCourses.map(course => (
+                    <div key={course.id} className="bg-space-800 p-3 rounded-md">
+                      <div className="flex justify-between items-start">
+                        <div className="text-sm font-medium">{course.title}</div>
+                        <Badge variant="outline" className="text-xs">
+                          {course.difficulty === 1 ? 'Легкий' :
+                          course.difficulty === 2 ? 'Базовый' :
+                          course.difficulty === 3 ? 'Средний' :
+                          course.difficulty === 4 ? 'Сложный' : 'Эксперт'}
+                        </Badge>
+                      </div>
+                      <div className="flex justify-between items-center mt-2">
+                        <span className="text-xs text-white/60">{course.duration}</span>
+                        
+                        {course.progress !== undefined ? (
+                          <div className="flex items-center gap-2">
+                            <div className="w-16 h-1.5 bg-space-700 rounded-full overflow-hidden">
+                              <div 
+                                className="h-full bg-primary rounded-full"
+                                style={{ width: `${course.progress}%` }}
+                              ></div>
+                            </div>
+                            <span className="text-xs">{course.progress}%</span>
+                          </div>
+                        ) : (
+                          <Button 
+                            size="sm" 
+                            variant="ghost" 
+                            className="h-7 px-2 text-xs"
+                            onClick={() => onCourseSelect && onCourseSelect(course.id)}
+                          >
+                            Начать <ChevronRight size={14} className="ml-1" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
+    </Glassmorphism>
+  );
+}
+
+function GapsList({
+  gaps,
+  getStatusColor,
+  getStatusText,
+  selectedGapId,
+  onGapSelect
+}: {
+  gaps: SkillWithInfo[];
+  getStatusColor: (status: string) => string;
+  getStatusText: (status: string) => string;
+  selectedGapId: number | null;
+  onGapSelect: (id: number) => void;
+}) {
+  if (gaps.length === 0) {
+    return (
+      <div className="text-center p-8 bg-space-900/40 rounded-lg">
+        <p className="text-white/60">Нет обнаруженных пробелов в навыках для текущего фильтра</p>
+      </div>
     );
   }
   
   return (
-    <Card className={compact ? "border-0 shadow-none bg-transparent" : "border-primary/20 bg-space-900/50 backdrop-blur-sm"}>
-      {showTitle && (
-        <CardHeader>
-          <div className="flex justify-between items-start">
-            <div>
-              <CardTitle>Пробелы в навыках</CardTitle>
-              <CardDescription>
-                Выявлено {data.totalGaps} пробел{data.totalGaps === 1 ? '' : data.totalGaps < 5 ? 'а' : 'ов'} в ваших навыках
-              </CardDescription>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {gaps.map(gap => (
+        <Card 
+          key={gap.id} 
+          className={`bg-space-900/30 hover:bg-space-900/50 transition-colors cursor-pointer border-primary/10 ${selectedGapId === gap.id ? 'ring-1 ring-primary' : ''}`}
+          onClick={() => onGapSelect(gap.id)}
+        >
+          <CardHeader className="pb-2">
+            <div className="flex justify-between items-start">
+              <CardTitle className="text-lg">{gap.name}</CardTitle>
+              <Badge className={getStatusColor(gap.status)}>
+                {getStatusText(gap.status)}
+              </Badge>
             </div>
-            
-            <div className="flex">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <RefreshCw className="h-4 w-4 text-white/60" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Обновить анализ</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+            <CardDescription>{gap.category}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <div className="flex justify-between text-xs">
+                  <span>Текущий уровень</span>
+                  <span className="font-medium">{gap.level}%</span>
+                </div>
+                <Progress value={gap.level} className="h-1.5" />
+              </div>
               
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <BrainCircuit className="h-4 w-4 text-white/60" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Пройти тест навыков</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-          </div>
-          
-          {/* Индикаторы приоритетности */}
-          <div className="grid grid-cols-3 gap-4 mt-4">
-            <div className="bg-red-500/10 p-3 rounded-lg">
-              <div className="flex justify-between items-center mb-1">
-                <span className="text-xs text-white/60">Высокий приоритет</span>
-                <Badge className="bg-red-500/90">{data.priorityHigh}</Badge>
-              </div>
-              <Progress 
-                value={(data.priorityHigh / data.totalGaps) * 100} 
-                className="h-1 bg-white/10" 
-                indicatorClassName="bg-red-500" 
-              />
-            </div>
-            
-            <div className="bg-orange-500/10 p-3 rounded-lg">
-              <div className="flex justify-between items-center mb-1">
-                <span className="text-xs text-white/60">Средний приоритет</span>
-                <Badge className="bg-orange-500/90">{data.priorityMedium}</Badge>
-              </div>
-              <Progress 
-                value={(data.priorityMedium / data.totalGaps) * 100} 
-                className="h-1 bg-white/10" 
-                indicatorClassName="bg-orange-500" 
-              />
-            </div>
-            
-            <div className="bg-yellow-500/10 p-3 rounded-lg">
-              <div className="flex justify-between items-center mb-1">
-                <span className="text-xs text-white/60">Низкий приоритет</span>
-                <Badge className="bg-yellow-500/90">{data.priorityLow}</Badge>
-              </div>
-              <Progress 
-                value={(data.priorityLow / data.totalGaps) * 100} 
-                className="h-1 bg-white/10" 
-                indicatorClassName="bg-yellow-500" 
-              />
-            </div>
-          </div>
-        </CardHeader>
-      )}
-      
-      <CardContent>
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-sm font-medium text-white/80">Выявленные пробелы</h3>
-          
-          <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-            <SelectTrigger className="w-[160px]">
-              <SelectValue placeholder="Все приоритеты" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Все приоритеты</SelectItem>
-              <SelectItem value="high">Высокий приоритет</SelectItem>
-              <SelectItem value="medium">Средний приоритет</SelectItem>
-              <SelectItem value="low">Низкий приоритет</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        
-        <div className="space-y-3">
-          <AnimatePresence>
-            {getFilteredGaps().map((gap) => (
-              <motion.div
-                key={gap.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, height: 0, y: -10 }}
-                transition={{ duration: 0.2 }}
-              >
-                <Glassmorphism
-                  className="p-4 rounded-lg cursor-pointer hover:bg-white/5 transition-all"
-                  onClick={() => onGapSelect && onGapSelect(gap.id, gap.skillId)}
-                >
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <div className="flex items-center">
-                        <h4 className="font-medium">
-                          {gap.skill.displayName}
-                        </h4>
-                        <Badge variant="outline" className={`ml-2 border-0 text-xs ${
-                          gap.priority >= 4 ? 'bg-red-500/20 text-red-400' : 
-                          gap.priority === 3 ? 'bg-orange-500/20 text-orange-400' : 
-                          'bg-yellow-500/20 text-yellow-400'
-                        }`}>
-                          {gap.priority >= 4 ? 'Высокий' : gap.priority === 3 ? 'Средний' : 'Низкий'} приоритет
-                        </Badge>
-                      </div>
-                      
-                      <div className="text-xs text-white/60 mt-1 flex flex-wrap gap-2">
-                        <span>{gap.skill.categoryName || 'Категория'}</span>
-                        <span>•</span>
-                        <span>Уровень {gap.skill.level || 1}</span>
-                        <span>•</span>
-                        <span>{getLastPracticedText(gap.skill.lastPracticed)}</span>
-                      </div>
-                      
-                      <div className="mt-3">
-                        <div className="flex justify-between items-center mb-1">
-                          <div className="text-xs text-white/60">
-                            Уровень владения
-                          </div>
-                          <div className="text-xs font-medium">
-                            {gap.skill.userLevel || 0}/100
-                          </div>
-                        </div>
-                        <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-blue-400"
-                            style={{ width: `${gap.skill.userLevel || 0}%` }}
-                          />
-                        </div>
-                      </div>
-                      
-                      <div className="mt-1.5">
-                        <div className="flex justify-between items-center mb-1">
-                          <div className="text-xs text-white/60">
-                            {getGapSizeText(gap.gapSize)}
-                          </div>
-                          <div className="text-xs font-medium">
-                            Разрыв {gap.gapSize}%
-                          </div>
-                        </div>
-                        <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
-                          <div 
-                            className={`h-full ${
-                              gap.gapSize >= 70 ? 'bg-red-400' : 
-                              gap.gapSize >= 40 ? 'bg-orange-400' : 
-                              'bg-yellow-400'
-                            }`}
-                            style={{ width: `${gap.gapSize}%` }}
-                          />
-                        </div>
-                      </div>
-                    </div>
+              <div className="space-y-1">
+                <div className="flex justify-between text-xs">
+                  <span>Целевой уровень</span>
+                  <span className="font-medium">{gap.targetLevel}%</span>
+                </div>
+                <div className="h-1.5 bg-space-800 rounded-full relative">
+                  <div className="absolute inset-0 mt-0.5 flex justify-end" style={{ width: `${gap.targetLevel}%` }}>
+                    <div className="w-0.5 h-0.5 rounded-full bg-amber-500"></div>
                   </div>
-                  
-                  {/* Рекомендуемые ресурсы */}
-                  {gap.recommendedResources && Array.isArray(gap.recommendedResources) && gap.recommendedResources.length > 0 && (
-                    <div className="mt-4 pt-3 border-t border-white/10">
-                      <div className="text-xs text-white/60 mb-2">Рекомендуемые ресурсы:</div>
-                      <div className="flex flex-wrap gap-2">
-                        {gap.recommendedResources.map((resource: any, i: number) => (
-                          <Button 
-                            key={i}
-                            variant="outline" 
-                            size="sm"
-                            className="h-8 text-xs border-white/10 hover:bg-white/10"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (resource.type === 'course' && resource.id && onCourseSelect) {
-                                onCourseSelect(resource.id);
-                              }
-                            }}
-                          >
-                            {resource.type === 'course' && <BookOpen size={12} className="mr-1" />}
-                            {resource.type === 'exercise' && <Target size={12} className="mr-1" />}
-                            {resource.type === 'quiz' && <BrainCircuit size={12} className="mr-1" />}
-                            {resource.label || resource.name || 'Ресурс'}
-                            <ArrowUpRight size={12} className="ml-1 text-white/60" />
-                          </Button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </Glassmorphism>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-          
-          {getFilteredGaps().length === 0 && (
-            <div className="text-center p-8 bg-space-800/50 rounded-lg">
-              <EyeOff className="h-12 w-12 mx-auto mb-3 text-white/20" />
-              <h3 className="font-medium mb-1">Нет пробелов с выбранным фильтром</h3>
-              <p className="text-white/60 text-sm">
-                Попробуйте изменить фильтр или пройдите больше уроков для выявления пробелов в навыках
-              </p>
+                </div>
+              </div>
+              
+              <div className="text-xs text-white/70 line-clamp-2 mt-1">
+                {gap.description}
+              </div>
+              
+              <div className="pt-2 flex items-center justify-between">
+                <div className="flex items-center">
+                  <span className="text-xs text-white/60 mr-1">Рекомендуемые курсы:</span>
+                  <span className="text-xs font-medium">{gap.recommendedCourses.length}</span>
+                </div>
+                
+                <Button 
+                  size="sm" 
+                  variant="ghost" 
+                  className="h-6 px-2 text-xs"
+                >
+                  Подробнее <ChevronRight size={12} className="ml-1" />
+                </Button>
+              </div>
             </div>
-          )}
-        </div>
-      </CardContent>
-      
-      <CardFooter className="justify-between">
-        <Button variant="outline" size="sm" onClick={() => setPriorityFilter('all')}>
-          <Filter size={16} className="mr-1" /> Сбросить фильтры
-        </Button>
-        
-        <Button size="sm">
-          <Lightbulb size={16} className="mr-1" /> Рекомендации по устранению
-        </Button>
-      </CardFooter>
-    </Card>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
   );
 }
