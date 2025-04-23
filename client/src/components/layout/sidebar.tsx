@@ -46,17 +46,18 @@ type NavItemProps = {
   onClick?: () => void;
 };
 
-const NavItem = ({ icon, label, to, isActive, onClick }: NavItemProps) => {
+// Оптимизированный NavItem с мемоизацией для предотвращения ненужных ререндеров
+const NavItem = React.memo(function NavItem({ icon, label, to, isActive, onClick }: NavItemProps) {
   const { isOpen } = useSidebarContext();
   
   // Просто вызываем переданный onClick, навигация теперь в handleNavigation
-  const handleClick = (event: React.MouseEvent) => {
+  const handleClick = React.useCallback((event: React.MouseEvent) => {
     event.preventDefault();
     
     if (onClick) {
       onClick();
     }
-  };
+  }, [onClick]);
 
   return (
     <motion.div
@@ -108,7 +109,7 @@ const NavItem = ({ icon, label, to, isActive, onClick }: NavItemProps) => {
       </Link>
     </motion.div>
   );
-};
+});
 
 export function Sidebar() {
   const [location] = useLocation();
