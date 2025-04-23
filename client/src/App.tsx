@@ -22,7 +22,6 @@ import Settings from "@/pages/settings";
 import NotFound from "@/pages/not-found";
 import BusinessAIOverview from "@/pages/business";
 import CaseLibrary from "@/pages/business/cases";
-import Progress from "@/pages/progress";
 
 interface ProtectedRouteProps {
   component: React.ComponentType;
@@ -99,9 +98,6 @@ function Router() {
           {/* Business AI Module Routes */}
           <ProtectedRoute path="/business" component={BusinessAIOverview} />
           <ProtectedRoute path="/business/cases" component={CaseLibrary} />
-          
-          {/* Progress and Analytics Routes */}
-          <ProtectedRoute path="/progress" component={Progress} />
           
           <Route component={NotFound} />
         </Switch>

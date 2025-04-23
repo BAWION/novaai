@@ -1,40 +1,28 @@
-import React from 'react';
-import { cn } from '@/lib/utils';
+import React from "react";
+import { cn } from "@/lib/utils";
 
-interface GlassmorphismProps extends React.HTMLAttributes<HTMLDivElement> {
-  intensity?: 'low' | 'medium' | 'high';
-  className?: string;
+interface GlassmorphismProps {
   children: React.ReactNode;
+  className?: string;
+  borderGradient?: boolean;
 }
 
-export function Glassmorphism({
-  intensity = 'medium',
-  className,
+export const Glassmorphism = ({
   children,
-  ...props
-}: GlassmorphismProps) {
-  const getBgOpacity = () => {
-    switch (intensity) {
-      case 'low':
-        return 'bg-black/10 backdrop-blur-sm';
-      case 'high':
-        return 'bg-black/40 backdrop-blur-xl';
-      case 'medium':
-      default:
-        return 'bg-black/20 backdrop-blur-md';
-    }
-  };
-
+  className,
+  borderGradient = false,
+}: GlassmorphismProps) => {
   return (
     <div
       className={cn(
-        getBgOpacity(),
-        'border border-white/10 shadow-lg',
+        "relative bg-space-800/30 backdrop-blur-md",
+        borderGradient 
+          ? "before:absolute before:inset-0 before:rounded-[inherit] before:p-[1px] before:bg-gradient-to-r before:from-[#6E3AFF]/40 before:to-[#2EBAE1]/40 before:-z-10"
+          : "border border-white/10", 
         className
       )}
-      {...props}
     >
       {children}
     </div>
   );
-}
+};
