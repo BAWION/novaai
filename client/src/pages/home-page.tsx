@@ -313,28 +313,61 @@ export default function HomePage() {
                     <h3 className="text-xl font-semibold mb-2">Каталог курсов</h3>
                     <p className="text-gray-300 mb-6">Исследуйте нашу библиотеку курсов по AI и Data Science</p>
                     
-                    <div className="w-full h-12 rounded bg-[#0A051F] mb-6"></div>
+                    <div className="w-full rounded bg-[#0A051F] mb-6 p-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-5 h-5 text-slate-500">
+                          <i className="fas fa-search"></i>
+                        </div>
+                        <div className="text-slate-500 text-sm">Найти курс по названию или тематике...</div>
+                      </div>
+                      <div className="mt-2 flex gap-2">
+                        <div className="px-2 py-1 bg-purple-800/30 rounded text-xs text-purple-300">
+                          <i className="fas fa-hashtag mr-1"></i>Python
+                        </div>
+                        <div className="px-2 py-1 bg-blue-800/30 rounded text-xs text-blue-300">
+                          <i className="fas fa-hashtag mr-1"></i>ML
+                        </div>
+                        <div className="px-2 py-1 bg-pink-800/30 rounded text-xs text-pink-300">
+                          <i className="fas fa-hashtag mr-1"></i>Нейросети
+                        </div>
+                      </div>
+                    </div>
                     
                     <div className="grid grid-cols-3 gap-4">
                       <div className="rounded-lg bg-[#130A34] p-3">
-                        <div className="w-12 h-12 rounded-lg bg-purple-600/70 mb-4"></div>
-                        <div className="w-full h-4 bg-[#1E0D4D] rounded mb-3"></div>
-                        <div className="w-2/3 h-3 bg-[#1E0D4D] rounded mb-4"></div>
-                        <div className="w-full h-1.5 bg-purple-600/30 rounded-full mt-4"></div>
+                        <div className="w-12 h-12 rounded-lg bg-purple-600/70 mb-4 flex items-center justify-center text-white">
+                          <i className="fas fa-brain text-xl"></i>
+                        </div>
+                        <div className="text-white text-sm font-medium mb-1">Основы нейронных сетей</div>
+                        <div className="text-xs text-gray-400 mb-3">12 модулей • 8 недель</div>
+                        <div className="w-full h-1.5 bg-slate-800/50 rounded-full mt-4">
+                          <div className="w-3/4 h-1.5 bg-purple-600 rounded-full"></div>
+                        </div>
+                        <div className="text-right text-xs text-purple-400 mt-1">75%</div>
                       </div>
                       
                       <div className="rounded-lg bg-[#0B1F33] p-3">
-                        <div className="w-12 h-12 rounded-lg bg-cyan-600/70 mb-4"></div>
-                        <div className="w-full h-4 bg-[#0C2845] rounded mb-3"></div>
-                        <div className="w-2/3 h-3 bg-[#0C2845] rounded mb-4"></div>
-                        <div className="w-full h-1.5 bg-cyan-600/30 rounded-full mt-4"></div>
+                        <div className="w-12 h-12 rounded-lg bg-cyan-600/70 mb-4 flex items-center justify-center text-white">
+                          <i className="fas fa-chart-line text-xl"></i>
+                        </div>
+                        <div className="text-white text-sm font-medium mb-1">Data Science на Python</div>
+                        <div className="text-xs text-gray-400 mb-3">14 модулей • 10 недель</div>
+                        <div className="w-full h-1.5 bg-slate-800/50 rounded-full mt-4">
+                          <div className="w-1/2 h-1.5 bg-cyan-600 rounded-full"></div>
+                        </div>
+                        <div className="text-right text-xs text-cyan-400 mt-1">50%</div>
                       </div>
                       
                       <div className="rounded-lg bg-[#291627] p-3">
-                        <div className="w-12 h-12 rounded-lg bg-pink-600/70 mb-4"></div>
-                        <div className="w-full h-4 bg-[#3A1D35] rounded mb-3"></div>
-                        <div className="w-2/3 h-3 bg-[#3A1D35] rounded mb-4"></div>
-                        <div className="w-full h-1.5 bg-pink-600/30 rounded-full mt-4"></div>
+                        <div className="w-12 h-12 rounded-lg bg-pink-600/70 mb-4 flex items-center justify-center text-white">
+                          <i className="fas fa-eye text-xl"></i>
+                        </div>
+                        <div className="text-white text-sm font-medium mb-1">Computer Vision</div>
+                        <div className="text-xs text-gray-400 mb-3">16 модулей • 12 недель</div>
+                        <div className="w-full h-1.5 bg-slate-800/50 rounded-full mt-4">
+                          <div className="w-1/4 h-1.5 bg-pink-600 rounded-full"></div>
+                        </div>
+                        <div className="text-right text-xs text-pink-400 mt-1">25%</div>
                       </div>
                     </div>
                   </div>
