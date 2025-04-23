@@ -22,6 +22,11 @@ interface Course {
   progress?: number;
   updated: string;
   color: 'primary' | 'secondary' | 'accent';
+  skillMatch?: {
+    percentage: number;
+    label: string;
+    isRecommended?: boolean;
+  };
 }
 
 const SAMPLE_COURSES: Course[] = [
@@ -38,7 +43,12 @@ const SAMPLE_COURSES: Course[] = [
     rating: 4.9,
     enrolled: 1852,
     updated: "2025-04-22",
-    color: "primary"
+    color: "primary",
+    skillMatch: {
+      percentage: 95,
+      label: "Идеально подходит",
+      isRecommended: true
+    }
   },
   {
     id: 1,
@@ -54,7 +64,12 @@ const SAMPLE_COURSES: Course[] = [
     enrolled: 1245,
     progress: 45,
     updated: "2025-03-15",
-    color: "primary"
+    color: "primary",
+    skillMatch: {
+      percentage: 85,
+      label: "Хорошо подходит",
+      isRecommended: true
+    }
   },
   {
     id: 2,
@@ -70,7 +85,11 @@ const SAMPLE_COURSES: Course[] = [
     enrolled: 980,
     progress: 15,
     updated: "2025-04-02",
-    color: "secondary"
+    color: "secondary",
+    skillMatch: {
+      percentage: 70,
+      label: "Средний уровень соответствия"
+    }
   },
   {
     id: 3,
@@ -130,7 +149,11 @@ const SAMPLE_COURSES: Course[] = [
     rating: 4.8,
     enrolled: 580,
     updated: "2025-04-20",
-    color: "accent"
+    color: "accent",
+    skillMatch: {
+      percentage: 30,
+      label: "Требуются дополнительные навыки"
+    }
   }
 ];
 
@@ -166,6 +189,32 @@ const LevelBadge = ({ level }: { level: string }) => {
     <span className={`px-2 py-1 text-xs rounded-full ${getColor()}`}>
       {getLabel()}
     </span>
+  );
+};
+
+// Компонент индикатора соответствия навыкам
+const SkillMatchBadge = ({ skillMatch }: { skillMatch?: Course['skillMatch'] }) => {
+  if (!skillMatch) return null;
+  
+  const getColor = () => {
+    const percentage = skillMatch.percentage;
+    if (percentage >= 85) return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
+    if (percentage >= 70) return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+    if (percentage >= 50) return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
+    return 'bg-red-500/20 text-red-400 border-red-500/30';
+  };
+
+  return (
+    <div className={`flex items-center gap-1.5 px-2 py-1.5 rounded-lg border ${getColor()} text-xs`}>
+      <div className="flex items-center">
+        <i className="fas fa-brain mr-1"></i>
+        <span>{skillMatch.percentage}%</span>
+      </div>
+      <span className="max-w-[120px] line-clamp-1">{skillMatch.label}</span>
+      {skillMatch.isRecommended && (
+        <i className="fas fa-check-circle text-emerald-400"></i>
+      )}
+    </div>
   );
 };
 
@@ -495,6 +544,11 @@ export default function Courses() {
                       <LevelBadge level={course.level} />
                     </div>
                     <h3 className="font-semibold text-lg mt-4">{course.title}</h3>
+                    {course.skillMatch && (
+                      <div className="mt-2">
+                        <SkillMatchBadge skillMatch={course.skillMatch} />
+                      </div>
+                    )}
                     <div className="flex items-center mt-2 text-sm">
                       <i className="fas fa-user-tie mr-1 text-white/50"></i>
                       <span className="text-white/70">{course.instructor}</span>
