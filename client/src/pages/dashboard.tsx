@@ -12,8 +12,9 @@ import { LearningTimeline } from "@/components/progress/learning-timeline";
 import { default as SkillProgress } from "@/components/progress/skill-progress";
 
 export default function Dashboard() {
-  const { userProfile } = useUserProfile();
+  const { userProfile, updateUserProfile } = useUserProfile();
   const [, setLocation] = useLocation();
+  const [showOnboardingPrompt, setShowOnboardingPrompt] = useState(true);
   
   const [message, setMessage] = useState("");
   const [AITutorChat, setAITutorChat] = useState({
@@ -243,6 +244,25 @@ export default function Dashboard() {
   });
   const [viewMode, setViewMode] = useState<'orbital' | 'tracks'>('orbital');
 
+  // Проверка, нужно ли показывать подсказку про онбординг
+  useEffect(() => {
+    if (userProfile && !userProfile.completedOnboarding && showOnboardingPrompt) {
+      // Если пользователь еще не прошел онбординг, показываем подсказку
+      console.log("Пользователь еще не прошел онбординг");
+    }
+  }, [userProfile, showOnboardingPrompt]);
+
+  // Обработчик начала онбординга
+  const handleStartOnboarding = () => {
+    setShowOnboardingPrompt(false);
+    setLocation("/onboarding");
+  };
+
+  // Обработчик закрытия подсказки об онбординге
+  const handleDismissOnboarding = () => {
+    setShowOnboardingPrompt(false);
+  };
+
   useEffect(() => {
     const fetchLastActivity = async () => {
       try {
@@ -328,6 +348,55 @@ export default function Dashboard() {
           </div>
         </motion.div>
       
+        {/* Подсказка для прохождения онбординга (показывается только новым пользователям) */}
+        {userProfile && !userProfile.completedOnboarding && showOnboardingPrompt && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="w-full bg-gradient-to-r from-[#6E3AFF]/20 to-[#2EBAE1]/20 border border-[#6E3AFF]/30 rounded-xl p-4 mb-6"
+          >
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              <div className="p-3 rounded-full bg-primary/20 text-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-1.04Z"/>
+                  <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-1.04Z"/>
+                </svg>
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-medium mb-1">Пройдите персонализированный онбординг</h3>
+                <p className="text-white/70 mb-2">
+                  Расскажите о своих целях и интересах, чтобы мы создали для вас персональный план обучения.
+                  ИИ-алгоритм подстроит программу под ваши потребности и опыт.
+                </p>
+                <div className="flex gap-3 mt-2">
+                  <button
+                    onClick={handleStartOnboarding}
+                    className="px-4 py-2 bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:from-[#5A2AE0] hover:to-[#1A9ACA] rounded-lg text-white font-medium transition-all"
+                  >
+                    Начать онбординг
+                  </button>
+                  <button
+                    onClick={handleDismissOnboarding}
+                    className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white/80 transition-all"
+                  >
+                    Позже
+                  </button>
+                </div>
+              </div>
+              <button
+                onClick={handleDismissOnboarding}
+                className="absolute top-3 right-3 text-white/50 hover:text-white"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 6 6 18"/>
+                  <path d="m6 6 12 12"/>
+                </svg>
+              </button>
+            </div>
+          </motion.div>
+        )}
+
         {/* Main title */}
         <motion.div
           initial={{ opacity: 0 }}

@@ -19,6 +19,8 @@ interface UserProfileData {
   recommendedTrack: CourseTrack;
   displayName?: string;
   streakDays: number;
+  completedOnboarding: boolean;
+  userId?: number;
 }
 
 interface UserProfileContextType {
@@ -62,7 +64,9 @@ export function UserProfileProvider({ children }: { children: React.ReactNode })
           goal: "find-internship",
           recommendedTrack: "zero-to-hero",
           displayName: user.displayName || "Анна",
-          streakDays: Math.floor(Math.random() * 7) + 1 // Random streak between 1-7 days
+          streakDays: Math.floor(Math.random() * 7) + 1, // Random streak between 1-7 days
+          completedOnboarding: false,
+          userId: user.id
         });
       }
     }
@@ -86,7 +90,9 @@ export function UserProfileProvider({ children }: { children: React.ReactNode })
             goal: data.goal || "find-internship",
             recommendedTrack: data.recommendedTrack || "zero-to-hero",
             displayName: user?.displayName || "Анна",
-            streakDays: data.streakDays || Math.floor(Math.random() * 7) + 1
+            streakDays: data.streakDays || Math.floor(Math.random() * 7) + 1,
+            completedOnboarding: data.completedOnboarding || false,
+            userId: user?.id
           };
         }
         return { ...prevProfile, ...data };
