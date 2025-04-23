@@ -29,16 +29,6 @@ interface CourseGridProps {
   className?: string;
 }
 
-interface CourseGridExtendedProps extends CourseGridProps {
-  onCourseSelect?: (course: Course) => void;
-  filterInitialState?: {
-    level: string;
-    access: string;
-    search: string;
-  };
-  onFilterChange?: (filters: { level: string; access: string; search: string }) => void;
-}
-
 export function CourseGrid({
   courses,
   loading = false,
@@ -47,15 +37,12 @@ export function CourseGrid({
   columns = 3,
   showFilters = true,
   className,
-  onCourseSelect,
-  filterInitialState,
-  onFilterChange,
-}: CourseGridExtendedProps) {
+}: CourseGridProps) {
   const [, setLocation] = useLocation();
   const [filters, setFilters] = React.useState({
-    level: filterInitialState?.level || "",
-    access: filterInitialState?.access || "",
-    search: filterInitialState?.search || "",
+    level: "",
+    access: "",
+    search: "",
   });
 
   // Функция фильтрации курсов
@@ -90,13 +77,7 @@ export function CourseGrid({
     e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>
   ) => {
     const { name, value } = e.target;
-    const newFilters = { ...filters, [name]: value };
-    setFilters(newFilters);
-    
-    // Вызов внешнего обработчика изменения фильтров, если он предоставлен
-    if (onFilterChange) {
-      onFilterChange(newFilters);
-    }
+    setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
   // Компонент фильтрации
@@ -187,7 +168,6 @@ export function CourseGrid({
         estimatedDuration={course.estimatedDuration}
         progress={course.progress}
         variant={variant}
-        onClick={onCourseSelect ? () => onCourseSelect(course) : undefined}
       />
     ));
   };
