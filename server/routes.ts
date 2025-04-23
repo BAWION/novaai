@@ -14,6 +14,8 @@ import { z } from "zod";
 import session from "express-session";
 import memorystore from "memorystore";
 import { checkSecrets } from "./routes/check-secrets";
+import { learningEventsRouter } from "./routes/learning-events";
+import { lessonProgressRouter } from "./routes/lesson-progress";
 
 // Add any middleware needed
 const authMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -406,6 +408,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Маршрут для проверки секретов
   app.post("/api/check-secrets", checkSecrets);
+  
+  // Маршруты для отслеживания событий обучения
+  app.use("/api/learning", learningEventsRouter);
+  
+  // Маршруты для отслеживания прогресса уроков
+  app.use("/api/lessons/progress", lessonProgressRouter);
 
   const httpServer = createServer(app);
   return httpServer;
