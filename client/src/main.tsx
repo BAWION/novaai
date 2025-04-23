@@ -15,7 +15,10 @@ document.head.appendChild(particlesScript);
 
 // Регистрируем Service Worker для PWA функционала
 // В реальном проекте это должно выполняться только в production окружении
-// Но для демонстрации регистрируем всегда
-registerServiceWorker();
+// Поскольку в development окружении это может вызвать проблемы,
+// мы будем регистрировать только при условном флаге
+if (false) { // Временно отключаем регистрацию для отладки
+  registerServiceWorker();
+}
 
 createRoot(document.getElementById("root")!).render(<App />);
