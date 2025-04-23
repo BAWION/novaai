@@ -76,6 +76,7 @@ export default function Login() {
   };
 
   const handleStartJourney = () => {
+    // Перенаправляем на страницу расширенного онбординга
     navigate("/onboarding");
   };
 
