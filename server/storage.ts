@@ -29,6 +29,14 @@ import {
   type InsertUserLessonProgress,
   type UserQuizAttempt,
   type InsertUserQuizAttempt,
+  type UserSkill,
+  type InsertUserSkill,
+  type UserSkillGap,
+  type InsertUserSkillGap,
+  type LearningEvent,
+  type InsertLearningEvent,
+  type LearningSession,
+  type InsertLearningSession,
   type UserQuizAnswer,
   type InsertUserQuizAnswer,
   type AIChatHistory,
@@ -160,6 +168,36 @@ export interface IStorage {
     activeDays: number;
     streakDays: number;
   }>;
+  
+  // User Skills methods
+  getUserSkills(userId: number): Promise<UserSkill[]>;
+  getUserSkillByName(userId: number, skillName: string): Promise<UserSkill | undefined>;
+  saveUserSkill(userSkill: InsertUserSkill): Promise<UserSkill>;
+  updateUserSkill(userId: number, skillId: number, data: Partial<UserSkill>): Promise<UserSkill>;
+  
+  // User Skill Gaps methods
+  getUserSkillGaps(userId: number): Promise<UserSkillGap[]>;
+  saveUserSkillGap(skillGap: InsertUserSkillGap): Promise<UserSkillGap>;
+  updateUserSkillGap(id: number, data: Partial<UserSkillGap>): Promise<UserSkillGap>;
+  
+  // Learning Events methods
+  saveLearningEvent(event: InsertLearningEvent): Promise<LearningEvent>;
+  getLearningEvents(userId: number, params?: {
+    eventType?: string;
+    entityType?: string;
+    entityId?: number;
+    startDate?: Date;
+    endDate?: Date;
+    limit?: number;
+  }): Promise<LearningEvent[]>;
+  
+  // Learning Sessions methods
+  createLearningSession(session: InsertLearningSession): Promise<LearningSession>;
+  getLearningSession(sessionId: string): Promise<LearningSession | undefined>;
+  updateLearningSession(sessionId: string, data: Partial<LearningSession>): Promise<LearningSession>;
+  
+  // Learning Timeline methods
+  getUserLearningTimeline(userId: number, limit?: number): Promise<LearningEvent[]>;
 }
 
 export class MemStorage implements IStorage {
