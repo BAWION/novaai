@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { Sidebar } from "./sidebar";
+import { Sidebar, useSidebarContext } from "./sidebar";
 import { ParticlesBackground } from "@/components/particles-background";
 import { motion } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -15,6 +15,7 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children, title, subtitle }: DashboardLayoutProps) {
   const isMobile = useIsMobile();
+  const { isOpen } = useSidebarContext();
   const [location] = useLocation();
   
   // Проверяем, находимся ли мы в бизнес-разделе
@@ -26,7 +27,7 @@ export function DashboardLayout({ children, title, subtitle }: DashboardLayoutPr
       
       <Sidebar />
 
-      <main className={`flex-1 transition-all duration-300 ${isMobile ? 'pl-0' : 'pl-[260px]'}`}>
+      <main className={`flex-1 transition-all duration-300 ${isMobile ? 'pl-0' : isOpen ? 'pl-[260px]' : 'pl-[80px]'}`}>
         <div className="container mx-auto px-6 py-4 pt-16">
           {(title || subtitle) && (
             <motion.div

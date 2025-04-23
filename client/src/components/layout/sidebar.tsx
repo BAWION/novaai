@@ -1,6 +1,6 @@
 import React, { useState, useEffect, createContext, useContext } from "react";
 import { Link, useLocation } from "wouter";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Glassmorphism } from "@/components/ui/glassmorphism";
 import { useAuth } from "@/context/auth-context";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -22,6 +22,22 @@ export const useSidebarContext = () => {
   return context;
 };
 
+// Провайдер контекста для сайдбара, который будет оборачивать приложение
+export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const isMobile = useIsMobile();
+  const [isOpen, setIsOpen] = useState(!isMobile);
+
+  useEffect(() => {
+    setIsOpen(!isMobile);
+  }, [isMobile]);
+
+  return (
+    <SidebarContext.Provider value={{ isOpen, setIsOpen }}>
+      {children}
+    </SidebarContext.Provider>
+  );
+};
+
 type NavItemProps = {
   icon: string;
   label: string;
@@ -31,16 +47,14 @@ type NavItemProps = {
 };
 
 const NavItem = ({ icon, label, to, isActive, onClick }: NavItemProps) => {
+  const { isOpen } = useSidebarContext();
+  
+  // Не раскрываем сайдбар при клике, просто переходим по ссылке
   const handleClick = (event: React.MouseEvent) => {
     if (onClick) {
       onClick();
     }
   };
-  
-  // Получаем доступ к состоянию сайдбара
-  const isMobile = useIsMobile();
-  const [location] = useLocation();
-  const { isOpen } = useSidebarContext();
 
   return (
     <motion.div
@@ -67,17 +81,25 @@ const NavItem = ({ icon, label, to, isActive, onClick }: NavItemProps) => {
           </div>
           
           {/* Отображаем текст только если сайдбар открыт */}
-          {isOpen && (
-            <span className={`ml-3 font-medium ${isActive ? "text-white" : "text-white/70"}`}>
-              {label}
-            </span>
-          )}
+          <AnimatePresence>
+            {isOpen && (
+              <motion.span 
+                className={`ml-3 font-medium ${isActive ? "text-white" : "text-white/70"}`}
+                initial={{ opacity: 0, width: 0 }}
+                animate={{ opacity: 1, width: "auto" }}
+                exit={{ opacity: 0, width: 0 }}
+                transition={{ duration: 0.15 }}
+              >
+                {label}
+              </motion.span>
+            )}
+          </AnimatePresence>
           
           {isActive && (
             <motion.div
               className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-[#6E3AFF] to-[#2EBAE1] rounded-l-md"
               layoutId="activeIndicator"
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              transition={{ type: "spring", stiffness: 400, damping: 40 }}
             />
           )}
         </div>
@@ -90,11 +112,7 @@ export function Sidebar() {
   const [location] = useLocation();
   const { logout } = useAuth();
   const isMobile = useIsMobile();
-  const [isOpen, setIsOpen] = useState(!isMobile);
-
-  useEffect(() => {
-    setIsOpen(!isMobile);
-  }, [isMobile]);
+  const { isOpen, setIsOpen } = useSidebarContext();
   
   const [, setLocation] = useLocation();
   
@@ -103,6 +121,7 @@ export function Sidebar() {
     setLocation("/login");
   };
 
+  // Закрытие сайдбара только на мобильных устройствах
   const closeSidebar = () => {
     if (isMobile) {
       setIsOpen(false);
@@ -118,15 +137,9 @@ export function Sidebar() {
     { icon: "fa-briefcase", label: "Business AI", to: "/business" },
     { icon: "fa-user-astronaut", label: "Профиль", to: "/profile" },
   ];
-  
-  // Создаем контекст со значением isOpen и setIsOpen
-  const sidebarContext = {
-    isOpen,
-    setIsOpen
-  };
 
   return (
-    <SidebarContext.Provider value={sidebarContext}>
+    <>
       {/* Mobile overlay */}
       {isMobile && isOpen && (
         <div 
@@ -138,33 +151,40 @@ export function Sidebar() {
       {/* Sidebar */}
       <motion.div
         className={`fixed top-0 bottom-0 left-0 z-50 
-        transition-all duration-300 transform
         bg-space-800/90 backdrop-blur-sm border-r border-white/10 flex flex-col`}
         initial={false}
         animate={{ 
-          width: isOpen ? 256 : 80,
-          x: 0
+          width: isOpen ? 256 : 80
         }}
-        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        transition={{ 
+          type: "spring", 
+          stiffness: 400, 
+          damping: 40,
+          duration: 0.15
+        }}
       >
         {/* Logo */}
         <div className="p-4 border-b border-white/10 flex items-center justify-center">
           <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#6E3AFF] to-[#2EBAE1] flex items-center justify-center">
             <span className="text-white font-bold text-xl">N</span>
           </div>
-          {isOpen && (
-            <motion.div 
-              className="ml-3 overflow-hidden whitespace-nowrap"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.2 }}
-            >
-              <h1 className="font-orbitron font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#B28DFF] to-[#8BE0F7]">
-                NovaAI
-              </h1>
-              <p className="text-white/50 text-xs">University</p>
-            </motion.div>
-          )}
+          
+          <AnimatePresence>
+            {isOpen && (
+              <motion.div 
+                className="ml-3 overflow-hidden whitespace-nowrap"
+                initial={{ opacity: 0, width: 0 }}
+                animate={{ opacity: 1, width: "auto" }}
+                exit={{ opacity: 0, width: 0 }}
+                transition={{ duration: 0.15 }}
+              >
+                <h1 className="font-orbitron font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#B28DFF] to-[#8BE0F7]">
+                  NovaAI
+                </h1>
+                <p className="text-white/50 text-xs">University</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Nav items */}
@@ -197,23 +217,42 @@ export function Sidebar() {
               <div className="w-10 h-10 flex items-center justify-center rounded-lg bg-white/10 text-white/60">
                 <i className="fas fa-sign-out-alt text-lg"></i>
               </div>
-              {isOpen && (
-                <span className="ml-3 font-medium text-white/70">Выйти</span>
-              )}
+              
+              <AnimatePresence>
+                {isOpen && (
+                  <motion.span 
+                    className="ml-3 font-medium text-white/70"
+                    initial={{ opacity: 0, width: 0 }}
+                    animate={{ opacity: 1, width: "auto" }}
+                    exit={{ opacity: 0, width: 0 }}
+                    transition={{ duration: 0.15 }}
+                  >
+                    Выйти
+                  </motion.span>
+                )}
+              </AnimatePresence>
             </div>
           </div>
         </div>
       </motion.div>
 
       {/* Toggle button (показывает в правильном месте в зависимости от состояния) */}
-      <button
-        className={`fixed top-4 z-50 w-10 h-10 rounded-lg bg-space-800 border border-white/20 flex items-center justify-center transition-all duration-300 ${
-          isOpen ? 'left-[230px]' : 'left-[70px]'
-        }`}
+      <motion.button
+        className="fixed top-4 z-50 w-10 h-10 rounded-lg bg-space-800 border border-white/20 flex items-center justify-center"
+        initial={false}
+        animate={{ 
+          left: isOpen ? '230px' : '70px'
+        }}
+        transition={{ 
+          type: "spring", 
+          stiffness: 400, 
+          damping: 40,
+          duration: 0.15
+        }}
         onClick={() => setIsOpen(!isOpen)}
       >
         <i className={`fas ${isOpen ? "fa-chevron-left" : "fa-chevron-right"} text-white`}></i>
-      </button>
-    </SidebarContext.Provider>
+      </motion.button>
+    </>
   );
 }
