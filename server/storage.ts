@@ -3,10 +3,36 @@ import {
   type InsertUser, 
   type UserProfile,
   type InsertUserProfile,
+  type Skill,
+  type InsertSkill,
   type Course,
   type InsertCourse,
+  type Module,
+  type InsertModule,
+  type Section,
+  type InsertSection,
+  type Lesson,
+  type InsertLesson,
+  type LessonSkill,
+  type InsertLessonSkill,
+  type Quiz,
+  type InsertQuiz,
+  type QuizQuestion,
+  type InsertQuizQuestion,
+  type QuizAnswer,
+  type InsertQuizAnswer,
+  type LessonVariant,
+  type InsertLessonVariant,
   type UserCourseProgress,
-  type InsertUserCourseProgress
+  type InsertUserCourseProgress,
+  type UserLessonProgress,
+  type InsertUserLessonProgress,
+  type UserQuizAttempt,
+  type InsertUserQuizAttempt,
+  type UserQuizAnswer,
+  type InsertUserQuizAnswer,
+  type AIChatHistory,
+  type InsertAIChatHistory
 } from "@shared/schema";
 
 export interface IStorage {
@@ -14,16 +40,66 @@ export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  updateUser(id: number, data: Partial<User>): Promise<User>;
   
   // User Profile methods
   getUserProfile(userId: number): Promise<UserProfile | undefined>;
   createUserProfile(profile: InsertUserProfile): Promise<UserProfile>;
   updateUserProfile(userId: number, profile: Partial<UserProfile>): Promise<UserProfile>;
   
+  // Skills methods
+  getSkill(id: number): Promise<Skill | undefined>;
+  getSkillByName(name: string): Promise<Skill | undefined>;
+  getAllSkills(): Promise<Skill[]>;
+  getSkillsByCategory(category: string): Promise<Skill[]>;
+  createSkill(skill: InsertSkill): Promise<Skill>;
+  
   // Course methods
   getCourse(id: number): Promise<Course | undefined>;
+  getCourseBySlug(slug: string): Promise<Course | undefined>;
   getAllCourses(): Promise<Course[]>;
+  getFilteredCourses(filters: {
+    level?: string;
+    access?: string;
+    difficulty?: number;
+    tags?: string[];
+  }): Promise<Course[]>;
   createCourse(course: InsertCourse): Promise<Course>;
+  updateCourse(id: number, data: Partial<Course>): Promise<Course>;
+  
+  // Module methods
+  getModule(id: number): Promise<Module | undefined>;
+  getModulesByCourse(courseId: number): Promise<Module[]>;
+  createModule(module: InsertModule): Promise<Module>;
+  updateModule(id: number, data: Partial<Module>): Promise<Module>;
+  
+  // Section methods
+  getSection(id: number): Promise<Section | undefined>;
+  getSectionsByModule(moduleId: number): Promise<Section[]>;
+  createSection(section: InsertSection): Promise<Section>;
+  updateSection(id: number, data: Partial<Section>): Promise<Section>;
+  
+  // Lesson methods
+  getLesson(id: number): Promise<Lesson | undefined>;
+  getLessonsByModule(moduleId: number): Promise<Lesson[]>;
+  getLessonsBySection(sectionId: number): Promise<Lesson[]>;
+  createLesson(lesson: InsertLesson): Promise<Lesson>;
+  updateLesson(id: number, data: Partial<Lesson>): Promise<Lesson>;
+  
+  // LessonSkill methods
+  getLessonSkills(lessonId: number): Promise<LessonSkill[]>;
+  addSkillToLesson(lessonSkill: InsertLessonSkill): Promise<LessonSkill>;
+  
+  // Quiz methods
+  getQuiz(id: number): Promise<Quiz | undefined>;
+  getQuizByLesson(lessonId: number): Promise<Quiz | undefined>;
+  createQuiz(quiz: InsertQuiz): Promise<Quiz>;
+  getQuizQuestions(quizId: number): Promise<QuizQuestion[]>;
+  getQuizAnswers(questionId: number): Promise<QuizAnswer[]>;
+  
+  // Lesson Variants methods
+  getLessonVariants(lessonId: number): Promise<LessonVariant[]>;
+  getDefaultLessonVariant(lessonId: number): Promise<LessonVariant | undefined>;
   
   // User Course Progress methods
   getUserCourseProgress(userId: number): Promise<UserCourseProgress[]>;
@@ -33,6 +109,40 @@ export interface IStorage {
     courseId: number, 
     data: Partial<UserCourseProgress>
   ): Promise<UserCourseProgress>;
+  
+  // User Lesson Progress methods
+  getUserLessonProgress(userId: number, lessonId: number): Promise<UserLessonProgress | undefined>;
+  getUserLessonsProgress(userId: number, moduleId: number): Promise<UserLessonProgress[]>;
+  updateUserLessonProgress(
+    userId: number,
+    lessonId: number,
+    data: Partial<UserLessonProgress>
+  ): Promise<UserLessonProgress>;
+  
+  // User Quiz methods
+  getUserQuizAttempts(userId: number, quizId: number): Promise<UserQuizAttempt[]>;
+  createQuizAttempt(attempt: InsertUserQuizAttempt): Promise<UserQuizAttempt>;
+  updateQuizAttempt(id: number, data: Partial<UserQuizAttempt>): Promise<UserQuizAttempt>;
+  saveUserQuizAnswer(answer: InsertUserQuizAnswer): Promise<UserQuizAnswer>;
+  
+  // AI Chat History methods
+  saveAIChatInteraction(interaction: InsertAIChatHistory): Promise<AIChatHistory>;
+  getUserAIChatHistory(userId: number, params?: {
+    lessonId?: number;
+    courseId?: number;
+    assistantType?: string;
+    limit?: number;
+  }): Promise<AIChatHistory[]>;
+  
+  // Analytics methods
+  getUserCourseStatistics(userId: number): Promise<{
+    totalCoursesStarted: number;
+    totalCoursesCompleted: number;
+    averageProgress: number;
+    totalTimeSpent: number; // in minutes
+    activeDays: number;
+    streakDays: number;
+  }>;
 }
 
 export class MemStorage implements IStorage {
