@@ -125,6 +125,19 @@ export interface IStorage {
   updateQuizAttempt(id: number, data: Partial<UserQuizAttempt>): Promise<UserQuizAttempt>;
   saveUserQuizAnswer(answer: InsertUserQuizAnswer): Promise<UserQuizAnswer>;
   
+  // User Favorite Courses (Bookmarks) methods
+  getUserFavoriteCourses(userId: number): Promise<UserFavoriteCourse[]>;
+  getFavoriteCourse(userId: number, courseId: number): Promise<UserFavoriteCourse | undefined>;
+  addCourseToFavorites(data: InsertUserFavoriteCourse): Promise<UserFavoriteCourse>;
+  removeCourseFromFavorites(userId: number, courseId: number): Promise<void>;
+  
+  // Course Ratings methods
+  getCourseRatings(courseId: number): Promise<CourseRating[]>;
+  getUserCourseRating(userId: number, courseId: number): Promise<CourseRating | undefined>;
+  getCourseAverageRating(courseId: number): Promise<number>;
+  rateCourse(data: InsertCourseRating): Promise<CourseRating>;
+  updateCourseRating(userId: number, courseId: number, data: Partial<CourseRating>): Promise<CourseRating>;
+  
   // AI Chat History methods
   saveAIChatInteraction(interaction: InsertAIChatHistory): Promise<AIChatHistory>;
   getUserAIChatHistory(userId: number, params?: {

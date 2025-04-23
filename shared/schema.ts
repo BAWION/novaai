@@ -405,3 +405,40 @@ export type InsertUserQuizAnswer = z.infer<typeof insertUserQuizAnswerSchema>;
 
 export type AIChatHistory = typeof aiChatHistory.$inferSelect;
 export type InsertAIChatHistory = z.infer<typeof insertAiChatHistorySchema>;
+
+// User Favorite Courses (Bookmarks)
+export const userFavoriteCourses = pgTable("user_favorite_courses", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  courseId: integer("course_id").notNull().references(() => courses.id),
+  addedAt: timestamp("added_at").defaultNow(),
+});
+
+export const insertUserFavoriteCourseSchema = createInsertSchema(userFavoriteCourses).pick({
+  userId: true,
+  courseId: true,
+});
+
+export type UserFavoriteCourse = typeof userFavoriteCourses.$inferSelect;
+export type InsertUserFavoriteCourse = z.infer<typeof insertUserFavoriteCourseSchema>;
+
+// Course Ratings
+export const courseRatings = pgTable("course_ratings", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  courseId: integer("course_id").notNull().references(() => courses.id),
+  rating: integer("rating").notNull(), // 1-5 stars
+  review: text("review"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertCourseRatingSchema = createInsertSchema(courseRatings).pick({
+  userId: true,
+  courseId: true,
+  rating: true,
+  review: true,
+});
+
+export type CourseRating = typeof courseRatings.$inferSelect;
+export type InsertCourseRating = z.infer<typeof insertCourseRatingSchema>;
