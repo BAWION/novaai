@@ -22,6 +22,7 @@ import Settings from "@/pages/settings";
 import NotFound from "@/pages/not-found";
 import BusinessAIOverview from "@/pages/business";
 import CaseLibrary from "@/pages/business/cases";
+import Progress from "@/pages/progress";
 
 interface ProtectedRouteProps {
   component: React.ComponentType;
