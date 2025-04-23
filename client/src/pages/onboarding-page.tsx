@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { useUserProfile } from "@/context/user-profile-context";
+import { useAuth } from "@/context/auth-context";
 import { ExtendedOnboardingForm } from "@/components/onboarding/extended-onboarding-form";
 import { RecommendationsDisplay } from "@/components/onboarding/recommendations-display";
 
@@ -12,22 +13,18 @@ import { RecommendationsDisplay } from "@/components/onboarding/recommendations-
  */
 export default function OnboardingPage() {
   const { userProfile } = useUserProfile();
+  const { user } = useAuth();
   const [, setLocation] = useLocation();
   const [completedOnboarding, setCompletedOnboarding] = useState(false);
   const [recommendedCourseIds, setRecommendedCourseIds] = useState<number[]>([]);
   
-  // Если профиль не загружен, отображаем заглушку
-  if (!userProfile) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-space-950">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
+  // ID пользователя из authContext или 0 для анонимного пользователя
+  const userId = user?.id || 0;
   
-  // Если пользователь уже прошел онбординг, перенаправляем на дашборд
-  // При этом проверяется поле completedOnboarding в профиле
-  if (userProfile.completedOnboarding && !completedOnboarding) {
+  // Проверяем, если пользователь аутентифицирован и уже прошел онбординг
+  // Обратите внимание, что эта проверка сработает только для аутентифицированных пользователей
+  if (userId > 0 && userProfile && userProfile.hasOwnProperty('completedOnboarding') && 
+      (userProfile as any).completedOnboarding && !completedOnboarding) {
     setLocation("/dashboard");
     return null;
   }
@@ -80,14 +77,14 @@ export default function OnboardingPage() {
           <div className="lg:w-3/5 w-full">
             {!completedOnboarding ? (
               <ExtendedOnboardingForm 
-                userId={userProfile.userId} 
-                defaultValues={{
+                userId={userId} 
+                defaultValues={userProfile ? {
                   role: userProfile.role as any,
                   pythonLevel: userProfile.pythonLevel,
                   experience: userProfile.experience as any,
                   interest: userProfile.interest as any,
                   goal: userProfile.goal as any,
-                }}
+                } : undefined}
                 onComplete={handleOnboardingComplete}
               />
             ) : (
