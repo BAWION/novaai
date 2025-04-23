@@ -158,6 +158,7 @@ export function Sidebar() {
     { icon: "fa-route", label: "Дорожная карта", to: "/roadmap" },
     { icon: "fa-flask", label: "Лаборатория", to: "/labhub" },
     { icon: "fa-book", label: "Курсы", to: "/courses" },
+    { icon: "fa-save", label: "Хранилище знаний", to: "/knowledge-vault" },
     { icon: "fa-users", label: "Сообщество", to: "/community" },
     { icon: "fa-briefcase", label: "Business AI", to: "/business" },
     { icon: "fa-user-astronaut", label: "Профиль", to: "/profile" },
