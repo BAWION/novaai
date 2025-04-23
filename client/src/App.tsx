@@ -9,6 +9,7 @@ import { useAuth } from "@/context/auth-context";
 import { UserProfileProvider } from "@/context/user-profile-context";
 import { ParticlesBackground } from "@/components/particles-background";
 import { SidebarProvider } from "@/components/layout/sidebar";
+import { PWAInstallPrompt, MobilePWAInstallButton } from "@/components/pwa/install-prompt";
 import HomePage from "@/pages/home-page";
 import Login from "@/pages/login";
 import Onboarding from "@/pages/onboarding";
@@ -124,6 +125,8 @@ function App() {
             <TooltipProvider>
               <Toaster />
               <Router />
+              <PWAInstallPrompt />
+              <MobilePWAInstallButton />
             </TooltipProvider>
           </SidebarProvider>
         </UserProfileProvider>

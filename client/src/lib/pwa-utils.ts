@@ -133,11 +133,19 @@ export async function cacheLessonForOffline(lessonId: number, resources: string[
       }
     };
     
-    navigator.serviceWorker.controller.postMessage({
-      type: 'CACHE_LESSON',
-      lessonId,
-      resources
-    }, [messageChannel.port2]);
+    const controller = navigator.serviceWorker.controller;
+    if (controller) {
+      controller.postMessage({
+        type: 'CACHE_LESSON',
+        lessonId,
+        resources
+      }, [messageChannel.port2]);
+    } else {
+      resolve({
+        success: false,
+        error: 'Service Worker контроллер не найден'
+      });
+    }
   });
 }
 
@@ -155,7 +163,9 @@ export async function requestBackgroundSync() {
   if ('serviceWorker' in navigator && 'SyncManager' in window) {
     const registration = await navigator.serviceWorker.ready;
     try {
-      await registration.sync.register('sync-user-progress');
+      // Используем приведение типов, поскольку интерфейс background sync
+      // не полностью определен в TypeScript
+      await (registration as any).sync.register('sync-user-progress');
       return true;
     } catch {
       return false;
