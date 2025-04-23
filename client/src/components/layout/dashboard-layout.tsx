@@ -27,8 +27,12 @@ export function DashboardLayout({ children, title, subtitle }: DashboardLayoutPr
       
       <Sidebar />
 
-      <main className={`flex-1 transition-all duration-300 ${isMobile ? 'pl-0' : isOpen ? 'pl-[260px]' : 'pl-[80px]'}`}>
-        <div className="container mx-auto px-6 py-4 pt-16">
+      <main className={`flex-1 transition-all duration-300 ${
+        isMobile ? 
+        (isOpen ? 'ml-0' : 'ml-0') : 
+        (isOpen ? 'ml-[256px]' : 'ml-[80px]')
+      }`}>
+        <div className={`container mx-auto ${isMobile ? 'px-4' : 'px-6'} py-4 ${isMobile ? 'pt-20' : 'pt-16'}`}>
           {(title || subtitle) && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
