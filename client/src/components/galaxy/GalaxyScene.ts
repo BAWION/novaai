@@ -248,7 +248,7 @@ export class GalaxyScene {
     
     const points = curve.getPoints(128);
     const orbitGeometry = new THREE.BufferGeometry().setFromPoints(
-      points.map(p => new THREE.Vector3(p.x, 0, p.y))
+      points.map((p: { x: number, y: number }) => new THREE.Vector3(p.x, 0, p.y))
     );
     
     const orbitMaterial = new THREE.LineBasicMaterial({
@@ -362,7 +362,7 @@ export class GalaxyScene {
         hoveredNode = obj.userData.id;
         
         if (isClick && this.clickCallback) {
-          this.clickCallback(hoveredNode);
+          this.clickCallback(hoveredNode as string);
         }
         
         break;
@@ -383,7 +383,7 @@ export class GalaxyScene {
     this.animations.forEach(animation => animation.update(delta));
     
     // Update shader uniforms for glow effects
-    this.scene.traverse((object) => {
+    this.scene.traverse((object: THREE.Object3D) => {
       if (object instanceof THREE.Mesh && 
           object.material instanceof THREE.ShaderMaterial && 
           object.material.uniforms.viewVector) {
@@ -403,12 +403,12 @@ export class GalaxyScene {
     this.renderer.domElement.removeEventListener('click', this.onClick.bind(this));
     
     // Dispose geometries and materials
-    this.scene.traverse((object) => {
+    this.scene.traverse((object: THREE.Object3D) => {
       if (object instanceof THREE.Mesh) {
         object.geometry.dispose();
         
         if (Array.isArray(object.material)) {
-          object.material.forEach(material => material.dispose());
+          object.material.forEach((material: THREE.Material) => material.dispose());
         } else {
           object.material.dispose();
         }
