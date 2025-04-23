@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
+import { registerServiceWorker } from "./lib/pwa-utils";
 
 // Add FontAwesome script
 const fontAwesomeScript = document.createElement("script");
@@ -11,5 +12,10 @@ document.head.appendChild(fontAwesomeScript);
 const particlesScript = document.createElement("script");
 particlesScript.src = "https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js";
 document.head.appendChild(particlesScript);
+
+// Регистрируем Service Worker для PWA функционала
+if (import.meta.env.PROD) {
+  registerServiceWorker();
+}
 
 createRoot(document.getElementById("root")!).render(<App />);
