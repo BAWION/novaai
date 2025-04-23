@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from "wouter";
 import { Glassmorphism } from "@/components/ui/glassmorphism";
 import { cn } from "@/lib/utils";
-import { useOnClickOutside } from "@/hooks/use-on-click-outside";
+import { useOnClickOutside } from "@/hooks/use-on-click-outside.tsx";
 
 interface CourseCardProps {
   id: number;
