@@ -14,10 +14,8 @@ particlesScript.src = "https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min
 document.head.appendChild(particlesScript);
 
 // Регистрируем Service Worker для PWA функционала
-// В реальном проекте это должно выполняться только в production окружении
-// Поскольку в development окружении это может вызвать проблемы,
-// мы будем регистрировать только при условном флаге
-if (false) { // Временно отключаем регистрацию для отладки
+// Только в production окружении, чтобы избежать проблем с кэшированием в режиме разработки
+if (import.meta.env.PROD) {
   registerServiceWorker();
 }
 
