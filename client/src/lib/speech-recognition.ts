@@ -50,7 +50,7 @@ class SpeechRecognitionClass extends EventTarget {
 }
 
 // Получаем реализацию Web Speech API из браузера
-const SpeechRecognitionImpl = window.SpeechRecognition || (window as any).webkitSpeechRecognition;
+const SpeechRecognitionImpl = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
 /**
  * Хук для использования распознавания речи

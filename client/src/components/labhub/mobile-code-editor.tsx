@@ -75,8 +75,8 @@ export function MobileCodeEditor({
   };
   
   return (
-    <Glassmorphism className="w-full p-4 relative" style={{ height }}>
-      <div className={styles.container}>
+    <Glassmorphism className="w-full p-4 relative h-full">
+      <div className={styles.container} style={{ height }}>
         {/* Tabs для мобильной версии */}
         <div className={styles.tabs}>
           <button
