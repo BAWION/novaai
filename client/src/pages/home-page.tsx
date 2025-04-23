@@ -4,12 +4,7 @@ import { Glassmorphism } from "@/components/ui/glassmorphism";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { ParticlesBackground } from "@/components/particles-background";
-
-// Пути к скриншотам для демонстрации (для Vite)
-const coursesCatalogImage = './screenshots/courses-catalog.png';
-const labhubImage = './screenshots/labhub.png';
-const businessAiImage = './screenshots/business-ai.png';
-const profileImage = './screenshots/profile.png';
+import { screenshots } from "../screenshots";
 
 export default function HomePage() {
 
@@ -19,28 +14,28 @@ export default function HomePage() {
       id: "courses",
       title: "Каталог курсов",
       description: "Библиотека AI и Data Science курсов для всех уровней",
-      image: coursesCatalogImage,
+      image: screenshots.coursesCatalog,
       icon: "fa-book-open"
     },
     {
       id: "labhub",
       title: "LabHub",
       description: "Интерактивная лаборатория для практики ML и Data Science",
-      image: labhubImage,
+      image: screenshots.labhub,
       icon: "fa-flask"
     },
     {
       id: "business",
       title: "Business AI Module",
       description: "Внедрение ИИ-решений в бизнес-процессы",
-      image: businessAiImage,
+      image: screenshots.businessAi,
       icon: "fa-briefcase"
     },
     {
       id: "profile",
       title: "Профиль пользователя",
       description: "Управление прогрессом, достижения и сертификаты",
-      image: profileImage,
+      image: screenshots.profile,
       icon: "fa-user-graduate"
     }
   ];
