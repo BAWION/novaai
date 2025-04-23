@@ -1,43 +1,25 @@
 import { useEffect, useState } from "react";
 import React from "react";
 
-interface ShortcutOptions {
-  isEnabled?: boolean;
-  overrideSystem?: boolean;
-}
-
-interface ShortcutEntry {
-  key: string;
-  ctrlKey?: boolean;
-  altKey?: boolean;
-  shiftKey?: boolean;
-  metaKey?: boolean;
-  handler: (e: KeyboardEvent) => void;
-  description: string;
-  group?: string;
-}
-
-interface ShortcutGroup {
-  group: string;
-  shortcuts: ShortcutEntry[];
-}
-
-export function useKeyboardShortcuts(
-  shortcuts: ShortcutEntry[],
-  options: ShortcutOptions = {}
-) {
+/**
+ * Хук для управления клавиатурными сокращениями
+ * @param {Array} shortcuts - Массив объектов с сокращениями
+ * @param {Object} options - Опции
+ * @returns {Object} Объект с состоянием и методами управления подсказками
+ */
+export function useKeyboardShortcuts(shortcuts, options = {}) {
   const { isEnabled = true, overrideSystem = false } = options;
   const [helpVisible, setHelpVisible] = useState(false);
   
   useEffect(() => {
     if (!isEnabled) return;
 
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const handleKeyDown = (e) => {
       // Если активный элемент - input, textarea или contentEditable, не обрабатываем горячие клавиши
       if (
         document.activeElement?.tagName === "INPUT" ||
         document.activeElement?.tagName === "TEXTAREA" ||
-        (document.activeElement as HTMLElement)?.isContentEditable
+        document.activeElement?.isContentEditable
       ) {
         return;
       }
@@ -80,8 +62,8 @@ export function useKeyboardShortcuts(
   }, [shortcuts, isEnabled, overrideSystem, helpVisible]);
 
   // Группировка сочетаний клавиш по группам для вывода в помощи
-  const groupedShortcuts = (): ShortcutGroup[] => {
-    const groups: Record<string, ShortcutEntry[]> = {};
+  const groupedShortcuts = () => {
+    const groups = {};
     
     shortcuts.forEach((shortcut) => {
       const group = shortcut.group || "Общие";
@@ -98,8 +80,8 @@ export function useKeyboardShortcuts(
   };
 
   // Форматирование сочетания клавиш для отображения
-  const formatShortcut = (shortcut: ShortcutEntry): string => {
-    const parts: string[] = [];
+  const formatShortcut = (shortcut) => {
+    const parts = [];
     
     if (shortcut.ctrlKey) parts.push("Ctrl");
     if (shortcut.altKey) parts.push("Alt");
