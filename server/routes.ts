@@ -18,6 +18,7 @@ import { learningEventsRouter } from "./routes/learning-events";
 import { lessonProgressRouter } from "./routes/lesson-progress";
 import onboardingRouter from "./routes/onboarding";
 import recommendedCoursesRouter from "./routes/recommended-courses";
+import skillsRouter from "./routes/skills";
 
 // Add any middleware needed
 const authMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -422,6 +423,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Маршруты для рекомендованных курсов
   app.use("/api/courses/recommended", recommendedCoursesRouter);
+  
+  // Маршруты для навыков и карты навыков
+  app.use("/api/skills", skillsRouter);
 
   const httpServer = createServer(app);
   return httpServer;

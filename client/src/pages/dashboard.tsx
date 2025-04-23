@@ -8,8 +8,8 @@ import { useUserProfile } from "@/context/user-profile-context";
 import { apiRequest } from "@/lib/queryClient";
 import { Link, useLocation } from "wouter";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import LearningTimeline from "@/components/progress/learning-timeline";
-import SkillProgress from "@/components/progress/skill-progress";
+import { LearningTimeline } from "@/components/progress/learning-timeline";
+import { default as SkillProgress } from "@/components/progress/skill-progress";
 
 export default function Dashboard() {
   const { userProfile } = useUserProfile();
