@@ -6,19 +6,18 @@ import {
   insertUserSchema, 
   insertUserProfileSchema,
   insertCourseSchema,
-  insertUserCourseProgressSchema,
-  insertUserFavoriteCourseSchema,
-  insertCourseRatingSchema
+  insertUserCourseProgressSchema
 } from "@shared/schema";
 import { z } from "zod";
 import session from "express-session";
 import memorystore from "memorystore";
 import { checkSecrets } from "./routes/check-secrets";
-import { learningEventsRouter } from "./routes/learning-events";
-import { lessonProgressRouter } from "./routes/lesson-progress";
-import onboardingRouter from "./routes/onboarding";
-import recommendedCoursesRouter from "./routes/recommended-courses";
-import skillsRouter from "./routes/skills";
+// Временно отключаем маршруты, для которых у нас пока нет определенных типов в схеме
+// import { learningEventsRouter } from "./routes/learning-events";
+// import { lessonProgressRouter } from "./routes/lesson-progress";
+// import onboardingRouter from "./routes/onboarding";
+// import recommendedCoursesRouter from "./routes/recommended-courses";
+// import skillsRouter from "./routes/skills";
 
 // Add any middleware needed
 const authMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -286,167 +285,171 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // User Favorite Courses (Bookmarks) routes
-  app.get("/api/user/favorites", authMiddleware, async (req, res) => {
-    try {
-      const userId = req.session.user!.id;
-      const favorites = await storage.getUserFavoriteCourses(userId);
-      res.json(favorites);
-    } catch (error) {
-      console.error("Get favorites error:", error);
-      res.status(500).json({ message: "Failed to get favorites" });
-    }
-  });
+  // Временно отключенные маршруты для избранных курсов и рейтингов
+  // (схемы для этих таблиц еще не определены)
   
-  app.post("/api/user/favorites", authMiddleware, async (req, res) => {
-    try {
-      const userId = req.session.user!.id;
-      const { courseId } = req.body;
-      
-      if (!courseId) {
-        return res.status(400).json({ message: "Course ID is required" });
-      }
-      
-      const validationResult = insertUserFavoriteCourseSchema.safeParse({
-        userId,
-        courseId: parseInt(courseId)
-      });
-      
-      if (!validationResult.success) {
-        return res.status(400).json({ 
-          message: "Invalid course data",
-          errors: validationResult.error.errors 
-        });
-      }
-      
-      const favorite = await storage.addCourseToFavorites(validationResult.data);
-      res.status(201).json(favorite);
-    } catch (error) {
-      console.error("Add favorite error:", error);
-      res.status(500).json({ message: "Failed to add favorite" });
-    }
-  });
-  
-  app.delete("/api/user/favorites/:courseId", authMiddleware, async (req, res) => {
-    try {
-      const userId = req.session.user!.id;
-      const courseId = parseInt(req.params.courseId);
-      
-      await storage.removeCourseFromFavorites(userId, courseId);
-      res.status(204).send();
-    } catch (error) {
-      console.error("Remove favorite error:", error);
-      res.status(500).json({ message: "Failed to remove favorite" });
-    }
-  });
-  
-  // Course Ratings routes
-  app.get("/api/courses/:courseId/ratings", async (req, res) => {
-    try {
-      const courseId = parseInt(req.params.courseId);
-      const ratings = await storage.getCourseRatings(courseId);
-      res.json(ratings);
-    } catch (error) {
-      console.error("Get ratings error:", error);
-      res.status(500).json({ message: "Failed to get ratings" });
-    }
-  });
-  
-  app.get("/api/courses/:courseId/ratings/average", async (req, res) => {
-    try {
-      const courseId = parseInt(req.params.courseId);
-      const averageRating = await storage.getCourseAverageRating(courseId);
-      res.json({ averageRating });
-    } catch (error) {
-      console.error("Get average rating error:", error);
-      res.status(500).json({ message: "Failed to get average rating" });
-    }
-  });
-  
-  app.get("/api/user/ratings/:courseId", authMiddleware, async (req, res) => {
-    try {
-      const userId = req.session.user!.id;
-      const courseId = parseInt(req.params.courseId);
-      const rating = await storage.getUserCourseRating(userId, courseId);
-      
-      if (!rating) {
-        return res.status(404).json({ message: "Rating not found" });
-      }
-      
-      res.json(rating);
-    } catch (error) {
-      console.error("Get user rating error:", error);
-      res.status(500).json({ message: "Failed to get user rating" });
-    }
-  });
-  
-  app.post("/api/courses/:courseId/ratings", authMiddleware, async (req, res) => {
-    try {
-      const userId = req.session.user!.id;
-      const courseId = parseInt(req.params.courseId);
-      const { rating, review } = req.body;
-      
-      if (rating === undefined) {
-        return res.status(400).json({ message: "Rating is required" });
-      }
-      
-      const validationResult = insertCourseRatingSchema.safeParse({
-        userId,
-        courseId,
-        rating: parseInt(rating),
-        review
-      });
-      
-      if (!validationResult.success) {
-        return res.status(400).json({ 
-          message: "Invalid rating data",
-          errors: validationResult.error.errors 
-        });
-      }
-      
-      const courseRating = await storage.rateCourse(validationResult.data);
-      res.status(201).json(courseRating);
-    } catch (error) {
-      console.error("Rate course error:", error);
-      res.status(500).json({ message: "Failed to rate course" });
-    }
-  });
-  
-  app.patch("/api/courses/:courseId/ratings", authMiddleware, async (req, res) => {
-    try {
-      const userId = req.session.user!.id;
-      const courseId = parseInt(req.params.courseId);
-      const { rating, review } = req.body;
-      
-      const updated = await storage.updateCourseRating(userId, courseId, { 
-        rating: rating !== undefined ? parseInt(rating) : undefined,
-        review
-      });
-      
-      res.json(updated);
-    } catch (error) {
-      console.error("Update rating error:", error);
-      res.status(500).json({ message: "Failed to update rating" });
-    }
-  });
+  // // User Favorite Courses (Bookmarks) routes
+  // app.get("/api/user/favorites", authMiddleware, async (req, res) => {
+  //   try {
+  //     const userId = req.session.user!.id;
+  //     const favorites = await storage.getUserFavoriteCourses(userId);
+  //     res.json(favorites);
+  //   } catch (error) {
+  //     console.error("Get favorites error:", error);
+  //     res.status(500).json({ message: "Failed to get favorites" });
+  //   }
+  // });
+  // 
+  // app.post("/api/user/favorites", authMiddleware, async (req, res) => {
+  //   try {
+  //     const userId = req.session.user!.id;
+  //     const { courseId } = req.body;
+  //     
+  //     if (!courseId) {
+  //       return res.status(400).json({ message: "Course ID is required" });
+  //     }
+  //     
+  //     const validationResult = insertUserFavoriteCourseSchema.safeParse({
+  //       userId,
+  //       courseId: parseInt(courseId)
+  //     });
+  //     
+  //     if (!validationResult.success) {
+  //       return res.status(400).json({ 
+  //         message: "Invalid course data",
+  //         errors: validationResult.error.errors 
+  //       });
+  //     }
+  //     
+  //     const favorite = await storage.addCourseToFavorites(validationResult.data);
+  //     res.status(201).json(favorite);
+  //   } catch (error) {
+  //     console.error("Add favorite error:", error);
+  //     res.status(500).json({ message: "Failed to add favorite" });
+  //   }
+  // });
+  // 
+  // app.delete("/api/user/favorites/:courseId", authMiddleware, async (req, res) => {
+  //   try {
+  //     const userId = req.session.user!.id;
+  //     const courseId = parseInt(req.params.courseId);
+  //     
+  //     await storage.removeCourseFromFavorites(userId, courseId);
+  //     res.status(204).send();
+  //   } catch (error) {
+  //     console.error("Remove favorite error:", error);
+  //     res.status(500).json({ message: "Failed to remove favorite" });
+  //   }
+  // });
+  // 
+  // // Course Ratings routes
+  // app.get("/api/courses/:courseId/ratings", async (req, res) => {
+  //   try {
+  //     const courseId = parseInt(req.params.courseId);
+  //     const ratings = await storage.getCourseRatings(courseId);
+  //     res.json(ratings);
+  //   } catch (error) {
+  //     console.error("Get ratings error:", error);
+  //     res.status(500).json({ message: "Failed to get ratings" });
+  //   }
+  // });
+  // 
+  // app.get("/api/courses/:courseId/ratings/average", async (req, res) => {
+  //   try {
+  //     const courseId = parseInt(req.params.courseId);
+  //     const averageRating = await storage.getCourseAverageRating(courseId);
+  //     res.json({ averageRating });
+  //   } catch (error) {
+  //     console.error("Get average rating error:", error);
+  //     res.status(500).json({ message: "Failed to get average rating" });
+  //   }
+  // });
+  // 
+  // app.get("/api/user/ratings/:courseId", authMiddleware, async (req, res) => {
+  //   try {
+  //     const userId = req.session.user!.id;
+  //     const courseId = parseInt(req.params.courseId);
+  //     const rating = await storage.getUserCourseRating(userId, courseId);
+  //     
+  //     if (!rating) {
+  //       return res.status(404).json({ message: "Rating not found" });
+  //     }
+  //     
+  //     res.json(rating);
+  //   } catch (error) {
+  //     console.error("Get user rating error:", error);
+  //     res.status(500).json({ message: "Failed to get user rating" });
+  //   }
+  // });
+  // 
+  // app.post("/api/courses/:courseId/ratings", authMiddleware, async (req, res) => {
+  //   try {
+  //     const userId = req.session.user!.id;
+  //     const courseId = parseInt(req.params.courseId);
+  //     const { rating, review } = req.body;
+  //     
+  //     if (rating === undefined) {
+  //       return res.status(400).json({ message: "Rating is required" });
+  //     }
+  //     
+  //     const validationResult = insertCourseRatingSchema.safeParse({
+  //       userId,
+  //       courseId,
+  //       rating: parseInt(rating),
+  //       review
+  //     });
+  //     
+  //     if (!validationResult.success) {
+  //       return res.status(400).json({ 
+  //         message: "Invalid rating data",
+  //         errors: validationResult.error.errors 
+  //       });
+  //     }
+  //     
+  //     const courseRating = await storage.rateCourse(validationResult.data);
+  //     res.status(201).json(courseRating);
+  //   } catch (error) {
+  //     console.error("Rate course error:", error);
+  //     res.status(500).json({ message: "Failed to rate course" });
+  //   }
+  // });
+  // 
+  // app.patch("/api/courses/:courseId/ratings", authMiddleware, async (req, res) => {
+  //   try {
+  //     const userId = req.session.user!.id;
+  //     const courseId = parseInt(req.params.courseId);
+  //     const { rating, review } = req.body;
+  //     
+  //     const updated = await storage.updateCourseRating(userId, courseId, { 
+  //       rating: rating !== undefined ? parseInt(rating) : undefined,
+  //       review
+  //     });
+  //     
+  //     res.json(updated);
+  //   } catch (error) {
+  //     console.error("Update rating error:", error);
+  //     res.status(500).json({ message: "Failed to update rating" });
+  //   }
+  // });
 
   // Маршрут для проверки секретов
   app.post("/api/check-secrets", checkSecrets);
   
-  // Маршруты для отслеживания событий обучения
-  app.use("/api/learning", learningEventsRouter);
-  
-  // Маршруты для отслеживания прогресса уроков
-  app.use("/api/lessons/progress", lessonProgressRouter);
-  
-  // Маршруты для расширенного онбординга
-  app.use("/api/profiles", onboardingRouter);
-  
-  // Маршруты для рекомендованных курсов
-  app.use("/api/courses/recommended", recommendedCoursesRouter);
-  
-  // Маршруты для навыков и карты навыков
-  app.use("/api/skills", skillsRouter);
+  // Временно отключены маршруты, для которых требуются дополнительные схемы
+  // // Маршруты для отслеживания событий обучения
+  // app.use("/api/learning", learningEventsRouter);
+  // 
+  // // Маршруты для отслеживания прогресса уроков
+  // app.use("/api/lessons/progress", lessonProgressRouter);
+  // 
+  // // Маршруты для расширенного онбординга
+  // app.use("/api/profiles", onboardingRouter);
+  // 
+  // // Маршруты для рекомендованных курсов
+  // app.use("/api/courses/recommended", recommendedCoursesRouter);
+  // 
+  // // Маршруты для навыков и карты навыков
+  // app.use("/api/skills", skillsRouter);
 
   const httpServer = createServer(app);
   return httpServer;
