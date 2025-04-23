@@ -121,7 +121,7 @@ export function Sidebar() {
     setLocation("/login");
   };
 
-  // Закрытие сайдбара только на мобильных устройствах
+  // Закрытие сайдбара на мобильных устройствах и управление его видимостью
   const closeSidebar = () => {
     if (isMobile) {
       setIsOpen(false);
@@ -150,11 +150,13 @@ export function Sidebar() {
 
       {/* Sidebar */}
       <motion.div
-        className={`fixed top-0 bottom-0 left-0 z-50 
+        className={`fixed top-0 bottom-0 z-50 
         bg-space-800/90 backdrop-blur-sm border-r border-white/10 flex flex-col`}
         initial={false}
         animate={{ 
-          width: isOpen ? 256 : 80
+          width: isOpen ? (isMobile ? 256 : 256) : (isMobile ? 0 : 80),
+          x: isMobile && !isOpen ? -80 : 0,
+          left: 0
         }}
         transition={{ 
           type: "spring", 
@@ -241,7 +243,9 @@ export function Sidebar() {
         className="fixed top-4 z-50 w-10 h-10 rounded-lg bg-space-800 border border-white/20 flex items-center justify-center"
         initial={false}
         animate={{ 
-          left: isOpen ? '230px' : '70px'
+          left: isMobile 
+            ? isOpen ? '230px' : '10px'
+            : isOpen ? '230px' : '70px'
         }}
         transition={{ 
           type: "spring", 
@@ -251,7 +255,7 @@ export function Sidebar() {
         }}
         onClick={() => setIsOpen(!isOpen)}
       >
-        <i className={`fas ${isOpen ? "fa-chevron-left" : "fa-chevron-right"} text-white`}></i>
+        <i className={`fas ${isOpen ? "fa-chevron-left" : "fa-bars"} text-white`}></i>
       </motion.button>
     </>
   );
