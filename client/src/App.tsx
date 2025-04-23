@@ -10,6 +10,7 @@ import { UserProfileProvider } from "@/context/user-profile-context";
 import { ParticlesBackground } from "@/components/particles-background";
 import { SidebarProvider } from "@/components/layout/sidebar";
 import { PWAInstallPrompt, MobilePWAInstallButton } from "@/components/pwa/install-prompt";
+import { ConnectionStatus, PWAModeBadge } from "@/components/pwa/offline-status";
 import HomePage from "@/pages/home-page";
 import Login from "@/pages/login";
 import Onboarding from "@/pages/onboarding";
@@ -127,6 +128,8 @@ function App() {
               <Router />
               <PWAInstallPrompt />
               <MobilePWAInstallButton />
+              <ConnectionStatus />
+              <PWAModeBadge />
             </TooltipProvider>
           </SidebarProvider>
         </UserProfileProvider>
