@@ -5,32 +5,36 @@ import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { ParticlesBackground } from "@/components/particles-background";
 
+// Для иллюстраций используем встроенные FontAwesome иконки
+// и декларативное описание контента, так как это демо-версия
+
 export default function HomePage() {
+
   // Примеры скриншотов для демонстрации функционала платформы
   const platformScreenshots = [
     {
       id: "courses",
       title: "Каталог курсов",
       description: "Библиотека AI и Data Science курсов для всех уровней",
-      image: "/screenshots/courses-catalog.png"
+      icon: "fa-book-open"
     },
     {
       id: "labhub",
       title: "LabHub",
       description: "Интерактивная лаборатория для практики ML и Data Science",
-      image: "/screenshots/labhub.png"
+      icon: "fa-flask"
     },
     {
       id: "business",
       title: "Business AI Module",
       description: "Внедрение ИИ-решений в бизнес-процессы",
-      image: "/screenshots/business-ai.png"
+      icon: "fa-briefcase"
     },
     {
       id: "profile",
       title: "Профиль пользователя",
       description: "Управление прогрессом, достижения и сертификаты",
-      image: "/screenshots/profile.png"
+      icon: "fa-user-graduate"
     }
   ];
 
@@ -143,11 +147,24 @@ export default function HomePage() {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.7, delay: 0.3 }}
               >
-                <img 
-                  src="/hero-illustration.png" 
-                  alt="AI Education" 
-                  className="max-w-full rounded-xl shadow-lg shadow-primary/20"
-                />
+                <Glassmorphism className="p-10 rounded-xl backdrop-blur-md shadow-lg shadow-primary/20 relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary/30 to-secondary/30 opacity-20"></div>
+                  <div className="relative z-10 text-center">
+                    <i className="fas fa-brain text-primary/70 text-8xl mb-6 block"></i>
+                    <div className="grid grid-cols-3 gap-4 mb-6">
+                      <div className="bg-white/5 p-3 rounded-lg">
+                        <i className="fas fa-robot text-3xl text-secondary/70"></i>
+                      </div>
+                      <div className="bg-white/5 p-3 rounded-lg">
+                        <i className="fas fa-code text-3xl text-secondary/70"></i>
+                      </div>
+                      <div className="bg-white/5 p-3 rounded-lg">
+                        <i className="fas fa-chart-network text-3xl text-secondary/70"></i>
+                      </div>
+                    </div>
+                    <p className="text-xl text-white/80">Искусственный интеллект • Машинное обучение • Data Science</p>
+                  </div>
+                </Glassmorphism>
               </motion.div>
             </div>
           </div>
