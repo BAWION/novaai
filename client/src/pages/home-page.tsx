@@ -313,13 +313,31 @@ export default function HomePage() {
                     <h3 className="text-xl font-semibold mb-2">Каталог курсов</h3>
                     <p className="text-gray-300 mb-6">Исследуйте нашу библиотеку курсов по AI и Data Science</p>
                     
-                    <div className="w-full rounded bg-[#0A051F] mb-6 p-3">
-                      <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 text-slate-500">
-                          <i className="fas fa-search"></i>
+                    <div className="w-full mb-6">
+                      <div className="flex w-full gap-4">
+                        <div className="flex-1 rounded bg-[#0A051F] p-3">
+                          <div className="flex items-center gap-2">
+                            <div className="w-5 h-5 text-slate-500">
+                              <i className="fas fa-search"></i>
+                            </div>
+                            <div className="text-slate-500 text-sm">Найти курс...</div>
+                          </div>
                         </div>
-                        <div className="text-slate-500 text-sm">Найти курс по названию или тематике...</div>
+                        
+                        {/* Выпадающий список категорий */}
+                        <div className="w-1/3 relative">
+                          <div className="bg-[#0A051F] rounded p-3 flex items-center justify-between text-white/70">
+                            <span className="text-sm">Все категории</span>
+                            <i className="fas fa-chevron-down text-xs"></i>
+                          </div>
+                          <div className="absolute top-[110%] left-0 right-0 bg-[#0A051F] rounded p-1 border border-white/10" style={{display: 'block'}}>
+                            <div className="py-1.5 px-3 text-white hover:bg-white/10 rounded text-sm cursor-pointer">Все категории</div>
+                            <div className="py-1.5 px-3 text-white/70 hover:bg-white/10 rounded text-sm cursor-pointer">Python</div>
+                            <div className="py-1.5 px-3 text-white/70 hover:bg-white/10 rounded text-sm cursor-pointer">Machine Learning</div>
+                          </div>
+                        </div>
                       </div>
+                      
                       <div className="mt-2 flex gap-2">
                         <div className="px-2 py-1 bg-purple-800/30 rounded text-xs text-purple-300">
                           <i className="fas fa-hashtag mr-1"></i>Python
