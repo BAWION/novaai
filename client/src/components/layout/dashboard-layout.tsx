@@ -73,11 +73,7 @@ export function DashboardLayout({ children, title, subtitle }: DashboardLayoutPr
             animate={{ opacity: 1 }}
             transition={{ duration: 0.2 }}
           >
-            <Glassmorphism 
-              className="rounded-xl p-4 md:p-6 w-full mb-6 overflow-x-auto"
-            >
-              {children}
-            </Glassmorphism>
+            {children}
           </motion.div>
         </div>
       </main>

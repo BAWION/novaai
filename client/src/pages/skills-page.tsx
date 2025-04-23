@@ -5,7 +5,6 @@ import { SkillGaps } from '@/components/progress/skill-gaps';
 import { LearningTimeline } from '@/components/progress/learning-timeline';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useUserProfile } from '@/context/user-profile-context';
 import { 
   BarChart3, 
   Brain, 
@@ -18,14 +17,16 @@ import {
 } from 'lucide-react';
 
 export default function SkillsPage() {
-  const { userProfile } = useUserProfile();
   const [activeTab, setActiveTab] = useState('map');
 
   // Мок userId для запросов API
   const userId = 999; // Админ
+  
+  // Мок данные для прогресса
+  const streakDays = 4;
 
   return (
-    <DashboardLayout>
+    <DashboardLayout title="Навыки и прогресс">
       <div className="container mx-auto p-6 max-w-7xl">
         <div className="flex flex-col md:flex-row items-center justify-between mb-6">
           <div>
@@ -141,7 +142,7 @@ export default function SkillsPage() {
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-white/60">Серия обучения:</span>
-                    <span className="font-medium">{userProfile?.streakDays || 4} дня</span>
+                    <span className="font-medium">{streakDays} дня</span>
                   </div>
                 </div>
               </div>
