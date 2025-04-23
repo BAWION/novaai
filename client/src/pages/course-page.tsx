@@ -5,6 +5,8 @@ import { CourseOutline, QuizComponent, AIAssistantPanel } from "@/components/cou
 import { Button } from "@/components/ui/button";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts.jsx";
+import { CacheLessonButton } from "@/components/pwa/offline-status";
+import { useOfflineStatus } from "@/hooks/use-pwa";
 import { cn } from "@/lib/utils";
 
 // Пример данных для демонстрации UI
@@ -513,8 +515,19 @@ export default function CoursePage() {
                     <i className="fas fa-arrow-left mr-2"></i> К оглавлению
                   </button>
                   
-                  <div className="text-sm text-white/60">
-                    Урок {selectedLessonId} - {currentLesson?.type}
+                  <div className="flex items-center gap-3">
+                    {/* Кнопка кэширования урока для офлайн просмотра */}
+                    <CacheLessonButton 
+                      lessonId={selectedLessonId} 
+                      resources={[
+                        `/api/courses/${params?.slug}/lessons/${selectedLessonId}`,
+                        // Добавьте здесь ссылки на ресурсы урока: видео, изображения и т.д.
+                      ]} 
+                    />
+                    
+                    <div className="text-sm text-white/60">
+                      Урок {selectedLessonId} - {currentLesson?.type}
+                    </div>
                   </div>
                 </div>
                 
