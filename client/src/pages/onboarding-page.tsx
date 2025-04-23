@@ -12,7 +12,7 @@ import { RecommendationsDisplay } from "@/components/onboarding/recommendations-
  * и отображает рекомендации по завершении
  */
 export default function OnboardingPage() {
-  const { userProfile } = useUserProfile();
+  const { userProfile, updateUserProfile } = useUserProfile();
   const { user } = useAuth();
   const [, setLocation] = useLocation();
   const [completedOnboarding, setCompletedOnboarding] = useState(false);
