@@ -49,8 +49,10 @@ type NavItemProps = {
 const NavItem = ({ icon, label, to, isActive, onClick }: NavItemProps) => {
   const { isOpen } = useSidebarContext();
   
-  // Не раскрываем сайдбар при клике, просто переходим по ссылке
+  // Просто вызываем переданный onClick, навигация теперь в handleNavigation
   const handleClick = (event: React.MouseEvent) => {
+    event.preventDefault();
+    
     if (onClick) {
       onClick();
     }
@@ -116,16 +118,33 @@ export function Sidebar() {
   
   const [, setLocation] = useLocation();
   
+  // Функция для закрытия сайдбара на мобильных устройствах
+  const closeSidebar = () => {
+    if (isMobile) {
+      setIsOpen(false);
+    }
+  };
+  
   const handleLogout = async () => {
     await logout();
     setLocation("/login");
   };
 
-  // Закрытие сайдбара на мобильных устройствах и управление его видимостью
-  const closeSidebar = () => {
+  // Оптимизированная функция для перехода между разделами
+  // Не закрываем боковую панель на десктопе, чтобы избежать моргания
+  const handleNavigation = (to: string) => {
+    // Если мы уже на этой странице, ничего не делаем (предотвращаем перерендер)
+    if (location === to) return;
+    
+    // Только на мобильных устройствах закрываем сайдбар
     if (isMobile) {
       setIsOpen(false);
     }
+    
+    // Используем setTimeout для плавного перехода
+    setTimeout(() => {
+      setLocation(to);
+    }, 10);
   };
 
   const navigationItems = [
@@ -199,7 +218,7 @@ export function Sidebar() {
                 label={item.label}
                 to={item.to}
                 isActive={location === item.to}
-                onClick={closeSidebar}
+                onClick={() => handleNavigation(item.to)}
               />
             ))}
           </div>
@@ -210,7 +229,7 @@ export function Sidebar() {
               label="Настройки"
               to="/settings"
               isActive={location === "/settings"}
-              onClick={closeSidebar}
+              onClick={() => handleNavigation("/settings")}
             />
             <div
               onClick={handleLogout}
