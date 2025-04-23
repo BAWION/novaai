@@ -13,6 +13,75 @@ export default function Dashboard() {
   const { userProfile } = useUserProfile();
   const [, setLocation] = useLocation();
   
+  const [message, setMessage] = useState("");
+  const [AITutorChat, setAITutorChat] = useState({
+    messages: [
+      {
+        id: "1",
+        sender: "ai",
+        content: "Привет! Я твой ИИ-тьютор в NovaAI. Я здесь, чтобы помочь с любыми вопросами о твоем образовательном пути. Что тебя интересует?",
+        timestamp: new Date()
+      }
+    ],
+    isTyping: false,
+    suggestions: [
+      "Какие навыки мне стоит развивать дальше?",
+      "Как мне лучше подготовиться к проекту?",
+      "Почему изменился мой учебный план?",
+      "Что мне нужно изучить для карьеры в AI?"
+    ]
+  });
+  
+  const handleSendMessage = () => {
+    if (!message.trim()) return;
+    
+    // Добавляем сообщение пользователя
+    const userMessage = {
+      id: Date.now().toString(),
+      sender: "user",
+      content: message,
+      timestamp: new Date()
+    };
+    
+    setAITutorChat(prev => ({
+      ...prev,
+      messages: [...prev.messages, userMessage],
+      isTyping: true
+    }));
+    
+    setMessage("");
+    
+    // Имитируем ответ ИИ-тьютора
+    setTimeout(() => {
+      const aiResponses = [
+        "Основываясь на твоем прогрессе, я рекомендую углубиться в изучение pandas и визуализацию данных. Это поможет тебе в ближайших проектах по анализу данных.",
+        "Я заметил, что ты проявляешь интерес к обработке естественного языка. Это отличный выбор! Для развития в этой области рекомендую обратить внимание на модуль по NLP, который я добавил в твою персональную программу.",
+        "Анализируя твои результаты тестов, я вижу, что тебе может быть полезно дополнительное время на изучение продвинутых SQL-запросов. Я уже адаптировал твой учебный план.",
+        "Отлично! Я заметил, что ты быстро освоил базовые концепции машинного обучения. Я рекомендую тебе продвинутый курс по нейронным сетям, который открыт в твоем профиле."
+      ];
+      
+      const aiMessage = {
+        id: Date.now().toString(),
+        sender: "ai",
+        content: aiResponses[Math.floor(Math.random() * aiResponses.length)],
+        timestamp: new Date()
+      };
+      
+      setAITutorChat(prev => ({
+        ...prev,
+        messages: [...prev.messages, aiMessage],
+        isTyping: false
+      }));
+    }, 1500);
+  };
+  
+  const handleSuggestionClick = (suggestion: string) => {
+    setMessage(suggestion);
+    // Можно также сразу отправить сообщение
+    // setMessage(suggestion);
+    // setTimeout(() => handleSendMessage(), 100);
+  };
+  
   const [lastActivity, setLastActivity] = useState<any>(null);
   const [streak, setStreak] = useState(0);
   const [xpLevel, setXpLevel] = useState({
@@ -887,12 +956,108 @@ export default function Dashboard() {
 
           {/* Right column (30%) */}
           <div className="lg:col-span-2 flex flex-col gap-6">
+            {/* AI Tutor Chat */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <Glassmorphism className="rounded-xl overflow-hidden border border-purple-500/30">
+                <div className="p-4 bg-gradient-to-r from-purple-600/20 to-purple-700/10 border-b border-purple-500/30">
+                  <div className="flex items-center gap-2">
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center">
+                      <i className="fas fa-robot text-white"></i>
+                    </div>
+                    <div>
+                      <h3 className="font-medium">ИИ-тьютор NovaAI</h3>
+                      <p className="text-white/50 text-xs">Персональная помощь в обучении</p>
+                    </div>
+                    <div className="ml-auto flex items-center gap-1.5">
+                      <div className="w-2 h-2 rounded-full bg-green-400"></div>
+                      <span className="text-xs text-white/60">Онлайн</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="h-[300px] flex flex-col">
+                  <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                    {AITutorChat.messages.map((msg) => (
+                      <div 
+                        key={msg.id}
+                        className={`flex ${msg.sender === 'ai' ? 'justify-start' : 'justify-end'}`}
+                      >
+                        <div 
+                          className={`max-w-[85%] rounded-lg p-3 ${
+                            msg.sender === 'ai' 
+                              ? 'bg-purple-900/40 border border-purple-700/30 rounded-tl-none' 
+                              : 'bg-indigo-900/30 border border-indigo-700/30 rounded-tr-none'
+                          }`}
+                        >
+                          <p className="text-sm">{msg.content}</p>
+                          <p className="text-right text-[10px] text-white/40 mt-1">
+                            {new Intl.DateTimeFormat('ru-RU', {
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            }).format(msg.timestamp)}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                    
+                    {AITutorChat.isTyping && (
+                      <div className="flex justify-start">
+                        <div className="bg-purple-900/40 border border-purple-700/30 rounded-lg rounded-tl-none p-3 max-w-[85%]">
+                          <div className="flex gap-1">
+                            <div className="w-2 h-2 rounded-full bg-white/60 animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                            <div className="w-2 h-2 rounded-full bg-white/60 animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                            <div className="w-2 h-2 rounded-full bg-white/60 animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="px-4 py-3 border-t border-white/10">
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {AITutorChat.suggestions.map((suggestion, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => handleSuggestionClick(suggestion)}
+                          className="text-xs bg-white/5 hover:bg-white/10 border border-white/10 rounded-full px-3 py-1 transition"
+                        >
+                          {suggestion}
+                        </button>
+                      ))}
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+                        placeholder="Задайте вопрос тьютору..."
+                        className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-purple-500/50"
+                      />
+                      <button 
+                        onClick={handleSendMessage}
+                        disabled={!message.trim()}
+                        className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <i className="fas fa-paper-plane"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </Glassmorphism>
+            </motion.div>
+            
             {/* Continue Learning Card */}
             {lastActivity && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
               >
                 <Glassmorphism className="rounded-xl p-5 border-l-4 border-l-[#6E3AFF]">
                   <div className="flex items-start justify-between">
@@ -926,7 +1091,7 @@ export default function Dashboard() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
             >
               <Glassmorphism className="rounded-xl p-5 border-l-4 border-l-amber-500">
                 <div className="flex items-center justify-between mb-2">
@@ -950,7 +1115,7 @@ export default function Dashboard() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
             >
               <Glassmorphism className="rounded-xl p-5">
                 <div className="flex items-center justify-between mb-4">
