@@ -255,7 +255,7 @@ export default function Dashboard() {
   // Обработчик начала онбординга
   const handleStartOnboarding = () => {
     setShowOnboardingPrompt(false);
-    setLocation("/onboarding");
+    setLocation("/onboarding-page");
   };
 
   // Обработчик закрытия подсказки об онбординге
