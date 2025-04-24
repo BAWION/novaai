@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { useLocation } from "wouter";
 import { Loader2 } from "lucide-react";
+import { useAuth } from "@/context/auth-context";
 
 // Схема валидации формы регистрации
 const registerSchema = z.object({
@@ -37,6 +38,7 @@ export function RegisterForm() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [isLoading, setIsLoading] = useState(false);
+  const { login } = useAuth();
 
   // Инициализация формы с валидацией
   const form = useForm<RegisterFormValues>({
@@ -61,6 +63,12 @@ export function RegisterForm() {
         const errorData = await response.json();
         throw new Error(errorData.message || "Ошибка при регистрации");
       }
+      
+      // Получаем данные пользователя из ответа
+      const userData = await response.json();
+      
+      // Обновляем состояние аутентификации
+      login(userData);
       
       // Успешная регистрация
       toast({
