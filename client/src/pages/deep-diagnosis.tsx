@@ -133,15 +133,15 @@ export default function DeepDiagnosisPage() {
   
   // Формы данных
   const [formData, setFormData] = useState<DeepDiagnosisFormData>({
-    role: "student",
-    experience: "beginner",
-    pythonLevel: 2,
+    role: "student", // соответствует UserRole
+    experience: "beginner", // соответствует AIExperience
+    pythonLevel: 2, // соответствует SkillLevel
     programmingLanguages: [],
     dataAnalysisLevel: 1,
     mathBackground: "basic",
-    interest: "machine-learning",
+    interest: "machine-learning", // соответствует UserInterest
     subdomains: [],
-    goal: "learning",
+    goal: "practice-skills", // соответствует UserGoal
     timeCommitment: "medium",
     preferredLearningStyle: "visual",
     projectTypes: [],
@@ -163,13 +163,14 @@ export default function DeepDiagnosisPage() {
     { id: "advanced", title: "Продвинутый", description: "Хорошо разбираюсь и имею опыт работы над проектами" }
   ];
   
+  // Используем id, которые соответствуют типу UserInterest из констант
   const interestAreas = [
     { id: "machine-learning", label: "Машинное обучение", icon: <Brain /> },
-    { id: "deep-learning", label: "Глубокое обучение", icon: <Network /> },
+    { id: "neural-networks", label: "Нейронные сети", icon: <Network /> },
     { id: "data-science", label: "Наука о данных", icon: <BarChart /> },
-    { id: "nlp", label: "Обработка естественного языка", icon: <BookType /> },
     { id: "computer-vision", label: "Компьютерное зрение", icon: <Search /> },
-    { id: "ai-applications", label: "Прикладной ИИ", icon: <Lightbulb /> }
+    { id: "ethics", label: "Этика ИИ", icon: <FileText /> },
+    { id: "law", label: "Право и регулирование ИИ", icon: <BookType /> }
   ];
   
   const subdomains = {
@@ -177,31 +178,33 @@ export default function DeepDiagnosisPage() {
       "supervised-learning", "unsupervised-learning", "reinforcement-learning",
       "feature-engineering", "model-evaluation", "model-deployment"
     ],
-    "deep-learning": [
-      "neural-networks", "cnn", "rnn", "transformers", "generative-models", "attention-mechanisms"
+    "neural-networks": [
+      "cnn", "rnn", "transformers", "generative-models", "attention-mechanisms",
+      "lstm", "gans", "autoencoders", "transfer-learning"
     ],
     "data-science": [
       "data-exploration", "data-cleaning", "data-visualization", 
       "statistical-analysis", "big-data", "predictive-modeling"
     ],
-    "nlp": [
-      "text-classification", "named-entity-recognition", "sentiment-analysis", 
-      "machine-translation", "question-answering", "text-generation"
-    ],
     "computer-vision": [
       "image-classification", "object-detection", "image-segmentation", 
       "face-recognition", "video-analysis", "generative-vision"
     ],
-    "ai-applications": [
-      "recommendation-systems", "chatbots", "fraud-detection", 
-      "predictive-maintenance", "healthcare-ai", "fintech-ai"
+    "ethics": [
+      "bias-fairness", "transparency", "accountability", 
+      "privacy", "social-impact", "governance"
+    ],
+    "law": [
+      "ai-regulation", "intellectual-property", "privacy-law", 
+      "liability", "compliance", "safety-standards"
     ]
   };
   
   const goals = [
-    { id: "learning", title: "Расширить знания", description: "Хочу глубже изучить теорию и концепции AI/ML" },
-    { id: "career", title: "Развить карьеру", description: "Стремлюсь получить навыки для профессионального роста" },
-    { id: "project", title: "Реализовать проект", description: "Хочу применить AI/ML для решения конкретной задачи" }
+    { id: "practice-skills", title: "Развить навыки", description: "Хочу глубже изучить теорию и концепции AI/ML" },
+    { id: "career-change", title: "Сменить профессию", description: "Стремлюсь получить навыки для профессионального роста" },
+    { id: "create-project", title: "Реализовать проект", description: "Хочу применить AI/ML для решения конкретной задачи" },
+    { id: "find-internship", title: "Найти стажировку", description: "Хочу найти практику в компании" }
   ];
   
   const learningStyles = [
@@ -433,11 +436,11 @@ export default function DeepDiagnosisPage() {
   const calculateDeepLearningScore = (): number => {
     let score = 0;
     
-    if (formData.interest === "deep-learning") score += 30;
-    if (formData.subdomains.includes("neural-networks")) score += 15;
+    if (formData.interest === "neural-networks") score += 30;
     if (formData.subdomains.includes("cnn")) score += 15;
     if (formData.subdomains.includes("rnn")) score += 15;
     if (formData.subdomains.includes("transformers")) score += 15;
+    if (formData.subdomains.includes("gans")) score += 10;
     if (formData.experience === "advanced") score += 20;
     if (formData.experience === "intermediate") score += 10;
     
@@ -510,7 +513,7 @@ export default function DeepDiagnosisPage() {
       });
     }
     
-    if (formData.interest === "deep-learning" || formData.subdomains.includes("neural-networks")) {
+    if (formData.interest === "neural-networks" || formData.subdomains.includes("neural-networks")) {
       recommendations.push({
         id: 5,
         title: "Глубокое обучение и нейронные сети",
@@ -525,16 +528,16 @@ export default function DeepDiagnosisPage() {
       });
     }
     
-    if (formData.interest === "nlp" || formData.subdomains.includes("text-classification")) {
+    if (formData.interest === "ethics") {
       recommendations.push({
         id: 6,
-        title: "Обработка естественного языка",
-        description: "От базовых методов до современных трансформеров",
+        title: "Этика и безопасность в ИИ",
+        description: "Этические вопросы разработки и внедрения ИИ",
         match: 85,
-        difficulty: 3,
-        duration: 180,
-        modules: 7,
-        reason: "Соответствует вашему интересу к обработке текстовых данных"
+        difficulty: 2,
+        duration: 140,
+        modules: 6,
+        reason: "Специализированный курс по этическим аспектам ИИ"
       });
     }
     
@@ -548,6 +551,19 @@ export default function DeepDiagnosisPage() {
         duration: 190,
         modules: 7,
         reason: "Подходит для вашего интереса к компьютерному зрению"
+      });
+    }
+    
+    if (formData.interest === "law") {
+      recommendations.push({
+        id: 9,
+        title: "Правовые аспекты искусственного интеллекта",
+        description: "Регулирование, лицензирование и юридические вопросы применения ИИ",
+        match: 95,
+        difficulty: 2,
+        duration: 160,
+        modules: 6,
+        reason: "Полный курс по правовым аспектам ИИ"
       });
     }
     
