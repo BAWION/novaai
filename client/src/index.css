@@ -6,12 +6,21 @@
 html, body {
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
+  overscroll-behavior: none; /* Предотвращает переопределение скролла браузером */
 }
 
 /* Класс для элементов, которые должны реагировать на нажатие */
 .tap-highlight-none {
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+/* Активное состояние при нажатии на мобильных */
+.active-touch {
+  opacity: 0.8 !important;
+  transform: scale(0.98) !important;
 }
 
 /* Стили для мобильных устройств */
@@ -26,22 +35,51 @@ html, body {
     touch-action: manipulation;
     -webkit-touch-callout: none;
     user-select: none;
+    position: relative;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
   }
   
-  /* Явная обратная связь при нажатии */
+  /* Улучшенная обратная связь с визуализацией нажатия */
   a:active, button:active, [role="button"]:active {
     opacity: 0.8;
     transform: scale(0.98);
     transition: all 0.1s ease;
   }
   
+  /* Явное визуальное нажатие с ripple-эффектом для современного UI */
+  a[href]::after, button::after, [role="button"]::after {
+    content: '';
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
+    background-repeat: no-repeat;
+    background-position: 50%;
+    transform: scale(10, 10);
+    opacity: 0;
+    transition: transform 0.3s, opacity 0.5s;
+  }
+  
+  a[href]:active::after, button:active::after, [role="button"]:active::after {
+    transform: scale(0, 0);
+    opacity: 0.3;
+    transition: 0s;
+  }
+  
   /* Стили для основных кнопок действий */
   .btn-mobile {
     font-size: 16px;
-    padding: 10px 16px;
-    border-radius: 8px;
+    padding: 12px 18px;
+    border-radius: 10px;
     font-weight: 500;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    margin: 4px;
   }
   
   /* Фиксированный заголовок на мобильных */
@@ -50,12 +88,21 @@ html, body {
     top: 0;
     z-index: 50;
     backdrop-filter: blur(8px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
   }
   
   /* Улучшения для скроллинга */
   body {
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: none;
+  }
+  
+  /* Улучшения для форм */
+  input, textarea, select {
+    font-size: 16px !important; /* Предотвращает масштабирование на iOS */
+    border-radius: 8px !important;
+    padding: 12px !important;
   }
 }
 
@@ -178,6 +225,19 @@ html, body {
               linear-gradient(135deg, rgba(110, 58, 255, 0.05) 0%, rgba(10, 14, 23, 0) 70%);
 }
 
+/* Стили для мобильного интерфейса */
+body.mobile-device {
+  /* Применяем мобильные улучшения */
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+  
+  /* Отключаем эффекты браузера */
+  overscroll-behavior: none;
+}
+
 /* Стили для PWA режима */
 body.pwa-mode {
   /* Стили для отображения в PWA режиме (без браузерных элементов) */
@@ -190,6 +250,18 @@ body.pwa-mode {
   padding-bottom: var(--safe-area-inset-bottom);
   padding-left: var(--safe-area-inset-left);
   padding-right: var(--safe-area-inset-right);
+  
+  /* Дополнительные улучшения для PWA */
+  height: 100vh;
+  width: 100vw;
+  position: fixed;
+  overflow: hidden;
+  
+  & main, & section, & div.container {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    height: 100%;
+  }
 }
 
 /* Стили для экрана блокировки портретной ориентации на мобильных устройствах */
@@ -198,5 +270,8 @@ body.pwa-mode {
     min-height: 100vh;
     min-height: -webkit-fill-available;
     height: 100%;
+    overflow: hidden auto;
+    position: fixed;
+    width: 100%;
   }
 }
