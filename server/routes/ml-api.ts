@@ -37,13 +37,24 @@ const learningEventSchema = z.object({
   data: z.any().optional(),
 });
 
+// Расширение Express Request для доступа к сессии
+declare global {
+  namespace Express {
+    interface Request {
+      session: any;
+    }
+  }
+}
+
 // Middleware для проверки аутентификации и прав администратора
 function requireAdmin(req: Request, res: Response, next: Function) {
-  if (!req.isAuthenticated()) {
+  // Проверяем наличие сессии и пользователя
+  if (!req.session || !req.session.user) {
     return res.status(401).json({ message: "Not authenticated" });
   }
   
-  if (req.user?.role !== "admin") {
+  // Проверяем на админский аккаунт (id=999)
+  if (req.session.user.id !== 999) {
     return res.status(403).json({ message: "Access denied" });
   }
   
@@ -104,7 +115,7 @@ router.patch("/feature-flags/:id", requireAdmin, async (req: Request, res: Respo
 router.get("/feature-flags/:name/status", async (req: Request, res: Response) => {
   try {
     const name = req.params.name;
-    const userId = req.user?.id;
+    const userId = req.session.user?.id;
     
     const isEnabled = await mlService.isFeatureEnabled(name, userId);
     res.json({ name, enabled: isEnabled });
@@ -145,12 +156,13 @@ router.post("/models/:id/activate", requireAdmin, async (req: Request, res: Resp
  */
 // Логирование активности пользователя
 router.post("/activity", async (req: Request, res: Response) => {
-  if (!req.isAuthenticated()) {
+  // Проверяем наличие сессии и пользователя
+  if (!req.session || !req.session.user) {
     return res.status(401).json({ message: "Not authenticated" });
   }
   
   try {
-    const userId = req.user!.id;
+    const userId = req.session.user.id;
     const validatedData = userActivitySchema.parse(req.body);
     
     await mlService.logUserActivity(
@@ -174,12 +186,13 @@ router.post("/activity", async (req: Request, res: Response) => {
 
 // Запись события обучения
 router.post("/learning-events", async (req: Request, res: Response) => {
-  if (!req.isAuthenticated()) {
+  // Проверяем наличие сессии и пользователя
+  if (!req.session || !req.session.user) {
     return res.status(401).json({ message: "Not authenticated" });
   }
   
   try {
-    const userId = req.user!.id;
+    const userId = req.session.user.id;
     const validatedData = learningEventSchema.parse(req.body);
     
     await mlService.recordLearningEvent(
@@ -206,12 +219,13 @@ router.post("/learning-events", async (req: Request, res: Response) => {
  */
 // Получение персонализированных рекомендаций курсов
 router.get("/recommendations/courses", async (req: Request, res: Response) => {
-  if (!req.isAuthenticated()) {
+  // Проверяем наличие сессии и пользователя
+  if (!req.session || !req.session.user) {
     return res.status(401).json({ message: "Not authenticated" });
   }
   
   try {
-    const userId = req.user!.id;
+    const userId = req.session.user.id;
     
     // Получаем все курсы
     const courses = await storage.getAllCourses();
@@ -228,12 +242,13 @@ router.get("/recommendations/courses", async (req: Request, res: Response) => {
 
 // Маршрут обновления эмбеддингов пользователя
 router.post("/embeddings/user", async (req: Request, res: Response) => {
-  if (!req.isAuthenticated()) {
+  // Проверяем наличие сессии и пользователя
+  if (!req.session || !req.session.user) {
     return res.status(401).json({ message: "Not authenticated" });
   }
   
   try {
-    const userId = req.user!.id;
+    const userId = req.session.user.id;
     const user = await storage.getUser(userId);
     const profile = await storage.getUserProfile(userId);
     
