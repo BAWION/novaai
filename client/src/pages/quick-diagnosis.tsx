@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from "wouter";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Label } from "@/components/ui/label";
@@ -9,13 +9,32 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useUserProfile } from "@/context/user-profile-context";
+import { Badge } from "@/components/ui/badge";
+import { Glassmorphism } from "@/components/ui/glassmorphism";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   SkillLevel, 
   AIExperience, 
   UserInterest, 
-  UserGoal 
+  UserGoal
 } from "@/lib/constants";
-import { Brain, ArrowRight, Code, ChevronRight, ChevronLeft, BookOpen } from "lucide-react";
+import { 
+  Brain, 
+  ArrowRight, 
+  Code, 
+  ChevronRight, 
+  ChevronLeft, 
+  BookOpen,
+  Sparkles,
+  Target,
+  User,
+  Clock,
+  Rocket,
+  FileText,
+  Check,
+  Trophy,
+  Star
+} from "lucide-react";
 
 const specializations = [
   {
@@ -121,6 +140,13 @@ export default function QuickDiagnosis() {
     }
   };
   
+  // Состояния для анимации "распределительной шляпы"
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisStep, setAnalysisStep] = useState(0);
+  const [analysisComplete, setAnalysisComplete] = useState(false);
+  const [recommendations, setRecommendations] = useState<any[]>([]);
+  const [userSkillProfile, setUserSkillProfile] = useState<{[key: string]: number}>({});
+  
   const handleComplete = async () => {
     try {
       // Функция для преобразования уровня опыта в SkillLevel
@@ -162,20 +188,102 @@ export default function QuickDiagnosis() {
         pythonLevel: mapExperienceToLevel(formData.experience),
       };
       
-      // Обновляем профиль пользователя
-      await updateUserProfile(profileUpdate);
+      // Начинаем анимацию анализа
+      setIsAnalyzing(true);
+      setStep(4); // Переходим на страницу анализа
       
-      toast({
-        title: "Диагностика завершена",
-        description: "Спасибо за заполнение! Ваш профиль обновлен.",
-      });
+      // Генерируем профиль навыков на основе выбранных параметров
+      const skillProfile = {
+        "Программирование AI": mapExperienceToLevel(formData.experience) * 20,
+        "Машинное обучение": formData.specialization === "machine-learning" ? 70 : 40,
+        "Работа с данными": formData.specialization === "data-science" ? 75 : 35,
+        "Нейросети": formData.specialization === "machine-learning" ? 65 : 30,
+        "Алгоритмы": mapExperienceToLevel(formData.experience) * 15,
+        "Исследования": formData.goal === "learning" ? 60 : 40,
+        "Практические навыки": formData.goal === "project" ? 75 : 50,
+      };
       
-      // Очищаем данные из sessionStorage
-      sessionStorage.removeItem("onboardingData");
+      setUserSkillProfile(skillProfile);
       
-      // Перенаправляем на Dashboard или указанную страницу
-      const redirectUrl = formData.redirectAfterComplete || "/dashboard";
-      setLocation(redirectUrl);
+      // Имитация последовательного анализа с задержками
+      const updateUserProfileSafely = () => {
+        try {
+          updateUserProfile(profileUpdate);
+          toast({
+            title: "Диагностика завершена",
+            description: "Ваш профиль обновлен, рекомендации готовы!",
+          });
+          
+          // Очищаем данные из sessionStorage через 5 сек
+          setTimeout(() => {
+            sessionStorage.removeItem("onboardingData");
+          }, 5000);
+        } catch (error) {
+          console.error("Ошибка при обновлении профиля:", error);
+        }
+      };
+      
+      setTimeout(() => {
+        setAnalysisStep(1); // Анализируем интересы
+        
+        setTimeout(() => {
+          setAnalysisStep(2); // Анализируем опыт
+          
+          setTimeout(() => {
+            setAnalysisStep(3); // Анализируем цели
+            
+            setTimeout(() => {
+              setAnalysisStep(4); // Формируем рекомендации
+              
+              // Генерируем фиктивные рекомендации по курсам
+              const mockRecommendations = [
+                {
+                  id: 1,
+                  title: "Основы машинного обучения",
+                  description: "Базовый курс по теории и практике машинного обучения",
+                  match: 95,
+                  difficulty: 2,
+                  reason: formData.specialization === "machine-learning" 
+                    ? "Идеально соответствует вашему интересу к машинному обучению"
+                    : "Хорошая база для выбранной вами специализации"
+                },
+                {
+                  id: 2,
+                  title: "Python для анализа данных",
+                  description: "Практический курс по использованию Python в обработке данных",
+                  match: 87,
+                  difficulty: formData.experience === "beginner" ? 2 : 3,
+                  reason: formData.specialization === "data-science"
+                    ? "Соответствует вашему интересу к науке о данных"
+                    : "Полезные навыки для любой AI-специализации"
+                },
+                {
+                  id: 3,
+                  title: "Нейросетевые архитектуры",
+                  description: "Углубленное изучение архитектур нейронных сетей",
+                  match: formData.experience === "advanced" ? 91 : 78,
+                  difficulty: 4,
+                  reason: formData.experience === "advanced" 
+                    ? "Соответствует вашему продвинутому уровню" 
+                    : "Поможет развить ваши навыки до следующего уровня"
+                },
+              ];
+              
+              setRecommendations(mockRecommendations);
+              
+              setTimeout(() => {
+                // Завершаем анализ и сохраняем профиль
+                setAnalysisComplete(true);
+                
+                // Сохраняем результаты в профиль пользователя
+                updateUserProfileSafely();
+                
+              }, 1500);
+            }, 1200);
+          }, 1200);
+        }, 1200);
+      }, 1000);
+      
     } catch (error) {
       console.error("Error updating profile:", error);
       toast({
@@ -183,7 +291,15 @@ export default function QuickDiagnosis() {
         description: "Не удалось сохранить результаты диагностики. Попробуйте еще раз.",
         variant: "destructive",
       });
+      setIsAnalyzing(false);
     }
+  };
+  
+  // Функция для перехода на Dashboard с результатами анализа
+  const handleContinueToDashboard = () => {
+    // Перенаправляем на Dashboard или указанную страницу
+    const redirectUrl = formData.redirectAfterComplete || "/dashboard";
+    setLocation(redirectUrl);
   };
   
   return (
@@ -330,23 +446,270 @@ export default function QuickDiagnosis() {
               </div>
             )}
             
+            {/* Шаг 4: Анализ и результаты */}
+            {step === 4 && (
+              <div className="py-4">
+                {!analysisComplete ? (
+                  <div className="text-center">
+                    {/* Визуализация AI-анализа (распределительная шляпа) */}
+                    <div className="relative mx-auto mb-8 w-32 h-32 flex items-center justify-center">
+                      <div className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-600/40 to-blue-600/40 animate-pulse"></div>
+                      <div className="absolute inset-2 rounded-full bg-space-800 flex items-center justify-center">
+                        <Sparkles className="h-12 w-12 text-purple-400" />
+                      </div>
+                      <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-40">
+                        <div className="bg-gradient-to-r from-purple-500/0 via-purple-500/50 to-purple-500/0 h-0.5"></div>
+                      </div>
+                      {/* Лучи света */}
+                      <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-full h-10 w-1 bg-gradient-to-b from-purple-500/0 to-purple-500/50"></div>
+                      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full h-10 w-1 bg-gradient-to-t from-purple-500/0 to-purple-500/50"></div>
+                    </div>
+                    
+                    <h3 className="text-xl font-orbitron mb-4 bg-clip-text text-transparent bg-gradient-to-r from-[#B28DFF] via-[#8BE0F7] to-[#B28DFF]">
+                      NovaAI анализирует ваши навыки
+                    </h3>
+                    
+                    <div className="space-y-6 max-w-md mx-auto">
+                      {/* Прогресс анализа */}
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-6 h-6 rounded-full ${analysisStep >= 1 ? 'bg-primary text-white' : 'bg-white/10'} flex items-center justify-center text-xs`}>
+                            {analysisStep >= 1 ? <Check className="h-4 w-4" /> : '1'}
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex justify-between mb-1">
+                              <span className="text-sm">Анализ интересов</span>
+                              {analysisStep >= 1 && <span className="text-xs text-primary">Завершено</span>}
+                            </div>
+                            <Progress value={analysisStep >= 1 ? 100 : 0} className="h-1.5" />
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center gap-3">
+                          <div className={`w-6 h-6 rounded-full ${analysisStep >= 2 ? 'bg-primary text-white' : 'bg-white/10'} flex items-center justify-center text-xs`}>
+                            {analysisStep >= 2 ? <Check className="h-4 w-4" /> : '2'}
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex justify-between mb-1">
+                              <span className="text-sm">Оценка опыта</span>
+                              {analysisStep >= 2 && <span className="text-xs text-primary">Завершено</span>}
+                            </div>
+                            <Progress value={analysisStep >= 2 ? 100 : analysisStep === 1 ? 60 : 0} className="h-1.5" />
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center gap-3">
+                          <div className={`w-6 h-6 rounded-full ${analysisStep >= 3 ? 'bg-primary text-white' : 'bg-white/10'} flex items-center justify-center text-xs`}>
+                            {analysisStep >= 3 ? <Check className="h-4 w-4" /> : '3'}
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex justify-between mb-1">
+                              <span className="text-sm">Определение целей</span>
+                              {analysisStep >= 3 && <span className="text-xs text-primary">Завершено</span>}
+                            </div>
+                            <Progress value={analysisStep >= 3 ? 100 : analysisStep === 2 ? 60 : 0} className="h-1.5" />
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center gap-3">
+                          <div className={`w-6 h-6 rounded-full ${analysisStep >= 4 ? 'bg-primary text-white' : 'bg-white/10'} flex items-center justify-center text-xs`}>
+                            {analysisStep >= 4 ? <Check className="h-4 w-4" /> : '4'}
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex justify-between mb-1">
+                              <span className="text-sm">Формирование рекомендаций</span>
+                              {analysisStep >= 4 && <span className="text-xs text-primary">Завершено</span>}
+                            </div>
+                            <Progress value={analysisStep >= 4 ? 100 : analysisStep === 3 ? 60 : 0} className="h-1.5" />
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Комментарии к анализу */}
+                      <div className="bg-space-900/50 rounded-lg p-4 border border-white/10 text-left">
+                        <AnimatePresence mode="wait">
+                          <motion.div
+                            key={analysisStep}
+                            initial={{ opacity: 0, y: 5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -5 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            {analysisStep === 0 && <p>Инициализация анализа...</p>}
+                            {analysisStep === 1 && (
+                              <div>
+                                <p className="font-medium">Анализ интересов</p>
+                                <p className="text-sm text-white/70 mt-1">
+                                  {formData.specialization === "machine-learning" && "Ваш интерес к машинному обучению указывает на аналитический склад ума и стремление к решению сложных задач с использованием данных."}
+                                  {formData.specialization === "data-science" && "Ваш интерес к науке о данных демонстрирует склонность к работе с большими объемами информации и извлечению из них полезных инсайтов."}
+                                  {formData.specialization === "programming" && "Ваш интерес к программированию ИИ показывает склонность к технической реализации интеллектуальных систем и алгоритмов."}
+                                </p>
+                              </div>
+                            )}
+                            {analysisStep === 2 && (
+                              <div>
+                                <p className="font-medium">Оценка опыта</p>
+                                <p className="text-sm text-white/70 mt-1">
+                                  {formData.experience === "beginner" && "Будучи новичком, вы имеете отличную возможность построить прочный фундамент знаний, начиная с самых основ."}
+                                  {formData.experience === "intermediate" && "Имея средний уровень опыта, вы можете углубить свои знания в специализированных областях."}
+                                  {formData.experience === "advanced" && "С вашим продвинутым уровнем опыта мы подберем курсы, которые помогут вам достичь экспертного уровня."}
+                                </p>
+                              </div>
+                            )}
+                            {analysisStep === 3 && (
+                              <div>
+                                <p className="font-medium">Определение целей</p>
+                                <p className="text-sm text-white/70 mt-1">
+                                  {formData.goal === "learning" && "Ваша цель расширить знания требует разностороннего подхода с акцентом на теоретические основы и их практическое применение."}
+                                  {formData.goal === "career" && "Ваша цель развития карьеры требует фокуса на востребованных навыках и технологиях с высокой рыночной ценностью."}
+                                  {formData.goal === "project" && "Ваша цель реализовать проект требует практического подхода с фокусом на прикладные инструменты и технологии."}
+                                </p>
+                              </div>
+                            )}
+                            {analysisStep === 4 && (
+                              <div>
+                                <p className="font-medium">Формирование рекомендаций</p>
+                                <p className="text-sm text-white/70 mt-1">
+                                  На основе ваших интересов, опыта и целей мы подбираем оптимальный набор курсов и материалов для вашего образовательного пути. Почти готово...
+                                </p>
+                              </div>
+                            )}
+                          </motion.div>
+                        </AnimatePresence>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <div className="mb-8 text-center">
+                      <motion.div
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ type: "spring", duration: 0.8 }}
+                        className="mx-auto mb-4 w-20 h-20 rounded-full bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center"
+                      >
+                        <Check className="h-10 w-10 text-white" />
+                      </motion.div>
+                      <h3 className="text-xl font-orbitron mb-2 bg-clip-text text-transparent bg-gradient-to-r from-[#B28DFF] via-[#8BE0F7] to-[#B28DFF]">
+                        Анализ завершен!
+                      </h3>
+                      <p className="text-white/70">
+                        Мы определили ваш профиль навыков и подготовили персональные рекомендации.
+                      </p>
+                    </div>
+                    
+                    <div className="grid md:grid-cols-2 gap-6">
+                      {/* Профиль навыков */}
+                      <div>
+                        <h4 className="text-lg font-medium mb-4 flex items-center">
+                          <User className="h-5 w-5 mr-2 text-primary" />
+                          Ваш профиль навыков
+                        </h4>
+                        
+                        <Glassmorphism className="p-4 rounded-lg">
+                          <div className="space-y-3">
+                            {Object.entries(userSkillProfile).map(([skill, level]) => (
+                              <div key={skill} className="space-y-1">
+                                <div className="flex justify-between">
+                                  <span className="text-sm">{skill}</span>
+                                  <span className="text-xs text-white/70">{level}%</span>
+                                </div>
+                                <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                                  <div
+                                    className={`h-full rounded-full ${
+                                      level > 70 ? 'bg-green-500' :
+                                      level > 50 ? 'bg-blue-500' :
+                                      level > 30 ? 'bg-yellow-500' : 'bg-red-500'
+                                    }`}
+                                    style={{ width: `${level}%` }}
+                                  ></div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </Glassmorphism>
+                      </div>
+                      
+                      {/* Рекомендации */}
+                      <div>
+                        <h4 className="text-lg font-medium mb-4 flex items-center">
+                          <BookOpen className="h-5 w-5 mr-2 text-primary" />
+                          Рекомендуемые курсы
+                        </h4>
+                        
+                        <div className="space-y-3">
+                          {recommendations.map((course) => (
+                            <Glassmorphism 
+                              key={course.id}
+                              className="p-3 rounded-lg border-l-2 border-primary"
+                            >
+                              <div className="flex items-start justify-between">
+                                <div>
+                                  <div className="flex items-center gap-1.5">
+                                    <h5 className="font-medium">{course.title}</h5>
+                                    <Badge className="bg-green-500/20 text-green-400 border-0">
+                                      {course.match}% совпадение
+                                    </Badge>
+                                  </div>
+                                  <p className="text-sm text-white/70 mt-1">{course.description}</p>
+                                  
+                                  <div className="mt-2 text-xs text-white/60 flex items-center gap-3">
+                                    <div className="flex items-center gap-1">
+                                      <Target className="h-3 w-3" />
+                                      <span>Уровень сложности: {course.difficulty}/5</span>
+                                    </div>
+                                  </div>
+                                  
+                                  {course.reason && (
+                                    <div className="mt-2 text-xs p-1.5 bg-primary/10 rounded">
+                                      <span className="text-primary font-medium">Почему подходит:</span> {course.reason}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </Glassmorphism>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            
             <div className="flex justify-between mt-8">
-              <Button
-                variant="outline"
-                className={`${step === 1 ? "invisible" : ""} bg-transparent border-white/20 hover:bg-white/10 text-white`}
-                onClick={handlePrevious}
-              >
-                <ChevronLeft className="h-4 w-4 mr-2" />
-                Назад
-              </Button>
-              
-              <Button
-                onClick={handleNext}
-                className="bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:opacity-90 text-white"
-              >
-                {step === totalSteps ? "Завершить" : "Далее"}
-                {step === totalSteps ? <ArrowRight className="h-4 w-4 ml-2" /> : <ChevronRight className="h-4 w-4 ml-2" />}
-              </Button>
+              {step < 4 ? (
+                <>
+                  <Button
+                    variant="outline"
+                    className={`${step === 1 ? "invisible" : ""} bg-transparent border-white/20 hover:bg-white/10 text-white`}
+                    onClick={handlePrevious}
+                  >
+                    <ChevronLeft className="h-4 w-4 mr-2" />
+                    Назад
+                  </Button>
+                  
+                  <Button
+                    onClick={handleNext}
+                    className="bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:opacity-90 text-white"
+                  >
+                    {step === totalSteps ? "Завершить" : "Далее"}
+                    {step === totalSteps ? <ArrowRight className="h-4 w-4 ml-2" /> : <ChevronRight className="h-4 w-4 ml-2" />}
+                  </Button>
+                </>
+              ) : (
+                <div className="w-full flex justify-center">
+                  {analysisComplete && (
+                    <Button 
+                      onClick={handleContinueToDashboard}
+                      className="bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:opacity-90 text-white"
+                    >
+                      Перейти к обучению
+                      <Rocket className="h-4 w-4 ml-2" />
+                    </Button>
+                  )}
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
