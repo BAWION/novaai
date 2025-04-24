@@ -73,11 +73,12 @@ export function RegisterForm() {
       // Успешная регистрация
       toast({
         title: "Регистрация успешна",
-        description: "Вы успешно зарегистрировались. Переходим к онбордингу.",
+        description: "Вы успешно зарегистрировались. Добро пожаловать!",
       });
       
-      // Перенаправление на страницу онбординга
-      setLocation("/onboarding");
+      // Перенаправление на главную панель (dashboard)
+      // Модальное окно приветствия будет показано автоматически на dashboard
+      setLocation("/dashboard");
     } catch (error) {
       console.error("Ошибка регистрации:", error);
       toast({

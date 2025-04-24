@@ -43,10 +43,22 @@ export function WelcomeModal({ isOpen, onOpenChange, userName = "студент"
     }
   };
 
-  // Функция для перехода на страницу диагностики
+  // Функция для перехода к диагностике в контексте модального окна
   const goToDiagnostics = () => {
+    // Вместо редиректа - начинаем диагностику прямо здесь
     onOpenChange(false);
-    setLocation("/onboarding-page");
+    
+    // Показать уведомление о начале диагностики
+    const onboardingData = {
+      username: userName,
+      redirectAfterComplete: "/dashboard"
+    };
+    
+    // Сохраняем данные диагностики, чтобы их можно было использовать на странице dashboard
+    sessionStorage.setItem("onboardingData", JSON.stringify(onboardingData));
+    
+    // Переходим к компактной версии диагностики
+    setLocation("/quick-diagnosis");
   };
 
   // Функция для пропуска онбординга

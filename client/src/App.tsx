@@ -16,6 +16,7 @@ import Login from "@/pages/login";
 import Register from "@/pages/register";
 import Onboarding from "@/pages/onboarding";
 import OnboardingPage from "@/pages/onboarding-page";
+import QuickDiagnosis from "@/pages/quick-diagnosis";
 import OrbitalLobby from "@/pages/orbital-lobby";
 import Dashboard from "@/pages/dashboard";
 import Roadmap from "@/pages/roadmap";
@@ -83,7 +84,8 @@ function Router() {
   const [location] = useLocation();
   
   // Check if we're on public pages
-  const isPublicPage = location === "/" || location === "/login" || location === "/register" || location === "/onboarding" || location === "/onboarding-page";
+  const isPublicPage = location === "/" || location === "/login" || location === "/register" || 
+    location === "/onboarding" || location === "/onboarding-page" || location === "/quick-diagnosis";
   
   return (
     <div className="flex flex-col min-h-screen">
@@ -97,6 +99,7 @@ function Router() {
           <Route path="/register" component={Register} />
           <Route path="/onboarding" component={Onboarding} />
           <Route path="/onboarding-page" component={OnboardingPage} />
+          <Route path="/quick-diagnosis" component={QuickDiagnosis} />
           
           {/* Protected Routes */}
           <ProtectedRoute path="/dashboard" component={Dashboard} />
