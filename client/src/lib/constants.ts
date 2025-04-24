@@ -91,7 +91,8 @@ export const courses: Course[] = [
     icon: 'code',
     modules: 8,
     level: 'basic',
-    color: 'secondary'
+    color: 'secondary',
+    category: 'tech'
   },
   {
     id: 'math-lite',
@@ -100,7 +101,8 @@ export const courses: Course[] = [
     icon: 'calculator',
     modules: 5,
     level: 'basic',
-    color: 'primary'
+    color: 'primary',
+    category: 'tech'
   },
   {
     id: 'data-analysis',
@@ -109,7 +111,8 @@ export const courses: Course[] = [
     icon: 'database',
     modules: 6,
     level: 'practice',
-    color: 'secondary'
+    color: 'secondary',
+    category: 'tech'
   },
   {
     id: 'ml-foundations',
@@ -118,7 +121,8 @@ export const courses: Course[] = [
     icon: 'brain',
     modules: 7,
     level: 'in-progress',
-    color: 'primary'
+    color: 'primary',
+    category: 'ml'
   },
   {
     id: 'capstone',
@@ -127,7 +131,28 @@ export const courses: Course[] = [
     icon: 'project-diagram',
     modules: 3,
     level: 'upcoming',
-    color: 'accent'
+    color: 'accent',
+    category: 'tech'
+  },
+  {
+    id: 'ai-ethics-101',
+    title: 'AI Ethics & Safety 101',
+    description: 'Этика и безопасность в сфере искусственного интеллекта',
+    icon: 'balance-scale',
+    modules: 6,
+    level: 'basic',
+    color: 'purple',
+    category: 'ethics'
+  },
+  {
+    id: 'ai-law-ru-eu',
+    title: 'Legal Frameworks for AI',
+    description: 'Правовые основы ИИ в России и ЕС',
+    icon: 'gavel',
+    modules: 5,
+    level: 'practice',
+    color: 'green',
+    category: 'law'
   }
 ];
 
