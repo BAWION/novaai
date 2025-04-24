@@ -121,6 +121,9 @@ function Router() {
           {/* Карта навыков и учебный прогресс */}
           <Route path="/skills" component={SkillsPage} />
           
+          {/* Gap-анализ навыков */}
+          <ProtectedRoute path="/gap-analysis" component={GapAnalysisPage} />
+          
           <Route component={NotFound} />
         </Switch>
       </main>
