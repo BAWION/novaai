@@ -123,6 +123,20 @@ export function setupFullscreenHandlers() {
 }
 
 /**
+ * Проверяет, запущено ли приложение как PWA
+ */
+export function isPWA(): boolean {
+  if (typeof window === 'undefined') return false;
+  
+  return !!(
+    window.matchMedia('(display-mode: standalone)').matches || 
+    window.matchMedia('(display-mode: fullscreen)').matches || 
+    (window.navigator as any).standalone || 
+    window.location.search.includes('pwa=true')
+  );
+}
+
+/**
  * Инициализирует все необходимые обработчики и настройки
  * для работы в полноэкранном режиме
  */
@@ -132,8 +146,23 @@ export function initializeFullscreenMode() {
   // На некоторых устройствах может потребоваться задержка
   setTimeout(hideAddressBar, 500);
   
+  // Пытаемся запросить полноэкранный режим для мобильных устройств
+  // если это не PWA и браузер поддерживает такую функцию
+  if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent) && !isPWA()) {
+    // Запрашиваем на первое взаимодействие пользователя
+    document.addEventListener('touchstart', function requestFullOnTouch() {
+      requestFullscreen();
+      document.removeEventListener('touchstart', requestFullOnTouch);
+    }, { once: true, passive: true });
+  }
+  
   // Добавляем класс к body для применения специфичных стилей
   if (typeof document !== 'undefined') {
     document.body.classList.add('fullscreen-mode');
+    
+    // Добавляем класс pwa, если приложение запущено как PWA
+    if (isPWA()) {
+      document.body.classList.add('pwa-mode');
+    }
   }
 }

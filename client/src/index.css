@@ -120,3 +120,26 @@
   background: radial-gradient(circle at 50% 50%, rgba(46, 186, 225, 0.1), rgba(10, 14, 23, 0)), 
               linear-gradient(135deg, rgba(110, 58, 255, 0.05) 0%, rgba(10, 14, 23, 0) 70%);
 }
+
+/* Стили для PWA режима */
+body.pwa-mode {
+  /* Стили для отображения в PWA режиме (без браузерных элементов) */
+  --safe-area-inset-top: env(safe-area-inset-top, 0px);
+  --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-inset-left: env(safe-area-inset-left, 0px);
+  --safe-area-inset-right: env(safe-area-inset-right, 0px);
+  
+  padding-top: var(--safe-area-inset-top);
+  padding-bottom: var(--safe-area-inset-bottom);
+  padding-left: var(--safe-area-inset-left);
+  padding-right: var(--safe-area-inset-right);
+}
+
+/* Стили для экрана блокировки портретной ориентации на мобильных устройствах */
+@media screen and (orientation: portrait) {
+  body.fullscreen-mode {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    height: 100%;
+  }
+}
