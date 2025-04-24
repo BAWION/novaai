@@ -13,6 +13,7 @@ import { PWAInstallPrompt, MobilePWAInstallButton } from "@/components/pwa/insta
 import { ConnectionStatus, PWAModeBadge } from "@/components/pwa/offline-status";
 import HomePage from "@/pages/home-page";
 import Login from "@/pages/login";
+import Register from "@/pages/register";
 import Onboarding from "@/pages/onboarding";
 import OnboardingPage from "@/pages/onboarding-page";
 import OrbitalLobby from "@/pages/orbital-lobby";
@@ -82,7 +83,7 @@ function Router() {
   const [location] = useLocation();
   
   // Check if we're on public pages
-  const isPublicPage = location === "/" || location === "/login" || location === "/onboarding" || location === "/onboarding-page";
+  const isPublicPage = location === "/" || location === "/login" || location === "/register" || location === "/onboarding" || location === "/onboarding-page";
   
   return (
     <div className="flex flex-col min-h-screen">
@@ -93,6 +94,7 @@ function Router() {
           {/* Публичные маршруты */}
           <Route path="/" component={HomePage} />
           <Route path="/login" component={Login} />
+          <Route path="/register" component={Register} />
           <Route path="/onboarding" component={Onboarding} />
           <Route path="/onboarding-page" component={OnboardingPage} />
           
