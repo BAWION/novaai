@@ -160,6 +160,10 @@ html, body {
   --chart-3: 338 82% 61%;
   --chart-4: 120 80% 50%;
   --chart-5: 40 100% 60%;
+  --purple: 273 100% 75%;
+  --purple-foreground: 0 0% 100%;
+  --green: 142 71% 45%;
+  --green-foreground: 0 0% 100%;
 }
 
 @layer base {
