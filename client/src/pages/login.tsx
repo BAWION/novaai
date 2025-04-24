@@ -179,7 +179,7 @@ export default function Login() {
                 <div className="mb-6">
                   <button
                     onClick={handleTelegramLogin}
-                    className="w-full bg-[#0088cc] hover:bg-[#0099dd] text-white py-3 px-4 rounded-lg flex items-center justify-center transition duration-300"
+                    className="w-full bg-[#0088cc] hover:bg-[#0099dd] text-white py-3 px-4 rounded-lg flex items-center justify-center transition duration-300 tap-highlight-none btn-mobile"
                   >
                     <i className="fab fa-telegram mr-3 text-xl"></i>
                     Войти через Telegram
@@ -195,7 +195,7 @@ export default function Login() {
                 <div className="space-y-4">
                   <button
                     onClick={toggleLoginForm}
-                    className="w-full bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:from-[#4922B2] hover:to-[#1682A1] text-white py-3 px-4 rounded-lg font-medium transition duration-300 flex items-center justify-center"
+                    className="w-full bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:from-[#4922B2] hover:to-[#1682A1] text-white py-3 px-4 rounded-lg font-medium transition duration-300 flex items-center justify-center tap-highlight-none btn-mobile"
                   >
                     <i className="fas fa-user mr-2"></i>
                     <span>Войти с паролем</span>
@@ -203,7 +203,7 @@ export default function Login() {
 
                   <button
                     onClick={handleStartJourney}
-                    className="w-full border border-white/20 hover:bg-white/10 text-white py-3 px-4 rounded-lg font-medium transition duration-300 flex items-center justify-center"
+                    className="w-full border border-white/20 hover:bg-white/10 text-white py-3 px-4 rounded-lg font-medium transition duration-300 flex items-center justify-center tap-highlight-none btn-mobile"
                   >
                     <span>Начать знакомство</span>
                     <i className="fas fa-arrow-right ml-2"></i>
@@ -254,14 +254,14 @@ export default function Login() {
                   <button
                     type="button"
                     onClick={toggleLoginForm}
-                    className="flex-1 border border-white/20 hover:bg-white/10 text-white py-2 px-4 rounded-lg transition duration-300"
+                    className="flex-1 border border-white/20 hover:bg-white/10 text-white py-2 px-4 rounded-lg transition duration-300 tap-highlight-none btn-mobile"
                     disabled={isLoggingIn}
                   >
                     Назад
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:from-[#4922B2] hover:to-[#1682A1] text-white py-2 px-4 rounded-lg font-medium transition duration-300 flex items-center justify-center"
+                    className="flex-1 bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:from-[#4922B2] hover:to-[#1682A1] text-white py-2 px-4 rounded-lg font-medium transition duration-300 flex items-center justify-center tap-highlight-none btn-mobile"
                     disabled={isLoggingIn}
                   >
                     {isLoggingIn ? (
