@@ -2,10 +2,17 @@
   "name": "NovaAI University",
   "short_name": "NovaAI",
   "description": "AI-образовательная платформа с адаптивным обучением",
-  "start_url": "/?pwa=true",
+  "start_url": "/?pwa=true&fullscreen=true",
   "scope": "/",
   "display": "fullscreen",
-  "display_override": ["fullscreen", "standalone", "minimal-ui"],
+  "display_override": ["window-controls-overlay", "fullscreen", "standalone", "minimal-ui"],
+  "edge_side_panel": {
+    "preferred_width": 400 
+  },
+  "handle_links": "preferred",
+  "launch_handler": {
+    "client_mode": ["navigate-existing", "auto"]
+  },
   "background_color": "#0e101c",
   "theme_color": "#6E3AFF",
   "orientation": "portrait-primary",

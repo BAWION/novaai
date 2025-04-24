@@ -2,23 +2,35 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover, minimal-ui" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover, minimal-ui, standalone" />
     <title>NovaAI University</title>
     <meta name="description" content="AI-образовательная платформа с адаптивным обучением и персонализированными курсами">
     <meta name="theme-color" content="#6E3AFF">
-    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0e101c">
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#6E3AFF">
+    <link rel="manifest" href="/manifest.json" crossorigin="use-credentials">
     <link rel="icon" type="image/png" href="/icons/icon-192x192.png">
     <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="full-screen" content="yes">
+    <meta name="browsermode" content="application">
+    <meta name="nightmode" content="enable">
+    <meta name="layoutmode" content="fitscreen">
+    <meta name="imagemode" content="force">
+    <meta name="screen-orientation" content="portrait">
+    <meta name="x5-orientation" content="portrait">
+    <meta name="x5-fullscreen" content="true">
+    <meta name="x5-page-mode" content="app">
     <meta name="apple-touch-fullscreen" content="yes">
     <meta name="apple-mobile-web-app-title" content="NovaAI">
     <meta name="application-name" content="NovaAI University">
     <meta name="msapplication-TileColor" content="#6E3AFF">
     <meta name="msapplication-TileImage" content="/icons/icon-144x144.png">
+    <meta name="msapplication-tap-highlight" content="no">
     <meta name="msapplication-config" content="/browserconfig.xml">
+    <meta name="msapplication-starturl" content="/?fullscreen=true">
     <meta name="format-detection" content="telephone=no">
     <meta name="format-detection" content="address=no">
     <meta name="format-detection" content="email=no">
@@ -58,93 +70,157 @@
     <!-- This is a replit script which adds a banner on the top of the page when opened in development mode outside the replit environment -->
     <script type="text/javascript" src="https://replit.com/public/js/replit-dev-banner.js"></script>
     <script>
-      // Предотвращение появления адресной строки на мобильных устройствах при свайпах
-      document.addEventListener('touchstart', function(e) {
-        // Проверяем если пользователь свайпает вниз в верхней части экрана
-        if (e.touches[0].clientY < 50 && window.scrollY <= 0) {
-          e.preventDefault();
-        }
-      }, { passive: false });
+      // Пытаемся определить, запущено ли приложение как PWA
+      function checkIsPWA() {
+        return window.matchMedia('(display-mode: standalone)').matches || 
+               window.matchMedia('(display-mode: fullscreen)').matches || 
+               window.navigator.standalone || 
+               window.location.search.includes('pwa=true') ||
+               window.location.search.includes('fullscreen=true');
+      }
       
-      // Функция для скрытия адресной строки после загрузки
-      function hideAddressBar() {
-        if (document.readyState === 'complete') {
-          // Проверяем, запущено ли приложение как PWA
-          const isPWA = window.matchMedia('(display-mode: standalone)').matches || 
-                        window.matchMedia('(display-mode: fullscreen)').matches || 
-                        window.navigator.standalone || 
-                        window.location.search.includes('pwa=true');
+      // Агрессивная политика для iOS Safari
+      function setupIOSFullscreen() {
+        if (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) {
+          // Добавляем класс для iOS оптимизаций
+          document.body.classList.add('ios-device');
           
-          // Для iOS PWA не нужно скрывать адресную строку
-          if ((/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) && isPWA) {
-            return;
+          // Устанавливаем фиксированные размеры
+          document.body.style.height = window.innerHeight + 'px';
+          document.body.style.width = window.innerWidth + 'px';
+          
+          if (window.navigator.standalone) {
+            document.body.classList.add('ios-standalone');
           }
           
-          // Небольшая задержка перед попыткой прокрутки
-          setTimeout(function() {
-            // Для iOS
-            window.scrollTo(0, 1);
-            
-            // Для Android
-            if (navigator.userAgent.match(/Android/i)) {
-              document.documentElement.style.height = 'calc(100% + 1px)';
-              setTimeout(function() {
-                document.documentElement.style.height = '100%';
-                window.scrollTo(0, 1);
-              }, 500);
-              
-              // Попытка принудительного полноэкранного режима для Android Chrome
-              if (document.documentElement.requestFullscreen && !isPWA) {
-                document.documentElement.requestFullscreen().catch(err => {
-                  console.log('Fullscreen API not available or not allowed');
-                });
-              }
+          // Блокируем все перетаскивания, которые могут вызвать появление адресной строки
+          document.addEventListener('touchmove', function(e) {
+            if (window.scrollY <= 0 || window.scrollY + window.innerHeight >= document.body.scrollHeight) {
+              e.preventDefault();
             }
-            
-            // Дополнительная обработка для Safari
-            if (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) {
-              document.body.style.height = window.innerHeight + 'px';
-              setTimeout(function() {
-                window.scrollTo(0, 1);
-                // Повторяем попытку несколько раз
-                setTimeout(() => window.scrollTo(0, 1), 300);
-                setTimeout(() => window.scrollTo(0, 1), 500);
-                setTimeout(() => window.scrollTo(0, 1), 1000);
-              }, 500);
-            }
-          }, 100);
+          }, { passive: false });
         }
       }
       
-      // Вызываем функцию при загрузке и ориентации экрана
-      window.addEventListener('load', hideAddressBar);
-      window.addEventListener('orientationchange', hideAddressBar);
-      document.addEventListener('readystatechange', hideAddressBar);
-      
-      // Повторно вызываем функцию для скрытия адресной строки на всех мобильных устройствах
-      setInterval(hideAddressBar, 1000);
-      
-      // Добавляем обработчик для автоматического перехода в полноэкранный режим при первом взаимодействии
-      document.addEventListener('touchend', function activateFullScreen() {
-        // Проверяем, запущено ли приложение как PWA
-        const isPWA = window.matchMedia('(display-mode: standalone)').matches || 
-                      window.matchMedia('(display-mode: fullscreen)').matches || 
-                      window.navigator.standalone || 
-                      window.location.search.includes('pwa=true');
-                      
-        if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent) && !isPWA) {
-          if (document.documentElement.requestFullscreen) {
-            document.documentElement.requestFullscreen().catch(() => {});
-          } else if (document.documentElement.webkitRequestFullscreen) {
-            document.documentElement.webkitRequestFullscreen();
-          } else if (document.documentElement.mozRequestFullScreen) {
-            document.documentElement.mozRequestFullScreen();
+      // Функция для скрытия адресной строки после загрузки - агрессивная версия
+      function hideAddressBar() {
+        if (document.readyState === 'complete') {
+          const isPWA = checkIsPWA();
+          
+          // Добавляем класс для PWA оптимизаций
+          if (isPWA) {
+            document.body.classList.add('pwa-mode');
+            document.body.classList.add('fullscreen-mode');
+          }
+          
+          // Массовая атака на адресную строку
+          for (let i = 0; i < 10; i++) {
+            setTimeout(() => {
+              // Скрытие адресной строки
+              window.scrollTo(0, 1);
+              
+              // Для Android
+              if (navigator.userAgent.match(/Android/i)) {
+                document.documentElement.style.height = 'calc(100% + 1px)';
+                setTimeout(() => {
+                  document.documentElement.style.height = '100%';
+                  window.scrollTo(0, 1);
+                }, 100);
+                
+                // Полноэкранный режим для Chrome
+                if (!isPWA && document.documentElement.requestFullscreen) {
+                  document.documentElement.requestFullscreen().catch(() => {});
+                }
+              }
+              
+              // Специальная обработка для WebKit (iOS Safari)
+              if (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) {
+                if (!isPWA) {
+                  if (window.navigator.standalone !== true) {
+                    setTimeout(() => window.scrollTo(0, 1), 100);
+                  }
+                }
+                
+                // Насильно устанавливаем высоту для правильного отображения на iOS
+                document.body.style.height = window.innerHeight + 'px';
+                
+                // Используем CSS-фикс для iOS
+                document.body.style.marginTop = '0';
+                document.body.style.paddingTop = '0';
+                
+                // Блокируем жесты браузера
+                document.addEventListener('gesturestart', function(e) {
+                  e.preventDefault();
+                }, { passive: false });
+              }
+            }, i * 500); // Растягиваем на несколько секунд для большей надежности
           }
         }
+      }
+      
+      // Функция для перехода в полноэкранный режим
+      function requestFullscreen() {
+        const elem = document.documentElement;
         
-        // Удаляем обработчик после первого вызова
-        document.removeEventListener('touchend', activateFullScreen);
-      }, { once: true });
+        if (elem.requestFullscreen) {
+          elem.requestFullscreen().catch(() => {});
+        } else if (elem.webkitRequestFullscreen) {
+          elem.webkitRequestFullscreen();
+        } else if (elem.mozRequestFullScreen) {
+          elem.mozRequestFullScreen();
+        } else if (elem.msRequestFullscreen) {
+          elem.msRequestFullscreen();
+        }
+      }
+      
+      // Инициализация
+      function initFullscreenApp() {
+        // Устанавливаем специальные настройки для iOS
+        setupIOSFullscreen();
+        
+        // Скрываем адресную строку
+        hideAddressBar();
+        
+        // Блокировка всех жестов, которые могут вызвать браузерный UI
+        document.addEventListener('touchstart', function(e) {
+          if (e.touches.length > 1 || // Мультитач
+              (e.touches[0].clientY < 50 && window.scrollY <= 0) || // Свайп вниз в верхней части
+              (e.touches[0].clientY > window.innerHeight - 50 && window.scrollY + window.innerHeight >= document.body.scrollHeight)) { // Свайп вверх в нижней части
+            e.preventDefault();
+          }
+        }, { passive: false });
+        
+        // Пробуем войти в полноэкранный режим по любому клику/касанию на странице
+        document.addEventListener('click', requestFullscreen, { once: true });
+        document.addEventListener('touchend', requestFullscreen, { once: true });
+        
+        // Регулярно проверяем и скрываем адресную строку
+        setInterval(hideAddressBar, 2000);
+        
+        // Применяем изменения при изменении ориентации устройства
+        window.addEventListener('orientationchange', function() {
+          setTimeout(hideAddressBar, 500);
+          setTimeout(hideAddressBar, 1000);
+          setTimeout(hideAddressBar, 2000);
+        });
+        
+        // Насильно переопределяем размер при изменении размера окна
+        window.addEventListener('resize', function() {
+          if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+            document.body.style.height = window.innerHeight + 'px';
+          }
+          setTimeout(hideAddressBar, 500);
+        });
+      }
+      
+      // Запускаем при загрузке
+      window.addEventListener('load', initFullscreenApp);
+      document.addEventListener('DOMContentLoaded', initFullscreenApp);
+      document.addEventListener('readystatechange', function() {
+        if (document.readyState === 'complete') {
+          initFullscreenApp();
+        }
+      });
     </script>
   </body>
 </html>
