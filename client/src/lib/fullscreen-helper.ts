@@ -8,7 +8,7 @@ export const isPWA = (): boolean => {
   return !!(
     window.matchMedia('(display-mode: standalone)').matches || 
     window.matchMedia('(display-mode: fullscreen)').matches || 
-    window.navigator.standalone || 
+    (window.navigator as any).standalone || 
     window.location.search.includes('pwa=true') ||
     window.location.search.includes('fullscreen=true')
   );
@@ -72,7 +72,7 @@ const iosFullscreenWorkaround = () => {
   document.body.classList.add('ios-device');
   
   // Если это PWA, добавляем еще один класс
-  if (window.navigator.standalone) {
+  if ((window.navigator as any).standalone) {
     document.body.classList.add('ios-standalone');
   }
   

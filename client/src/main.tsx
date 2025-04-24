@@ -25,7 +25,7 @@ if (typeof window !== 'undefined') {
     
     // Если мобильное устройство с PWA режимом
     if (window.matchMedia('(display-mode: standalone)').matches || 
-        window.navigator.standalone || 
+        (window.navigator as any).standalone || 
         window.location.search.includes('pwa=true') ||
         window.location.search.includes('fullscreen=true')) {
       document.body.classList.add('pwa-mode');
