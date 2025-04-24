@@ -186,8 +186,14 @@ export const setupFullscreenEvents = () => {
     // Регулярно проверяем и скрываем адресную строку
     setInterval(hideAddressBar, 2000);
     
-    // Добавляем обработчики для блокировки жестов браузера
+    // Обработчики для улучшения мобильного взаимодействия
     document.addEventListener('touchstart', (e) => {
+      // Определяем опасные зоны для свайпов браузера
+      const target = e.target as HTMLElement;
+      const isActionElement = target.tagName === 'BUTTON' || 
+                            target.tagName === 'A' || 
+                            target.getAttribute('role') === 'button';
+      
       if (
         e.touches.length > 1 || // Мультитач
         (e.touches[0].clientY < 50 && window.scrollY <= 0) || // Свайп вниз в верхней части
@@ -195,6 +201,21 @@ export const setupFullscreenEvents = () => {
          window.scrollY + window.innerHeight >= document.body.scrollHeight) // Свайп вверх в нижней части
       ) {
         e.preventDefault();
+      }
+      
+      // Добавляем активное состояние при нажатии на элементы действий
+      if (isActionElement) {
+        target.classList.add('active-touch');
+        
+        // Удаляем класс активного нажатия после завершения касания
+        const removeTouchClass = () => {
+          target.classList.remove('active-touch');
+          document.removeEventListener('touchend', removeTouchClass);
+          document.removeEventListener('touchcancel', removeTouchClass);
+        };
+        
+        document.addEventListener('touchend', removeTouchClass);
+        document.addEventListener('touchcancel', removeTouchClass);
       }
     }, { passive: false });
     
