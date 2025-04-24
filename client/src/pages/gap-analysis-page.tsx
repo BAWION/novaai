@@ -41,7 +41,7 @@ const GapAnalysisPage: React.FC = () => {
       // Загружаем информацию о навыках (временное решение)
       const skillsMap = new Map<number, Skill>();
       
-      gaps.forEach(gap => {
+      gaps.forEach((gap: UserSkillGap) => {
         if (!skillsMap.has(gap.skillId)) {
           const skill: Skill = {
             id: gap.skillId,

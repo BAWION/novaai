@@ -72,7 +72,9 @@ export class GapAnalysisService {
       // Преобразуем в удобную для использования Map
       const userSkillsMap = new Map<number, number>();
       userSkillsData.forEach(skill => {
-        userSkillsMap.set(skill.skillId, skill.level);
+        if (skill.skillId !== null && skill.level !== null) {
+          userSkillsMap.set(skill.skillId, skill.level);
+        }
       });
       
       // 2. Получаем все доступные курсы
@@ -97,7 +99,7 @@ export class GapAnalysisService {
       for (const requirement of allRequirements) {
         const skillId = requirement.skillId;
         const requiredLevel = requirement.requiredLevel;
-        const importance = requirement.importance;
+        const importance = requirement.importance || 1; // Устанавливаем приоритет 1 по умолчанию
         
         // Текущий уровень пользователя (или 0, если навык не найден)
         const currentLevel = userSkillsMap.get(skillId) || 0;
@@ -139,17 +141,23 @@ export class GapAnalysisService {
       // Затем добавляем новые
       const newGaps: UserSkillGap[] = [];
       
-      for (const [skillId, gap] of gapsMap.entries()) {
-        const [newGap] = await db.insert(userSkillGaps).values({
-          userId,
-          skillId,
-          currentLevel: gap.currentLevel,
-          desiredLevel: gap.desiredLevel,
-          gapSize: gap.gapSize,
-          priority: gap.priority
-        }).returning();
+      // Преобразуем запись Map в массив для создания новых записей
+      const gapsArray = Array.from(gapsMap.entries()).map(([skillId, gap]) => ({
+        userId,
+        skillId,
+        currentLevel: gap.currentLevel,
+        desiredLevel: gap.desiredLevel,
+        gapSize: gap.gapSize,
+        priority: gap.priority
+      }));
+      
+      // Если есть пробелы для сохранения
+      if (gapsArray.length > 0) {
+        const newGapsResult = await db.insert(userSkillGaps)
+          .values(gapsArray)
+          .returning();
         
-        newGaps.push(newGap);
+        newGaps.push(...newGapsResult);
       }
       
       return newGaps;
@@ -179,7 +187,7 @@ export class GapAnalysisService {
       userGaps.forEach(gap => {
         gapsBySkill.set(gap.skillId, { 
           gapSize: gap.gapSize, 
-          priority: gap.priority 
+          priority: gap.priority || 1 // Устанавливаем приоритет 1 по умолчанию
         });
       });
       

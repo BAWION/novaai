@@ -110,15 +110,15 @@ export function RadarSkillChart({
 
     // Создаем путь для желаемого уровня (внешний контур)
     const desiredLine = d3
-      .lineRadial<{ skill: string; currentLevel: number; desiredLevel: number; id: number }>()
-      .angle((d) => angleScale(d.skill)! - Math.PI / 2)
-      .radius((d) => radialScale(d.desiredLevel))
+      .lineRadial()
+      .angle((d: any) => angleScale(d.skill)! - Math.PI / 2)
+      .radius((d: any) => radialScale(d.desiredLevel))
       .curve(d3.curveLinearClosed);
 
     svg
       .append("path")
       .datum(skillData)
-      .attr("d", desiredLine)
+      .attr("d", desiredLine as any)
       .attr("fill", "rgba(49, 91, 255, 0.1)")
       .attr("stroke", "rgba(49, 91, 255, 0.6)")
       .attr("stroke-width", 1.5)
@@ -126,15 +126,15 @@ export function RadarSkillChart({
 
     // Создаем путь для текущего уровня (внутренний контур)
     const currentLine = d3
-      .lineRadial<{ skill: string; currentLevel: number; desiredLevel: number; id: number }>()
-      .angle((d) => angleScale(d.skill)! - Math.PI / 2)
-      .radius((d) => radialScale(d.currentLevel))
+      .lineRadial()
+      .angle((d: any) => angleScale(d.skill)! - Math.PI / 2)
+      .radius((d: any) => radialScale(d.currentLevel))
       .curve(d3.curveLinearClosed);
 
     svg
       .append("path")
       .datum(skillData)
-      .attr("d", currentLine)
+      .attr("d", currentLine as any)
       .attr("fill", "rgba(126, 101, 254, 0.3)")
       .attr("stroke", "rgba(126, 101, 254, 0.8)")
       .attr("stroke-width", 2);
