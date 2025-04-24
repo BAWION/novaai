@@ -2,6 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Стили для улучшения взаимодействия на мобильных устройствах */
+html, body {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+.tap-highlight-none {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
+}
+
+/* Стили для больших кнопок на мобильных устройствах */
+@media (max-width: 640px) {
+  a[href], button {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0.75rem 1rem;
+    touch-action: manipulation;
+  }
+  
+  /* Улучшенная обратная связь при нажатии на мобильных устройствах */
+  a:active, button:active {
+    transform: scale(0.98);
+    transition: transform 0.1s;
+  }
+}
+
 :root {
   --background: 240 10% 3.9%;
   --foreground: 0 0% 98%;

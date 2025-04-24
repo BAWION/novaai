@@ -101,10 +101,10 @@ export default function HomePage() {
             <a href="#testimonials" className="text-white/70 hover:text-white transition-colors">Отзывы</a>
           </nav>
           <div className="flex gap-4">
-            <a href="/login" className="px-4 py-2 rounded border border-white/20 hover:bg-white/10 active:bg-white/20 transition-colors text-white no-underline inline-block">
+            <a href="/login" className="px-5 py-2 rounded-lg border-2 border-white/30 hover:bg-white/10 active:bg-white/20 transition-all duration-150 text-white font-medium no-underline inline-block tap-highlight-none">
               Войти
             </a>
-            <a href="/onboarding" className="px-4 py-2 rounded bg-primary hover:bg-primary/90 active:bg-primary/80 transition-colors text-white no-underline inline-block">
+            <a href="/onboarding" className="px-5 py-2 rounded-lg bg-primary hover:bg-primary/90 active:bg-primary/80 transition-all duration-150 text-white font-medium no-underline inline-block tap-highlight-none">
               Начать обучение
             </a>
           </div>
@@ -129,11 +129,11 @@ export default function HomePage() {
                   NovaAI University — это современная образовательная платформа с адаптивной системой обучения и практическими лабораториями для освоения AI и Data Science.
                 </p>
                 <div className="flex flex-wrap gap-4">
-                  <a href="/onboarding" className="inline-block py-3 px-8 text-lg rounded bg-primary hover:bg-primary/90 transition-colors text-white no-underline font-medium">
+                  <a href="/onboarding" className="inline-block py-3 px-8 text-lg rounded bg-primary hover:bg-primary/90 active:bg-primary/80 transition-colors text-white no-underline font-medium tap-highlight-none">
                     Начать бесплатно
                     <i className="fas fa-arrow-right ml-2"></i>
                   </a>
-                  <a href="#screenshots" className="inline-block py-3 px-8 text-lg rounded border border-white/20 hover:bg-white/10 transition-colors text-white no-underline font-medium">
+                  <a href="#screenshots" className="inline-block py-3 px-8 text-lg rounded border border-white/20 hover:bg-white/10 active:bg-white/20 transition-colors text-white no-underline font-medium tap-highlight-none">
                     Посмотреть демо
                     <i className="fas fa-desktop ml-2"></i>
                   </a>
