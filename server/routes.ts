@@ -12,6 +12,8 @@ import { z } from "zod";
 import session from "express-session";
 import memorystore from "memorystore";
 import { checkSecrets } from "./routes/check-secrets";
+import mlApiRouter from "./routes/ml-api";
+import { setCurrentUserId } from "./storage-integration";
 // Временно отключаем маршруты, для которых у нас пока нет определенных типов в схеме
 // import { learningEventsRouter } from "./routes/learning-events";
 // import { lessonProgressRouter } from "./routes/lesson-progress";
@@ -25,6 +27,17 @@ const authMiddleware = (req: express.Request, res: express.Response, next: expre
   const user = req.session.user;
   if (!user) {
     return res.status(401).json({ message: "Unauthorized" });
+  }
+  next();
+};
+
+// Middleware для отслеживания текущего пользователя для ML-сервиса
+const trackUserMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  // Устанавливаем ID текущего пользователя для ML-компонентов
+  if (req.session.user) {
+    setCurrentUserId(req.session.user.id);
+  } else {
+    setCurrentUserId(null);
   }
   next();
 };
@@ -167,7 +180,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           pythonLevel: 5,
           experience: "expert",
           interest: "machine-learning",
-          goal: "find-internship",
+          goal: "research",
           recommendedTrack: "research-ai"
         });
       }
@@ -453,6 +466,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Маршрут для проверки секретов
   app.post("/api/check-secrets", checkSecrets);
+  
+  // Регистрируем middleware для отслеживания текущего пользователя
+  app.use(trackUserMiddleware);
+  
+  // Подключаем маршруты для ML-API
+  app.use("/api/ml", mlApiRouter);
   
   // Временно отключены маршруты, для которых требуются дополнительные схемы
   // // Маршруты для отслеживания событий обучения
