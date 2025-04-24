@@ -86,14 +86,16 @@ export class MLService {
   /**
    * Генерация эмбеддингов с использованием OpenAI
    */
-  async generateEmbedding(text: string): Promise<number[] | null> {
+  async generateEmbedding(text: string, userId?: number): Promise<number[] | null> {
     // Проверяем, включена ли функция генерации эмбеддингов
-    const isEnabled = await this.isFeatureEnabled("embeddings_generation");
+    const isEnabled = await this.isFeatureEnabled("embeddings_generation", userId);
     
     if (!isEnabled) {
-      console.log("Embeddings generation is disabled");
+      console.log(`Embeddings generation is disabled for user ${userId || 'anonymous'}`);
       return null;
     }
+    
+    console.log(`Embeddings generation is enabled for user ${userId || 'anonymous'}`);
     
     if (!this.openai) {
       console.error("OpenAI API is not initialized");
@@ -101,11 +103,13 @@ export class MLService {
     }
     
     try {
+      console.log("Calling OpenAI API to generate embedding...");
       const response = await this.openai.embeddings.create({
         model: "text-embedding-ada-002", // используем актуальную модель для эмбеддингов
         input: text,
       });
       
+      console.log("Successfully generated embedding with OpenAI");
       return response.data[0].embedding;
     } catch (error) {
       console.error("Error generating embedding:", error);
@@ -121,13 +125,14 @@ export class MLService {
     const courseText = `
       Название: ${course.title}
       Описание: ${course.description || ""}
-      Категория: ${course.category || ""}
       Уровень сложности: ${course.difficulty || ""}
-      Технологии: ${course.technologies?.join(", ") || ""}
-      Теги: ${course.tags?.join(", ") || ""}
+      Ключевые навыки: ${course.skills?.join(", ") || ""}
+      Продолжительность: ${course.duration || ""}
     `;
     
-    const embedding = await this.generateEmbedding(courseText);
+    // Для курсов используем ID админа (фиксированное значение 0) для проверки feature flag
+    const adminId = 0;
+    const embedding = await this.generateEmbedding(courseText, adminId);
     
     if (embedding) {
       try {
@@ -160,7 +165,8 @@ export class MLService {
       Рекомендуемый трек: ${profile.recommendedTrack || ""}
     `;
     
-    const embedding = await this.generateEmbedding(profileText);
+    // Передаем userId в метод generateEmbedding для проверки feature flag
+    const embedding = await this.generateEmbedding(profileText, user.id);
     
     if (embedding) {
       try {

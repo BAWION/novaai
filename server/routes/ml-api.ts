@@ -270,19 +270,25 @@ router.post("/embeddings/user", async (req: Request, res: Response) => {
   
   try {
     const userId = req.session.user.id;
+    console.log(`Processing embedding generation for user ${userId}`);
+    
     const user = await storage.getUser(userId);
     const profile = await storage.getUserProfile(userId);
     
     if (!user || !profile) {
+      console.log(`User or profile not found for userId ${userId}`);
       return res.status(404).json({ message: "User or profile not found" });
     }
     
+    console.log(`User and profile found, calling generateUserEmbedding for user ${userId}`);
     const embedding = await mlService.generateUserEmbedding(user, profile);
     
     if (!embedding) {
+      console.log(`Failed to generate embedding for user ${userId}`);
       return res.status(500).json({ message: "Failed to generate embedding" });
     }
     
+    console.log(`Successfully generated embedding for user ${userId}`);
     res.json({ success: true });
   } catch (error) {
     console.error("Error updating user embedding:", error);
