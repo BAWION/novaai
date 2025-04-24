@@ -90,8 +90,17 @@ export function AIAssistantWidget({
   const fetchProactiveHint = async () => {
     try {
       const response = await apiRequest("GET", "/api/ai-assistant/hint");
+      
+      // Проверяем статус ответа
+      if (response.status === 401) {
+        // Если получили 401 Unauthorized, прерываем операцию
+        return;
+      }
+      
       const data = await response.json();
-      setProactiveHint(data.hint);
+      if (data && data.hint) {
+        setProactiveHint(data.hint);
+      }
     } catch (error) {
       console.error("Ошибка при получении подсказки:", error);
     }
@@ -104,9 +113,24 @@ export function AIAssistantWidget({
 
   // Получаем проактивную подсказку при монтировании компонента
   useEffect(() => {
-    if (user) {
-      fetchProactiveHint();
-    }
+    // Устанавливаем флаги для предотвращения бесконечных запросов при ошибках
+    let isComponentMounted = true;
+    let requestAttempted = false;
+    
+    const fetchHint = async () => {
+      // Проверяем, был ли уже выполнен запрос, монтирован ли компонент и есть ли пользователь
+      if (!user || requestAttempted || !isComponentMounted) return;
+      
+      requestAttempted = true;
+      await fetchProactiveHint();
+    };
+    
+    fetchHint();
+    
+    // Очищаем эффект при размонтировании
+    return () => {
+      isComponentMounted = false;
+    };
   }, [user]);
 
   // Обработка нажатия Enter для отправки сообщения

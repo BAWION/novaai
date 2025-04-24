@@ -22,7 +22,24 @@ export function SkillGapsVisualization({ userId }: SkillGapsVisualizationProps) 
 
   // Загрузка данных при монтировании компонента
   useEffect(() => {
-    loadSkillGaps();
+    // Устанавливаем флаги для предотвращения бесконечных запросов при ошибках
+    let isComponentMounted = true;
+    let requestAttempted = false;
+    
+    const fetchData = async () => {
+      // Проверяем, был ли уже выполнен запрос и монтирован ли компонент
+      if (requestAttempted || !isComponentMounted) return;
+      
+      requestAttempted = true;
+      await loadSkillGaps();
+    };
+    
+    fetchData();
+    
+    // Очищаем эффект и предотвращаем выполнение запросов после размонтирования
+    return () => {
+      isComponentMounted = false;
+    };
   }, [userId]);
 
   // Загрузка пробелов в навыках
@@ -32,6 +49,19 @@ export function SkillGapsVisualization({ userId }: SkillGapsVisualizationProps) 
       
       // Получаем пробелы в навыках
       const gapsResponse = await apiRequest("GET", `/api/gap-analysis/gaps/${userId}`);
+      
+      // Проверяем статус ответа
+      if (gapsResponse.status === 401) {
+        // Если получили 401 Unauthorized, показываем ошибку и прекращаем загрузку
+        toast({
+          title: "Ошибка авторизации",
+          description: "Для доступа к анализу пробелов необходимо авторизоваться",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+      
       const gaps = await gapsResponse.json();
       
       // Если пробелов нет, запускаем анализ
