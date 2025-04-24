@@ -2,6 +2,47 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  /* Дополнительные анимации для глубокой диагностики */
+  .animate-spin-slow {
+    animation: spin 15s linear infinite;
+  }
+  
+  .animate-spin-slow-reverse {
+    animation: spin 12s linear infinite reverse;
+  }
+  
+  .animate-spin-medium {
+    animation: spin 8s linear infinite;
+  }
+  
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+  
+  .animate-pulse-subtle {
+    animation: pulse-subtle 4s infinite;
+  }
+  
+  @keyframes pulse-subtle {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.6;
+    }
+  }
+}
+
 /* Базовые стили для мобильной совместимости */
 html, body {
   -webkit-tap-highlight-color: transparent;

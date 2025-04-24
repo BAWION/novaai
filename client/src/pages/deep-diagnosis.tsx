@@ -3,6 +3,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from "wouter";
 import { useUserProfile } from "@/context/user-profile-context";
 import { useToast } from "@/hooks/use-toast";
+import { 
+  UserRole, 
+  AIExperience, 
+  SkillLevel, 
+  UserInterest, 
+  UserGoal 
+} from "@/lib/constants";
 
 // Компоненты UI
 import {
@@ -268,26 +275,32 @@ export default function DeepDiagnosisPage() {
     setAnalysisStep(0);
     
     try {
-      // Подготовка данных для обновления профиля
+      // Подготовка данных для обновления профиля с учетом типов UserRole и т.д.
       const profileUpdate = {
-        role: formData.role,
-        experience: formData.experience,
-        pythonLevel: formData.pythonLevel,
-        interest: formData.interest,
-        goal: formData.goal,
-        learningPreferences: {
-          style: formData.preferredLearningStyle,
-          timeCommitment: formData.timeCommitment,
-          projectTypes: formData.projectTypes,
-        },
-        technicalBackground: {
-          programmingLanguages: formData.programmingLanguages,
-          dataAnalysisLevel: formData.dataAnalysisLevel,
-          mathBackground: formData.mathBackground,
-        },
-        interests: {
-          primary: formData.interest,
-          subdomains: formData.subdomains,
+        // Преобразуем строковые значения в соответствующие типы из констант
+        role: formData.role as UserRole,
+        experience: formData.experience as AIExperience,
+        pythonLevel: formData.pythonLevel as SkillLevel,
+        interest: formData.interest as UserInterest,
+        goal: formData.goal as UserGoal,
+        // Дополнительные данные сохраняем в metadata пользователя, так как
+        // это расширенная диагностика и содержит дополнительные поля
+        completedOnboarding: true,
+        metadata: {
+          learningPreferences: {
+            style: formData.preferredLearningStyle,
+            timeCommitment: formData.timeCommitment,
+            projectTypes: formData.projectTypes,
+          },
+          technicalBackground: {
+            programmingLanguages: formData.programmingLanguages,
+            dataAnalysisLevel: formData.dataAnalysisLevel,
+            mathBackground: formData.mathBackground,
+          },
+          interests: {
+            primary: formData.interest,
+            subdomains: formData.subdomains,
+          }
         }
       };
       
