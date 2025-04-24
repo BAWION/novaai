@@ -214,6 +214,74 @@ export const mlDataSnapshots = pgTable("ml_data_snapshots", {
   trainingMetrics: json("training_metrics"), // Результаты обучения на этих данных
 });
 
+// Типы категорий навыков
+export const skillCategoryEnum = pgEnum('skill_category', ['programming', 'data', 'ml', 'soft-skills', 'domain-knowledge']);
+
+// Навыки и требования для курсов
+export const skills = pgTable("skills", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull().unique(),
+  description: text("description"),
+  category: skillCategoryEnum("category"), // Категория навыка
+  parentSkillId: integer("parent_skill_id").references(() => skills.id), // Для иерархии навыков
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Уровни владения навыками пользователя
+export const userSkills = pgTable("user_skills", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  skillId: integer("skill_id").notNull().references(() => skills.id),
+  level: integer("level").default(0), // От 0 до 100 или другая шкала
+  lastAssessedAt: timestamp("last_assessed_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => {
+  return {
+    userSkillIdx: uniqueIndex("user_skill_idx").on(table.userId, table.skillId),
+  };
+});
+
+// Требования навыков для курсов
+export const courseSkillRequirements = pgTable("course_skill_requirements", {
+  id: serial("id").primaryKey(),
+  courseId: integer("course_id").notNull().references(() => courses.id),
+  skillId: integer("skill_id").notNull().references(() => skills.id),
+  requiredLevel: integer("required_level").notNull(), // Минимальный уровень для курса
+  importance: integer("importance").default(1), // Насколько важен навык: 1 - nice to have, 3 - critical
+}, (table) => {
+  return {
+    courseSkillIdx: uniqueIndex("course_skill_idx").on(table.courseId, table.skillId),
+  };
+});
+
+// Навыки, которые развиваются в ходе курса
+export const courseSkillOutcomes = pgTable("course_skill_outcomes", {
+  id: serial("id").primaryKey(),
+  courseId: integer("course_id").notNull().references(() => courses.id),
+  skillId: integer("skill_id").notNull().references(() => skills.id),
+  levelGain: integer("level_gain").notNull(), // Сколько уровней даёт курс
+}, (table) => {
+  return {
+    courseOutcomeIdx: uniqueIndex("course_outcome_idx").on(table.courseId, table.skillId),
+  };
+});
+
+// Пробелы в знаниях пользователя (результаты Gap-анализа)
+export const userSkillGaps = pgTable("user_skill_gaps", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  skillId: integer("skill_id").notNull().references(() => skills.id),
+  currentLevel: integer("current_level").notNull(),
+  desiredLevel: integer("desired_level").notNull(),
+  gapSize: integer("gap_size").notNull(), // Разница между текущим и желаемым уровнем
+  priority: integer("priority").default(1), // Приоритет для заполнения пробела (1-10)
+  analysisDate: timestamp("analysis_date").defaultNow(),
+}, (table) => {
+  return {
+    userGapIdx: uniqueIndex("user_gap_idx").on(table.userId, table.skillId),
+  };
+});
+
 // Таблица событий пользователя для обучения
 export const learningEvents = pgTable("learning_events", {
   id: serial("id").primaryKey(),
@@ -289,6 +357,38 @@ export type InsertMlModel = z.infer<typeof insertMlModelSchema>;
 export type InsertUserRecommendation = z.infer<typeof insertUserRecommendationSchema>;
 export type InsertLearningEvent = z.infer<typeof insertLearningEventSchema>;
 
+// Схемы для вставки данных для Gap-анализа и навыков
+export const insertSkillSchema = createInsertSchema(skills).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertUserSkillSchema = createInsertSchema(userSkills).omit({
+  id: true,
+  lastAssessedAt: true,
+  updatedAt: true,
+});
+
+export const insertCourseSkillRequirementSchema = createInsertSchema(courseSkillRequirements).omit({
+  id: true,
+});
+
+export const insertCourseSkillOutcomeSchema = createInsertSchema(courseSkillOutcomes).omit({
+  id: true,
+});
+
+export const insertUserSkillGapSchema = createInsertSchema(userSkillGaps).omit({
+  id: true,
+  analysisDate: true,
+});
+
+// Типы для вставки данных для Gap-анализа и навыков
+export type InsertSkill = z.infer<typeof insertSkillSchema>;
+export type InsertUserSkill = z.infer<typeof insertUserSkillSchema>;
+export type InsertCourseSkillRequirement = z.infer<typeof insertCourseSkillRequirementSchema>;
+export type InsertCourseSkillOutcome = z.infer<typeof insertCourseSkillOutcomeSchema>;
+export type InsertUserSkillGap = z.infer<typeof insertUserSkillGapSchema>;
+
 // Типы для выборки данных
 export type User = typeof users.$inferSelect;
 export type UserProfile = typeof userProfiles.$inferSelect;
@@ -302,3 +402,8 @@ export type MlDataSnapshot = typeof mlDataSnapshots.$inferSelect;
 export type LearningEvent = typeof learningEvents.$inferSelect;
 export type ContentEmbedding = typeof contentEmbeddings.$inferSelect;
 export type UserEmbedding = typeof userEmbeddings.$inferSelect;
+export type Skill = typeof skills.$inferSelect;
+export type UserSkill = typeof userSkills.$inferSelect;
+export type CourseSkillRequirement = typeof courseSkillRequirements.$inferSelect;
+export type CourseSkillOutcome = typeof courseSkillOutcomes.$inferSelect;
+export type UserSkillGap = typeof userSkillGaps.$inferSelect;
