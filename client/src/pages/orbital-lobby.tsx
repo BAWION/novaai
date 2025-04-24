@@ -24,10 +24,10 @@ export default function OrbitalLobby() {
           className="mb-8 text-center"
         >
           <h2 className="font-orbitron text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#B28DFF] via-[#8BE0F7] to-[#B28DFF]">
-            Orbital Lobby
+            Галактика знаний
           </h2>
           <p className="text-white/70 mt-2 max-w-2xl mx-auto">
-            Исследуйте персонализированные образовательные ресурсы и учебные треки
+            Исследуйте персонализированные образовательные ресурсы: техника, этика, законы и другие аспекты ИИ
           </p>
         </motion.div>
 

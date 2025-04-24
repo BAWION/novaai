@@ -85,8 +85,25 @@ export function OrbitalLayout({ onCourseSelect }: OrbitalLayoutProps) {
         const animDuration = getCourseAnimationDuration(index);
         const isHovered = hoveredCourse === course.id;
 
-        // Map the level to a color
-        const getLevelColor = () => {
+        // Map the category and level to a color
+        const getCourseColor = () => {
+          // Приоритет: сначала используем категорию курса
+          if (course.category) {
+            switch (course.category) {
+              case 'ethics':
+                return 'bg-gradient-to-br from-purple/50 to-purple/30';
+              case 'law':
+                return 'bg-gradient-to-br from-green/50 to-green/30';
+              case 'ml':
+                return 'bg-gradient-to-br from-[#6E3AFF]/50 to-[#2EBAE1]/30';
+              case 'business':
+                return 'bg-gradient-to-br from-secondary/50 to-secondary/30';
+              default:
+                break;
+            }
+          }
+          
+          // Если категория не задана или не имеет специального стиля, используем уровень курса
           switch (course.level) {
             case 'basic':
               return 'bg-gradient-to-br from-green-500/40 to-green-700/40';
@@ -131,7 +148,7 @@ export function OrbitalLayout({ onCourseSelect }: OrbitalLayoutProps) {
               whileTap={{ scale: 0.95 }}
             >
               <div 
-                className={`w-14 h-14 rounded-full ${getLevelColor()} flex items-center justify-center mb-2 shadow-lg`}
+                className={`w-14 h-14 rounded-full ${getCourseColor()} flex items-center justify-center mb-2 shadow-lg`}
               >
                 <i className={`fas fa-${course.icon} text-white text-lg`}></i>
               </div>
@@ -143,6 +160,21 @@ export function OrbitalLayout({ onCourseSelect }: OrbitalLayoutProps) {
                 >
                   <p className="font-medium text-sm">{course.title}</p>
                   <p className="text-white/70 text-xs">{course.modules} модулей</p>
+                  {course.category && (
+                    <span className={`text-xs px-1.5 py-0.5 rounded-full inline-block mt-1 ${
+                      course.category === 'ethics' ? 'bg-purple/20 text-purple-foreground' :
+                      course.category === 'law' ? 'bg-green/20 text-green-foreground' :
+                      course.category === 'ml' ? 'bg-primary/20 text-primary-foreground' :
+                      course.category === 'business' ? 'bg-secondary/20 text-secondary-foreground' :
+                      'bg-gray-500/20 text-white'
+                    }`}>
+                      {course.category === 'ethics' ? 'Этика' :
+                       course.category === 'law' ? 'Право' :
+                       course.category === 'ml' ? 'ML' :
+                       course.category === 'business' ? 'Бизнес' :
+                       course.category}
+                    </span>
+                  )}
                 </motion.div>
               )}
             </motion.div>
