@@ -264,12 +264,67 @@ export default function Courses() {
   const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
 
+  // Добавление курсов из новых категорий
+  const ethicsCourseFormatted: Course = {
+    id: ethicsCourse.id,
+    title: ethicsCourse.title,
+    description: ethicsCourse.description,
+    icon: ethicsCourse.icon,
+    modules: ethicsCourse.modulesCount,
+    level: 'beginner',
+    category: ['ethics', 'ai'],
+    instructor: "Ирина Соколова",
+    duration: "8 часов",
+    rating: 4.8,
+    enrolled: 625,
+    updated: "2025-04-24",
+    color: "primary",
+    skillMatch: {
+      percentage: 90,
+      label: "Рекомендуется всем",
+      isRecommended: true
+    }
+  };
+
+  const lawCourseFormatted: Course = {
+    id: lawCourse.id,
+    title: lawCourse.title,
+    description: lawCourse.description,
+    icon: lawCourse.icon,
+    modules: lawCourse.modulesCount,
+    level: 'intermediate',
+    category: ['law', 'ai'],
+    instructor: "Антон Кравченко",
+    duration: "7 часов",
+    rating: 4.7,
+    enrolled: 412,
+    updated: "2025-04-24",
+    color: "secondary",
+    skillMatch: {
+      percentage: 75,
+      label: "Для бизнеса и разработчиков"
+    }
+  };
+
+  // Объединяем все курсы
+  const allCourses = [...SAMPLE_COURSES, ethicsCourseFormatted, lawCourseFormatted];
+
   // Filter courses based on search and filters
-  const filteredCourses = SAMPLE_COURSES.filter(course => {
+  // Преобразовать id в строки для поддержки строковых идентификаторов
+  const coursesWithFixedId = allCourses.map(course => ({
+    ...course,
+    id: typeof course.id === 'number' ? String(course.id) : course.id
+  }));
+  
+  const filteredCourses = coursesWithFixedId.filter(course => {
     const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           course.description.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesCategory = selectedCategory ? course.category.includes(selectedCategory) : true;
+    const matchesCategory = selectedCategory ? 
+      (Array.isArray(course.category) 
+        ? course.category.includes(selectedCategory) 
+        : course.category === selectedCategory) 
+      : true;
     
     const matchesLevel = selectedLevel ? course.level === selectedLevel : true;
     
@@ -278,7 +333,9 @@ export default function Courses() {
 
   // All unique categories
   const categories = Array.from(
-    new Set(SAMPLE_COURSES.flatMap(course => course.category))
+    new Set(allCourses.flatMap(course => 
+      Array.isArray(course.category) ? course.category : [course.category]
+    ))
   );
 
   // Format date
@@ -321,12 +378,17 @@ export default function Courses() {
                         {selectedCourse.title}
                       </h2>
                       <div className="flex flex-wrap gap-2 mt-2">
-                        <LevelBadge level={selectedCourse.level} />
-                        {selectedCourse.category.map(cat => (
-                          <span key={cat} className="px-2 py-1 bg-white/10 text-white/70 text-xs rounded-full">
-                            {cat}
-                          </span>
-                        ))}
+                        <LevelBadge level={selectedCourse.level || 'beginner'} />
+                        {Array.isArray(selectedCourse.category) 
+                          ? selectedCourse.category.map(cat => (
+                              <span key={cat} className="px-2 py-1 bg-white/10 text-white/70 text-xs rounded-full">
+                                {cat}
+                              </span>
+                            ))
+                          : <span className="px-2 py-1 bg-white/10 text-white/70 text-xs rounded-full">
+                              {selectedCourse.category}
+                            </span>
+                        }
                       </div>
                     </div>
                   </div>
@@ -367,7 +429,7 @@ export default function Courses() {
                       <div className="text-white/50">Рейтинг</div>
                       <div className="flex items-center mt-1">
                         <i className="fas fa-star text-yellow-400 mr-2"></i>
-                        {selectedCourse.rating.toFixed(1)} ({selectedCourse.enrolled} студентов)
+                        {selectedCourse.rating ? selectedCourse.rating.toFixed(1) : '4.5'} ({selectedCourse.enrolled} студентов)
                       </div>
                     </div>
                     <div>
@@ -615,7 +677,7 @@ export default function Courses() {
                       </div>
                       <div className="flex items-center">
                         <i className="fas fa-star text-yellow-400 mr-1"></i>
-                        <span>{course.rating.toFixed(1)}</span>
+                        <span>{course.rating ? course.rating.toFixed(1) : '4.5'}</span>
                       </div>
                     </div>
                     
