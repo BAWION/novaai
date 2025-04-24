@@ -48,19 +48,31 @@ export class MLService {
    * Проверка доступности ML-функций по feature flags
    */
   async isFeatureEnabled(featureName: string, userId?: number): Promise<boolean> {
-    // Если feature flag уже загружен в память, используем его
-    if (this.featureFlags[featureName] !== undefined) {
-      return this.featureFlags[featureName];
-    }
-    
-    // Иначе запрашиваем из базы данных
+    // Всегда запрашиваем актуальное состояние из базы данных, чтобы избежать проблем с кешированием
     try {
       const isEnabled = await this.mlStorage.isFeatureEnabled(featureName, userId);
+      // Обновляем кеш
       this.featureFlags[featureName] = isEnabled;
       return isEnabled;
     } catch (error) {
       console.error(`Error checking feature flag ${featureName}:`, error);
+      // Если произошла ошибка, используем кешированное значение (если оно есть)
+      if (this.featureFlags[featureName] !== undefined) {
+        return this.featureFlags[featureName];
+      }
       return false;
+    }
+  }
+  
+  /**
+   * Принудительно обновляет информацию о всех feature flags
+   */
+  async refreshFeatureFlags(): Promise<void> {
+    try {
+      await this.loadFeatureFlags();
+      console.log("Feature flags refreshed:", Object.keys(this.featureFlags).length);
+    } catch (error) {
+      console.error("Error refreshing feature flags:", error);
     }
   }
 

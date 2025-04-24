@@ -88,6 +88,17 @@ router.get("/feature-flags", requireAdmin, async (req: Request, res: Response) =
   }
 });
 
+// Обновление кеша feature flags (только для админов)
+router.post("/feature-flags/refresh", requireAdmin, async (req: Request, res: Response) => {
+  try {
+    await mlService.refreshFeatureFlags();
+    res.json({ success: true, message: "Feature flags refreshed" });
+  } catch (error) {
+    console.error("Error refreshing feature flags:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 // Создание нового feature flag (только для админов)
 router.post("/feature-flags", requireAdmin, async (req: Request, res: Response) => {
   try {
