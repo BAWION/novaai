@@ -33,16 +33,16 @@ export function OrbitalLayout({ onCourseSelect }: OrbitalLayoutProps) {
     }
   };
 
-  // Apply different orbital speeds for each course
+  // Этот метод больше не используется, так как мы отказались от анимации вращения
   const getCourseAnimationDuration = (index: number) => {
     // Between 100-200 seconds, different for each course
     return 100 + (index * 15);
   };
 
-  // Get position along orbit
+  // Этот метод тоже больше не используется, мы рассчитываем позицию непосредственно в map
   const getPosition = (index: number, totalCourses: number) => {
     const angle = (index / totalCourses) * 360;
-    return calculateOrbitalPosition(orbitRadius, angle);
+    return calculateOrbitalPosition(orbitRadius, angle, -90);
   };
 
   return (
@@ -78,11 +78,24 @@ export function OrbitalLayout({ onCourseSelect }: OrbitalLayoutProps) {
         }}
       />
 
-      {/* Course nodes */}
+      {/* Course nodes - равномерно распределены по орбите */}
       {courses.map((course, index) => {
-        const angle = (index / courses.length) * 360;
-        const { x, y } = calculateOrbitalPosition(orbitRadius, angle);
-        const animDuration = getCourseAnimationDuration(index);
+        // Равномерное распределение элементов по орбите
+        // Определяем их порядок на основе категории для логической группировки
+        // ethics - сверху, law - справа, ml - снизу, business - слева
+        let categoryOffset = 0;
+        if (course.category === 'ethics') categoryOffset = 0; // сверху
+        else if (course.category === 'law') categoryOffset = 90; // справа
+        else if (course.category === 'ml') categoryOffset = 180; // снизу
+        else if (course.category === 'business') categoryOffset = 270; // слева
+        
+        // Используем categoryOffset, чтобы расположить курсы по категориям
+        // Но в пределах категории они все равно равномерно распределены
+        const baseAngle = index * (360 / courses.length);
+        // Добавляем смещение с учетом категории
+        const angle = baseAngle + (categoryOffset % 360);
+        
+        const { x, y } = calculateOrbitalPosition(orbitRadius, angle, -90);
         const isHovered = hoveredCourse === course.id;
 
         // Map the category and level to a color
