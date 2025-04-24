@@ -227,6 +227,8 @@ export const skills = pgTable("skills", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Типы для навыков будут определены ниже
+
 // Уровни владения навыками пользователя
 export const userSkills = pgTable("user_skills", {
   id: serial("id").primaryKey(),
