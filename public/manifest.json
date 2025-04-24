@@ -3,7 +3,7 @@
   "short_name": "NovaAI",
   "description": "AI-образовательная платформа с адаптивным обучением",
   "start_url": "/",
-  "display": "standalone",
+  "display": "fullscreen",
   "background_color": "#0e101c",
   "theme_color": "#6E3AFF",
   "orientation": "portrait-primary",

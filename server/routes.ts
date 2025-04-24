@@ -239,6 +239,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  app.post("/api/courses", authMiddleware, async (req, res) => {
+    try {
+      const validationResult = insertCourseSchema.safeParse(req.body);
+      
+      if (!validationResult.success) {
+        return res.status(400).json({
+          message: "Invalid course data",
+          errors: validationResult.error.errors
+        });
+      }
+      
+      const course = await storage.createCourse(validationResult.data);
+      res.status(201).json(course);
+    } catch (error) {
+      console.error("Create course error:", error);
+      res.status(500).json({ message: "Failed to create course" });
+    }
+  });
+  
   app.get("/api/courses/:id", async (req, res) => {
     try {
       const courseId = parseInt(req.params.id);
