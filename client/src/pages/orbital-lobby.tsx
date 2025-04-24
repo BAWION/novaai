@@ -56,7 +56,7 @@ export default function OrbitalLobby() {
 
             <div className="flex items-center space-x-4">
               <div className="text-center">
-                <ProgressRing percent={45} size={60}>
+                <ProgressRing percent={45} size={60} strokeWidth={4}>
                   <span className="text-sm font-medium">45%</span>
                 </ProgressRing>
                 <p className="text-xs text-white/70 mt-1">Прогресс</p>
