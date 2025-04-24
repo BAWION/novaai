@@ -32,15 +32,16 @@ export function DashboardLayout({ children, title, subtitle }: DashboardLayoutPr
       <main 
         className={`flex-1 transition-all will-change-transform duration-300 ease-out ${
           isMobile ? 'ml-0' : (isOpen ? 'ml-[256px]' : 'ml-[80px]')
-        } ${isMobile ? 'pb-20' : ''}`}
+        } ${isMobile ? 'pb-20' : ''} ${isMobile ? 'overflow-x-hidden w-full max-w-[100vw]' : ''}`}
         style={{ 
           transform: 'translateZ(0)', 
-          backfaceVisibility: 'hidden' 
+          backfaceVisibility: 'hidden',
+          overflowX: 'hidden'
         }}
       >
         <div 
-          className={`container mx-auto ${isMobile ? 'px-4' : 'px-6'} py-4 ${isMobile ? 'pt-20' : 'pt-16'}`}
-          style={{ willChange: 'contents' }}
+          className={`container mx-auto ${isMobile ? 'px-2' : 'px-6'} py-4 ${isMobile ? 'pt-20' : 'pt-16'} ${isMobile ? 'overflow-x-hidden w-full' : ''}`}
+          style={{ willChange: 'contents', overflowX: 'hidden' }}
         >
           {(title || subtitle) && (
             <motion.div
