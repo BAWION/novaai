@@ -101,11 +101,11 @@ export default function HomePage() {
             <a href="#testimonials" className="text-white/70 hover:text-white transition-colors">Отзывы</a>
           </nav>
           <div className="flex gap-4">
-            <a href="/login" className="inline-block">
-              <Button variant="outline" type="button" className="pointer-events-auto">Войти</Button>
+            <a href="/login" className="px-4 py-2 rounded border border-white/20 hover:bg-white/10 transition-colors text-white no-underline">
+              Войти
             </a>
-            <a href="/onboarding" className="inline-block">
-              <Button type="button" className="pointer-events-auto">Начать обучение</Button>
+            <a href="/onboarding" className="px-4 py-2 rounded bg-primary hover:bg-primary/90 transition-colors text-white no-underline">
+              Начать обучение
             </a>
           </div>
         </div>
@@ -129,17 +129,13 @@ export default function HomePage() {
                   NovaAI University — это современная образовательная платформа с адаптивной системой обучения и практическими лабораториями для освоения AI и Data Science.
                 </p>
                 <div className="flex flex-wrap gap-4">
-                  <a href="/onboarding" className="inline-block">
-                    <Button size="lg" type="button" className="text-lg px-8 pointer-events-auto">
-                      Начать бесплатно
-                      <i className="fas fa-arrow-right ml-2"></i>
-                    </Button>
+                  <a href="/onboarding" className="inline-block py-3 px-8 text-lg rounded bg-primary hover:bg-primary/90 transition-colors text-white no-underline font-medium">
+                    Начать бесплатно
+                    <i className="fas fa-arrow-right ml-2"></i>
                   </a>
-                  <a href="#screenshots">
-                    <Button size="lg" variant="outline" className="text-lg px-8">
-                      Посмотреть демо
-                      <i className="fas fa-desktop ml-2"></i>
-                    </Button>
+                  <a href="#screenshots" className="inline-block py-3 px-8 text-lg rounded border border-white/20 hover:bg-white/10 transition-colors text-white no-underline font-medium">
+                    Посмотреть демо
+                    <i className="fas fa-desktop ml-2"></i>
                   </a>
                 </div>
               </motion.div>
@@ -262,8 +258,8 @@ export default function HomePage() {
                         <p className="text-white/80">Визуализация прогресса в освоении навыков</p>
                       </li>
                     </ul>
-                    <a href="/onboarding" className="inline-block">
-                      <Button type="button" className="pointer-events-auto">Персонализировать свой путь</Button>
+                    <a href="/onboarding" className="inline-block py-2 px-6 rounded bg-primary hover:bg-primary/90 transition-colors text-white no-underline font-medium">
+                      Персонализировать свой путь
                     </a>
                   </div>
                   <div className="relative overflow-hidden rounded-lg border border-white/10 bg-black/30 h-full flex items-center justify-center">
