@@ -22,23 +22,36 @@ export function SkillGapsVisualization({ userId }: SkillGapsVisualizationProps) 
 
   // Загрузка данных при монтировании компонента
   useEffect(() => {
-    // Устанавливаем флаги для предотвращения бесконечных запросов при ошибках
-    let isComponentMounted = true;
-    let requestAttempted = false;
+    // Переменные для отслеживания состояния компонента
+    let isMounted = true;
+    let hasAttemptedFetch = false;
     
-    const fetchData = async () => {
-      // Проверяем, был ли уже выполнен запрос и монтирован ли компонент
-      if (requestAttempted || !isComponentMounted) return;
+    // Функция для безопасной загрузки данных
+    const safelyFetchData = async () => {
+      // Проверяем, можем ли мы загружать данные
+      if (!userId || hasAttemptedFetch || !isMounted) {
+        return;
+      }
       
-      requestAttempted = true;
-      await loadSkillGaps();
+      // Отмечаем, что попытка загрузки была сделана
+      hasAttemptedFetch = true;
+      
+      try {
+        await loadSkillGaps();
+      } catch (error) {
+        console.error("Ошибка при загрузке данных в useEffect:", error);
+      }
     };
     
-    fetchData();
+    // Запускаем загрузку с небольшой задержкой
+    const timeoutId = setTimeout(() => {
+      safelyFetchData();
+    }, 300);
     
-    // Очищаем эффект и предотвращаем выполнение запросов после размонтирования
+    // Очищаем таймаут и предотвращаем обновление состояния после размонтирования
     return () => {
-      isComponentMounted = false;
+      clearTimeout(timeoutId);
+      isMounted = false;
     };
   }, [userId]);
 
