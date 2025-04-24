@@ -8,8 +8,9 @@ import { SkillGapsVisualization } from "@/components/gap-analysis/skill-gaps-vis
 import { RadarSkillChart } from "@/components/gap-analysis/radar-skill-chart";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UserSkillGap, Skill } from "@shared/schema";
-import { Loader2, BrainCircuit, ArrowLeft } from "lucide-react";
+import { Loader2, BrainCircuit } from "lucide-react";
 import { useLocation } from "wouter";
+import { DashboardLayout } from "@/components/layout/dashboard-layout";
 
 const GapAnalysisPage: React.FC = () => {
   const { user } = useAuth();
@@ -133,137 +134,132 @@ const GapAnalysisPage: React.FC = () => {
     );
   }
 
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex items-center mb-8">
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className="mr-4"
-          onClick={() => navigate("/")}
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Назад
-        </Button>
-        <h1 className="text-3xl font-bold">Анализ пробелов в знаниях</h1>
+  // Содержимое для DashboardLayout
+  const Content = () => (
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Левая колонка с информацией */}
+      <div className="lg:col-span-1">
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>О Gap-анализе</CardTitle>
+            <CardDescription>
+              Определите свои пробелы в знаниях и получите рекомендации
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-4">
+              Gap-анализ использует информацию о ваших текущих навыках и сравнивает их с требованиями различных курсов, 
+              чтобы выявить области, требующие улучшения.
+            </p>
+            
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <div className="bg-primary/20 p-2 rounded-full">
+                  <BrainCircuit className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium">Персонализированный анализ</p>
+                  <p className="text-xs text-muted-foreground">Основан на вашем прогрессе и активности</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <div className="bg-primary/20 p-2 rounded-full">
+                  <BrainCircuit className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium">Рекомендации курсов</p>
+                  <p className="text-xs text-muted-foreground">Подобраны специально для заполнения пробелов</p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Кнопка для создания тестовых данных (только для разработки) */}
+            <div className="mt-6 pt-6 border-t border-muted">
+              <p className="text-xs text-muted-foreground mb-2">Инструменты для тестирования:</p>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={seedTestData}
+                disabled={isSeedingData}
+                className="w-full"
+              >
+                {isSeedingData ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Создание данных...
+                  </>
+                ) : (
+                  "Создать тестовые данные"
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Левая колонка с информацией */}
-        <div className="lg:col-span-1">
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle>О Gap-анализе</CardTitle>
-              <CardDescription>
-                Определите свои пробелы в знаниях и получите рекомендации
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground mb-4">
-                Gap-анализ использует информацию о ваших текущих навыках и сравнивает их с требованиями различных курсов, 
-                чтобы выявить области, требующие улучшения.
-              </p>
-              
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <div className="bg-primary/20 p-2 rounded-full">
-                    <BrainCircuit className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">Персонализированный анализ</p>
-                    <p className="text-xs text-muted-foreground">Основан на вашем прогрессе и активности</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-2">
-                  <div className="bg-primary/20 p-2 rounded-full">
-                    <BrainCircuit className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">Рекомендации курсов</p>
-                    <p className="text-xs text-muted-foreground">Подобраны специально для заполнения пробелов</p>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Кнопка для создания тестовых данных (только для разработки) */}
-              <div className="mt-6 pt-6 border-t border-muted">
-                <p className="text-xs text-muted-foreground mb-2">Инструменты для тестирования:</p>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={seedTestData}
-                  disabled={isSeedingData}
-                  className="w-full"
-                >
-                  {isSeedingData ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Создание данных...
-                    </>
-                  ) : (
-                    "Создать тестовые данные"
-                  )}
-                </Button>
-              </div>
-            </CardContent>
+      {/* Правая колонка с визуализацией */}
+      <div className="lg:col-span-2">
+        {isLoading ? (
+          <Card className="h-[500px] flex items-center justify-center">
+            <div className="text-center">
+              <Loader2 className="h-12 w-12 text-primary animate-spin mx-auto mb-4" />
+              <p>Загрузка данных анализа...</p>
+            </div>
           </Card>
-        </div>
-
-        {/* Правая колонка с визуализацией */}
-        <div className="lg:col-span-2">
-          {isLoading ? (
-            <Card className="h-[500px] flex items-center justify-center">
-              <div className="text-center">
-                <Loader2 className="h-12 w-12 text-primary animate-spin mx-auto mb-4" />
-                <p>Загрузка данных анализа...</p>
-              </div>
-            </Card>
-          ) : (
-            <Tabs defaultValue="details" className="w-full">
-              <TabsList className="mb-4">
-                <TabsTrigger value="details">Подробности</TabsTrigger>
-                <TabsTrigger value="radar">Радар навыков</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="details" className="mt-0">
-                <SkillGapsVisualization userId={user.id} />
-              </TabsContent>
-              
-              <TabsContent value="radar" className="mt-0">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Радар навыков</CardTitle>
-                    <CardDescription>
-                      Визуализация ваших текущих и желаемых уровней навыков
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="flex justify-center">
-                    {skillGaps.length === 0 ? (
-                      <div className="text-center py-10">
-                        <BrainCircuit className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
-                        <p>Нет данных для визуализации</p>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          Запустите анализ, чтобы увидеть радар навыков
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="w-full flex justify-center">
-                        <RadarSkillChart 
-                          skillGaps={skillGaps} 
-                          skills={skills} 
-                          size={400} 
-                        />
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
-          )}
-        </div>
+        ) : (
+          <Tabs defaultValue="details" className="w-full">
+            <TabsList className="mb-4">
+              <TabsTrigger value="details">Подробности</TabsTrigger>
+              <TabsTrigger value="radar">Радар навыков</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="details" className="mt-0">
+              <SkillGapsVisualization userId={user.id} />
+            </TabsContent>
+            
+            <TabsContent value="radar" className="mt-0">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Радар навыков</CardTitle>
+                  <CardDescription>
+                    Визуализация ваших текущих и желаемых уровней навыков
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="flex justify-center">
+                  {skillGaps.length === 0 ? (
+                    <div className="text-center py-10">
+                      <BrainCircuit className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
+                      <p>Нет данных для визуализации</p>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Запустите анализ, чтобы увидеть радар навыков
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="w-full flex justify-center">
+                      <RadarSkillChart 
+                        skillGaps={skillGaps} 
+                        skills={skills} 
+                        size={400} 
+                      />
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        )}
       </div>
     </div>
+  );
+
+  return (
+    <DashboardLayout 
+      title="Анализ пробелов в знаниях"
+      subtitle="Определите свои пробелы в навыках и получите рекомендации для развития"
+    >
+      <Content />
+    </DashboardLayout>
   );
 };
 
