@@ -21,7 +21,7 @@ import { z } from "zod";
 // Определение перечислений
 export const userRoleEnum = pgEnum('user_role', ['student', 'teacher', 'admin']);
 export const experienceEnum = pgEnum('experience_level', ['beginner', 'learning-basics', 'practical-experience', 'professional', 'expert']);
-export const interestEnum = pgEnum('interest_area', ['machine-learning', 'neural-networks', 'data-science', 'computer-vision', 'nlp', 'robotics', 'other']);
+export const interestEnum = pgEnum('interest_area', ['machine-learning', 'neural-networks', 'data-science', 'computer-vision', 'nlp', 'robotics', 'ethics', 'law', 'other']);
 export const goalEnum = pgEnum('learning_goal', ['learn-basics', 'broaden-knowledge', 'practice-skills', 'certification', 'career-change', 'research']);
 export const learningStyleEnum = pgEnum('learning_style', ['visual', 'auditory', 'reading', 'practical']);
 export const difficultyEnum = pgEnum('difficulty', ['easy', 'moderate', 'challenging']);
@@ -70,6 +70,9 @@ export const userProfiles = pgTable("user_profiles", {
   recommendedCourseIds: json("recommended_course_ids"),
 });
 
+// Определение категории курса
+export const categoryEnum = pgEnum('course_category', ['tech', 'ethics', 'law', 'business', 'ml', 'other']);
+
 // Определение таблицы курсов
 export const courses = pgTable("courses", {
   id: serial("id").primaryKey(),
@@ -84,6 +87,7 @@ export const courses = pgTable("courses", {
   tags: json("tags"),
   color: varchar("color", { length: 50 }),
   access: accessEnum("access").notNull(),
+  category: categoryEnum("category").default('tech'),
   authorId: integer("author_id").references(() => users.id),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
