@@ -23,12 +23,18 @@
       body {
         min-height: 100vh;
         min-height: -webkit-fill-available;
-        min-height: fill-available;
+        min-height: stretch;
         overscroll-behavior-y: none;
         position: fixed;
         width: 100%;
         height: 100%;
         overflow: hidden;
+        margin: 0;
+        padding: 0;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
       }
       #root {
         height: 100%;
@@ -63,6 +69,15 @@
               document.documentElement.style.height = 'calc(100% + 1px)';
               setTimeout(function() {
                 document.documentElement.style.height = '100%';
+                window.scrollTo(0, 1);
+              }, 500);
+            }
+            
+            // Дополнительная обработка для Safari
+            if (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) {
+              document.body.style.height = '100%';
+              setTimeout(function() {
+                window.scrollTo(0, 1);
               }, 500);
             }
           }, 100);
