@@ -9,7 +9,7 @@ import {
   DialogFooter
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Sparkles, BookOpen, Brain, PresentationChart } from "lucide-react";
+import { Sparkles, BookOpen, Brain, Presentation } from "lucide-react";
 
 interface WelcomeModalProps {
   isOpen: boolean;
@@ -86,7 +86,7 @@ export function WelcomeModal({ isOpen, onOpenChange, userName = "студент"
                 </div>
                 <div className="flex gap-3 items-start">
                   <div className="p-2 rounded-full bg-primary/20 text-primary">
-                    <PresentationChart className="h-5 w-5" />
+                    <Presentation className="h-5 w-5" />
                   </div>
                   <div>
                     <p className="font-medium">Адаптируется под ваши результаты</p>

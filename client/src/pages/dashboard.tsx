@@ -5,16 +5,20 @@ import { OrbitalLayout } from "@/components/orbital-layout";
 import { ProgressRing } from "@/components/ui/progress-ring";
 import { Glassmorphism } from "@/components/ui/glassmorphism";
 import { useUserProfile } from "@/context/user-profile-context";
+import { useAuth } from "@/context/auth-context";
 import { apiRequest } from "@/lib/queryClient";
 import { Link, useLocation } from "wouter";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { LearningTimeline } from "@/components/progress/learning-timeline";
 import { default as SkillProgress } from "@/components/progress/skill-progress";
+import { WelcomeModal } from "@/components/onboarding/welcome-modal";
 
 export default function Dashboard() {
   const { userProfile, updateUserProfile } = useUserProfile();
+  const { user } = useAuth();
   const [, setLocation] = useLocation();
   const [showOnboardingPrompt, setShowOnboardingPrompt] = useState(true);
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   
   const [message, setMessage] = useState("");
   const [AITutorChat, setAITutorChat] = useState({
@@ -244,23 +248,32 @@ export default function Dashboard() {
   });
   const [viewMode, setViewMode] = useState<'orbital' | 'tracks'>('orbital');
 
-  // Проверка, нужно ли показывать подсказку про онбординг
+  // Проверка статуса пользователя и показ приветственного модального окна
   useEffect(() => {
-    if (userProfile && !userProfile.completedOnboarding && showOnboardingPrompt) {
-      // Если пользователь еще не прошел онбординг, показываем подсказку
-      console.log("Пользователь еще не прошел онбординг");
+    // Если пользователь авторизован, но еще не прошел онбординг
+    if (user && userProfile && !userProfile.completedOnboarding) {
+      // Показываем приветственное модальное окно, вместо обычной подсказки
+      setShowWelcomeModal(true);
+      console.log("Открываем приветственное модальное окно для нового пользователя");
     }
-  }, [userProfile, showOnboardingPrompt]);
+  }, [user, userProfile]);
 
   // Обработчик начала онбординга
   const handleStartOnboarding = () => {
     setShowOnboardingPrompt(false);
+    setShowWelcomeModal(false);
     setLocation("/onboarding-page");
   };
 
   // Обработчик закрытия подсказки об онбординге
   const handleDismissOnboarding = () => {
     setShowOnboardingPrompt(false);
+    setShowWelcomeModal(false);
+  };
+  
+  // Обработчик изменения состояния модального окна
+  const handleWelcomeModalChange = (open: boolean) => {
+    setShowWelcomeModal(open);
   };
 
   useEffect(() => {
@@ -323,6 +336,13 @@ export default function Dashboard() {
 
   return (
     <DashboardLayout title="" subtitle="">
+      {/* Приветственное модальное окно для новых пользователей */}
+      <WelcomeModal 
+        isOpen={showWelcomeModal} 
+        onOpenChange={handleWelcomeModalChange} 
+        userName={user?.displayName || "студент"}
+      />
+      
       <div className="flex flex-col gap-6">
         {/* Header with breadcrumb & search */}
         <motion.div
