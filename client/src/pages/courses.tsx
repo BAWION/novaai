@@ -5,19 +5,20 @@ import { Glassmorphism } from "@/components/ui/glassmorphism";
 import { ProgressRing } from "@/components/ui/progress-ring";
 import { Input } from "@/components/ui/input";
 import { Link } from "wouter";
+import { ethicsCourse, lawCourse } from "@/data";
 
 // Define course types and data
 interface Course {
-  id: number;
+  id: number | string;
   title: string;
   description: string;
   icon: string;
   modules: number;
-  level: 'beginner' | 'intermediate' | 'advanced';
-  category: string[];
-  instructor: string;
-  duration: string;
-  rating: number;
+  level?: 'beginner' | 'intermediate' | 'advanced';
+  category: string[] | string;
+  instructor?: string;
+  duration?: string;
+  rating?: number;
   enrolled: number;
   progress?: number;
   updated: string;
