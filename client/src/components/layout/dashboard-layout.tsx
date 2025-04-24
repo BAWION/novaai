@@ -30,13 +30,12 @@ export function DashboardLayout({ children, title, subtitle }: DashboardLayoutPr
       <BottomNavigation />
 
       <main 
-        className={`flex-1 transition-all will-change-transform duration-300 ease-out ${
+        className={`flex-1 transition-all duration-300 ${
           isMobile ? 'ml-0' : (isOpen ? 'ml-[256px]' : 'ml-[80px]')
-        } ${isMobile ? 'pb-20' : ''} ${isMobile ? 'overflow-x-hidden w-full max-w-[100vw]' : ''}`}
+        } ${isMobile ? 'pb-20' : ''}`}
         style={{ 
-          transform: 'translateZ(0)', 
-          backfaceVisibility: 'hidden',
-          overflowX: 'hidden'
+          overflowX: 'hidden',
+          willChange: 'margin'
         }}
       >
         <div 
