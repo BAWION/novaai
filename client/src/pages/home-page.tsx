@@ -87,7 +87,7 @@ export default function HomePage() {
       <ParticlesBackground />
       
       {/* Header/Navigation */}
-      <header className="w-full py-4 px-6 backdrop-blur-sm bg-black/30 fixed top-0 z-50">
+      <header className="w-full py-4 px-6 backdrop-blur-sm bg-black/30 fixed top-0 z-50 fixed-header">
         <div className="container mx-auto flex justify-between items-center">
           <div className="flex items-center gap-2">
             <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
@@ -100,12 +100,12 @@ export default function HomePage() {
             <a href="#screenshots" className="text-white/70 hover:text-white transition-colors">Платформа</a>
             <a href="#testimonials" className="text-white/70 hover:text-white transition-colors">Отзывы</a>
           </nav>
-          <div className="flex gap-4">
-            <a href="/login" className="px-5 py-2 rounded-lg border-2 border-white/30 hover:bg-white/10 active:bg-white/20 transition-all duration-150 text-white font-medium no-underline inline-block tap-highlight-none">
+          <div className="flex gap-2">
+            <a href="/login" className="btn-mobile px-4 py-2 rounded-lg border-2 border-white/30 hover:bg-white/10 active:bg-white/20 transition-all duration-150 text-white font-medium no-underline inline-block tap-highlight-none">
               Войти
             </a>
-            <a href="/onboarding" className="px-5 py-2 rounded-lg bg-primary hover:bg-primary/90 active:bg-primary/80 transition-all duration-150 text-white font-medium no-underline inline-block tap-highlight-none">
-              Начать обучение
+            <a href="/onboarding" className="btn-mobile px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 active:bg-primary/80 transition-all duration-150 text-white font-medium no-underline inline-block tap-highlight-none">
+              Начать
             </a>
           </div>
         </div>
