@@ -46,9 +46,19 @@ declare global {
   }
 }
 
+// Константа для API ключа ML-сервиса
+const ML_API_KEY = "ml-admin-secret-key-123";
+
 // Middleware для проверки аутентификации и прав администратора
 function requireAdmin(req: Request, res: Response, next: Function) {
-  // Проверяем наличие сессии и пользователя
+  const apiKey = req.header("x-ml-api-key");
+  
+  // Проверяем API ключ
+  if (apiKey === ML_API_KEY) {
+    return next();
+  }
+  
+  // Если API ключа нет, проверяем сессию
   if (!req.session || !req.session.user) {
     return res.status(401).json({ message: "Not authenticated" });
   }
