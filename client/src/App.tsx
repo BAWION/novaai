@@ -30,6 +30,7 @@ import CourseAI from "@/pages/course-ai";
 import CoursePage from "@/pages/course-page";
 import KnowledgeVault from "@/pages/knowledge-vault";
 import SkillsPage from "@/pages/skills-page";
+import GapAnalysisPage from "@/pages/gap-analysis-page";
 
 interface ProtectedRouteProps {
   component: React.ComponentType;
