@@ -4,7 +4,7 @@
 import { Router, Request, Response } from 'express';
 import { aiAssistantService } from '../services/ai-assistant-service';
 import { z } from 'zod';
-import { isAuthenticated } from '../middleware/auth-middleware';
+import { authMiddleware } from '../middleware/auth-middleware';
 
 const router = Router();
 
@@ -23,7 +23,7 @@ const explanationSchema = z.object({
  * Получить ответ от AI-ассистента
  * POST /api/ai-assistant/ask
  */
-router.post('/ask', isAuthenticated, async (req: Request, res: Response) => {
+router.post('/ask', authMiddleware, async (req: Request, res: Response) => {
   try {
     // Валидируем запрос
     const validationResult = questionSchema.safeParse(req.body);
@@ -56,7 +56,7 @@ router.post('/ask', isAuthenticated, async (req: Request, res: Response) => {
  * Получить проактивную подсказку
  * GET /api/ai-assistant/hint
  */
-router.get('/hint', isAuthenticated, async (req: Request, res: Response) => {
+router.get('/hint', authMiddleware, async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
     
@@ -79,7 +79,7 @@ router.get('/hint', isAuthenticated, async (req: Request, res: Response) => {
  * Получить персонализированное объяснение темы
  * POST /api/ai-assistant/explain
  */
-router.post('/explain', isAuthenticated, async (req: Request, res: Response) => {
+router.post('/explain', authMiddleware, async (req: Request, res: Response) => {
   try {
     // Валидируем запрос
     const validationResult = explanationSchema.safeParse(req.body);

@@ -1,60 +1,58 @@
 /**
- * Middleware для проверки аутентификации пользователя
+ * auth-middleware.ts
+ * Middleware для проверки аутентификации пользователей
  */
-import { Request, Response, NextFunction } from 'express';
-import session from 'express-session';
 
-// Расширяем типы для Session
-declare module 'express-session' {
-  interface SessionData {
-    user?: {
+import { Request, Response, NextFunction } from "express";
+
+// Расширяем тип Express.Request, чтобы добавить информацию о пользователе
+declare global {
+  namespace Express {
+    interface User {
       id: number;
       username: string;
       displayName?: string;
-      [key: string]: any;
-    };
-  }
-}
-
-// Расширяем типы для Request
-declare global {
-  namespace Express {
+    }
+    
     interface Request {
-      user?: any;
-      isAuthenticated(): boolean;
-      session: session.Session & Partial<session.SessionData>;
+      user?: User;
     }
   }
 }
 
 /**
- * Проверяет, аутентифицирован ли пользователь
- * В нашем случае проверяем наличие пользователя в сессии
+ * Middleware для проверки аутентификации пользователей
+ * Проверяет наличие пользователя в сессии и добавляет его в request.user
  */
-export function isAuthenticated(req: Request, res: Response, next: NextFunction) {
-  // В нашем приложении мы храним пользователя в сессии
-  if (req.session && req.session.user) {
-    // Добавляем user в req для удобства доступа
-    req.user = req.session.user;
-    // Добавляем метод isAuthenticated
-    req.isAuthenticated = () => true;
-    return next();
+export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
+  // Проверяем наличие пользователя в сессии
+  if (!req.session || !req.session.user) {
+    return res.status(401).json({
+      success: false,
+      message: "Требуется авторизация для доступа к этому ресурсу",
+    });
   }
   
-  // Если пользователя нет в сессии
-  req.isAuthenticated = () => false;
-  return res.status(401).json({ error: 'Требуется аутентификация' });
-}
+  // Добавляем пользователя в request для удобства доступа
+  req.user = req.session.user;
+  
+  // Передаем управление следующему middleware или обработчику
+  next();
+};
 
 /**
- * Проверяет, имеет ли пользователь роль администратора
+ * Middleware для проверки прав администратора
+ * Должен использоваться после authMiddleware
  */
-export function isAdmin(req: Request, res: Response, next: NextFunction) {
-  if (req.session && req.session.user && req.session.user.username === 'админ13') {
-    req.user = req.session.user;
-    req.isAuthenticated = () => true;
-    return next();
+export const adminMiddleware = (req: Request, res: Response, next: NextFunction) => {
+  // Проверяем наличие пользователя и его роль
+  if (!req.user || req.user.id !== 999) {
+    return res.status(403).json({
+      success: false,
+      message: "Требуются права администратора для доступа к этому ресурсу",
+    });
   }
   
-  return res.status(403).json({ error: 'Доступ запрещен. Требуются права администратора.' });
-}
+  // Передаем управление следующему middleware или обработчику
+  next();
+};
