@@ -17,6 +17,7 @@ import Register from "@/pages/register";
 import Onboarding from "@/pages/onboarding";
 import OnboardingPage from "@/pages/onboarding-page";
 import QuickDiagnosis from "@/pages/quick-diagnosis";
+import DeepDiagnosis from "@/pages/deep-diagnosis";
 import OrbitalLobby from "@/pages/orbital-lobby";
 import Dashboard from "@/pages/dashboard";
 import Roadmap from "@/pages/roadmap";
