@@ -473,7 +473,7 @@ export default function Courses() {
                   
                   <div className="mt-8 flex flex-wrap gap-3">
                     <Link 
-                      to={selectedCourse.id === 0 ? "/course-ai/python-for-ai-beginners" : "#"}
+                      to={selectedCourse.id === "0" ? "/course-ai/python-for-ai-beginners" : "#"}
                       className="bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:from-[#4922B2] hover:to-[#1682A1] text-white py-3 px-6 rounded-lg font-medium transition duration-300 flex items-center"
                     >
                       <i className="fas fa-play-circle mr-2"></i>
@@ -625,7 +625,7 @@ export default function Courses() {
                 key={course.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: course.id * 0.1 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
                 whileHover={{ y: -5, transition: { duration: 0.2 } }}
                 className="h-full"
               >
@@ -643,7 +643,7 @@ export default function Courses() {
                       } flex items-center justify-center text-white`}>
                         <i className={`fas fa-${course.icon} text-lg`}></i>
                       </div>
-                      <LevelBadge level={course.level} />
+                      <LevelBadge level={course.level || 'beginner'} />
                     </div>
                     <h3 className="font-semibold text-lg mt-4">{course.title}</h3>
                     {course.skillMatch && (
