@@ -20,6 +20,9 @@ export class MLService {
       this.openai = new OpenAI({
         apiKey: process.env.OPENAI_API_KEY
       });
+      console.log("OpenAI API client initialized successfully");
+    } else {
+      console.warn("OpenAI API key not found, embeddings generation will not work");
     }
     
     // Предзагрузка feature flags
@@ -50,16 +53,20 @@ export class MLService {
   async isFeatureEnabled(featureName: string, userId?: number): Promise<boolean> {
     // Всегда запрашиваем актуальное состояние из базы данных, чтобы избежать проблем с кешированием
     try {
+      console.log(`Checking feature flag ${featureName} for user ${userId || 'anonymous'}`);
       const isEnabled = await this.mlStorage.isFeatureEnabled(featureName, userId);
       // Обновляем кеш
       this.featureFlags[featureName] = isEnabled;
+      console.log(`Feature flag ${featureName} is ${isEnabled ? 'enabled' : 'disabled'}`);
       return isEnabled;
     } catch (error) {
       console.error(`Error checking feature flag ${featureName}:`, error);
       // Если произошла ошибка, используем кешированное значение (если оно есть)
       if (this.featureFlags[featureName] !== undefined) {
+        console.log(`Using cached value for feature flag ${featureName}: ${this.featureFlags[featureName]}`);
         return this.featureFlags[featureName];
       }
+      console.log(`No cached value found for feature flag ${featureName}, returning false`);
       return false;
     }
   }

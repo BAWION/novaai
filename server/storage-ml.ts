@@ -65,37 +65,71 @@ export class MLStorage {
 
   async isFeatureEnabled(name: string, userId?: number): Promise<boolean> {
     const flag = await this.getFeatureFlag(name);
-    if (!flag) return false;
+    if (!flag) {
+      console.log(`Feature flag ${name} not found`);
+      return false;
+    }
+    
+    console.log(`Feature flag ${name} found:`, {
+      status: flag.status,
+      rolloutPercentage: flag.rolloutPercentage,
+      targetAudience: flag.targetAudience
+    });
     
     // Проверяем общий статус
-    if (flag.status === 'disabled') return false;
-    if (flag.status === 'enabled') return true;
+    if (flag.status === 'disabled') {
+      console.log(`Feature flag ${name} disabled by status`);
+      return false;
+    }
+    
+    if (flag.status === 'enabled') {
+      console.log(`Feature flag ${name} enabled by status`);
+      return true;
+    }
     
     // Для beta статуса проверяем правила
+    console.log(`Feature flag ${name} in beta status, checking rules...`);
     
     // 1. Проверка на процент пользователей
-    if (flag.rolloutPercentage) {
-      if (!userId) return false;
+    if (flag.rolloutPercentage !== null && flag.rolloutPercentage !== undefined) {
+      if (!userId) {
+        console.log(`Feature flag ${name} disabled, no userId provided for rollout check`);
+        return false;
+      }
       
       // Используем детерминистическую функцию на основе userId и имени фичи
       // для равномерного распределения по пользователям
       const hash = this.simpleHash(`${userId}-${name}`);
       const percentage = hash % 100;
       
-      if (percentage >= flag.rolloutPercentage) return false;
+      console.log(`User ${userId} hash percentage for ${name}: ${percentage}, rollout: ${flag.rolloutPercentage}`);
+      
+      if (percentage >= flag.rolloutPercentage) {
+        console.log(`Feature flag ${name} disabled for user ${userId}, outside rollout percentage`);
+        return false;
+      }
+      
+      console.log(`Feature flag ${name} enabled for user ${userId} by rollout percentage`);
     }
     
     // 2. Проверка на целевую аудиторию
     if (flag.targetAudience && userId) {
+      console.log(`Checking target audience for ${name}:`, flag.targetAudience);
+      
       // Здесь в полной реализации мы проверяем соответствие пользователя
       // правилам сегментации из targetAudience JSON
       // Упрощенно: считаем, что если есть targetAudience и userId в списке, то позволяем
       const targetUsers = flag.targetAudience['userIds'] as number[] || [];
+      
       if (targetUsers.length > 0 && !targetUsers.includes(userId)) {
+        console.log(`Feature flag ${name} disabled for user ${userId}, not in target audience`);
         return false;
       }
+      
+      console.log(`Feature flag ${name} enabled for user ${userId} by target audience`);
     }
     
+    console.log(`Feature flag ${name} enabled, passed all checks`);
     return true;
   }
   
