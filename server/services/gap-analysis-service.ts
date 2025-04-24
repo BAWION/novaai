@@ -249,14 +249,14 @@ export class GapAnalysisService {
       
       // 2. Добавляем базовые навыки
       const basicSkills = [
-        { name: "Python базовый", description: "Базовые концепции Python", category: "programming" },
-        { name: "SQL", description: "Работа с базами данных SQL", category: "data" },
-        { name: "Статистика", description: "Основы статистического анализа", category: "data" },
-        { name: "Алгоритмы машинного обучения", description: "Основные алгоритмы ML", category: "ml" },
-        { name: "Глубокое обучение", description: "Нейронные сети и глубокое обучение", category: "ml" },
-        { name: "Визуализация данных", description: "Представление данных в понятном виде", category: "data" },
-        { name: "Этика ИИ", description: "Этические аспекты применения ИИ", category: "domain-knowledge" },
-        { name: "Правовые основы ИИ", description: "Правовые аспекты работы с ИИ", category: "domain-knowledge" }
+        { name: "Python базовый", description: "Базовые концепции Python", category: "programming", parentSkillId: null },
+        { name: "SQL", description: "Работа с базами данных SQL", category: "data", parentSkillId: null },
+        { name: "Статистика", description: "Основы статистического анализа", category: "data", parentSkillId: null },
+        { name: "Алгоритмы машинного обучения", description: "Основные алгоритмы ML", category: "ml", parentSkillId: null },
+        { name: "Глубокое обучение", description: "Нейронные сети и глубокое обучение", category: "ml", parentSkillId: null },
+        { name: "Визуализация данных", description: "Представление данных в понятном виде", category: "data", parentSkillId: null },
+        { name: "Этика ИИ", description: "Этические аспекты применения ИИ", category: "domain-knowledge", parentSkillId: null },
+        { name: "Правовые основы ИИ", description: "Правовые аспекты работы с ИИ", category: "domain-knowledge", parentSkillId: null }
       ];
       
       for (const skillData of basicSkills) {

@@ -223,9 +223,12 @@ export const skills = pgTable("skills", {
   name: varchar("name", { length: 255 }).notNull().unique(),
   description: text("description"),
   category: skillCategoryEnum("category"), // Категория навыка
-  parentSkillId: integer("parent_skill_id").references(() => skills.id), // Для иерархии навыков
+  parentSkillId: integer("parent_skill_id"), // Для иерархии навыков
   createdAt: timestamp("created_at").defaultNow(),
 });
+
+// В этой версии Drizzle мы не будем использовать relations API
+// Вместо этого создадим простые ссылки между таблицами
 
 // Типы для навыков будут определены ниже
 
