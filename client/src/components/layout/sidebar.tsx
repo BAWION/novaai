@@ -59,55 +59,51 @@ const NavItem = React.memo(function NavItem({ icon, label, to, isActive, onClick
     }
   }, [onClick]);
 
+  // Используем постоянный key для предотвращения перерисовки при навигации
   return (
-    <motion.div
-      className="relative"
-      animate={{ scale: isActive ? 1.05 : 1 }}
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.98 }}
-    >
+    <div className="relative">
       <Link href={to}>
         <div
           onClick={handleClick}
-          className={`flex items-center py-3 px-4 rounded-lg transition-all duration-300 mb-2 cursor-pointer ${
+          className={`flex items-center py-3 px-4 rounded-lg transition-colors duration-300 mb-2 cursor-pointer transform ${
             isActive
-              ? "bg-gradient-to-r from-[#6E3AFF]/20 to-[#2EBAE1]/10 border border-[#6E3AFF]/30 shadow-[0_0_15px_rgba(110,58,255,0.15)] translate-z-4"
-              : "hover:bg-white/5"
+              ? "bg-gradient-to-r from-[#6E3AFF]/20 to-[#2EBAE1]/10 border border-[#6E3AFF]/30 shadow-[0_0_15px_rgba(110,58,255,0.15)] scale-105"
+              : "hover:bg-white/5 scale-100 hover:scale-105"
           }`}
+          style={{ willChange: 'transform, opacity' }}
         >
-          <div className={`w-10 h-10 flex items-center justify-center rounded-lg ${
-            isActive
-              ? "bg-gradient-to-br from-[#6E3AFF] to-[#2EBAE1] text-white"
-              : "bg-white/10 text-white/60"
-          }`}>
+          <div 
+            className={`w-10 h-10 flex items-center justify-center rounded-lg ${
+              isActive
+                ? "bg-gradient-to-br from-[#6E3AFF] to-[#2EBAE1] text-white"
+                : "bg-white/10 text-white/60"
+            }`}
+            style={{ willChange: 'none' }}
+          >
             <i className={`fas ${icon} text-lg`}></i>
           </div>
           
-          {/* Отображаем текст только если сайдбар открыт */}
-          <AnimatePresence>
-            {isOpen && (
-              <motion.span 
-                className={`ml-3 font-medium ${isActive ? "text-white" : "text-white/70"}`}
-                initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: "auto" }}
-                exit={{ opacity: 0, width: 0 }}
-                transition={{ duration: 0.15 }}
-              >
-                {label}
-              </motion.span>
-            )}
-          </AnimatePresence>
+          {/* Отображаем текст без анимации появления/исчезновения, используем только CSS-переходы */}
+          <div 
+            className={`ml-3 font-medium overflow-hidden transition-all duration-300 ${isActive ? "text-white" : "text-white/70"}`}
+            style={{ 
+              maxWidth: isOpen ? '160px' : '0px',
+              opacity: isOpen ? 1 : 0,
+              willChange: 'max-width, opacity',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            {label}
+          </div>
           
           {isActive && (
-            <motion.div
+            <div
               className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-[#6E3AFF] to-[#2EBAE1] rounded-l-md"
-              layoutId="activeIndicator"
-              transition={{ type: "spring", stiffness: 400, damping: 40 }}
             />
           )}
         </div>
       </Link>
-    </motion.div>
+    </div>
   );
 });
 
@@ -193,28 +189,28 @@ export function Sidebar() {
           duration: 0.15
         }}
       >
-        {/* Logo */}
-        <div className="p-4 border-b border-white/10 flex items-center justify-center">
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#6E3AFF] to-[#2EBAE1] flex items-center justify-center">
+        {/* Logo - переделан с использованием CSS без AnimatePresence */}
+        <div className="p-4 border-b border-white/10 flex items-center justify-start">
+          <div 
+            className="w-12 h-12 rounded-full bg-gradient-to-br from-[#6E3AFF] to-[#2EBAE1] flex items-center justify-center flex-shrink-0"
+            style={{ willChange: 'contents' }}
+          >
             <span className="text-white font-bold text-xl">N</span>
           </div>
           
-          <AnimatePresence>
-            {isOpen && (
-              <motion.div 
-                className="ml-3 overflow-hidden whitespace-nowrap"
-                initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: "auto" }}
-                exit={{ opacity: 0, width: 0 }}
-                transition={{ duration: 0.15 }}
-              >
-                <h1 className="font-orbitron font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#B28DFF] to-[#8BE0F7]">
-                  NovaAI
-                </h1>
-                <p className="text-white/50 text-xs">University</p>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          <div 
+            className="ml-3 overflow-hidden whitespace-nowrap transition-all duration-300"
+            style={{ 
+              maxWidth: isOpen ? '160px' : '0px',
+              opacity: isOpen ? 1 : 0,
+              willChange: 'max-width, opacity'
+            }}
+          >
+            <h1 className="font-orbitron font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#B28DFF] to-[#8BE0F7]">
+              NovaAI
+            </h1>
+            <p className="text-white/50 text-xs">University</p>
+          </div>
         </div>
 
         {/* Nav items */}
@@ -242,25 +238,22 @@ export function Sidebar() {
             />
             <div
               onClick={handleLogout}
-              className="flex items-center w-full py-3 px-4 rounded-lg transition-all duration-300 hover:bg-white/5 cursor-pointer"
+              className="flex items-center w-full py-3 px-4 rounded-lg transition-colors duration-300 hover:bg-white/5 cursor-pointer"
             >
-              <div className="w-10 h-10 flex items-center justify-center rounded-lg bg-white/10 text-white/60">
+              <div className="w-10 h-10 flex items-center justify-center rounded-lg bg-white/10 text-white/60 flex-shrink-0">
                 <i className="fas fa-sign-out-alt text-lg"></i>
               </div>
               
-              <AnimatePresence>
-                {isOpen && (
-                  <motion.span 
-                    className="ml-3 font-medium text-white/70"
-                    initial={{ opacity: 0, width: 0 }}
-                    animate={{ opacity: 1, width: "auto" }}
-                    exit={{ opacity: 0, width: 0 }}
-                    transition={{ duration: 0.15 }}
-                  >
-                    Выйти
-                  </motion.span>
-                )}
-              </AnimatePresence>
+              <div 
+                className="ml-3 font-medium overflow-hidden whitespace-nowrap transition-all duration-300 text-white/70"
+                style={{ 
+                  maxWidth: isOpen ? '160px' : '0px',
+                  opacity: isOpen ? 1 : 0,
+                  willChange: 'max-width, opacity'
+                }}
+              >
+                Выйти
+              </div>
             </div>
           </div>
         </div>
