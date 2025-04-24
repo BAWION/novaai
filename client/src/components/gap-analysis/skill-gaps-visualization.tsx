@@ -217,7 +217,7 @@ export function SkillGapsVisualization({ userId }: SkillGapsVisualizationProps) 
           <CardContent>
             <div className="space-y-4">
               {skillGaps
-                .sort((a, b) => b.priority - a.priority) // Сортировка по приоритету
+                .sort((a, b) => (b.priority || 0) - (a.priority || 0)) // Сортировка по приоритету с проверкой на null
                 .map((gap) => (
                   <div key={gap.skillId} className="border rounded-lg p-4">
                     <div className="flex justify-between items-start mb-2">
