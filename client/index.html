@@ -13,6 +13,15 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="full-screen" content="yes">
+    <meta name="apple-touch-fullscreen" content="yes">
+    <meta name="apple-mobile-web-app-title" content="NovaAI">
+    <meta name="application-name" content="NovaAI University">
+    <meta name="msapplication-TileColor" content="#6E3AFF">
+    <meta name="msapplication-TileImage" content="/icons/icon-144x144.png">
+    <meta name="msapplication-config" content="/browserconfig.xml">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="format-detection" content="address=no">
+    <meta name="format-detection" content="email=no">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
       html {
@@ -60,10 +69,22 @@
       // Функция для скрытия адресной строки после загрузки
       function hideAddressBar() {
         if (document.readyState === 'complete') {
+          // Проверяем, запущено ли приложение как PWA
+          const isPWA = window.matchMedia('(display-mode: standalone)').matches || 
+                        window.matchMedia('(display-mode: fullscreen)').matches || 
+                        window.navigator.standalone || 
+                        window.location.search.includes('pwa=true');
+          
+          // Для iOS PWA не нужно скрывать адресную строку
+          if ((/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) && isPWA) {
+            return;
+          }
+          
           // Небольшая задержка перед попыткой прокрутки
           setTimeout(function() {
             // Для iOS
             window.scrollTo(0, 1);
+            
             // Для Android
             if (navigator.userAgent.match(/Android/i)) {
               document.documentElement.style.height = 'calc(100% + 1px)';
@@ -71,13 +92,24 @@
                 document.documentElement.style.height = '100%';
                 window.scrollTo(0, 1);
               }, 500);
+              
+              // Попытка принудительного полноэкранного режима для Android Chrome
+              if (document.documentElement.requestFullscreen && !isPWA) {
+                document.documentElement.requestFullscreen().catch(err => {
+                  console.log('Fullscreen API not available or not allowed');
+                });
+              }
             }
             
             // Дополнительная обработка для Safari
             if (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) {
-              document.body.style.height = '100%';
+              document.body.style.height = window.innerHeight + 'px';
               setTimeout(function() {
                 window.scrollTo(0, 1);
+                // Повторяем попытку несколько раз
+                setTimeout(() => window.scrollTo(0, 1), 300);
+                setTimeout(() => window.scrollTo(0, 1), 500);
+                setTimeout(() => window.scrollTo(0, 1), 1000);
               }, 500);
             }
           }, 100);
