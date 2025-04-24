@@ -101,12 +101,12 @@ export default function HomePage() {
             <a href="#testimonials" className="text-white/70 hover:text-white transition-colors">Отзывы</a>
           </nav>
           <div className="flex gap-4">
-            <Link href="/login">
-              <Button variant="outline">Войти</Button>
-            </Link>
-            <Link href="/onboarding">
-              <Button>Начать обучение</Button>
-            </Link>
+            <a href="/login" className="inline-block">
+              <Button variant="outline" type="button" className="pointer-events-auto">Войти</Button>
+            </a>
+            <a href="/onboarding" className="inline-block">
+              <Button type="button" className="pointer-events-auto">Начать обучение</Button>
+            </a>
           </div>
         </div>
       </header>
@@ -129,12 +129,12 @@ export default function HomePage() {
                   NovaAI University — это современная образовательная платформа с адаптивной системой обучения и практическими лабораториями для освоения AI и Data Science.
                 </p>
                 <div className="flex flex-wrap gap-4">
-                  <Link href="/onboarding">
-                    <Button size="lg" className="text-lg px-8">
+                  <a href="/onboarding" className="inline-block">
+                    <Button size="lg" type="button" className="text-lg px-8 pointer-events-auto">
                       Начать бесплатно
                       <i className="fas fa-arrow-right ml-2"></i>
                     </Button>
-                  </Link>
+                  </a>
                   <a href="#screenshots">
                     <Button size="lg" variant="outline" className="text-lg px-8">
                       Посмотреть демо
@@ -262,9 +262,9 @@ export default function HomePage() {
                         <p className="text-white/80">Визуализация прогресса в освоении навыков</p>
                       </li>
                     </ul>
-                    <Link href="/onboarding">
-                      <Button>Персонализировать свой путь</Button>
-                    </Link>
+                    <a href="/onboarding" className="inline-block">
+                      <Button type="button" className="pointer-events-auto">Персонализировать свой путь</Button>
+                    </a>
                   </div>
                   <div className="relative overflow-hidden rounded-lg border border-white/10 bg-black/30 h-full flex items-center justify-center">
                     <div className="text-center p-8">
