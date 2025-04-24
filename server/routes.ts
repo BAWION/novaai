@@ -15,11 +15,11 @@ import { checkSecrets } from "./routes/check-secrets";
 import mlApiRouter from "./routes/ml-api";
 import gapAnalysisRouter from "./routes/gap-analysis-api";
 import aiAssistantRouter from "./routes/ai-assistant-api";
+import profilesRouter from "./routes/profiles-api";
 import { setCurrentUserId } from "./storage-integration";
 // Временно отключаем маршруты, для которых у нас пока нет определенных типов в схеме
 // import { learningEventsRouter } from "./routes/learning-events";
 // import { lessonProgressRouter } from "./routes/lesson-progress";
-// import onboardingRouter from "./routes/onboarding";
 // import recommendedCoursesRouter from "./routes/recommended-courses";
 // import skillsRouter from "./routes/skills";
 
@@ -520,15 +520,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Подключаем маршруты для AI-ассистента
   app.use("/api/ai-assistant", aiAssistantRouter);
   
+  // Подключаем маршруты для профилей пользователей
+  app.use("/api/profiles", profilesRouter);
+  
   // Временно отключены маршруты, для которых требуются дополнительные схемы
   // // Маршруты для отслеживания событий обучения
   // app.use("/api/learning", learningEventsRouter);
   // 
   // // Маршруты для отслеживания прогресса уроков
   // app.use("/api/lessons/progress", lessonProgressRouter);
-  // 
-  // // Маршруты для расширенного онбординга
-  // app.use("/api/profiles", onboardingRouter);
   // 
   // // Маршруты для рекомендованных курсов
   // app.use("/api/courses/recommended", recommendedCoursesRouter);
