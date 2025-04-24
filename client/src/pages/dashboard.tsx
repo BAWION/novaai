@@ -1050,9 +1050,9 @@ export default function Dashboard() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.6 }}
             >
-              {userProfile?.id && (
+              {userProfile?.userId && (
                 <SkillProgress 
-                  userId={userProfile.id} 
+                  userId={userProfile.userId} 
                   limit={5}
                 />
               )}
@@ -1064,9 +1064,9 @@ export default function Dashboard() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.65 }}
             >
-              {userProfile?.id && (
+              {userProfile?.userId && (
                 <LearningTimeline 
-                  userId={userProfile.id} 
+                  userId={userProfile.userId} 
                   limit={4}
                 />
               )}
