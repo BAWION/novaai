@@ -113,23 +113,36 @@ export function AIAssistantWidget({
 
   // Получаем проактивную подсказку при монтировании компонента
   useEffect(() => {
-    // Устанавливаем флаги для предотвращения бесконечных запросов при ошибках
-    let isComponentMounted = true;
-    let requestAttempted = false;
+    // Переменные для отслеживания состояния компонента
+    let isMounted = true;
+    let hasAttemptedFetch = false;
     
-    const fetchHint = async () => {
-      // Проверяем, был ли уже выполнен запрос, монтирован ли компонент и есть ли пользователь
-      if (!user || requestAttempted || !isComponentMounted) return;
+    // Функция для безопасной загрузки данных
+    const safelyFetchHint = async () => {
+      // Проверяем, можем ли мы загружать данные
+      if (!user || hasAttemptedFetch || !isMounted) {
+        return;
+      }
       
-      requestAttempted = true;
-      await fetchProactiveHint();
+      // Отмечаем, что попытка загрузки была сделана
+      hasAttemptedFetch = true;
+      
+      try {
+        await fetchProactiveHint();
+      } catch (error) {
+        console.error("Ошибка при загрузке подсказки в useEffect:", error);
+      }
     };
     
-    fetchHint();
+    // Запускаем загрузку с небольшой задержкой
+    const timeoutId = setTimeout(() => {
+      safelyFetchHint();
+    }, 300);
     
-    // Очищаем эффект при размонтировании
+    // Очищаем таймаут и предотвращаем обновление состояния после размонтирования
     return () => {
-      isComponentMounted = false;
+      clearTimeout(timeoutId);
+      isMounted = false;
     };
   }, [user]);
 
