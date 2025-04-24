@@ -1,0 +1,77 @@
+нужно добавить курсы которые не связаны напрямую с программированием , а например по этике и по законодательной форме для ИИ 
+
+
+ChatGPT сказал:
+Как добавить «некодовые» курсы — Этика и Право ИИ
+
+Шаг	Что делаем	Детали реализации
+1. Расширяем модель курса	`category: 'tech'	'ethics'
+2. Создаём два новых трека	A. AI Ethics & Safety 101
+B. Legal Frameworks for AI (RU + EU)	Отображаются на галактической карте как фиолетовые (ethics) и изумрудные (law) планеты.
+3. Связываем с Skill Graph	новые nodes: ethical reasoning, regulatory compliance, risk assessment	Позволит движку рекомендаций предлагать эти модули менеджерам и разработчикам.
+4. Добавляем персону-ассистента	“Reg-Counsel” — юрист-бот; тон: формальный, отвечает цитатами закона	Настройка в Persona-switcher.
+5. Вшиваем в Roadmap	для всех пользователей «T-образная ветка»: после глав API → обязательный базовый модуль Ethics 101	Закрывает регуляторные требования и ESG-кредиты.
+Структура курсов
+A. AI Ethics & Safety 101 (6 модулей, 8 часов)
+
+Модуль	Уроки	Формат	Ключевые концепции
+1. История & принципы	• Кейс Tay Bot
+• Харта Монреаля	видео + виз. таймлайн	beneficence, non-maleficence
+2. Справедливость и bias	• Демонстрация bias в датасете
+• Интерактив «пройди тест»	интерактив + quiz	disparate impact, fairness metrics
+3. Прозрачность & Explainability	• SHAP-визуализация
+• Практика: написать model card	ноутбук + assignment	XAI, model cards
+4. Безопасность & Red-teaming	• Типы атак (Adversarial, Prompt-Jailbreak)
+• Red-team lab	LabHub песочница	threat modeling, incident response
+5. Управление & аудит	• ISO/IEC 42001 overview
+• Как вести Audit Trail	текст + тест	governance, traceability
+6. Этический практикум	Capstone: оценить вымышленный AI-продукт по чек-листу	peer-review	holistic assessment
+Access: free.
+Outcome: PDF + NFT-бейдж «Ethics Ready».
+
+B. Legal Frameworks for AI (RU + EU) (5 модулей, 7 часов)
+
+Модуль	Уроки	Формат	Ключевые акты
+1. Правовые риски ИИ	кейсы судов, классификация рисков	видео	tort, liability
+2. GDPR & AI Act	обзор статей, RAG-проверка	интерактив	GDPR Art 22, EU AI Act-draft
+3. Российский контур	ФЗ-152, «песочницы», ГОСТ 42 001-2023	текст + таблицы	персональные данные, импортозамещение
+4. Контракты и лицензии	шаблон DPA, open-source лицензии	doc editor	Apache 2.0, MIT, SaaS T&C
+5. Compliance-практикум	симуляция DPIA в LabHub	лаборатория	DPIA template
+Access: PRO; компаниям — Corp tier.
+Outcome: сертификат + чек-лист DPIA.
+
+Интеграция в интерфейс
+Каталог
+Фильтр «Тематика» → чек-боксы Ethics, Law.
+Карточки имеют бейдж «Non-code».
+
+Galaxy / Dashboard
+Новые планеты (цвет #c084fc Ethics, #34d399 Law).
+Tooltip: «Обязательный модуль для всех, кто развёртывает модели».
+
+Roadmap
+Под основные тех-ветки добавляется блок “Responsible AI” — появляется после прохождения Python Basics.
+
+Business AI
+Виджет «Check compliance risk» → ведёт на Legal Framework 101.
+
+Технические шаги (Replit-prompts)
+pgsql
+Копировать
+Редактировать
+# 1.  Миграция данных
+Prisma: add Course.category, Course.tags, Course.access
+
+# 2.  Seed
+Insert two new Course rows (slug: 'ai-ethics-101', 'ai-law-ru-eu') with modules/lessons JSON.
+
+# 3.  Galaxy & Catalog
+- Map category→color palette.
+- Add filter dropdown in /courses.tsx.
+
+# 4.  Persona
+- Add 'reg-counsel' preset in personaStore.
+- Update SettingsPane to list it.
+
+# 5.  Roadmap hook
+On user progress fetch, if ethics not complete → flag nextRequired='ethics-101'.

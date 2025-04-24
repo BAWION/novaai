@@ -2,7 +2,7 @@ export type CourseTrack = 'zero-to-hero' | 'applied-ds' | 'research-ai' | 'nlp-e
 export type UserRole = 'student' | 'professional' | 'teacher' | 'researcher';
 export type SkillLevel = 1 | 2 | 3 | 4 | 5;
 export type AIExperience = 'beginner' | 'learning-basics' | 'experienced' | 'expert';
-export type UserInterest = 'machine-learning' | 'neural-networks' | 'data-science' | 'computer-vision';
+export type UserInterest = 'machine-learning' | 'neural-networks' | 'data-science' | 'computer-vision' | 'ethics' | 'law';
 export type UserGoal = 'find-internship' | 'practice-skills' | 'career-change' | 'create-project';
 
 export interface OnboardingQuestion {
@@ -55,7 +55,9 @@ export const onboardingQuestions: OnboardingQuestion[] = [
       { id: 'int1', text: 'Машинное обучение', icon: 'brain', value: 'machine-learning' },
       { id: 'int2', text: 'Нейронные сети', icon: 'robot', value: 'neural-networks' },
       { id: 'int3', text: 'Data Science', icon: 'chart-line', value: 'data-science' },
-      { id: 'int4', text: 'Computer Vision', icon: 'microchip', value: 'computer-vision' }
+      { id: 'int4', text: 'Computer Vision', icon: 'microchip', value: 'computer-vision' },
+      { id: 'int5', text: 'Этика ИИ', icon: 'balance-scale', value: 'ethics' },
+      { id: 'int6', text: 'Право и регулирование ИИ', icon: 'gavel', value: 'law' }
     ]
   },
   {
@@ -77,7 +79,8 @@ export interface Course {
   icon: string;
   modules: number;
   level: 'basic' | 'practice' | 'in-progress' | 'upcoming';
-  color: 'primary' | 'secondary' | 'accent';
+  color: 'primary' | 'secondary' | 'accent' | 'purple' | 'green';
+  category?: 'tech' | 'ethics' | 'law' | 'business' | 'ml' | 'other';
 }
 
 export const courses: Course[] = [
