@@ -82,6 +82,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
   })();
 
   // Authentication routes
+  
+  // Регистрация нового пользователя
+  app.post("/api/auth/register", async (req, res) => {
+    try {
+      const { username, email, password, displayName } = req.body;
+      
+      // Проверяем, существует ли пользователь с таким именем
+      const existingUser = await storage.getUserByUsername(username);
+      if (existingUser) {
+        return res.status(409).json({ message: "Пользователь с таким именем уже существует" });
+      }
+      
+      // Создаем нового пользователя
+      const newUser = await storage.createUser({
+        username,
+        password, // В реальном приложении здесь должно быть хеширование пароля
+        email,
+        displayName
+      });
+      
+      // Записываем пользователя в сессию
+      req.session.user = {
+        id: newUser.id,
+        username: newUser.username,
+        displayName: newUser.displayName
+      };
+      
+      // Возвращаем данные нового пользователя
+      return res.status(201).json({
+        id: newUser.id, 
+        username: newUser.username, 
+        displayName: newUser.displayName
+      });
+    } catch (error) {
+      console.error("Registration error:", error);
+      return res.status(500).json({ message: "Ошибка при регистрации пользователя" });
+    }
+  });
+  
   app.post("/api/auth/login", async (req, res) => {
     try {
       const { username, password, displayName } = req.body;
