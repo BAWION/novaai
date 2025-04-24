@@ -101,10 +101,10 @@ export default function HomePage() {
             <a href="#testimonials" className="text-white/70 hover:text-white transition-colors">Отзывы</a>
           </nav>
           <div className="flex gap-4">
-            <a href="/login" className="px-4 py-2 rounded border border-white/20 hover:bg-white/10 transition-colors text-white no-underline">
+            <a href="/login" className="px-4 py-2 rounded border border-white/20 hover:bg-white/10 active:bg-white/20 transition-colors text-white no-underline inline-block">
               Войти
             </a>
-            <a href="/onboarding" className="px-4 py-2 rounded bg-primary hover:bg-primary/90 transition-colors text-white no-underline">
+            <a href="/onboarding" className="px-4 py-2 rounded bg-primary hover:bg-primary/90 active:bg-primary/80 transition-colors text-white no-underline inline-block">
               Начать обучение
             </a>
           </div>
