@@ -1,6 +1,5 @@
 import React, { useState, useEffect, createContext, useContext } from "react";
 import { Link, useLocation } from "wouter";
-import { motion, AnimatePresence } from "framer-motion";
 import { Glassmorphism } from "@/components/ui/glassmorphism";
 import { useAuth } from "@/context/auth-context";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -120,13 +119,6 @@ export function Sidebar() {
     return null;
   }
   
-  // Функция для закрытия сайдбара на мобильных устройствах
-  const closeSidebar = () => {
-    if (isMobile) {
-      setIsOpen(false);
-    }
-  };
-  
   const handleLogout = async () => {
     await logout();
     setLocation("/login");
@@ -172,21 +164,15 @@ export function Sidebar() {
         />
       )}
 
-      {/* Sidebar */}
-      <motion.div
-        className={`fixed top-0 bottom-0 z-50 
-        bg-space-800/90 backdrop-blur-sm border-r border-white/10 flex flex-col`}
-        initial={false}
-        animate={{ 
-          width: isOpen ? (isMobile ? 256 : 256) : (isMobile ? 0 : 80),
-          x: isMobile && !isOpen ? -80 : 0,
-          left: 0
-        }}
-        transition={{ 
-          type: "spring", 
-          stiffness: 400, 
-          damping: 40,
-          duration: 0.15
+      {/* Sidebar - переработан для стабильного отображения */}
+      <div
+        className="fixed top-0 bottom-0 z-50 bg-space-800/90 backdrop-blur-sm border-r border-white/10 flex flex-col transition-all duration-300"
+        style={{ 
+          width: isOpen ? (isMobile ? '256px' : '256px') : (isMobile ? '0' : '80px'),
+          transform: isMobile && !isOpen ? 'translateX(-80px)' : 'translateX(0)',
+          left: 0,
+          willChange: 'width, transform',
+          overflowX: 'hidden'
         }}
       >
         {/* Logo - переделан с использованием CSS без AnimatePresence */}
@@ -257,27 +243,21 @@ export function Sidebar() {
             </div>
           </div>
         </div>
-      </motion.div>
+      </div>
 
       {/* Toggle button (показывает в правильном месте в зависимости от состояния) */}
-      <motion.button
-        className="fixed top-4 z-50 w-10 h-10 rounded-lg bg-space-800 border border-white/20 flex items-center justify-center"
-        initial={false}
-        animate={{ 
+      <button
+        className="fixed top-4 z-50 w-10 h-10 rounded-lg bg-space-800 border border-white/20 flex items-center justify-center transition-all duration-300"
+        style={{
           left: isMobile 
             ? isOpen ? '230px' : '10px'
-            : isOpen ? '230px' : '70px'
-        }}
-        transition={{ 
-          type: "spring", 
-          stiffness: 400, 
-          damping: 40,
-          duration: 0.15
+            : isOpen ? '230px' : '70px',
+          willChange: 'left'
         }}
         onClick={() => setIsOpen(!isOpen)}
       >
         <i className={`fas ${isOpen ? "fa-chevron-left" : "fa-bars"} text-white`}></i>
-      </motion.button>
+      </button>
     </>
   );
 }
