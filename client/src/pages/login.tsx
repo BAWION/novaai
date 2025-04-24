@@ -285,6 +285,16 @@ export default function Login() {
             )}
 
             <div className="mt-6 text-center text-white/50 text-sm">
+              Ещё нет аккаунта?{" "}
+              <span 
+                className="text-[#B28DFF] hover:text-[#D2B8FF] cursor-pointer"
+                onClick={() => navigate("/register")}
+              >
+                Зарегистрироваться
+              </span>
+            </div>
+            
+            <div className="mt-2 text-center text-white/50 text-sm">
               Создавая аккаунт, вы соглашаетесь с{" "}
               <span 
                 className="text-[#B28DFF] hover:text-[#D2B8FF] cursor-pointer"
