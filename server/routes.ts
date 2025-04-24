@@ -121,6 +121,84 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Расширенная регистрация с созданием профиля
+  app.post("/api/auth/register-and-profile", async (req, res) => {
+    try {
+      const { 
+        username, 
+        email, 
+        password, 
+        displayName,
+        // Данные профиля
+        role,
+        pythonLevel,
+        experience,
+        interest,
+        goal,
+        industry,
+        jobTitle,
+        specificGoals,
+        preferredLearningStyle,
+        availableTimePerWeek,
+        preferredDifficulty
+      } = req.body;
+      
+      // Проверяем, существует ли пользователь с таким именем
+      const existingUser = await storage.getUserByUsername(username);
+      if (existingUser) {
+        return res.status(409).json({ message: "Пользователь с таким именем уже существует" });
+      }
+      
+      // Создаем нового пользователя
+      const newUser = await storage.createUser({
+        username,
+        password, // В реальном приложении здесь должно быть хеширование пароля
+        email,
+        displayName
+      });
+      
+      // Создаем профиль пользователя
+      const profileData = {
+        userId: newUser.id,
+        role: role || "student",
+        pythonLevel: pythonLevel || 0,
+        experience,
+        interest,
+        goal,
+        industry,
+        jobTitle,
+        specificGoals,
+        preferredLearningStyle,
+        availableTimePerWeek,
+        preferredDifficulty
+      };
+      
+      // Создаем профиль, если есть данные для профиля
+      if (role || pythonLevel || experience || interest || goal) {
+        await storage.createUserProfile(profileData);
+      }
+      
+      // Записываем пользователя в сессию
+      req.session.user = {
+        id: newUser.id,
+        username: newUser.username,
+        displayName: newUser.displayName
+      };
+      
+      // Возвращаем данные нового пользователя
+      return res.status(201).json({
+        id: newUser.id, 
+        username: newUser.username, 
+        displayName: newUser.displayName,
+        message: "Пользователь успешно создан",
+        profileCreated: !!(role || pythonLevel || experience || interest || goal)
+      });
+    } catch (error) {
+      console.error("Registration with profile error:", error);
+      return res.status(500).json({ message: "Ошибка при регистрации пользователя" });
+    }
+  });
+  
   app.post("/api/auth/login", async (req, res) => {
     try {
       const { username, password, displayName } = req.body;
@@ -239,6 +317,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         recommendedTrack: profile.recommendedTrack,
         progress: profile.progress,
         streakDays: profile.streakDays,
+        completedOnboarding: profile.completedOnboarding || false,
         displayName: req.session.user!.displayName || "Пользователь"
       });
     } catch (error) {
@@ -247,10 +326,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Маршрут для проверки состояния онбординга
+  app.get("/api/onboarding/status", authMiddleware, async (req, res) => {
+    try {
+      const userId = req.session.user!.id;
+      const profile = await storage.getUserProfile(userId);
+      
+      // Если профиль не найден, пользователь не завершил онбординг
+      if (!profile) {
+        return res.json({
+          onboardingCompleted: false,
+          message: "Онбординг не завершен"
+        });
+      }
+      
+      // Проверяем завершил ли пользователь онбординг
+      const onboardingCompleted = profile.completedOnboarding || false;
+      
+      return res.json({
+        onboardingCompleted,
+        message: onboardingCompleted ? "Онбординг завершен" : "Онбординг не завершен",
+        onboardingCompletedAt: profile.onboardingCompletedAt || null,
+        recommendedCourseIds: profile.recommendedCourseIds || []
+      });
+    } catch (error) {
+      console.error("Get onboarding status error:", error);
+      return res.status(500).json({ 
+        message: "Ошибка при получении статуса онбординга" 
+      });
+    }
+  });
+  
   app.patch("/api/profile", authMiddleware, async (req, res) => {
     try {
       const userId = req.session.user!.id;
       const updateData = req.body;
+      const { completeOnboarding } = updateData;
+      
+      // Удаляем флаг завершения онбординга из данных обновления
+      // так как он не входит в схему обновления профиля
+      if (updateData.completeOnboarding !== undefined) {
+        delete updateData.completeOnboarding;
+      }
       
       // Check if profile exists
       let profile = await storage.getUserProfile(userId);
@@ -266,6 +383,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         profile = await storage.updateUserProfile(userId, updateData);
       }
       
+      // Если запрос содержал флаг завершения онбординга
+      if (completeOnboarding === true) {
+        // Устанавливаем флаг через отдельное обновление профиля
+        profile = await storage.updateUserProfile(userId, {
+          completedOnboarding: true,
+          onboardingCompletedAt: new Date()
+        });
+      }
+      
       res.json({
         role: profile.role,
         pythonLevel: profile.pythonLevel,
@@ -274,7 +400,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         goal: profile.goal,
         recommendedTrack: profile.recommendedTrack,
         progress: profile.progress,
-        streakDays: profile.streakDays
+        streakDays: profile.streakDays,
+        completedOnboarding: profile.completedOnboarding || false,
+        onboardingCompletedAt: profile.onboardingCompletedAt || null
       });
     } catch (error) {
       console.error("Update profile error:", error);
