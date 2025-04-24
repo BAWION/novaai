@@ -14,6 +14,7 @@ import memorystore from "memorystore";
 import { checkSecrets } from "./routes/check-secrets";
 import mlApiRouter from "./routes/ml-api";
 import gapAnalysisRouter from "./routes/gap-analysis-api";
+import aiAssistantRouter from "./routes/ai-assistant-api";
 import { setCurrentUserId } from "./storage-integration";
 // Временно отключаем маршруты, для которых у нас пока нет определенных типов в схеме
 // import { learningEventsRouter } from "./routes/learning-events";
@@ -476,6 +477,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Подключаем маршруты для Gap-анализа
   app.use("/api/gap-analysis", gapAnalysisRouter);
+  
+  // Подключаем маршруты для AI-ассистента
+  app.use("/api/ai-assistant", aiAssistantRouter);
   
   // Временно отключены маршруты, для которых требуются дополнительные схемы
   // // Маршруты для отслеживания событий обучения
