@@ -1,18 +1,18 @@
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/context/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import { AIAssistantWidget } from "@/components/ai-assistant/ai-assistant-widget";
 import { PersonalizedExplanation } from "@/components/ai-assistant/personalized-explanation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ArrowLeft, BrainCircuit, Lightbulb, Sparkles } from "lucide-react";
-import { useNavigate } from "wouter";
+import { useLocation } from "wouter";
 
 /**
  * Страница AI-ассистента
  */
 export default function AIAssistantPage() {
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const [, setLocation] = useLocation();
   const { toast } = useToast();
 
   // Если пользователь не авторизован, показываем сообщение о необходимости входа
@@ -27,7 +27,7 @@ export default function AIAssistantPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col items-center gap-4">
-            <Button onClick={() => navigate("/login")}>Войти в систему</Button>
+            <Button onClick={() => setLocation("/login")}>Войти в систему</Button>
           </CardContent>
         </Card>
       </div>
@@ -41,7 +41,7 @@ export default function AIAssistantPage() {
           variant="ghost" 
           size="sm" 
           className="mr-4"
-          onClick={() => navigate("/")}
+          onClick={() => setLocation("/")}
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Назад

@@ -31,6 +31,7 @@ import CoursePage from "@/pages/course-page";
 import KnowledgeVault from "@/pages/knowledge-vault";
 import SkillsPage from "@/pages/skills-page";
 import GapAnalysisPage from "@/pages/gap-analysis-page";
+import AIAssistantPage from "@/pages/ai-assistant-page";
 
 interface ProtectedRouteProps {
   component: React.ComponentType;
@@ -123,6 +124,9 @@ function Router() {
           
           {/* Gap-анализ навыков */}
           <ProtectedRoute path="/gap-analysis" component={GapAnalysisPage} />
+          
+          {/* AI-ассистент */}
+          <ProtectedRoute path="/ai-assistant" component={AIAssistantPage} />
           
           <Route component={NotFound} />
         </Switch>

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/context/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
@@ -205,7 +205,6 @@ export function AIAssistantWidget({
                       </div>
                       {message.isUser && (
                         <Avatar className="h-8 w-8">
-                          <AvatarImage src={user.avatarUrl} />
                           <AvatarFallback className="bg-secondary">
                             <User className="h-4 w-4" />
                           </AvatarFallback>
