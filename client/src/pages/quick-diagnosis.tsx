@@ -9,6 +9,12 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useUserProfile } from "@/context/user-profile-context";
+import { 
+  SkillLevel, 
+  AIExperience, 
+  UserInterest, 
+  UserGoal 
+} from "@/lib/constants";
 import { Brain, ArrowRight, Code, ChevronRight, ChevronLeft, BookOpen } from "lucide-react";
 
 const specializations = [
@@ -51,11 +57,20 @@ export default function QuickDiagnosis() {
   const [step, setStep] = useState(1);
   const totalSteps = 3;
   
-  const [formData, setFormData] = useState({
+  // Расширенная структура данных формы, включающая redirectAfterComplete
+  interface DiagnosticsFormData {
+    specialization: string;
+    experience: string;
+    goal: string;
+    languages: string[];
+    redirectAfterComplete?: string;
+  }
+  
+  const [formData, setFormData] = useState<DiagnosticsFormData>({
     specialization: "",
     experience: "",
     goal: "",
-    languages: [] as string[],
+    languages: [],
   });
   
   const availableLanguages = ["Python", "JavaScript", "Java", "C++", "Julia"];
@@ -108,14 +123,43 @@ export default function QuickDiagnosis() {
   
   const handleComplete = async () => {
     try {
+      // Функция для преобразования уровня опыта в SkillLevel
+      const mapExperienceToLevel = (exp: string): SkillLevel => {
+        switch (exp) {
+          case "beginner": return 1;
+          case "intermediate": return 2;
+          case "advanced": return 3;
+          default: return 1;
+        }
+      };
+      
+      // Функция для маппинга специализации в UserInterest
+      const mapSpecializationToInterest = (spec: string): UserInterest => {
+        switch (spec) {
+          case "machine-learning": return "machine-learning";
+          case "data-science": return "data-science";
+          case "programming": return "computer-vision"; // Ближайшее соответствие
+          default: return "machine-learning";
+        }
+      };
+      
+      // Функция для маппинга цели в UserGoal
+      const mapGoalToUserGoal = (goalInput: string): UserGoal => {
+        switch (goalInput) {
+          case "learning": return "practice-skills";
+          case "career": return "career-change";
+          case "project": return "create-project";
+          default: return "practice-skills";
+        }
+      };
+      
       // Преобразуем данные диагностики в формат для профиля пользователя
       const profileUpdate = {
         completedOnboarding: true,
-        interest: formData.specialization as any,
-        experience: formData.experience as any,
-        goal: formData.goal as any,
-        pythonLevel: formData.experience === "beginner" ? 1 : 
-                     formData.experience === "intermediate" ? 2 : 3,
+        interest: mapSpecializationToInterest(formData.specialization),
+        experience: formData.experience as AIExperience || "beginner",
+        goal: mapGoalToUserGoal(formData.goal),
+        pythonLevel: mapExperienceToLevel(formData.experience),
       };
       
       // Обновляем профиль пользователя
