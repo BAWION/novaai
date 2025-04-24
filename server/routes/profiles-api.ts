@@ -12,11 +12,8 @@ import {
   interestEnum, 
   goalEnum, 
   learningStyleEnum, 
-  difficultyEnum,
-  userProfiles 
+  difficultyEnum
 } from "@shared/schema";
-import { db } from "../db";
-import { eq } from "drizzle-orm";
 
 const router = Router();
 
@@ -70,29 +67,12 @@ router.post("/onboarding", authMiddleware, async (req: Request, res: Response) =
       // Обновляем существующий профиль
       userProfile = await integratedStorage.updateUserProfile(onboardingData.userId, {
         ...onboardingData
-        // поля completedOnboarding и onboardingCompletedAt будут обновлены отдельно в базе
       });
-      
-      // Обновляем флаг завершенного онбординга в базе данных напрямую
-      await db.update(userProfiles)
-        .set({
-          completedOnboarding: true,
-          onboardingCompletedAt: new Date()
-        })
-        .where(eq(userProfiles.userId, onboardingData.userId));
     } else {
       // Создаем новый профиль
       userProfile = await integratedStorage.createUserProfile({
         ...onboardingData
       });
-      
-      // Обновляем флаг завершенного онбординга в базе данных напрямую
-      await db.update(userProfiles)
-        .set({
-          completedOnboarding: true,
-          onboardingCompletedAt: new Date()
-        })
-        .where(eq(userProfiles.userId, onboardingData.userId));
     }
 
     // Генерируем рекомендации курсов на основе профиля
