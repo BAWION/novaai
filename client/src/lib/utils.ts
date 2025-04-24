@@ -28,8 +28,9 @@ export function calculateStrokeDashoffset(percent: number, circumference: number
 }
 
 // Рассчитать положение объекта на орбите
-export function calculateOrbitalPosition(radius: number, angleDegrees: number): { x: number, y: number } {
-  const angleRad = (angleDegrees - 90) * (Math.PI / 180); // Convert to radians, offset to start from top
+export function calculateOrbitalPosition(radius: number, angleDegrees: number, offset: number = -90): { x: number, y: number } {
+  // Корректировка: -90 градусов, чтобы начать с верхней точки (12 часов)
+  const angleRad = (angleDegrees + offset) * (Math.PI / 180); 
   return {
     x: radius * Math.cos(angleRad),
     y: radius * Math.sin(angleRad)
