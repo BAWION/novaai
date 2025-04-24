@@ -9,9 +9,38 @@
 export function hideAddressBar() {
   if (typeof window === 'undefined') return;
   
+  // Проверяем, запущено ли приложение как PWA
+  const isPWA = window.matchMedia('(display-mode: standalone)').matches || 
+                window.matchMedia('(display-mode: fullscreen)').matches || 
+                (window.navigator as any).standalone || 
+                window.location.search.includes('pwa=true');
+  
+  // Для iOS PWA не нужно скрывать адресную строку
+  if ((/iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream) && isPWA) {
+    return;
+  }
+  
   setTimeout(() => {
     window.scrollTo(0, 1);
-  }, 0);
+    
+    // Для Android
+    if (/Android/i.test(navigator.userAgent)) {
+      document.documentElement.style.height = 'calc(100% + 1px)';
+      setTimeout(() => {
+        document.documentElement.style.height = '100%';
+        window.scrollTo(0, 1);
+      }, 300);
+    }
+    
+    // Для iOS Safari
+    if (/iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream) {
+      document.body.style.height = window.innerHeight + 'px';
+      // Повторяем попытку несколько раз
+      setTimeout(() => window.scrollTo(0, 1), 300);
+      setTimeout(() => window.scrollTo(0, 1), 500);
+      setTimeout(() => window.scrollTo(0, 1), 1000);
+    }
+  }, 100);
 }
 
 /**
@@ -19,6 +48,16 @@ export function hideAddressBar() {
  */
 export function requestFullscreen() {
   if (typeof document === 'undefined') return false;
+  
+  // Проверяем, запущено ли приложение как PWA
+  if (typeof window !== 'undefined') {
+    const isPWA = window.matchMedia('(display-mode: standalone)').matches || 
+                  window.matchMedia('(display-mode: fullscreen)').matches || 
+                  (window.navigator as any).standalone;
+    
+    // В режиме PWA уже должен быть полноэкранный режим
+    if (isPWA) return true;
+  }
   
   const docEl = document.documentElement;
   
@@ -30,8 +69,13 @@ export function requestFullscreen() {
     (docEl as any).msRequestFullscreen;
     
   if (requestFullScreen) {
-    requestFullScreen.call(docEl);
-    return true;
+    try {
+      requestFullScreen.call(docEl);
+      return true;
+    } catch (err) {
+      console.warn('Fullscreen request failed:', err);
+      return false;
+    }
   }
   
   return false;

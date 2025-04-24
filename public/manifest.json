@@ -2,11 +2,14 @@
   "name": "NovaAI University",
   "short_name": "NovaAI",
   "description": "AI-образовательная платформа с адаптивным обучением",
-  "start_url": "/",
+  "start_url": "/?pwa=true",
+  "scope": "/",
   "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone", "minimal-ui"],
   "background_color": "#0e101c",
   "theme_color": "#6E3AFF",
   "orientation": "portrait-primary",
+  "categories": ["education", "ai", "productivity"],
   "icons": [
     {
       "src": "/icons/icon-72x72.png",
