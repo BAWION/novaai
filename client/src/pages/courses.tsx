@@ -154,6 +154,45 @@ const SAMPLE_COURSES: Course[] = [
       percentage: 30,
       label: "Требуются дополнительные навыки"
     }
+  },
+  {
+    id: 7,
+    title: "AI Ethics & Safety 101",
+    description: "Этика и безопасность в сфере искусственного интеллекта. Курс охватывает ключевые принципы этичного использования ИИ, проблемы предвзятости, прозрачности и социального воздействия технологий.",
+    icon: "balance-scale",
+    modules: 6,
+    level: "beginner",
+    category: ["ethics", "ai"],
+    instructor: "Ирина Соколова",
+    duration: "8 часов",
+    rating: 4.8,
+    enrolled: 625,
+    updated: "2025-04-24",
+    color: "primary",
+    skillMatch: {
+      percentage: 90,
+      label: "Рекомендуется всем",
+      isRecommended: true
+    }
+  },
+  {
+    id: 8,
+    title: "Legal Frameworks for AI",
+    description: "Правовые основы ИИ в России и ЕС. Курс рассматривает нормативные требования, вопросы GDPR, ответственности разработчиков и правовые риски при внедрении AI-решений.",
+    icon: "gavel",
+    modules: 5,
+    level: "intermediate",
+    category: ["law", "ai"],
+    instructor: "Антон Кравченко",
+    duration: "7 часов",
+    rating: 4.7,
+    enrolled: 412,
+    updated: "2025-04-24",
+    color: "secondary",
+    skillMatch: {
+      percentage: 75,
+      label: "Для бизнеса и разработчиков"
+    }
   }
 ];
 
