@@ -3,17 +3,25 @@
  * API для анализа пробелов в знаниях пользователя
  */
 
-import express, { Request, Response } from "express";
+import express, { Request, Response, NextFunction } from "express";
 import { gapAnalysisService } from "../services/gap-analysis-service";
 
 // Создаем роутер для API анализа пробелов
 const router = express.Router();
 
+// Middleware для проверки аутентификации
+const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
+  if (!req.session.user) {
+    return res.status(401).json({ error: "Требуется авторизация" });
+  }
+  next();
+};
+
 /**
  * Получить все пробелы в знаниях пользователя
  * GET /api/gap-analysis/gaps/:userId
  */
-router.get("/gaps/:userId", async (req: Request, res: Response) => {
+router.get("/gaps/:userId", authMiddleware, async (req: Request, res: Response) => {
   try {
     const userId = parseInt(req.params.userId);
     
@@ -33,7 +41,7 @@ router.get("/gaps/:userId", async (req: Request, res: Response) => {
  * Запустить анализ пробелов для пользователя
  * POST /api/gap-analysis/analyze/:userId
  */
-router.post("/analyze/:userId", async (req: Request, res: Response) => {
+router.post("/analyze/:userId", authMiddleware, async (req: Request, res: Response) => {
   try {
     const userId = parseInt(req.params.userId);
     
@@ -53,7 +61,7 @@ router.post("/analyze/:userId", async (req: Request, res: Response) => {
  * Получить рекомендации курсов на основе пробелов в знаниях
  * GET /api/gap-analysis/recommendations/:userId
  */
-router.get("/recommendations/:userId", async (req: Request, res: Response) => {
+router.get("/recommendations/:userId", authMiddleware, async (req: Request, res: Response) => {
   try {
     const userId = parseInt(req.params.userId);
     
@@ -73,7 +81,7 @@ router.get("/recommendations/:userId", async (req: Request, res: Response) => {
  * Добавить тестовые данные для разработки (временный эндпоинт)
  * POST /api/gap-analysis/seed-test-data
  */
-router.post("/seed-test-data", async (req: Request, res: Response) => {
+router.post("/seed-test-data", authMiddleware, async (req: Request, res: Response) => {
   try {
     await gapAnalysisService.seedTestSkillData();
     return res.status(200).json({ message: "Тестовые данные успешно созданы" });

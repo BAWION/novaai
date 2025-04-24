@@ -75,6 +75,7 @@ export function SkillGapsVisualization({ userId }: SkillGapsVisualizationProps) 
           name: getSkillNameById(gap.skillId),
           description: "Описание навыка",
           category: "programming", // Пример категории по умолчанию
+          parentSkillId: null,
           createdAt: new Date()
         };
         skillsMap.set(gap.skillId, skill);
