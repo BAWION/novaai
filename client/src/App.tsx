@@ -86,7 +86,8 @@ function Router() {
   
   // Check if we're on public pages
   const isPublicPage = location === "/" || location === "/login" || location === "/register" || 
-    location === "/onboarding" || location === "/onboarding-page" || location === "/quick-diagnosis";
+    location === "/onboarding" || location === "/onboarding-page" || location === "/quick-diagnosis" ||
+    location === "/deep-diagnosis";
   
   return (
     <div className="flex flex-col min-h-screen">
@@ -101,6 +102,7 @@ function Router() {
           <Route path="/onboarding" component={Onboarding} />
           <Route path="/onboarding-page" component={OnboardingPage} />
           <Route path="/quick-diagnosis" component={QuickDiagnosis} />
+          <Route path="/deep-diagnosis" component={DeepDiagnosis} />
           
           {/* Protected Routes */}
           <ProtectedRoute path="/dashboard" component={Dashboard} />
