@@ -46,7 +46,8 @@ function applyMobileFixes(): void {
   if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
     document.documentElement.style.setProperty('height', '100%', 'important');
     document.body.style.setProperty('height', '100%', 'important');
-    document.documentElement.style.setProperty('overflow', 'hidden', 'important');
+    // Убираем блокировку скроллинга, которая мешала прокрутке на iOS
+    document.documentElement.style.setProperty('overflow', 'auto', 'important');
     document.body.style.setProperty('overflow', 'auto', 'important');
     document.body.style.setProperty('-webkit-overflow-scrolling', 'touch', 'important');
   }

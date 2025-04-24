@@ -34,9 +34,11 @@ if (typeof window !== 'undefined') {
         }
       };
       
-      // Исправляем проблему дрожания на iOS при скролле
+      // Разрешаем стандартный скроллинг на мобильных устройствах
+      // Предотвращаем только масштабирование пинчем, но не блокируем скроллинг
       document.addEventListener('touchmove', function(event: TouchEvent) {
-        if ((event as any).scale && (event as any).scale !== 1) { 
+        // Только если это жест масштабирования (pinch zoom)
+        if ((event.touches.length > 1) && ((event as any).scale && (event as any).scale !== 1)) { 
           event.preventDefault(); 
         }
       }, { passive: false });
