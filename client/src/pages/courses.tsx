@@ -6,6 +6,7 @@ import { ProgressRing } from "@/components/ui/progress-ring";
 import { Input } from "@/components/ui/input";
 import { Link } from "wouter";
 import { ethicsCourse, lawCourse } from "@/data";
+import { useQuery } from "@tanstack/react-query";
 
 // Define course types and data
 interface Course {
@@ -264,6 +265,35 @@ export default function Courses() {
   const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
 
+  // Получаем данные курсов из API
+  const { data: apiCourses, isLoading } = useQuery({ 
+    queryKey: ['/api/courses'],
+    staleTime: 5 * 60 * 1000, // 5 минут кэширования
+  });
+
+  // Преобразуем курсы из API в формат для UI
+  const apiCoursesFormatted = React.useMemo(() => {
+    if (!apiCourses) return [];
+    
+    return apiCourses.map((course: any): Course => ({
+      id: course.id,
+      title: course.title,
+      description: course.description || "Нет описания",
+      icon: course.icon || "book",
+      modules: course.modules || 0,
+      level: course.level || "beginner",
+      category: course.category || "other",
+      enrolled: Math.floor(Math.random() * 1000) + 100, // Добавляем метаданные для отображения
+      updated: course.updatedAt ? new Date(course.updatedAt).toISOString().split('T')[0] : "2025-04-27",
+      color: course.color || "primary",
+      skillMatch: {
+        percentage: 80,
+        label: "Рекомендуется",
+        isRecommended: true
+      }
+    }));
+  }, [apiCourses]);
+
   // Добавление курсов из новых категорий
   const ethicsCourseFormatted: Course = {
     id: ethicsCourse.id,
@@ -306,8 +336,53 @@ export default function Courses() {
     }
   };
 
-  // Объединяем все курсы
-  const allCourses = [...SAMPLE_COURSES, ethicsCourseFormatted, lawCourseFormatted];
+  // Проверка на загрузку данных
+  if (isLoading) {
+    return (
+      <DashboardLayout 
+        title="Каталог курсов" 
+        subtitle="Исследуйте нашу библиотеку курсов по AI и Data Science"
+      >
+        <div className="flex justify-center items-center min-h-[50vh]">
+          <div className="text-center">
+            <div className="animate-spin text-4xl mb-4">
+              <i className="fas fa-circle-notch"></i>
+            </div>
+            <div className="text-xl">Загрузка курсов...</div>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  // Объединяем все курсы (в приоритете курсы из API)
+  // Убираем дубликаты по id и title
+  const combinedCourses = [
+    ...apiCoursesFormatted,
+    ...SAMPLE_COURSES.filter(sampleCourse => 
+      !apiCoursesFormatted.some(apiCourse => 
+        apiCourse.title === sampleCourse.title || 
+        (typeof apiCourse.id === 'number' && apiCourse.id === sampleCourse.id)
+      )
+    )
+  ];
+
+  // Проверяем, нет ли уже курсов с такими же id или title из ethicsCourse и lawCourse
+  const ethicsExists = combinedCourses.some(course => 
+    course.title === ethicsCourse.title || 
+    course.id === ethicsCourse.id
+  );
+  
+  const lawExists = combinedCourses.some(course => 
+    course.title === lawCourse.title || 
+    course.id === lawCourse.id
+  );
+  
+  const allCourses = [
+    ...combinedCourses,
+    ...(!ethicsExists ? [ethicsCourseFormatted] : []),
+    ...(!lawExists ? [lawCourseFormatted] : [])
+  ];
 
   // Filter courses based on search and filters
   // Преобразовать id в строки для поддержки строковых идентификаторов
