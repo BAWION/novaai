@@ -503,14 +503,14 @@ export default function Courses() {
                     <div>
                       <div className="text-white/50">Рейтинг</div>
                       <div className="flex items-center mt-1">
-                        <i className="fas fa-star text-yellow-400 mr-2"></i>
+                        <span className="text-yellow-400 mr-2">★</span>
                         {selectedCourse.rating ? selectedCourse.rating.toFixed(1) : '4.5'} ({selectedCourse.enrolled} студентов)
                       </div>
                     </div>
                     <div>
                       <div className="text-white/50">Обновлено</div>
                       <div className="flex items-center mt-1">
-                        <i className="fas fa-calendar-alt mr-2"></i>
+                        <span className="mr-2">📅</span>
                         {formatDate(selectedCourse.updated)}
                       </div>
                     </div>
@@ -528,19 +528,19 @@ export default function Courses() {
                     <h3 className="font-medium text-lg mt-6 mb-3">Чему вы научитесь</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div className="flex items-start">
-                        <div className="text-green-400 mr-2 mt-1"><i className="fas fa-check-circle"></i></div>
+                        <div className="text-green-400 mr-2 mt-1">✓</div>
                         <div>Понимать фундаментальные концепции и принципы</div>
                       </div>
                       <div className="flex items-start">
-                        <div className="text-green-400 mr-2 mt-1"><i className="fas fa-check-circle"></i></div>
+                        <div className="text-green-400 mr-2 mt-1">✓</div>
                         <div>Работать с современными инструментами и библиотеками</div>
                       </div>
                       <div className="flex items-start">
-                        <div className="text-green-400 mr-2 mt-1"><i className="fas fa-check-circle"></i></div>
+                        <div className="text-green-400 mr-2 mt-1">✓</div>
                         <div>Создавать и оптимизировать собственные модели</div>
                       </div>
                       <div className="flex items-start">
-                        <div className="text-green-400 mr-2 mt-1"><i className="fas fa-check-circle"></i></div>
+                        <div className="text-green-400 mr-2 mt-1">✓</div>
                         <div>Решать практические задачи из реальных проектов</div>
                       </div>
                     </div>
@@ -551,11 +551,11 @@ export default function Courses() {
                       to={selectedCourse.id === "0" ? "/course-ai/python-for-ai-beginners" : "#"}
                       className="bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:from-[#4922B2] hover:to-[#1682A1] text-white py-3 px-6 rounded-lg font-medium transition duration-300 flex items-center"
                     >
-                      <i className="fas fa-play-circle mr-2"></i>
+                      <span className="mr-2">▶️</span>
                       {selectedCourse.progress ? 'Продолжить обучение' : 'Начать обучение'}
                     </Link>
                     <button className="border border-white/20 hover:bg-white/10 text-white py-3 px-6 rounded-lg font-medium transition duration-300 flex items-center">
-                      <i className="far fa-bookmark mr-2"></i>
+                      <span className="mr-2">🔖</span>
                       Добавить в избранное
                     </button>
                   </div>
@@ -645,7 +645,7 @@ export default function Courses() {
           <div className="flex flex-col md:flex-row gap-4">
             <div className="w-full md:w-1/2 lg:w-2/3">
               <div className="relative">
-                <i className="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-white/50"></i>
+                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/50">🔍</span>
                 <Input 
                   className="bg-space-800/50 border-white/10 pl-10 pr-4 py-3 w-full rounded-lg"
                   placeholder="Поиск курсов..."
