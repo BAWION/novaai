@@ -753,25 +753,42 @@ export default function DeepDiagnosisPage() {
             transition={{ duration: 0.5 }}
           >
             <h1 className="text-3xl md:text-4xl font-orbitron font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-[#B28DFF] via-[#8BE0F7] to-[#B28DFF]">
-              Расширенная диагностика
+              Диагностика навыков
             </h1>
           </motion.div>
           <p className="text-white/70 text-center max-w-2xl mt-2">
-            Чтобы составить максимально точный образовательный план, нам нужно узнать больше о ваших навыках, интересах и целях.
+            Ответьте на несколько вопросов, чтобы получить персонализированный план обучения
           </p>
         </div>
         
         <div className="mb-8">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-white/60 text-sm">Прогресс</span>
-            <span className="text-white/60 text-sm font-medium">{Math.round((step / totalSteps) * 100)}%</span>
+          <div className="flex items-center space-x-2 mb-2">
+            <div className="text-sm text-white/70 font-medium">Шаг {step} из {totalSteps}</div>
+            <div className="flex-1 relative h-1.5 bg-white/10 rounded-full overflow-hidden">
+              <div 
+                className="absolute top-0 left-0 h-full bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full" 
+                style={{ width: `${(step / totalSteps) * 100}%` }}
+              ></div>
+            </div>
+            <div className="text-sm text-white/70 font-medium">{Math.round((step / totalSteps) * 100)}%</div>
           </div>
-          <Progress value={(step / totalSteps) * 100} className="h-2 bg-white/10" />
-          <div className="flex justify-between mt-1 text-xs text-white/50">
-            <span>Общая информация</span>
-            <span>Навыки</span>
-            <span>Интересы</span>
-            <span>Цели</span>
+          <div className="flex justify-between text-xs text-indigo-400/80">
+            <div className={`flex items-center ${step >= 1 ? 'text-indigo-400' : 'text-white/40'}`}>
+              <div className={`w-4 h-4 rounded-full ${step >= 1 ? 'bg-indigo-500' : 'bg-white/20'} mr-1 flex items-center justify-center text-[10px] text-white`}>{step > 1 ? '✓' : '1'}</div>
+              <span>Общая информация</span>
+            </div>
+            <div className={`flex items-center ${step >= 2 ? 'text-indigo-400' : 'text-white/40'}`}>
+              <div className={`w-4 h-4 rounded-full ${step >= 2 ? 'bg-indigo-500' : 'bg-white/20'} mr-1 flex items-center justify-center text-[10px] text-white`}>{step > 2 ? '✓' : '2'}</div>
+              <span>Навыки</span>
+            </div>
+            <div className={`flex items-center ${step >= 3 ? 'text-indigo-400' : 'text-white/40'}`}>
+              <div className={`w-4 h-4 rounded-full ${step >= 3 ? 'bg-indigo-500' : 'bg-white/20'} mr-1 flex items-center justify-center text-[10px] text-white`}>{step > 3 ? '✓' : '3'}</div>
+              <span>Интересы</span>
+            </div>
+            <div className={`flex items-center ${step >= 4 ? 'text-indigo-400' : 'text-white/40'}`}>
+              <div className={`w-4 h-4 rounded-full ${step >= 4 ? 'bg-indigo-500' : 'bg-white/20'} mr-1 flex items-center justify-center text-[10px] text-white`}>{step > 4 ? '✓' : '4'}</div>
+              <span>Цели</span>
+            </div>
           </div>
         </div>
         
@@ -1028,64 +1045,87 @@ export default function DeepDiagnosisPage() {
                   <h3 className="text-lg font-medium">Оцените свои когнитивные способности</h3>
                   
                   <div className="space-y-5">
-                    <div className="space-y-3">
-                      <Label>Аналитическое мышление</Label>
+                    <div className="space-y-5">
                       <div className="space-y-3">
-                        <Slider
-                          value={[formData.analyticalThinking]}
-                          min={1}
-                          max={5}
-                          step={1}
-                          onValueChange={(value) => setFormData({ ...formData, analyticalThinking: value[0] })}
-                          className="py-2"
-                        />
+                        <div className="flex justify-between items-center">
+                          <Label>Аналитическое мышление</Label>
+                          <div className="text-sm font-medium text-purple-400">
+                            {formData.analyticalThinking}/5
+                          </div>
+                        </div>
+                        <div className="relative h-2.5 bg-gray-200/10 rounded-full overflow-hidden">
+                          <div 
+                            className="absolute top-0 left-0 h-full bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full"
+                            style={{ width: `${(formData.analyticalThinking / 5) * 100}%` }}
+                          ></div>
+                          <Slider
+                            value={[formData.analyticalThinking]}
+                            min={1}
+                            max={5}
+                            step={1}
+                            onValueChange={(value) => setFormData({ ...formData, analyticalThinking: value[0] })}
+                            className="relative z-10"
+                          />
+                        </div>
                         <div className="flex justify-between text-xs text-white/60">
                           <span>Базовое</span>
-                          <span>Среднее</span>
-                          <span>Продвинутое</span>
-                          <span>Высокое</span>
+                          <span className="mx-auto">Среднее</span>
                           <span>Экспертное</span>
                         </div>
                       </div>
-                    </div>
-                    
-                    <div className="space-y-3">
-                      <Label>Творческий подход к решению проблем</Label>
+                      
                       <div className="space-y-3">
-                        <Slider
-                          value={[formData.creativeProblemSolving]}
-                          min={1}
-                          max={5}
-                          step={1}
-                          onValueChange={(value) => setFormData({ ...formData, creativeProblemSolving: value[0] })}
-                          className="py-2"
-                        />
+                        <div className="flex justify-between items-center">
+                          <Label>Творческий подход к решению проблем</Label>
+                          <div className="text-sm font-medium text-purple-400">
+                            {formData.creativeProblemSolving}/5
+                          </div>
+                        </div>
+                        <div className="relative h-2.5 bg-gray-200/10 rounded-full overflow-hidden">
+                          <div 
+                            className="absolute top-0 left-0 h-full bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full"
+                            style={{ width: `${(formData.creativeProblemSolving / 5) * 100}%` }}
+                          ></div>
+                          <Slider
+                            value={[formData.creativeProblemSolving]}
+                            min={1}
+                            max={5}
+                            step={1}
+                            onValueChange={(value) => setFormData({ ...formData, creativeProblemSolving: value[0] })}
+                            className="relative z-10"
+                          />
+                        </div>
                         <div className="flex justify-between text-xs text-white/60">
                           <span>Базовое</span>
-                          <span>Среднее</span>
-                          <span>Продвинутое</span>
-                          <span>Высокое</span>
+                          <span className="mx-auto">Среднее</span>
                           <span>Экспертное</span>
                         </div>
                       </div>
-                    </div>
-                    
-                    <div className="space-y-3">
-                      <Label>Внимание к деталям</Label>
+                      
                       <div className="space-y-3">
-                        <Slider
-                          value={[formData.attentionToDetail]}
-                          min={1}
-                          max={5}
-                          step={1}
-                          onValueChange={(value) => setFormData({ ...formData, attentionToDetail: value[0] })}
-                          className="py-2"
-                        />
+                        <div className="flex justify-between items-center">
+                          <Label>Внимание к деталям</Label>
+                          <div className="text-sm font-medium text-purple-400">
+                            {formData.attentionToDetail}/5
+                          </div>
+                        </div>
+                        <div className="relative h-2.5 bg-gray-200/10 rounded-full overflow-hidden">
+                          <div 
+                            className="absolute top-0 left-0 h-full bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full"
+                            style={{ width: `${(formData.attentionToDetail / 5) * 100}%` }}
+                          ></div>
+                          <Slider
+                            value={[formData.attentionToDetail]}
+                            min={1}
+                            max={5}
+                            step={1}
+                            onValueChange={(value) => setFormData({ ...formData, attentionToDetail: value[0] })}
+                            className="relative z-10"
+                          />
+                        </div>
                         <div className="flex justify-between text-xs text-white/60">
                           <span>Базовое</span>
-                          <span>Среднее</span>
-                          <span>Продвинутое</span>
-                          <span>Высокое</span>
+                          <span className="mx-auto">Среднее</span>
                           <span>Экспертное</span>
                         </div>
                       </div>
