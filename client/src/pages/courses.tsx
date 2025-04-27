@@ -619,19 +619,19 @@ export default function Courses() {
                 <h3 className="font-medium mb-4">Ресурсы</h3>
                 <div className="space-y-2">
                   <div className="flex items-center text-sm">
-                    <i className="fas fa-file-pdf text-red-400 mr-3 text-lg"></i>
+                    <span className="text-red-400 mr-3 text-lg">📄</span>
                     <span>Конспекты лекций (PDF)</span>
                   </div>
                   <div className="flex items-center text-sm">
-                    <i className="fas fa-code text-green-400 mr-3 text-lg"></i>
+                    <span className="text-green-400 mr-3 text-lg">💻</span>
                     <span>Исходный код примеров</span>
                   </div>
                   <div className="flex items-center text-sm">
-                    <i className="fas fa-file-csv text-blue-400 mr-3 text-lg"></i>
+                    <span className="text-blue-400 mr-3 text-lg">📊</span>
                     <span>Наборы данных</span>
                   </div>
                   <div className="flex items-center text-sm">
-                    <i className="fas fa-video text-purple-400 mr-3 text-lg"></i>
+                    <span className="text-purple-400 mr-3 text-lg">🎬</span>
                     <span>Видео-материалы</span>
                   </div>
                 </div>
@@ -727,7 +727,7 @@ export default function Courses() {
                       </div>
                     )}
                     <div className="flex items-center mt-2 text-sm">
-                      <i className="fas fa-user-tie mr-1 text-white/50"></i>
+                      <span className="mr-1 text-white/50">👨‍🏫</span>
                       <span className="text-white/70">{course.instructor}</span>
                     </div>
                   </div>
@@ -739,19 +739,19 @@ export default function Courses() {
                     
                     <div className="grid grid-cols-2 gap-2 mb-4 text-xs text-white/60">
                       <div className="flex items-center">
-                        <i className="far fa-clock mr-1"></i>
+                        <span className="mr-1">⏱️</span>
                         <span>{course.duration}</span>
                       </div>
                       <div className="flex items-center">
-                        <i className="fas fa-book mr-1"></i>
+                        <span className="mr-1">📚</span>
                         <span>{course.modules} модулей</span>
                       </div>
                       <div className="flex items-center">
-                        <i className="fas fa-users mr-1"></i>
+                        <span className="mr-1">👥</span>
                         <span>{course.enrolled} студентов</span>
                       </div>
                       <div className="flex items-center">
-                        <i className="fas fa-star text-yellow-400 mr-1"></i>
+                        <span className="text-yellow-400 mr-1">⭐</span>
                         <span>{course.rating ? course.rating.toFixed(1) : '4.5'}</span>
                       </div>
                     </div>
@@ -784,7 +784,7 @@ export default function Courses() {
           {filteredCourses.length === 0 && (
             <div className="text-center py-12">
               <div className="text-6xl mb-4 opacity-20">
-                <i className="fas fa-search"></i>
+                <span>🔍</span>
               </div>
               <h3 className="text-xl font-semibold mb-2">Курсы не найдены</h3>
               <p className="text-white/60">
