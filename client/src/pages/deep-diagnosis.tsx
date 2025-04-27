@@ -281,6 +281,39 @@ export default function DeepDiagnosisPage() {
     { id: "advanced", label: "Продвинутый", description: "Продвинутая статистика, оптимизация, мат. моделирование" }
   ];
   
+  const ageGroups = [
+    { id: "under-18", label: "До 18 лет" },
+    { id: "18-24", label: "18-24 года" },
+    { id: "25-34", label: "25-34 года" },
+    { id: "35-44", label: "35-44 года" },
+    { id: "45-54", label: "45-54 года" },
+    { id: "55-plus", label: "55 лет и старше" }
+  ];
+  
+  const educationLevels = [
+    { id: "school", label: "Среднее образование", description: "Школа или колледж" },
+    { id: "bachelor", label: "Бакалавр", description: "Высшее образование (бакалавриат)" },
+    { id: "master", label: "Магистр", description: "Высшее образование (магистратура)" },
+    { id: "phd", label: "Доктор наук", description: "Кандидат или доктор наук" },
+    { id: "self-taught", label: "Самоучка", description: "Самостоятельное образование" }
+  ];
+  
+  const completionTimes = [
+    { id: "less-than-month", label: "Менее месяца", description: "Нужно освоить максимально быстро" },
+    { id: "1-3-months", label: "1-3 месяца", description: "Короткая интенсивная программа" },
+    { id: "3-6-months", label: "3-6 месяцев", description: "Средняя по длительности программа" },
+    { id: "6-12-months", label: "6-12 месяцев", description: "Длительная глубокая программа" },
+    { id: "1-year-plus", label: "Более года", description: "Глубокое и всестороннее изучение" }
+  ];
+  
+  const learningBarrierOptions = [
+    { id: "time-constraints", label: "Нехватка времени", description: "Сложно выделить достаточно времени" },
+    { id: "technical-background", label: "Технические знания", description: "Недостаточно базовых технических знаний" },
+    { id: "math-knowledge", label: "Математические знания", description: "Сложности с математикой и статистикой" },
+    { id: "english-language", label: "Знание английского", description: "Сложности с материалами на английском языке" },
+    { id: "learning-approach", label: "Подход к обучению", description: "Трудно учиться самостоятельно без структуры" },
+    { id: "motivation", label: "Мотивация", description: "Сложно поддерживать мотивацию длительное время" }
+  ];
 
   
   // Функция перехода к следующему шагу
