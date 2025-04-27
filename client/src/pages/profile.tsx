@@ -18,15 +18,20 @@ function getRoleTitle(role: UserRole): string {
   }
 }
 
-function getInterestTitle(interest: UserInterest): string {
+function getInterestTitle(interest: UserInterest | string): string {
   switch (interest) {
     case "machine-learning": return "машинному обучению";
-    case "deep-learning": return "глубокому обучению";
-    case "natural-language-processing": return "обработке естественного языка";
     case "computer-vision": return "компьютерному зрению";
-    case "reinforcement-learning": return "обучению с подкреплением";
-    case "ai-ethics": return "этике ИИ";
     case "data-science": return "анализу данных";
+    case "nlp": 
+    case "natural-language-processing": return "обработке естественного языка";
+    case "ethics":
+    case "ai-ethics": return "этике ИИ";
+    case "neural-networks":
+    case "deep-learning": return "глубокому обучению";
+    case "robotics": return "робототехнике";
+    case "law": return "правовым аспектам ИИ";
+    case "reinforcement-learning": return "обучению с подкреплением";
     default: return "технологиям ИИ";
   }
 }

@@ -93,7 +93,8 @@ export function UserProfileProvider({ children }: { children: React.ReactNode })
             displayName: user?.displayName || "Анна",
             streakDays: data.streakDays || Math.floor(Math.random() * 7) + 1,
             completedOnboarding: data.completedOnboarding || false,
-            userId: user?.id
+            userId: user?.id,
+            metadata: data.metadata || {}
           };
         }
         return { ...prevProfile, ...data };
