@@ -1,0 +1,79 @@
+“Nova Core” – как внутри работает школа & ИИ-движок
+1. Данные о человеке → модель «Skill DNA»
+
+Источник	Что собираем	Формат / частота
+Онбординг-опрос	Роль, цели, опыт (1-5), свободное время	JSON once
+Адаптивный start-quiz	15 вопросов, распределённых по 8 skill-тэгам	quizEvent × ≈5 мин
+Потоки обучения	• время на уроке
+• попытки теста
+• ошибки в LabHub	learn.* events, realtime
+Поведение в сообществе	какие темы читает, задаёт ли вопросы	community.view/post
+Внешние источники (опция)	GitHub, LinkedIn, Coursera-certs	OAuth pull 1× сутки
+Все события поступают в Kafka-topic raw_events, затем ETL → Postgres + ClickHouse.
+На базе событий строится вектор Skill DNA (512-d, pgvector): каждая координата = mastery 0–1 по конкретному навыку.
+
+2. Алгоритм подбора следующего шага (Adaptive Engine v1)
+pseudo
+Копировать
+Редактировать
+Input: SkillDNA u, CourseGraph G(V=lessons, E=prereq), targets = user's goals
+
+1. gap = { s | targets ⊆ skills and u[s] < 0.7 }
+2. candidateLessons = topologic_frontier(G, mastered = u≥0.7)
+3. score(l) = α·(skill_coverage(l, gap))  +
+              β·(1 - difficulty_mismatch(l,u)) +
+              γ·freshness(l) -
+              δ·time_estimate(l)
+4. Recommend lesson with max score
+Параметры α..δ донастраиваем онлайн-A/B;
+через 50 уроков включаем Deep Knowledge Tracing (DLKT) вместо rule + xgboost.
+
+3. Полностью AI-генерируемый курс – методология
+
+Этап	LLM-роль	Автоматические проверки
+1. Design Brief	GPT-4o: выясняет learning outcomes по prompt-шаблону SME	Пасс: «запрещённый контент», длина ≈150 слов
+2. Syllabus Draft	Делит цели → модули → уроки (micro-units ≤ 7 мин)	Top-2 кандидата → Blau score > 0.85
+3. Content Gen	• Видео-скрипт (≤ 600 с)
+• Текст-конспект MD
+• 5 MC-Q, 1 open-Q	Fact-check через GPT-Critic + wiki; plagiarism < 30 %
+4. Asset Creation	AI Studios avatar, TTS-видео; Midjourney иллюстрация	Human-review 1 % выборка
+5. Quiz Calibration	IRT-модель подгоняет сложность после 100+ ответов	auto-reweight discrimination
+6. Publish & Monitor	Nova Core пушит в Catalog; Listener следит за CSAT < 3.5 / 5	при падении CSAT → LLM-rewrite модуль
+Курс хранится как Git-repo (Markdown + meta.json). Update = Pull Request, ревью бот-этичность + SME-fast-look.
+
+4. Структура урока (Micro Learning Block)
+mathematica
+Копировать
+Редактировать
+┌── Hero-video 90-120 c  (avatar-lecturer)
+├── Key-takeaways 3-5 bullets
+├── Interactive  ↴
+│   • Code-sandbox  /  • Drag-n-drop schema  /  • Chat-quiz
+├── Quick-quiz 5 вопросов  (pass ≥ 80 %)
+└── Reflection prompt "Explain in 2 sent."
+Сессия ≤ 7 мин → бьётся в streak-таймер; после двух провалов Engine снижает сложность.
+
+5. Обратная связь и «живой» ИИ-спутник
+
+Триггер	Поведение Neural Orb
+Студент застрял > 8 мин	Orb светится жёлтым, голос: «Подсказка?»
+Задаёт voice-вопрос	ASR → LLM-context («tone=mentor/friend») → TTS поток
+Завершил модуль	Синий всплеск, поздравление, +XP
+Настройка тона и тембра идёт в Settings; влияет на system_prompt.
+
+6. Метрики, которые считает движок
+
+Категория	Метрика	Цель MVP
+Активация	Signup→Lesson1	≥ 60 %
+Адаптация	Δ難ность урока vs успех	-20 % fail rate
+Удержание	D7 Retention	≥ 30 %
+Mastery	% навыков ≥ 0.8 через 30 дней	≥ 25 %
+Контент-качество	CSAT урока	≥ 4.2 / 5
+7. Как это развернуть (roadmap)
+
+Месяц	Компонент	Deliverable
+M1	Skill Graph + Onboarding Quiz	300 skills + старт-опрос
+M2	Rule-based Recommender	API /recommend + Galaxy highlight
+M3	AI-Course Generator v0.1	10 этич. уроков «бета»
+M4	Neural Orb voice + DLKT	Stream-голос, перс-адаптация
+M5	Governance loop	auto-CSAT monitor + LLM-rewrite
