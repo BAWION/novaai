@@ -716,7 +716,7 @@ export default function Courses() {
                         course.color === 'secondary' ? 'from-[#2EBAE1] to-[#5ED1F9]' :
                         'from-[#FF3A8C] to-[#FF6AB5]'
                       } flex items-center justify-center text-white`}>
-                        <i className={`fas fa-${course.icon} text-lg`}></i>
+                        <span className="text-lg">🔹</span>
                       </div>
                       <LevelBadge level={course.level || 'beginner'} />
                     </div>
