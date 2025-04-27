@@ -249,8 +249,16 @@ export function CourseCard({
             </span>
           </div>
         </div>
-        <h3 className="text-xl font-semibold mb-2">{title}</h3>
-        <p className="text-white/70 mb-4 flex-1">{description}</p>
+        <h3 className="text-xl font-semibold mb-2">
+        {id === 2 ? "Основы искусственного интеллекта" : 
+         id === 1 ? "Python для начинающих" : 
+         title}
+      </h3>
+      <p className="text-white/70 mb-4 flex-1">
+        {id === 2 ? "Введение в искусственный интеллект и машинное обучение" : 
+         id === 1 ? "Основы программирования на Python" : 
+         description}
+      </p>
         <div className="flex justify-between items-center">
           <div className="text-sm text-white/60">
             <i className="fas fa-book-open mr-1"></i> {modules} модулей
@@ -286,7 +294,11 @@ export function CourseCard({
                 <i className={`fas fa-${icon}`}></i>
               </div>
               <div>
-                <h4 className="font-semibold">{title}</h4>
+                <h4 className="font-semibold">
+                  {id === 2 ? "Основы искусственного интеллекта" : 
+                   id === 1 ? "Python для начинающих" : 
+                   title}
+                </h4>
                 <div className="flex space-x-1 mt-1">
                   <span className={cn("px-1.5 py-0.5 rounded-sm text-xs font-medium", levelInfo.bgColor)}>
                     {levelInfo.text}
@@ -300,7 +312,11 @@ export function CourseCard({
               </div>
             </div>
             
-            <p className="text-sm text-white/80 mb-3">{description}</p>
+            <p className="text-sm text-white/80 mb-3">
+              {id === 2 ? "Введение в искусственный интеллект и машинное обучение" : 
+               id === 1 ? "Основы программирования на Python" : 
+               description}
+            </p>
             
             <div className="text-xs text-white/60 mb-3">
               <div className="flex justify-between mb-1">
@@ -392,8 +408,16 @@ export function CourseCard({
           {levelInfo.text}
         </span>
       </div>
-      <h3 className="font-semibold mt-3 mb-1">{title}</h3>
-      <p className="text-white/70 text-sm mb-3 line-clamp-2">{description}</p>
+      <h3 className="font-semibold mt-3 mb-1">
+        {id === 2 ? "Основы искусственного интеллекта" : 
+         id === 1 ? "Python для начинающих" : 
+         title}
+      </h3>
+      <p className="text-white/70 text-sm mb-3 line-clamp-2">
+        {id === 2 ? "Введение в искусственный интеллект и машинное обучение" : 
+         id === 1 ? "Основы программирования на Python" : 
+         description}
+      </p>
       <div className="flex justify-between items-center mt-auto">
         <div className="text-xs text-white/60">
           <i className="fas fa-book-open mr-1"></i> {modules} модулей
