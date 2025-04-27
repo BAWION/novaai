@@ -446,7 +446,7 @@ export default function Courses() {
                       selectedCourse.color === 'secondary' ? 'from-[#2EBAE1] to-[#5ED1F9]' :
                       'from-[#FF3A8C] to-[#FF6AB5]'
                     } flex items-center justify-center text-white`}>
-                      <i className="fas fa-book text-2xl"></i>
+                      <span className="text-2xl">📚</span>
                     </div>
                     <div>
                       <h2 className="font-orbitron text-2xl font-bold">
@@ -481,7 +481,7 @@ export default function Courses() {
                       <div className="text-white/50">Инструктор</div>
                       <div className="flex items-center mt-1">
                         <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center mr-2">
-                          <i className="fas fa-user text-xs"></i>
+                          <span className="text-xs">👤</span>
                         </div>
                         {selectedCourse.instructor}
                       </div>
@@ -489,14 +489,14 @@ export default function Courses() {
                     <div>
                       <div className="text-white/50">Продолжительность</div>
                       <div className="flex items-center mt-1">
-                        <i className="far fa-clock mr-2"></i>
+                        <span className="mr-2">⏱️</span>
                         {selectedCourse.duration}
                       </div>
                     </div>
                     <div>
                       <div className="text-white/50">Модули</div>
                       <div className="flex items-center mt-1">
-                        <i className="fas fa-book mr-2"></i>
+                        <span className="mr-2">📚</span>
                         {selectedCourse.modules} модулей
                       </div>
                     </div>
