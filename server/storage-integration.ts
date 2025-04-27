@@ -130,6 +130,19 @@ export function createIntegratedStorage(): DatabaseStorage {
     return await mlService.recordLearningEvent(userId, eventType, entityType, entityId, data);
   };
   
+  // Универсальное логирование событий
+  (dbStorage as any).logEvent = async function(eventData: any) {
+    return await mlStorage.logEvent(eventData);
+  };
+  
+  (dbStorage as any).getEvents = async function(params?: any) {
+    return await mlStorage.getEvents(params);
+  };
+  
+  (dbStorage as any).getEventStats = async function(eventType: string, timeframe: 'day' | 'week' | 'month', startDate?: Date, endDate?: Date) {
+    return await mlStorage.getEventStats(eventType, timeframe, startDate, endDate);
+  };
+  
   return dbStorage;
 }
 
