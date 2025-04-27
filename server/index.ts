@@ -1,8 +1,15 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+// Устанавливаем кодировку для корректного отображения кириллицы
+process.env.NODE_ENV = process.env.NODE_ENV || "development";
 
 const app = express();
+// Настраиваем заголовки для работы с кириллицей
+app.use((req, res, next) => {
+  res.header('Content-Type', 'application/json; charset=utf-8');
+  next();
+});
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
