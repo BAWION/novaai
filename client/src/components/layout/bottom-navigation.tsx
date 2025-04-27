@@ -4,11 +4,11 @@ import { motion } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const navItems = [
-  { icon: "📊", label: "Главная", to: "/dashboard" },
-  { icon: "📚", label: "Курсы", to: "/courses" },
-  { icon: "💾", label: "Знания", to: "/knowledge-vault" },
-  { icon: "🧪", label: "Практика", to: "/labhub" },
-  { icon: "👨‍🚀", label: "Профиль", to: "/profile" },
+  { icon: "fa-tachometer-alt", label: "Главная", to: "/dashboard" },
+  { icon: "fa-book", label: "Курсы", to: "/courses" },
+  { icon: "fa-save", label: "Знания", to: "/knowledge-vault" },
+  { icon: "fa-flask", label: "Практика", to: "/labhub" },
+  { icon: "fa-user-astronaut", label: "Профиль", to: "/profile" },
 ];
 
 export function BottomNavigation() {
@@ -49,7 +49,7 @@ export function BottomNavigation() {
                       : "text-white/60"
                   }`}
                 >
-                  <span className="text-lg">{item.icon}</span>
+                  <i className={`fas ${item.icon} text-lg`}></i>
                 </div>
                 <span className="text-xs">{item.label}</span>
               </div>

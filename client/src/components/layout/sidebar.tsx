@@ -79,7 +79,7 @@ const NavItem = React.memo(function NavItem({ icon, label, to, isActive, onClick
             }`}
             style={{ willChange: 'none' }}
           >
-            <span className="text-lg">{icon}</span>
+            <i className={`fas ${icon} text-lg`}></i>
           </div>
           
           {/* Отображаем текст без анимации появления/исчезновения, используем только CSS-переходы */}
@@ -142,16 +142,16 @@ export function Sidebar() {
   };
 
   const navigationItems = [
-    { icon: "📊", label: "Панель управления", to: "/dashboard" },
-    { icon: "🗺️", label: "Дорожная карта", to: "/roadmap" },
-    { icon: "🧪", label: "Лаборатория", to: "/labhub" },
-    { icon: "📚", label: "Курсы", to: "/courses" },
-    { icon: "💾", label: "Хранилище знаний", to: "/knowledge-vault" },
-    { icon: "🧠", label: "Gap-анализ", to: "/gap-analysis" },
-    { icon: "🤖", label: "AI-ассистент", to: "/ai-assistant" },
-    { icon: "👥", label: "Сообщество", to: "/community" },
-    { icon: "💼", label: "Business AI", to: "/business" },
-    { icon: "👨‍🚀", label: "Профиль", to: "/profile" },
+    { icon: "fa-tachometer-alt", label: "Панель управления", to: "/dashboard" },
+    { icon: "fa-route", label: "Дорожная карта", to: "/roadmap" },
+    { icon: "fa-flask", label: "Лаборатория", to: "/labhub" },
+    { icon: "fa-book", label: "Курсы", to: "/courses" },
+    { icon: "fa-save", label: "Хранилище знаний", to: "/knowledge-vault" },
+    { icon: "fa-brain", label: "Gap-анализ", to: "/gap-analysis" },
+    { icon: "fa-robot", label: "AI-ассистент", to: "/ai-assistant" },
+    { icon: "fa-users", label: "Сообщество", to: "/community" },
+    { icon: "fa-briefcase", label: "Business AI", to: "/business" },
+    { icon: "fa-user-astronaut", label: "Профиль", to: "/profile" },
   ];
 
   return (
@@ -216,7 +216,7 @@ export function Sidebar() {
 
           <div className="pt-6 mt-6 border-t border-white/10">
             <NavItem
-              icon="⚙️"
+              icon="fa-cog"
               label="Настройки"
               to="/settings"
               isActive={location === "/settings"}
@@ -227,7 +227,7 @@ export function Sidebar() {
               className="flex items-center w-full py-3 px-4 rounded-lg transition-colors duration-300 hover:bg-white/5 cursor-pointer"
             >
               <div className="w-10 h-10 flex items-center justify-center rounded-lg bg-white/10 text-white/60 flex-shrink-0">
-                <span className="text-lg">🚪</span>
+                <i className="fas fa-sign-out-alt text-lg"></i>
               </div>
               
               <div 
@@ -256,7 +256,7 @@ export function Sidebar() {
         }}
         onClick={() => setIsOpen(!isOpen)}
       >
-        <span className="text-white">{isOpen ? "◀" : "☰"}</span>
+        <i className={`fas ${isOpen ? "fa-chevron-left" : "fa-bars"} text-white`}></i>
       </button>
     </>
   );

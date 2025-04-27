@@ -6,11 +6,11 @@ import { cn } from "@/lib/utils";
 import { useOnClickOutside } from "@/hooks/use-on-click-outside.tsx";
 
 interface CourseCardProps {
-  id: number | string;
+  id: number;
   slug: string;
   title: string;
   description: string;
-  icon?: string; // Игнорируем это поле и используем эмодзи
+  icon: string;
   modules: number;
   level: string;
   color: string;
@@ -33,6 +33,7 @@ export function CourseCard({
   slug,
   title,
   description,
+  icon,
   modules,
   level,
   color,
@@ -56,7 +57,7 @@ export function CourseCard({
     if (onClick) {
       onClick();
     } else {
-      setLocation(`/course/${slug}`);
+      setLocation(`/courses/${slug}`);
     }
   };
   
@@ -105,11 +106,10 @@ export function CourseCard({
 
   // Визуальное отображение для разных уровней
   const levelDisplay = {
-    beginner: { text: "Начальный", bgColor: "bg-green-500/20 text-green-400" },
+    basic: { text: "Начальный", bgColor: "bg-green-500/20 text-green-400" },
     intermediate: { text: "Средний", bgColor: "bg-blue-500/20 text-blue-400" },
     advanced: { text: "Продвинутый", bgColor: "bg-purple-500/20 text-purple-400" },
     expert: { text: "Экспертный", bgColor: "bg-red-500/20 text-red-400" },
-    basic: { text: "Начальный", bgColor: "bg-green-500/20 text-green-400" },
   };
 
   const levelInfo = levelDisplay[level as keyof typeof levelDisplay] || levelDisplay.basic;
@@ -128,12 +128,12 @@ export function CourseCard({
     return (
       <div className="flex items-center" title={`Сложность: ${difficulty} из 5`}>
         {[...Array(5)].map((_, i) => (
-          <span
+          <i
             key={i}
-            className={`${i < difficulty ? "text-amber-400" : "text-white/20"} mr-0.5`}
-          >
-            ★
-          </span>
+            className={`fas fa-star text-xs ${
+              i < difficulty ? "text-amber-400" : "text-white/20"
+            }`}
+          />
         ))}
       </div>
     );
@@ -146,8 +146,10 @@ export function CourseCard({
     return (
       <>
         <div className="w-full bg-white/10 h-1.5 rounded-full mt-1 overflow-hidden">
-          <div
-            style={{ width: `${progress}%` }}
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: `${progress}%` }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
             className={cn(
               "h-full rounded-full",
               progress === 100 ? "bg-green-500" : "bg-primary"
@@ -176,13 +178,14 @@ export function CourseCard({
       <div 
         className={cn(
           "absolute -top-2 -right-2 px-2 py-1 rounded-full text-xs font-medium border",
-          matchColorClass
+          matchColorClass,
+          skillMatch.isRecommended && "animate-pulse"
         )}
         title={`Соответствие вашим навыкам: ${skillMatch.percentage}%`}
       >
         <div className="flex items-center gap-1">
-          {skillMatch.isRecommended && <span>✓</span>}
-          <span>{skillMatch.percentage > 0 ? `${skillMatch.percentage}% ${skillMatch.label}` : skillMatch.label}</span>
+          {skillMatch.isRecommended && <i className="fas fa-check-circle"></i>}
+          <span>{skillMatch.label}</span>
         </div>
       </div>
     );
@@ -205,7 +208,7 @@ export function CourseCard({
         onClick={handleClick}
       >
         <div className={cn("rounded-lg p-2", styles.icon)}>
-          <span className="text-lg">📘</span>
+          <i className={`fas fa-${icon} text-lg`}></i>
         </div>
         <div className="flex-1">
           <h3 className="font-semibold">{title}</h3>
@@ -235,7 +238,7 @@ export function CourseCard({
         {renderSkillMatch()}
         <div className="flex justify-between items-start mb-3">
           <div className={cn("rounded-xl p-3", styles.icon)}>
-            <span className="text-2xl">📚</span>
+            <i className={`fas fa-${icon} text-2xl`}></i>
           </div>
           <div className="flex flex-col items-end">
             <span className={cn("px-2 py-0.5 rounded text-xs font-medium", levelInfo.bgColor)}>
@@ -250,10 +253,10 @@ export function CourseCard({
         <p className="text-white/70 mb-4 flex-1">{description}</p>
         <div className="flex justify-between items-center">
           <div className="text-sm text-white/60">
-            <span className="mr-1">📕</span> {modules} модулей
+            <i className="fas fa-book-open mr-1"></i> {modules} модулей
             {estimatedDuration && (
               <span className="ml-2">
-                <span className="mr-1">⏱️</span> {estimatedDuration} мин
+                <i className="fas fa-clock mr-1"></i> {estimatedDuration} мин
               </span>
             )}
           </div>
@@ -263,6 +266,104 @@ export function CourseCard({
       </motion.div>
     );
   }
+
+  // Компонент Quick View
+  const renderQuickView = () => {
+    return (
+      <AnimatePresence>
+        {showQuickView && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            transition={{ duration: 0.2 }}
+            className="absolute z-50 w-72 bg-space-800/95 backdrop-blur-sm rounded-xl border border-white/20 shadow-xl p-4 left-full ml-4"
+            onClick={(e) => e.stopPropagation()}
+            style={{ top: "50%", transform: "translateY(-50%)" }}
+          >
+            <div className="flex space-x-3 items-center mb-3">
+              <div className={cn("rounded-lg p-2.5 text-xl", styles.icon)}>
+                <i className={`fas fa-${icon}`}></i>
+              </div>
+              <div>
+                <h4 className="font-semibold">{title}</h4>
+                <div className="flex space-x-1 mt-1">
+                  <span className={cn("px-1.5 py-0.5 rounded-sm text-xs font-medium", levelInfo.bgColor)}>
+                    {levelInfo.text}
+                  </span>
+                  {access !== "free" && (
+                    <span className={cn("px-1.5 py-0.5 rounded-sm text-xs font-medium", accessInfo.bgColor)}>
+                      {accessInfo.text}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+            
+            <p className="text-sm text-white/80 mb-3">{description}</p>
+            
+            <div className="text-xs text-white/60 mb-3">
+              <div className="flex justify-between mb-1">
+                <span><i className="fas fa-book-open mr-1"></i> Модулей: {modules}</span>
+                {estimatedDuration && (
+                  <span><i className="fas fa-clock mr-1"></i> {estimatedDuration} минут</span>
+                )}
+              </div>
+              <div className="flex justify-between">
+                <span><i className="fas fa-brain mr-1"></i> Сложность:</span>
+                {renderDifficultyStars()}
+              </div>
+            </div>
+            
+            {progress > 0 && (
+              <div className="mb-3">
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="text-white/70">Прогресс:</span>
+                  <span className="text-white/70">{progress}%</span>
+                </div>
+                <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${progress}%` }}
+                    transition={{ duration: 0.8, ease: "easeOut" }}
+                    className={cn(
+                      "h-full rounded-full",
+                      progress === 100 ? "bg-green-500" : "bg-primary"
+                    )}
+                  />
+                </div>
+              </div>
+            )}
+            
+            <div className="space-y-1.5 mb-4">
+              <div className="text-xs font-medium text-white/80">Что вы изучите:</div>
+              <div className="text-xs text-white/60">
+                <div className="flex items-start space-x-1.5">
+                  <i className="fas fa-check-circle text-green-400 mt-0.5"></i>
+                  <span>Фундаментальные концепции {title}</span>
+                </div>
+                <div className="flex items-start space-x-1.5">
+                  <i className="fas fa-check-circle text-green-400 mt-0.5"></i>
+                  <span>Практические навыки работы</span>
+                </div>
+                <div className="flex items-start space-x-1.5">
+                  <i className="fas fa-check-circle text-green-400 mt-0.5"></i>
+                  <span>Современные подходы и технологии</span>
+                </div>
+              </div>
+            </div>
+            
+            <button 
+              className="w-full py-2 bg-primary hover:bg-primary/80 rounded-lg transition text-sm font-medium"
+              onClick={handleClick}
+            >
+              {progress > 0 ? "Продолжить курс" : "Начать обучение"}
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    );
+  };
 
   // Стандартный вариант карточки (по умолчанию)
   return (
@@ -285,7 +386,7 @@ export function CourseCard({
       {renderSkillMatch()}
       <div className="flex justify-between items-start">
         <div className={cn("rounded-lg p-2", styles.icon)}>
-          <span className="text-lg">📖</span>
+          <i className={`fas fa-${icon} text-lg`}></i>
         </div>
         <span className={cn("px-2 py-0.5 rounded text-xs font-medium", levelInfo.bgColor)}>
           {levelInfo.text}
@@ -295,7 +396,7 @@ export function CourseCard({
       <p className="text-white/70 text-sm mb-3 line-clamp-2">{description}</p>
       <div className="flex justify-between items-center mt-auto">
         <div className="text-xs text-white/60">
-          <span className="mr-1">📚</span> {modules} модулей
+          <i className="fas fa-book-open mr-1"></i> {modules} модулей
         </div>
         {access !== "free" && (
           <span className={cn("px-2 py-0.5 rounded text-xs font-medium", accessInfo.bgColor)}>
@@ -304,6 +405,7 @@ export function CourseCard({
         )}
       </div>
       {renderProgress()}
+      {renderQuickView()}
     </motion.div>
   );
 }

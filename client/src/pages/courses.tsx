@@ -6,7 +6,6 @@ import { ProgressRing } from "@/components/ui/progress-ring";
 import { Input } from "@/components/ui/input";
 import { Link } from "wouter";
 import { ethicsCourse, lawCourse } from "@/data";
-import { useQuery } from "@tanstack/react-query";
 
 // Define course types and data
 interface Course {
@@ -265,35 +264,6 @@ export default function Courses() {
   const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
 
-  // Получаем данные курсов из API
-  const { data: apiCourses, isLoading } = useQuery({ 
-    queryKey: ['/api/courses'],
-    staleTime: 5 * 60 * 1000, // 5 минут кэширования
-  });
-
-  // Преобразуем курсы из API в формат для UI
-  const apiCoursesFormatted = React.useMemo(() => {
-    if (!apiCourses || !Array.isArray(apiCourses)) return [];
-    
-    return apiCourses.map((course: any): Course => ({
-      id: course.id,
-      title: course.title,
-      description: course.description || "Нет описания",
-      icon: course.icon || "book",
-      modules: course.modules || 0,
-      level: course.level || "beginner",
-      category: course.category || "other",
-      enrolled: Math.floor(Math.random() * 1000) + 100, // Добавляем метаданные для отображения
-      updated: course.updatedAt ? new Date(course.updatedAt).toISOString().split('T')[0] : "2025-04-27",
-      color: course.color || "primary",
-      skillMatch: {
-        percentage: 0,
-        label: "Пройдите диагностику для рекомендаций",
-        isRecommended: false
-      }
-    }));
-  }, [apiCourses]);
-
   // Добавление курсов из новых категорий
   const ethicsCourseFormatted: Course = {
     id: ethicsCourse.id,
@@ -336,53 +306,8 @@ export default function Courses() {
     }
   };
 
-  // Проверка на загрузку данных
-  if (isLoading) {
-    return (
-      <DashboardLayout 
-        title="Каталог курсов" 
-        subtitle="Исследуйте нашу библиотеку курсов по AI и Data Science"
-      >
-        <div className="flex justify-center items-center min-h-[50vh]">
-          <div className="text-center">
-            <div className="animate-spin text-4xl mb-4">
-              <i className="fas fa-circle-notch"></i>
-            </div>
-            <div className="text-xl">Загрузка курсов...</div>
-          </div>
-        </div>
-      </DashboardLayout>
-    );
-  }
-
-  // Объединяем все курсы (в приоритете курсы из API)
-  // Убираем дубликаты по id и title
-  const combinedCourses = [
-    ...apiCoursesFormatted,
-    ...SAMPLE_COURSES.filter(sampleCourse => 
-      !apiCoursesFormatted.some(apiCourse => 
-        apiCourse.title === sampleCourse.title || 
-        (typeof apiCourse.id === 'number' && apiCourse.id === sampleCourse.id)
-      )
-    )
-  ];
-
-  // Проверяем, нет ли уже курсов с такими же id или title из ethicsCourse и lawCourse
-  const ethicsExists = combinedCourses.some(course => 
-    course.title === ethicsCourse.title || 
-    course.id === ethicsCourse.id
-  );
-  
-  const lawExists = combinedCourses.some(course => 
-    course.title === lawCourse.title || 
-    course.id === lawCourse.id
-  );
-  
-  const allCourses = [
-    ...combinedCourses,
-    ...(!ethicsExists ? [ethicsCourseFormatted] : []),
-    ...(!lawExists ? [lawCourseFormatted] : [])
-  ];
+  // Объединяем все курсы
+  const allCourses = [...SAMPLE_COURSES, ethicsCourseFormatted, lawCourseFormatted];
 
   // Filter courses based on search and filters
   // Преобразовать id в строки для поддержки строковых идентификаторов
@@ -446,7 +371,7 @@ export default function Courses() {
                       selectedCourse.color === 'secondary' ? 'from-[#2EBAE1] to-[#5ED1F9]' :
                       'from-[#FF3A8C] to-[#FF6AB5]'
                     } flex items-center justify-center text-white`}>
-                      <span className="text-2xl">📚</span>
+                      <i className={`fas fa-${selectedCourse.icon} text-2xl`}></i>
                     </div>
                     <div>
                       <h2 className="font-orbitron text-2xl font-bold">
@@ -481,7 +406,7 @@ export default function Courses() {
                       <div className="text-white/50">Инструктор</div>
                       <div className="flex items-center mt-1">
                         <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center mr-2">
-                          <span className="text-xs">👤</span>
+                          <i className="fas fa-user text-xs"></i>
                         </div>
                         {selectedCourse.instructor}
                       </div>
@@ -489,28 +414,28 @@ export default function Courses() {
                     <div>
                       <div className="text-white/50">Продолжительность</div>
                       <div className="flex items-center mt-1">
-                        <span className="mr-2">⏱️</span>
+                        <i className="far fa-clock mr-2"></i>
                         {selectedCourse.duration}
                       </div>
                     </div>
                     <div>
                       <div className="text-white/50">Модули</div>
                       <div className="flex items-center mt-1">
-                        <span className="mr-2">📚</span>
+                        <i className="fas fa-book mr-2"></i>
                         {selectedCourse.modules} модулей
                       </div>
                     </div>
                     <div>
                       <div className="text-white/50">Рейтинг</div>
                       <div className="flex items-center mt-1">
-                        <span className="text-yellow-400 mr-2">★</span>
+                        <i className="fas fa-star text-yellow-400 mr-2"></i>
                         {selectedCourse.rating ? selectedCourse.rating.toFixed(1) : '4.5'} ({selectedCourse.enrolled} студентов)
                       </div>
                     </div>
                     <div>
                       <div className="text-white/50">Обновлено</div>
                       <div className="flex items-center mt-1">
-                        <span className="mr-2">📅</span>
+                        <i className="fas fa-calendar-alt mr-2"></i>
                         {formatDate(selectedCourse.updated)}
                       </div>
                     </div>
@@ -528,19 +453,19 @@ export default function Courses() {
                     <h3 className="font-medium text-lg mt-6 mb-3">Чему вы научитесь</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div className="flex items-start">
-                        <div className="text-green-400 mr-2 mt-1">✓</div>
+                        <div className="text-green-400 mr-2 mt-1"><i className="fas fa-check-circle"></i></div>
                         <div>Понимать фундаментальные концепции и принципы</div>
                       </div>
                       <div className="flex items-start">
-                        <div className="text-green-400 mr-2 mt-1">✓</div>
+                        <div className="text-green-400 mr-2 mt-1"><i className="fas fa-check-circle"></i></div>
                         <div>Работать с современными инструментами и библиотеками</div>
                       </div>
                       <div className="flex items-start">
-                        <div className="text-green-400 mr-2 mt-1">✓</div>
+                        <div className="text-green-400 mr-2 mt-1"><i className="fas fa-check-circle"></i></div>
                         <div>Создавать и оптимизировать собственные модели</div>
                       </div>
                       <div className="flex items-start">
-                        <div className="text-green-400 mr-2 mt-1">✓</div>
+                        <div className="text-green-400 mr-2 mt-1"><i className="fas fa-check-circle"></i></div>
                         <div>Решать практические задачи из реальных проектов</div>
                       </div>
                     </div>
@@ -551,11 +476,11 @@ export default function Courses() {
                       to={selectedCourse.id === "0" ? "/course-ai/python-for-ai-beginners" : "#"}
                       className="bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:from-[#4922B2] hover:to-[#1682A1] text-white py-3 px-6 rounded-lg font-medium transition duration-300 flex items-center"
                     >
-                      <span className="mr-2">▶️</span>
+                      <i className="fas fa-play-circle mr-2"></i>
                       {selectedCourse.progress ? 'Продолжить обучение' : 'Начать обучение'}
                     </Link>
                     <button className="border border-white/20 hover:bg-white/10 text-white py-3 px-6 rounded-lg font-medium transition duration-300 flex items-center">
-                      <span className="mr-2">🔖</span>
+                      <i className="far fa-bookmark mr-2"></i>
                       Добавить в избранное
                     </button>
                   </div>
@@ -619,19 +544,19 @@ export default function Courses() {
                 <h3 className="font-medium mb-4">Ресурсы</h3>
                 <div className="space-y-2">
                   <div className="flex items-center text-sm">
-                    <span className="text-red-400 mr-3 text-lg">📄</span>
+                    <i className="fas fa-file-pdf text-red-400 mr-3 text-lg"></i>
                     <span>Конспекты лекций (PDF)</span>
                   </div>
                   <div className="flex items-center text-sm">
-                    <span className="text-green-400 mr-3 text-lg">💻</span>
+                    <i className="fas fa-code text-green-400 mr-3 text-lg"></i>
                     <span>Исходный код примеров</span>
                   </div>
                   <div className="flex items-center text-sm">
-                    <span className="text-blue-400 mr-3 text-lg">📊</span>
+                    <i className="fas fa-file-csv text-blue-400 mr-3 text-lg"></i>
                     <span>Наборы данных</span>
                   </div>
                   <div className="flex items-center text-sm">
-                    <span className="text-purple-400 mr-3 text-lg">🎬</span>
+                    <i className="fas fa-video text-purple-400 mr-3 text-lg"></i>
                     <span>Видео-материалы</span>
                   </div>
                 </div>
@@ -645,7 +570,7 @@ export default function Courses() {
           <div className="flex flex-col md:flex-row gap-4">
             <div className="w-full md:w-1/2 lg:w-2/3">
               <div className="relative">
-                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/50">🔍</span>
+                <i className="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-white/50"></i>
                 <Input 
                   className="bg-space-800/50 border-white/10 pl-10 pr-4 py-3 w-full rounded-lg"
                   placeholder="Поиск курсов..."
@@ -716,7 +641,7 @@ export default function Courses() {
                         course.color === 'secondary' ? 'from-[#2EBAE1] to-[#5ED1F9]' :
                         'from-[#FF3A8C] to-[#FF6AB5]'
                       } flex items-center justify-center text-white`}>
-                        <span className="text-lg">🔹</span>
+                        <i className={`fas fa-${course.icon} text-lg`}></i>
                       </div>
                       <LevelBadge level={course.level || 'beginner'} />
                     </div>
@@ -727,7 +652,7 @@ export default function Courses() {
                       </div>
                     )}
                     <div className="flex items-center mt-2 text-sm">
-                      <span className="mr-1 text-white/50">👨‍🏫</span>
+                      <i className="fas fa-user-tie mr-1 text-white/50"></i>
                       <span className="text-white/70">{course.instructor}</span>
                     </div>
                   </div>
@@ -739,19 +664,19 @@ export default function Courses() {
                     
                     <div className="grid grid-cols-2 gap-2 mb-4 text-xs text-white/60">
                       <div className="flex items-center">
-                        <span className="mr-1">⏱️</span>
+                        <i className="far fa-clock mr-1"></i>
                         <span>{course.duration}</span>
                       </div>
                       <div className="flex items-center">
-                        <span className="mr-1">📚</span>
+                        <i className="fas fa-book mr-1"></i>
                         <span>{course.modules} модулей</span>
                       </div>
                       <div className="flex items-center">
-                        <span className="mr-1">👥</span>
+                        <i className="fas fa-users mr-1"></i>
                         <span>{course.enrolled} студентов</span>
                       </div>
                       <div className="flex items-center">
-                        <span className="text-yellow-400 mr-1">⭐</span>
+                        <i className="fas fa-star text-yellow-400 mr-1"></i>
                         <span>{course.rating ? course.rating.toFixed(1) : '4.5'}</span>
                       </div>
                     </div>
@@ -784,7 +709,7 @@ export default function Courses() {
           {filteredCourses.length === 0 && (
             <div className="text-center py-12">
               <div className="text-6xl mb-4 opacity-20">
-                <span>🔍</span>
+                <i className="fas fa-search"></i>
               </div>
               <h3 className="text-xl font-semibold mb-2">Курсы не найдены</h3>
               <p className="text-white/60">
