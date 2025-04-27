@@ -27,6 +27,24 @@ import {
   type InsertLearningEvent
 } from "@shared/schema";
 
+import { db } from './db';
+import { and, eq, desc, asc, like, isNull, inArray, sql } from 'drizzle-orm';
+import { 
+  users, 
+  userProfiles,
+  courses,
+  courseModules,
+  lessons,
+  assignments,
+  userCourseProgress,
+  userLessonProgress,
+  userAssignmentResults,
+  skills,
+  userSkills,
+  userSkillGaps,
+  learningEvents
+} from '@shared/schema';
+
 export interface IStorage {
   // User methods
   getUser(id: number): Promise<User | undefined>;
@@ -59,39 +77,23 @@ export interface IStorage {
   createCourse(course: InsertCourse): Promise<Course>;
   updateCourse(id: number, data: Partial<Course>): Promise<Course>;
   
-  // Module methods
-  getModule(id: number): Promise<Module | undefined>;
-  getModulesByCourse(courseId: number): Promise<Module[]>;
-  createModule(module: InsertModule): Promise<Module>;
-  updateModule(id: number, data: Partial<Module>): Promise<Module>;
-  
-  // Section methods
-  getSection(id: number): Promise<Section | undefined>;
-  getSectionsByModule(moduleId: number): Promise<Section[]>;
-  createSection(section: InsertSection): Promise<Section>;
-  updateSection(id: number, data: Partial<Section>): Promise<Section>;
+  // Course Module methods
+  getCourseModule(id: number): Promise<CourseModule | undefined>;
+  getCourseModules(courseId: number): Promise<CourseModule[]>;
+  createCourseModule(module: InsertCourseModule): Promise<CourseModule>;
+  updateCourseModule(id: number, data: Partial<CourseModule>): Promise<CourseModule>;
   
   // Lesson methods
   getLesson(id: number): Promise<Lesson | undefined>;
-  getLessonsByModule(moduleId: number): Promise<Lesson[]>;
-  getLessonsBySection(sectionId: number): Promise<Lesson[]>;
+  getModuleLessons(moduleId: number): Promise<Lesson[]>;
   createLesson(lesson: InsertLesson): Promise<Lesson>;
   updateLesson(id: number, data: Partial<Lesson>): Promise<Lesson>;
   
-  // LessonSkill methods
-  getLessonSkills(lessonId: number): Promise<LessonSkill[]>;
-  addSkillToLesson(lessonSkill: InsertLessonSkill): Promise<LessonSkill>;
-  
-  // Quiz methods
-  getQuiz(id: number): Promise<Quiz | undefined>;
-  getQuizByLesson(lessonId: number): Promise<Quiz | undefined>;
-  createQuiz(quiz: InsertQuiz): Promise<Quiz>;
-  getQuizQuestions(quizId: number): Promise<QuizQuestion[]>;
-  getQuizAnswers(questionId: number): Promise<QuizAnswer[]>;
-  
-  // Lesson Variants methods
-  getLessonVariants(lessonId: number): Promise<LessonVariant[]>;
-  getDefaultLessonVariant(lessonId: number): Promise<LessonVariant | undefined>;
+  // Assignment methods
+  getAssignment(id: number): Promise<Assignment | undefined>;
+  getLessonAssignments(lessonId: number): Promise<Assignment[]>;
+  createAssignment(assignment: InsertAssignment): Promise<Assignment>;
+  updateAssignment(id: number, data: Partial<Assignment>): Promise<Assignment>;
   
   // User Course Progress methods
   getUserCourseProgress(userId: number): Promise<UserCourseProgress[]>;
@@ -104,50 +106,21 @@ export interface IStorage {
   
   // User Lesson Progress methods
   getUserLessonProgress(userId: number, lessonId: number): Promise<UserLessonProgress | undefined>;
-  getUserLessonsProgress(userId: number, moduleId: number): Promise<UserLessonProgress[]>;
+  getUserLessonsProgress(userId: number): Promise<UserLessonProgress[]>;
   updateUserLessonProgress(
     userId: number,
     lessonId: number,
     data: Partial<UserLessonProgress>
   ): Promise<UserLessonProgress>;
   
-  // User Quiz methods
-  getUserQuizAttempts(userId: number, quizId: number): Promise<UserQuizAttempt[]>;
-  createQuizAttempt(attempt: InsertUserQuizAttempt): Promise<UserQuizAttempt>;
-  updateQuizAttempt(id: number, data: Partial<UserQuizAttempt>): Promise<UserQuizAttempt>;
-  saveUserQuizAnswer(answer: InsertUserQuizAnswer): Promise<UserQuizAnswer>;
-  
-  // User Favorite Courses (Bookmarks) methods
-  getUserFavoriteCourses(userId: number): Promise<UserFavoriteCourse[]>;
-  getFavoriteCourse(userId: number, courseId: number): Promise<UserFavoriteCourse | undefined>;
-  addCourseToFavorites(data: InsertUserFavoriteCourse): Promise<UserFavoriteCourse>;
-  removeCourseFromFavorites(userId: number, courseId: number): Promise<void>;
-  
-  // Course Ratings methods
-  getCourseRatings(courseId: number): Promise<CourseRating[]>;
-  getUserCourseRating(userId: number, courseId: number): Promise<CourseRating | undefined>;
-  getCourseAverageRating(courseId: number): Promise<number>;
-  rateCourse(data: InsertCourseRating): Promise<CourseRating>;
-  updateCourseRating(userId: number, courseId: number, data: Partial<CourseRating>): Promise<CourseRating>;
-  
-  // AI Chat History methods
-  saveAIChatInteraction(interaction: InsertAIChatHistory): Promise<AIChatHistory>;
-  getUserAIChatHistory(userId: number, params?: {
-    lessonId?: number;
-    courseId?: number;
-    assistantType?: string;
-    limit?: number;
-  }): Promise<AIChatHistory[]>;
-  
-  // Analytics methods
-  getUserCourseStatistics(userId: number): Promise<{
-    totalCoursesStarted: number;
-    totalCoursesCompleted: number;
-    averageProgress: number;
-    totalTimeSpent: number; // in minutes
-    activeDays: number;
-    streakDays: number;
-  }>;
+  // User Assignment Results methods
+  getUserAssignmentResult(userId: number, assignmentId: number): Promise<UserAssignmentResult | undefined>;
+  getUserAssignmentResults(userId: number): Promise<UserAssignmentResult[]>;
+  submitAssignmentResult(
+    userId: number,
+    assignmentId: number,
+    data: Partial<InsertUserAssignmentResults>
+  ): Promise<UserAssignmentResult>;
   
   // User Skills methods
   getUserSkills(userId: number): Promise<UserSkill[]>;
@@ -171,433 +144,617 @@ export interface IStorage {
     limit?: number;
   }): Promise<LearningEvent[]>;
   
-  // Learning Sessions methods
-  createLearningSession(session: InsertLearningSession): Promise<LearningSession>;
-  getLearningSession(sessionId: string): Promise<LearningSession | undefined>;
-  updateLearningSession(sessionId: string, data: Partial<LearningSession>): Promise<LearningSession>;
-  
   // Learning Timeline methods
   getUserLearningTimeline(userId: number, limit?: number): Promise<LearningEvent[]>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private userProfiles: Map<number, UserProfile>;
-  private courses: Map<number, Course>;
-  private userCourseProgress: Map<string, UserCourseProgress>;
-  private userFavoriteCourses: Map<string, UserFavoriteCourse>;
-  private courseRatings: Map<string, CourseRating>;
-  
-  private userIdCounter: number;
-  private profileIdCounter: number;
-  private courseIdCounter: number;
-  private progressIdCounter: number;
-  private favoriteIdCounter: number;
-  private ratingIdCounter: number;
-
-  constructor() {
-    this.users = new Map();
-    this.userProfiles = new Map();
-    this.courses = new Map();
-    this.userCourseProgress = new Map();
-    this.userFavoriteCourses = new Map();
-    this.courseRatings = new Map();
-    
-    this.userIdCounter = 1;
-    this.profileIdCounter = 1;
-    this.courseIdCounter = 1;
-    this.progressIdCounter = 1;
-    this.favoriteIdCounter = 1;
-    this.ratingIdCounter = 1;
-    
-    // Initialize with some sample courses
-    this.initSampleData();
-  }
-
-  // Initialize sample data
-  private initSampleData() {
-    // Add sample courses
-    const sampleCourses: InsertCourse[] = [
-      {
-        title: "Python Basics",
-        description: "Основы программирования на Python",
-        slug: "python-basics",
-        icon: "code",
-        modules: 8,
-        level: "basic",
-        color: "secondary",
-        difficulty: 1,
-        access: "free",
-        version: "1.0",
-        estimatedDuration: 900,
-        tags: ["python", "programming", "beginner"]
-      },
-      {
-        title: "Math Lite",
-        description: "Математика для машинного обучения",
-        slug: "math-lite",
-        icon: "calculator",
-        modules: 5,
-        level: "basic",
-        color: "primary",
-        difficulty: 2,
-        access: "free",
-        version: "1.0",
-        estimatedDuration: 720,
-        tags: ["math", "linear-algebra", "statistics"]
-      },
-      {
-        title: "Data Analysis",
-        description: "Анализ и визуализация данных",
-        slug: "data-analysis",
-        icon: "database",
-        modules: 6,
-        level: "practice",
-        color: "secondary",
-        difficulty: 3,
-        access: "pro",
-        version: "1.0",
-        estimatedDuration: 840,
-        tags: ["data-science", "pandas", "visualization"]
-      },
-      {
-        title: "ML Foundations",
-        description: "Основы машинного обучения",
-        slug: "ml-foundations",
-        icon: "brain",
-        modules: 7,
-        level: "in-progress",
-        color: "primary",
-        difficulty: 4,
-        access: "pro",
-        version: "1.0",
-        estimatedDuration: 1200,
-        tags: ["machine-learning", "sklearn", "models"]
-      },
-      {
-        title: "Capstone Project",
-        description: "Выпускной проект",
-        slug: "capstone-project",
-        icon: "project-diagram",
-        modules: 3,
-        level: "upcoming",
-        color: "accent",
-        difficulty: 5,
-        access: "expert",
-        version: "1.0",
-        estimatedDuration: 1800,
-        tags: ["project", "advanced", "team-work"]
-      }
-    ];
-    
-    sampleCourses.forEach(course => this.createCourse(course));
-  }
-
+export class DatabaseStorage implements IStorage {
   // User methods
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username
-    );
-  }
-
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.userIdCounter++;
-    const now = new Date();
-    const user: User = { 
-      ...insertUser, 
-      id,
-      displayName: insertUser.displayName || null,
-      avatarUrl: insertUser.avatarUrl || null,
-      telegramId: insertUser.telegramId || null,
-      createdAt: now
-    };
-    this.users.set(id, user);
+    const [user] = await db.select().from(users).where(eq(users.username, username));
     return user;
   }
-  
+
+  async createUser(user: InsertUser): Promise<User> {
+    const [newUser] = await db.insert(users).values(user).returning();
+    return newUser;
+  }
+
+  async updateUser(id: number, data: Partial<User>): Promise<User> {
+    const [updatedUser] = await db
+      .update(users)
+      .set(data)
+      .where(eq(users.id, id))
+      .returning();
+    return updatedUser;
+  }
+
   // User Profile methods
   async getUserProfile(userId: number): Promise<UserProfile | undefined> {
-    return Array.from(this.userProfiles.values()).find(
-      profile => profile.userId === userId
-    );
+    const [profile] = await db
+      .select()
+      .from(userProfiles)
+      .where(eq(userProfiles.userId, userId));
+    return profile;
   }
-  
+
   async createUserProfile(profile: InsertUserProfile): Promise<UserProfile> {
-    const id = this.profileIdCounter++;
-    const now = new Date();
-    
-    const userProfile: UserProfile = {
-      ...profile,
-      id,
-      progress: 0,
-      streakDays: 0,
-      lastActiveAt: now
-    };
-    
-    this.userProfiles.set(id, userProfile);
-    return userProfile;
+    const [newProfile] = await db.insert(userProfiles).values(profile).returning();
+    return newProfile;
   }
-  
+
   async updateUserProfile(userId: number, data: Partial<UserProfile>): Promise<UserProfile> {
-    const profile = await this.getUserProfile(userId);
-    
+    // Получаем текущий профиль
+    const [profile] = await db
+      .select()
+      .from(userProfiles)
+      .where(eq(userProfiles.userId, userId));
+
     if (!profile) {
       throw new Error(`User profile not found for user ID ${userId}`);
     }
-    
-    const updatedProfile: UserProfile = {
-      ...profile,
-      ...data,
-      lastActiveAt: new Date()
-    };
-    
-    this.userProfiles.set(profile.id, updatedProfile);
+
+    // Обновляем профиль
+    const [updatedProfile] = await db
+      .update(userProfiles)
+      .set({
+        ...data,
+        lastActiveAt: new Date()
+      })
+      .where(eq(userProfiles.userId, userId))
+      .returning();
+
     return updatedProfile;
   }
-  
+
+  // Skills methods
+  async getSkill(id: number): Promise<Skill | undefined> {
+    const [skill] = await db.select().from(skills).where(eq(skills.id, id));
+    return skill;
+  }
+
+  async getSkillByName(name: string): Promise<Skill | undefined> {
+    const [skill] = await db.select().from(skills).where(eq(skills.name, name));
+    return skill;
+  }
+
+  async getAllSkills(): Promise<Skill[]> {
+    return await db.select().from(skills);
+  }
+
+  async getSkillsByCategory(category: string): Promise<Skill[]> {
+    return await db
+      .select()
+      .from(skills)
+      .where(eq(skills.category, category as any));
+  }
+
+  async createSkill(skill: InsertSkill): Promise<Skill> {
+    const [newSkill] = await db.insert(skills).values(skill).returning();
+    return newSkill;
+  }
+
   // Course methods
   async getCourse(id: number): Promise<Course | undefined> {
-    return this.courses.get(id);
+    const [course] = await db.select().from(courses).where(eq(courses.id, id));
+    return course;
   }
-  
+
+  async getCourseBySlug(slug: string): Promise<Course | undefined> {
+    const [course] = await db.select().from(courses).where(eq(courses.slug, slug));
+    return course;
+  }
+
   async getAllCourses(): Promise<Course[]> {
-    return Array.from(this.courses.values());
+    return await db.select().from(courses);
   }
-  
+
+  async getFilteredCourses(filters: {
+    level?: string;
+    access?: string;
+    difficulty?: number;
+    tags?: string[];
+  }): Promise<Course[]> {
+    let query = db.select().from(courses);
+
+    if (filters.level) {
+      query = query.where(eq(courses.level, filters.level as any));
+    }
+
+    if (filters.access) {
+      query = query.where(eq(courses.access, filters.access as any));
+    }
+
+    if (filters.difficulty) {
+      query = query.where(eq(courses.difficulty, filters.difficulty));
+    }
+
+    // Для фильтрации по тегам требуется более сложный запрос
+    // Это упрощенная реализация
+    const filteredCourses = await query;
+
+    if (filters.tags && filters.tags.length > 0) {
+      return filteredCourses.filter((course) => {
+        const courseTags = course.tags as string[] || [];
+        return filters.tags!.some((tag) => courseTags.includes(tag));
+      });
+    }
+
+    return filteredCourses;
+  }
+
   async createCourse(course: InsertCourse): Promise<Course> {
-    const id = this.courseIdCounter++;
-    const now = new Date();
-    
-    // Ensuring all required fields have proper values
-    const newCourse: Course = { 
-      ...course, 
-      id,
-      createdAt: now,
-      updatedAt: now,
-      difficulty: course.difficulty || 1,
-      access: course.access || "free",
-      version: course.version || "1.0",
-      estimatedDuration: course.estimatedDuration || null,
-      tags: course.tags || null,
-      authorId: null
-    };
-    
-    this.courses.set(id, newCourse);
+    const [newCourse] = await db.insert(courses).values(course).returning();
     return newCourse;
   }
-  
-  // Course Progress methods
+
+  async updateCourse(id: number, data: Partial<Course>): Promise<Course> {
+    const [updatedCourse] = await db
+      .update(courses)
+      .set({
+        ...data,
+        updatedAt: new Date()
+      })
+      .where(eq(courses.id, id))
+      .returning();
+    return updatedCourse;
+  }
+
+  // Course Module methods
+  async getCourseModule(id: number): Promise<CourseModule | undefined> {
+    const [module] = await db.select().from(courseModules).where(eq(courseModules.id, id));
+    return module;
+  }
+
+  async getCourseModules(courseId: number): Promise<CourseModule[]> {
+    return await db
+      .select()
+      .from(courseModules)
+      .where(eq(courseModules.courseId, courseId))
+      .orderBy(asc(courseModules.orderIndex));
+  }
+
+  async createCourseModule(module: InsertCourseModule): Promise<CourseModule> {
+    const [newModule] = await db.insert(courseModules).values(module).returning();
+    return newModule;
+  }
+
+  async updateCourseModule(id: number, data: Partial<CourseModule>): Promise<CourseModule> {
+    const [updatedModule] = await db
+      .update(courseModules)
+      .set({
+        ...data,
+        updatedAt: new Date()
+      })
+      .where(eq(courseModules.id, id))
+      .returning();
+    return updatedModule;
+  }
+
+  // Lesson methods
+  async getLesson(id: number): Promise<Lesson | undefined> {
+    const [lesson] = await db.select().from(lessons).where(eq(lessons.id, id));
+    return lesson;
+  }
+
+  async getModuleLessons(moduleId: number): Promise<Lesson[]> {
+    return await db
+      .select()
+      .from(lessons)
+      .where(eq(lessons.moduleId, moduleId))
+      .orderBy(asc(lessons.orderIndex));
+  }
+
+  async createLesson(lesson: InsertLesson): Promise<Lesson> {
+    const [newLesson] = await db.insert(lessons).values(lesson).returning();
+    return newLesson;
+  }
+
+  async updateLesson(id: number, data: Partial<Lesson>): Promise<Lesson> {
+    const [updatedLesson] = await db
+      .update(lessons)
+      .set({
+        ...data,
+        updatedAt: new Date()
+      })
+      .where(eq(lessons.id, id))
+      .returning();
+    return updatedLesson;
+  }
+
+  // Assignment methods
+  async getAssignment(id: number): Promise<Assignment | undefined> {
+    const [assignment] = await db.select().from(assignments).where(eq(assignments.id, id));
+    return assignment;
+  }
+
+  async getLessonAssignments(lessonId: number): Promise<Assignment[]> {
+    return await db
+      .select()
+      .from(assignments)
+      .where(eq(assignments.lessonId, lessonId));
+  }
+
+  async createAssignment(assignment: InsertAssignment): Promise<Assignment> {
+    const [newAssignment] = await db.insert(assignments).values(assignment).returning();
+    return newAssignment;
+  }
+
+  async updateAssignment(id: number, data: Partial<Assignment>): Promise<Assignment> {
+    const [updatedAssignment] = await db
+      .update(assignments)
+      .set({
+        ...data,
+        updatedAt: new Date()
+      })
+      .where(eq(assignments.id, id))
+      .returning();
+    return updatedAssignment;
+  }
+
+  // User Course Progress methods
   async getUserCourseProgress(userId: number): Promise<UserCourseProgress[]> {
-    return Array.from(this.userCourseProgress.values()).filter(
-      progress => progress.userId === userId
-    );
+    return await db
+      .select()
+      .from(userCourseProgress)
+      .where(eq(userCourseProgress.userId, userId));
   }
-  
+
   async getCourseProgress(userId: number, courseId: number): Promise<UserCourseProgress | undefined> {
-    const key = `${userId}-${courseId}`;
-    return this.userCourseProgress.get(key);
+    const [progress] = await db
+      .select()
+      .from(userCourseProgress)
+      .where(
+        and(
+          eq(userCourseProgress.userId, userId),
+          eq(userCourseProgress.courseId, courseId)
+        )
+      );
+    return progress;
   }
-  
+
   async updateUserCourseProgress(
     userId: number,
     courseId: number,
     data: Partial<UserCourseProgress>
   ): Promise<UserCourseProgress> {
-    const key = `${userId}-${courseId}`;
-    let progress = this.userCourseProgress.get(key);
-    const now = new Date();
-    
-    if (!progress) {
-      // Create new progress entry if it doesn't exist
-      const id = this.progressIdCounter++;
-      const course = await this.getCourse(courseId);
-      
-      progress = {
-        id,
-        userId,
-        courseId,
-        progress: data.progress || 0,
-        completedModules: data.completedModules || null,
-        currentModuleId: data.currentModuleId || null,
-        currentLessonId: data.currentLessonId || null,
-        lastContentVersion: course?.version || null,
-        startedAt: now,
-        lastAccessedAt: now
-      };
+    // Проверяем, существует ли запись
+    const existing = await this.getCourseProgress(userId, courseId);
+
+    if (!existing) {
+      // Создаем новую запись
+      const [newProgress] = await db
+        .insert(userCourseProgress)
+        .values({
+          userId,
+          courseId,
+          progress: data.progress || 0,
+          completedModules: data.completedModules || 0,
+        })
+        .returning();
+      return newProgress;
     } else {
-      // Update existing progress
-      progress = {
-        ...progress,
-        ...data,
-        lastAccessedAt: now
-      };
+      // Обновляем существующую запись
+      const [updatedProgress] = await db
+        .update(userCourseProgress)
+        .set({
+          ...data,
+          lastAccessedAt: new Date()
+        })
+        .where(
+          and(
+            eq(userCourseProgress.userId, userId),
+            eq(userCourseProgress.courseId, courseId)
+          )
+        )
+        .returning();
+      return updatedProgress;
     }
-    
-    this.userCourseProgress.set(key, progress);
-    
-    // Also update user profile progress if needed
-    this.updateUserOverallProgress(userId);
-    
+  }
+
+  // User Lesson Progress methods
+  async getUserLessonProgress(userId: number, lessonId: number): Promise<UserLessonProgress | undefined> {
+    const [progress] = await db
+      .select()
+      .from(userLessonProgress)
+      .where(
+        and(
+          eq(userLessonProgress.userId, userId),
+          eq(userLessonProgress.lessonId, lessonId)
+        )
+      );
     return progress;
   }
-  
-  // Helper method to update user's overall progress
-  private async updateUserOverallProgress(userId: number) {
-    const profile = await this.getUserProfile(userId);
-    const courseProgress = await this.getUserCourseProgress(userId);
-    
-    if (profile && courseProgress.length > 0) {
-      // Calculate average progress across all courses
-      const totalProgress = courseProgress.reduce((sum, cp) => sum + cp.progress, 0);
-      const averageProgress = Math.floor(totalProgress / courseProgress.length);
-      
-      // Determine streak days (this would be more complex in a real app)
-      const now = new Date();
-      const lastActive = profile.lastActiveAt;
-      
-      if (lastActive) {
-        const oneDayMs = 24 * 60 * 60 * 1000;
-        let streakDays = profile.streakDays || 0;
-        
-        // If last active was yesterday, increment streak
-        if ((now.getTime() - lastActive.getTime()) <= oneDayMs) {
-          streakDays += 1;
-        } else if ((now.getTime() - lastActive.getTime()) > (2 * oneDayMs)) {
-          // If more than 2 days since last active, reset streak
-          streakDays = 1;
-        }
-        
-        // Update profile
-        this.updateUserProfile(userId, {
-          progress: averageProgress,
-          streakDays
-        });
-      } else {
-        // No last active date, just update progress
-        this.updateUserProfile(userId, {
-          progress: averageProgress,
-          streakDays: 1
-        });
-      }
-    }
+
+  async getUserLessonsProgress(userId: number): Promise<UserLessonProgress[]> {
+    return await db
+      .select()
+      .from(userLessonProgress)
+      .where(eq(userLessonProgress.userId, userId));
   }
-  
-  // User Favorite Courses (Bookmarks) methods
-  async getUserFavoriteCourses(userId: number): Promise<UserFavoriteCourse[]> {
-    return Array.from(this.userFavoriteCourses.values()).filter(
-      favorite => favorite.userId === userId
-    );
-  }
-  
-  async getFavoriteCourse(userId: number, courseId: number): Promise<UserFavoriteCourse | undefined> {
-    const key = `${userId}-${courseId}`;
-    return this.userFavoriteCourses.get(key);
-  }
-  
-  async addCourseToFavorites(data: InsertUserFavoriteCourse): Promise<UserFavoriteCourse> {
-    const { userId, courseId } = data;
-    const key = `${userId}-${courseId}`;
-    
-    // Check if already in favorites
-    const existing = await this.getFavoriteCourse(userId, courseId);
-    if (existing) {
-      return existing;
-    }
-    
-    const id = this.favoriteIdCounter++;
-    const now = new Date();
-    
-    const favorite: UserFavoriteCourse = {
-      id,
-      userId,
-      courseId,
-      addedAt: now
-    };
-    
-    this.userFavoriteCourses.set(key, favorite);
-    return favorite;
-  }
-  
-  async removeCourseFromFavorites(userId: number, courseId: number): Promise<void> {
-    const key = `${userId}-${courseId}`;
-    this.userFavoriteCourses.delete(key);
-  }
-  
-  // Course Ratings methods
-  async getCourseRatings(courseId: number): Promise<CourseRating[]> {
-    return Array.from(this.courseRatings.values()).filter(
-      rating => rating.courseId === courseId
-    );
-  }
-  
-  async getUserCourseRating(userId: number, courseId: number): Promise<CourseRating | undefined> {
-    const key = `${userId}-${courseId}`;
-    return this.courseRatings.get(key);
-  }
-  
-  async getCourseAverageRating(courseId: number): Promise<number> {
-    const ratings = await this.getCourseRatings(courseId);
-    
-    if (ratings.length === 0) {
-      return 0;
-    }
-    
-    const sum = ratings.reduce((acc, rating) => acc + rating.rating, 0);
-    return parseFloat((sum / ratings.length).toFixed(1));
-  }
-  
-  async rateCourse(data: InsertCourseRating): Promise<CourseRating> {
-    const { userId, courseId, rating, review } = data;
-    const key = `${userId}-${courseId}`;
-    
-    // Check if user already rated this course
-    const existing = await this.getUserCourseRating(userId, courseId);
-    if (existing) {
-      return this.updateCourseRating(userId, courseId, { rating, review });
-    }
-    
-    const id = this.ratingIdCounter++;
-    const now = new Date();
-    
-    const courseRating: CourseRating = {
-      id,
-      userId,
-      courseId,
-      rating,
-      review: review || null,
-      createdAt: now,
-      updatedAt: now
-    };
-    
-    this.courseRatings.set(key, courseRating);
-    return courseRating;
-  }
-  
-  async updateCourseRating(userId: number, courseId: number, data: Partial<CourseRating>): Promise<CourseRating> {
-    const key = `${userId}-${courseId}`;
-    const existing = this.courseRatings.get(key);
-    
+
+  async updateUserLessonProgress(
+    userId: number,
+    lessonId: number,
+    data: Partial<UserLessonProgress>
+  ): Promise<UserLessonProgress> {
+    // Проверяем, существует ли запись
+    const existing = await this.getUserLessonProgress(userId, lessonId);
+
     if (!existing) {
-      throw new Error(`Rating not found for user ${userId} and course ${courseId}`);
+      // Создаем новую запись
+      const [newProgress] = await db
+        .insert(userLessonProgress)
+        .values({
+          userId,
+          lessonId,
+          status: data.status || "not_started",
+          lastPosition: data.lastPosition || 0,
+          notes: data.notes
+        })
+        .returning();
+      return newProgress;
+    } else {
+      // Обновляем существующую запись
+      const [updatedProgress] = await db
+        .update(userLessonProgress)
+        .set({
+          ...data,
+          updatedAt: new Date()
+        })
+        .where(
+          and(
+            eq(userLessonProgress.userId, userId),
+            eq(userLessonProgress.lessonId, lessonId)
+          )
+        )
+        .returning();
+      return updatedProgress;
     }
-    
-    const updated: CourseRating = {
-      ...existing,
-      ...data,
-      updatedAt: new Date()
-    };
-    
-    this.courseRatings.set(key, updated);
-    return updated;
+  }
+
+  // User Assignment Results methods
+  async getUserAssignmentResult(userId: number, assignmentId: number): Promise<UserAssignmentResult | undefined> {
+    const [result] = await db
+      .select()
+      .from(userAssignmentResults)
+      .where(
+        and(
+          eq(userAssignmentResults.userId, userId),
+          eq(userAssignmentResults.assignmentId, assignmentId)
+        )
+      );
+    return result;
+  }
+
+  async getUserAssignmentResults(userId: number): Promise<UserAssignmentResult[]> {
+    return await db
+      .select()
+      .from(userAssignmentResults)
+      .where(eq(userAssignmentResults.userId, userId));
+  }
+
+  async submitAssignmentResult(
+    userId: number,
+    assignmentId: number,
+    data: Partial<InsertUserAssignmentResults>
+  ): Promise<UserAssignmentResult> {
+    // Проверяем, существует ли запись
+    const existing = await this.getUserAssignmentResult(userId, assignmentId);
+
+    if (!existing) {
+      // Создаем новую запись
+      const [newResult] = await db
+        .insert(userAssignmentResults)
+        .values({
+          userId,
+          assignmentId,
+          score: data.score || 0,
+          answers: data.answers,
+          feedback: data.feedback,
+          attemptsCount: data.attemptsCount || 1
+        })
+        .returning();
+      return newResult;
+    } else {
+      // Обновляем существующую запись и увеличиваем счетчик попыток
+      const [updatedResult] = await db
+        .update(userAssignmentResults)
+        .set({
+          ...data,
+          attemptsCount: (existing.attemptsCount || 0) + 1,
+          updatedAt: new Date()
+        })
+        .where(
+          and(
+            eq(userAssignmentResults.userId, userId),
+            eq(userAssignmentResults.assignmentId, assignmentId)
+          )
+        )
+        .returning();
+      return updatedResult;
+    }
+  }
+
+  // User Skills methods
+  async getUserSkills(userId: number): Promise<UserSkill[]> {
+    return await db
+      .select()
+      .from(userSkills)
+      .where(eq(userSkills.userId, userId));
+  }
+
+  async getUserSkillByName(userId: number, skillName: string): Promise<UserSkill | undefined> {
+    const [skill] = await db
+      .select()
+      .from(skills)
+      .where(eq(skills.name, skillName));
+
+    if (!skill) return undefined;
+
+    const [userSkill] = await db
+      .select()
+      .from(userSkills)
+      .where(
+        and(
+          eq(userSkills.userId, userId),
+          eq(userSkills.skillId, skill.id)
+        )
+      );
+
+    return userSkill;
+  }
+
+  async saveUserSkill(userSkill: InsertUserSkill): Promise<UserSkill> {
+    // Проверяем, существует ли запись
+    const [existing] = await db
+      .select()
+      .from(userSkills)
+      .where(
+        and(
+          eq(userSkills.userId, userSkill.userId),
+          eq(userSkills.skillId, userSkill.skillId)
+        )
+      );
+
+    if (!existing) {
+      // Создаем новую запись
+      const [newUserSkill] = await db
+        .insert(userSkills)
+        .values(userSkill)
+        .returning();
+      return newUserSkill;
+    } else {
+      // Обновляем существующую запись
+      const [updatedUserSkill] = await db
+        .update(userSkills)
+        .set({
+          ...userSkill,
+          updatedAt: new Date()
+        })
+        .where(
+          and(
+            eq(userSkills.userId, userSkill.userId),
+            eq(userSkills.skillId, userSkill.skillId)
+          )
+        )
+        .returning();
+      return updatedUserSkill;
+    }
+  }
+
+  async updateUserSkill(userId: number, skillId: number, data: Partial<UserSkill>): Promise<UserSkill> {
+    const [updatedUserSkill] = await db
+      .update(userSkills)
+      .set({
+        ...data,
+        updatedAt: new Date()
+      })
+      .where(
+        and(
+          eq(userSkills.userId, userId),
+          eq(userSkills.skillId, skillId)
+        )
+      )
+      .returning();
+    return updatedUserSkill;
+  }
+
+  // User Skill Gaps methods
+  async getUserSkillGaps(userId: number): Promise<UserSkillGap[]> {
+    return await db
+      .select()
+      .from(userSkillGaps)
+      .where(eq(userSkillGaps.userId, userId));
+  }
+
+  async saveUserSkillGap(skillGap: InsertUserSkillGap): Promise<UserSkillGap> {
+    const [newGap] = await db
+      .insert(userSkillGaps)
+      .values(skillGap)
+      .returning();
+    return newGap;
+  }
+
+  async updateUserSkillGap(id: number, data: Partial<UserSkillGap>): Promise<UserSkillGap> {
+    const [updatedGap] = await db
+      .update(userSkillGaps)
+      .set(data)
+      .where(eq(userSkillGaps.id, id))
+      .returning();
+    return updatedGap;
+  }
+
+  // Learning Events methods
+  async saveLearningEvent(event: InsertLearningEvent): Promise<LearningEvent> {
+    const [newEvent] = await db
+      .insert(learningEvents)
+      .values(event)
+      .returning();
+    return newEvent;
+  }
+
+  async getLearningEvents(userId: number, params?: {
+    eventType?: string;
+    entityType?: string;
+    entityId?: number;
+    startDate?: Date;
+    endDate?: Date;
+    limit?: number;
+  }): Promise<LearningEvent[]> {
+    let query = db
+      .select()
+      .from(learningEvents)
+      .where(eq(learningEvents.userId, userId));
+
+    if (params?.eventType) {
+      query = query.where(eq(learningEvents.eventType, params.eventType));
+    }
+
+    if (params?.entityType) {
+      query = query.where(eq(learningEvents.entityType, params.entityType as any));
+    }
+
+    if (params?.entityId) {
+      query = query.where(eq(learningEvents.entityId, params.entityId));
+    }
+
+    if (params?.startDate) {
+      query = query.where(sql`${learningEvents.timestamp} >= ${params.startDate}`);
+    }
+
+    if (params?.endDate) {
+      query = query.where(sql`${learningEvents.timestamp} <= ${params.endDate}`);
+    }
+
+    query = query.orderBy(desc(learningEvents.timestamp));
+
+    if (params?.limit) {
+      query = query.limit(params.limit);
+    }
+
+    return await query;
+  }
+
+  // Learning Timeline methods
+  async getUserLearningTimeline(userId: number, limit?: number): Promise<LearningEvent[]> {
+    let query = db
+      .select()
+      .from(learningEvents)
+      .where(eq(learningEvents.userId, userId))
+      .orderBy(desc(learningEvents.timestamp));
+
+    if (limit) {
+      query = query.limit(limit);
+    }
+
+    return await query;
   }
 }
 
-// Импортируем класс DatabaseStorage
-import { DatabaseStorage } from "./database-storage";
-
-// Используем DatabaseStorage вместо MemStorage
 export const storage = new DatabaseStorage();
