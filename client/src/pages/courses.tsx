@@ -6,6 +6,7 @@ import { ProgressRing } from "@/components/ui/progress-ring";
 import { Input } from "@/components/ui/input";
 import { Link } from "wouter";
 import { ethicsCourse, lawCourse } from "@/data";
+import { useQuery } from "@tanstack/react-query";
 
 // Define course types and data
 interface Course {
@@ -306,8 +307,43 @@ export default function Courses() {
     }
   };
 
-  // Объединяем все курсы
-  const allCourses = [...SAMPLE_COURSES, ethicsCourseFormatted, lawCourseFormatted];
+  // Получаем курсы из API
+  const { data: apiCourses = [], isLoading: isLoadingApiCourses } = useQuery({
+    queryKey: ['/api/courses'],
+    queryFn: async () => {
+      const response = await fetch('/api/courses');
+      if (!response.ok) {
+        throw new Error('Failed to fetch courses');
+      }
+      return response.json();
+    }
+  });
+
+  // Преобразуем курсы из API в формат нашего приложения
+  const formattedApiCourses = apiCourses.map((course: any) => ({
+    id: course.id,
+    title: course.title,
+    description: course.description,
+    icon: course.icon || 'book',
+    modules: course.modules || 0,
+    level: course.level || 'beginner',
+    category: course.tags || ['ai'],
+    instructor: 'Nova AI',
+    duration: course.estimatedDuration ? `${Math.floor(course.estimatedDuration / 60)} часов` : 'Не указано',
+    rating: 4.8,
+    enrolled: 100,
+    updated: course.updatedAt || new Date().toISOString(),
+    color: course.color as 'primary' | 'secondary' | 'accent' || 'primary',
+    access: course.access || 'free',
+    skillMatch: {
+      percentage: 90,
+      label: "Рекомендуется",
+      isRecommended: true
+    }
+  }));
+
+  // Объединяем курсы из API с локальными курсами
+  const allCourses = [...SAMPLE_COURSES, ...formattedApiCourses, ethicsCourseFormatted, lawCourseFormatted];
 
   // Filter courses based on search and filters
   // Преобразовать id в строки для поддержки строковых идентификаторов
