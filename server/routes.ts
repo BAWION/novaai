@@ -29,6 +29,7 @@ import 'express';
 const authMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
   // Simple auth check - in a real app, this would verify JWT tokens or session cookies
   const user = req.session.user;
+  console.log(`[Auth] Session user:`, JSON.stringify(user));
   if (!user) {
     return res.status(401).json({ message: "Unauthorized" });
   }
