@@ -4,6 +4,7 @@ import { useLocation } from "wouter";
 import { Glassmorphism } from "@/components/ui/glassmorphism";
 import { cn } from "@/lib/utils";
 import { useOnClickOutside } from "@/hooks/use-on-click-outside.tsx";
+import { useTracking } from "@/context/tracking-context";
 
 interface CourseCardProps {
   id: number;
@@ -49,11 +50,15 @@ export function CourseCard({
   const [, setLocation] = useLocation();
   const [showQuickView, setShowQuickView] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
+  const { trackCourseView, trackCourseStart, trackButtonClick, trackFeatureUse } = useTracking();
   
   // Закрываем Quick View при клике вне карточки
   useOnClickOutside(cardRef, () => setShowQuickView(false));
 
   const handleClick = () => {
+    // Отслеживаем просмотр курса
+    trackCourseView(id, title);
+    
     if (onClick) {
       onClick();
     } else {
@@ -66,6 +71,14 @@ export function CourseCard({
     // Задержка перед показом для избежания мерцания при случайном наведении
     const timer = setTimeout(() => {
       setShowQuickView(true);
+      
+      // Отслеживаем событие просмотра Quick View
+      trackFeatureUse('quick_view', {
+        courseId: id,
+        courseName: title,
+        courseLevel: level,
+        courseAccess: access,
+      });
     }, 500);
     
     return () => clearTimeout(timer);
@@ -371,7 +384,22 @@ export function CourseCard({
             
             <button 
               className="w-full py-2 bg-primary hover:bg-primary/80 rounded-lg transition text-sm font-medium"
-              onClick={handleClick}
+              onClick={(e) => {
+                e.stopPropagation();
+                
+                // Отслеживаем клик по кнопке
+                trackButtonClick(
+                  progress > 0 ? "continue_course" : "start_course", 
+                  { courseId: id, courseName: title }
+                );
+                
+                // Если пользователь начинает курс, фиксируем это событие
+                if (progress === 0) {
+                  trackCourseStart(id, title);
+                }
+                
+                handleClick();
+              }}
             >
               {progress > 0 ? "Продолжить курс" : "Начать обучение"}
             </button>
