@@ -68,6 +68,7 @@ export const userProfiles = pgTable("user_profiles", {
   completedOnboarding: boolean("completed_onboarding").default(false),
   onboardingCompletedAt: timestamp("onboarding_completed_at"),
   recommendedCourseIds: json("recommended_course_ids"),
+  metadata: json("metadata"),  // Добавлено поле metadata для хранения расширенных данных диагностики
 });
 
 // Определение категории курса

@@ -5,6 +5,31 @@ import { Glassmorphism } from "@/components/ui/glassmorphism";
 import { ProgressRing } from "@/components/ui/progress-ring";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useUserProfile } from "@/context/user-profile-context";
+import { UserRole, UserInterest } from "@/lib/constants";
+
+// Вспомогательные функции для получения русских названий ролей и интересов
+function getRoleTitle(role: UserRole): string {
+  switch (role) {
+    case "student": return "Студент";
+    case "professional": return "Профессионал";
+    case "teacher": return "Преподаватель";
+    case "researcher": return "Исследователь";
+    default: return "Специалист";
+  }
+}
+
+function getInterestTitle(interest: UserInterest): string {
+  switch (interest) {
+    case "machine-learning": return "машинному обучению";
+    case "deep-learning": return "глубокому обучению";
+    case "natural-language-processing": return "обработке естественного языка";
+    case "computer-vision": return "компьютерному зрению";
+    case "reinforcement-learning": return "обучению с подкреплением";
+    case "ai-ethics": return "этике ИИ";
+    case "data-science": return "анализу данных";
+    default: return "технологиям ИИ";
+  }
+}
 
 // Sample certificate data
 interface Certificate {
@@ -86,12 +111,15 @@ export default function Profile() {
   const [activeTab, setActiveTab] = useState("overview");
   const [editMode, setEditMode] = useState(false);
   const [profileData, setProfileData] = useState({
-    displayName: "Анна",
-    bio: "Data Scientist и ML-инженер с интересом к NLP и компьютерному зрению. Изучаю глубокое обучение и трансформеры.",
-    goals: "Освоить продвинутые методы глубокого обучения и применить их в собственных проектах.",
-    github: "github.com/annadata",
-    linkedin: "linkedin.com/in/annadata",
-    website: "annadata.dev"
+    displayName: userProfile?.displayName || "Пользователь",
+    bio: userProfile?.metadata?.demographic ? 
+      `${getRoleTitle(userProfile.role)} с интересом к ${getInterestTitle(userProfile.interest)}` :
+      "Data Scientist и ML-инженер с интересом к NLP и компьютерному зрению. Изучаю глубокое обучение и трансформеры.",
+    goals: userProfile?.metadata?.specificNeeds?.specificGoals || 
+      "Освоить продвинутые методы глубокого обучения и применить их в собственных проектах.",
+    github: "github.com/user",
+    linkedin: "linkedin.com/in/user",
+    website: "user.dev"
   });
 
   // Helpers
@@ -174,11 +202,36 @@ export default function Profile() {
                     </div>
                     
                     <div className="flex flex-wrap gap-2 justify-center mb-6">
-                      <span className="px-2 py-1 text-xs rounded-full bg-white/10">Python</span>
-                      <span className="px-2 py-1 text-xs rounded-full bg-white/10">TensorFlow</span>
-                      <span className="px-2 py-1 text-xs rounded-full bg-white/10">PyTorch</span>
-                      <span className="px-2 py-1 text-xs rounded-full bg-white/10">NLP</span>
-                      <span className="px-2 py-1 text-xs rounded-full bg-white/10">Data Science</span>
+                      {userProfile?.metadata?.technicalBackground?.programmingLanguages?.includes('python') && (
+                        <span className="px-2 py-1 text-xs rounded-full bg-white/10">Python</span>
+                      )}
+                      {userProfile?.metadata?.interests?.primary === 'machine-learning' && (
+                        <span className="px-2 py-1 text-xs rounded-full bg-white/10">Machine Learning</span>
+                      )}
+                      {userProfile?.metadata?.interests?.primary === 'deep-learning' && (
+                        <span className="px-2 py-1 text-xs rounded-full bg-white/10">Deep Learning</span>
+                      )}
+                      {userProfile?.metadata?.interests?.subdomains?.includes('nlp') && (
+                        <span className="px-2 py-1 text-xs rounded-full bg-white/10">NLP</span>
+                      )}
+                      {userProfile?.metadata?.interests?.subdomains?.includes('computer-vision') && (
+                        <span className="px-2 py-1 text-xs rounded-full bg-white/10">Computer Vision</span>
+                      )}
+                      {userProfile?.metadata?.technicalBackground?.programmingLanguages?.includes('tensorflow') && (
+                        <span className="px-2 py-1 text-xs rounded-full bg-white/10">TensorFlow</span>
+                      )}
+                      {userProfile?.metadata?.technicalBackground?.programmingLanguages?.includes('pytorch') && (
+                        <span className="px-2 py-1 text-xs rounded-full bg-white/10">PyTorch</span>
+                      )}
+                      {!userProfile?.metadata && (
+                        <>
+                          <span className="px-2 py-1 text-xs rounded-full bg-white/10">Python</span>
+                          <span className="px-2 py-1 text-xs rounded-full bg-white/10">TensorFlow</span>
+                          <span className="px-2 py-1 text-xs rounded-full bg-white/10">PyTorch</span>
+                          <span className="px-2 py-1 text-xs rounded-full bg-white/10">NLP</span>
+                          <span className="px-2 py-1 text-xs rounded-full bg-white/10">Data Science</span>
+                        </>
+                      )}
                     </div>
                     
                     {!editMode ? (

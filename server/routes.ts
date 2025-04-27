@@ -318,7 +318,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         progress: profile.progress,
         streakDays: profile.streakDays,
         completedOnboarding: profile.completedOnboarding || false,
-        displayName: req.session.user!.displayName || "Пользователь"
+        displayName: req.session.user!.displayName || "Пользователь",
+        metadata: profile.metadata || {} // Добавляем поле metadata в ответ API
       });
     } catch (error) {
       console.error("Get profile error:", error);
@@ -402,7 +403,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         progress: profile.progress,
         streakDays: profile.streakDays,
         completedOnboarding: profile.completedOnboarding || false,
-        onboardingCompletedAt: profile.onboardingCompletedAt || null
+        onboardingCompletedAt: profile.onboardingCompletedAt || null,
+        metadata: profile.metadata || {} // Добавляем metadata в ответ API
       });
     } catch (error) {
       console.error("Update profile error:", error);

@@ -21,6 +21,7 @@ interface UserProfileData {
   streakDays: number;
   completedOnboarding: boolean;
   userId?: number;
+  metadata?: any; // Добавляем поле metadata для дополнительных данных диагностики
 }
 
 interface UserProfileContextType {
