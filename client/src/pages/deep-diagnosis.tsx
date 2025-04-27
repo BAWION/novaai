@@ -69,12 +69,19 @@ interface DeepDiagnosisFormData {
   // Основная информация
   role: string; // Роль пользователя
   experience: string; // Общий опыт в AI/ML
+  ageGroup: string; // Возрастная группа
+  education: string; // Уровень образования
   
   // Технические навыки
   pythonLevel: number; // Уровень владения Python
   programmingLanguages: string[]; // Другие языки программирования
   dataAnalysisLevel: number; // Уровень навыков анализа данных
   mathBackground: string; // Уровень математических знаний
+  
+  // Когнитивные способности и предпочтения
+  analyticalThinking: number; // Аналитическое мышление (1-5)
+  creativeProblemSolving: number; // Творческий подход к решению проблем (1-5)
+  attentionToDetail: number; // Внимание к деталям (1-5)
   
   // Интересы и направления
   interest: string; // Основное направление интереса
@@ -83,12 +90,17 @@ interface DeepDiagnosisFormData {
   // Цели и предпочтения
   goal: string; // Основная цель обучения
   timeCommitment: string; // Сколько времени готов уделять обучению
+  desiredCompletionTime: string; // Желаемый срок освоения материала
   preferredLearningStyle: string; // Предпочтительный стиль обучения
   projectTypes: string[]; // Типы проектов, которые интересуют
+  
+  // Текущие барьеры и сложности
+  learningBarriers: string[]; // Что мешает учиться
   
   // Дополнительно
   industry?: string; // Индустрия работы (если применимо)
   specificGoals?: string; // Конкретные цели обучения
+  specificProjects?: string; // Конкретные проекты, которые хочет реализовать
   redirectAfterComplete?: string; // URL для перенаправления после завершения
 }
 
@@ -133,18 +145,40 @@ export default function DeepDiagnosisPage() {
   
   // Формы данных
   const [formData, setFormData] = useState<DeepDiagnosisFormData>({
+    // Основная информация
     role: "student", // соответствует UserRole
     experience: "beginner", // соответствует AIExperience
+    ageGroup: "18-24", 
+    education: "bachelor",
+    
+    // Технические навыки
     pythonLevel: 2, // соответствует SkillLevel
     programmingLanguages: [],
     dataAnalysisLevel: 1,
     mathBackground: "basic",
+    
+    // Когнитивные способности
+    analyticalThinking: 3,
+    creativeProblemSolving: 3,
+    attentionToDetail: 3,
+    
+    // Интересы и направления
     interest: "machine-learning", // соответствует UserInterest
     subdomains: [],
+    
+    // Цели и предпочтения
     goal: "practice-skills", // соответствует UserGoal
     timeCommitment: "medium",
+    desiredCompletionTime: "3-6-months",
     preferredLearningStyle: "visual",
     projectTypes: [],
+    
+    // Барьеры
+    learningBarriers: [],
+    
+    // Дополнительные детали
+    specificGoals: "",
+    specificProjects: "",
   });
   
   // Справочные данные
@@ -246,6 +280,44 @@ export default function DeepDiagnosisPage() {
     { id: "advanced", label: "Продвинутый", description: "Продвинутая статистика, оптимизация, мат. моделирование" }
   ];
   
+  // Возрастные группы
+  const ageGroups = [
+    { id: "under-18", label: "До 18 лет" },
+    { id: "18-24", label: "18-24 года" },
+    { id: "25-34", label: "25-34 года" },
+    { id: "35-44", label: "35-44 года" },
+    { id: "45-54", label: "45-54 года" },
+    { id: "55-plus", label: "55 лет и старше" }
+  ];
+  
+  // Уровни образования
+  const educationLevels = [
+    { id: "school", label: "Среднее образование", description: "Школа или колледж" },
+    { id: "bachelor", label: "Бакалавр", description: "Высшее образование (бакалавриат)" },
+    { id: "master", label: "Магистр", description: "Высшее образование (магистратура)" },
+    { id: "phd", label: "Доктор наук", description: "Кандидат или доктор наук" },
+    { id: "self-taught", label: "Самоучка", description: "Самостоятельное образование" }
+  ];
+  
+  // Желаемое время на освоение материала
+  const completionTimes = [
+    { id: "less-than-month", label: "Менее месяца", description: "Нужно освоить максимально быстро" },
+    { id: "1-3-months", label: "1-3 месяца", description: "Короткая интенсивная программа" },
+    { id: "3-6-months", label: "3-6 месяцев", description: "Средняя по длительности программа" },
+    { id: "6-12-months", label: "6-12 месяцев", description: "Длительная глубокая программа" },
+    { id: "1-year-plus", label: "Более года", description: "Глубокое и всестороннее изучение" }
+  ];
+  
+  // Барьеры для обучения
+  const learningBarrierOptions = [
+    { id: "time-constraints", label: "Нехватка времени", description: "Сложно выделить достаточно времени" },
+    { id: "technical-background", label: "Технические знания", description: "Недостаточно базовых технических знаний" },
+    { id: "math-knowledge", label: "Математические знания", description: "Сложности с математикой и статистикой" },
+    { id: "english-language", label: "Знание английского", description: "Сложности с материалами на английском языке" },
+    { id: "learning-approach", label: "Подход к обучению", description: "Трудно учиться самостоятельно без структуры" },
+    { id: "motivation", label: "Мотивация", description: "Сложно поддерживать мотивацию длительное время" }
+  ];
+  
   // Функция перехода к следующему шагу
   const handleNext = () => {
     // Проверяем, что текущий шаг заполнен
@@ -290,31 +362,57 @@ export default function DeepDiagnosisPage() {
         // это расширенная диагностика и содержит дополнительные поля
         completedOnboarding: true,
         metadata: {
+          demographic: {
+            ageGroup: formData.ageGroup,
+            education: formData.education,
+          },
           learningPreferences: {
             style: formData.preferredLearningStyle,
             timeCommitment: formData.timeCommitment,
+            desiredCompletionTime: formData.desiredCompletionTime,
             projectTypes: formData.projectTypes,
+            learningBarriers: formData.learningBarriers,
           },
           technicalBackground: {
             programmingLanguages: formData.programmingLanguages,
             dataAnalysisLevel: formData.dataAnalysisLevel,
             mathBackground: formData.mathBackground,
           },
+          cognitiveProfile: {
+            analyticalThinking: formData.analyticalThinking,
+            creativeProblemSolving: formData.creativeProblemSolving,
+            attentionToDetail: formData.attentionToDetail,
+          },
           interests: {
             primary: formData.interest,
             subdomains: formData.subdomains,
+          },
+          specificNeeds: {
+            specificGoals: formData.specificGoals,
+            specificProjects: formData.specificProjects,
           }
         }
       };
       
-      // Генерируем профиль навыков на основе формы
+      // Генерируем детальный профиль навыков на основе формы
       const skillProfile: SkillProfile = {
+        // Технические навыки
         "Программирование": calculateProgrammingScore(),
         "Математика и статистика": calculateMathScore(),
         "Машинное обучение": calculateMLScore(),
         "Анализ данных": calculateDataScienceScore(),
         "Глубокое обучение": calculateDeepLearningScore(),
         "Обработка данных": calculateDataProcessingScore(),
+        
+        // Когнитивные способности
+        "Аналитическое мышление": formData.analyticalThinking * 20, // 0-100
+        "Решение проблем": formData.creativeProblemSolving * 20, // 0-100
+        "Внимание к деталям": formData.attentionToDetail * 20, // 0-100
+        
+        // Применение в различных областях
+        "Применение в бизнесе": calculateBusinessApplicationScore(),
+        "Исследовательские навыки": calculateResearchScore(),
+        "Этика и право в ИИ": calculateEthicsAndLawScore(),
       };
       
       setUserSkillProfile(skillProfile);
@@ -454,6 +552,62 @@ export default function DeepDiagnosisPage() {
     if (formData.subdomains.includes("feature-engineering")) score += 15;
     if (formData.programmingLanguages.includes("python")) score += 10;
     if (formData.programmingLanguages.includes("sql")) score += 10;
+    
+    return Math.min(100, score);
+  };
+  
+  // Новые функции расчета навыков для дополнительных областей
+  const calculateBusinessApplicationScore = (): number => {
+    let score = 0;
+    
+    // Бизнес-профиль более высокий для руководителей и предпринимателей
+    if (formData.role === "manager") score += 30;
+    if (formData.role === "entrepreneur") score += 40;
+    
+    // Аналитическое мышление важно для бизнес-приложений
+    score += formData.analyticalThinking * 5;
+    
+    // Интерес к применению в бизнесе
+    if (formData.projectTypes.includes("recommendation-systems")) score += 20;
+    if (formData.projectTypes.includes("predictive-models")) score += 15;
+    
+    return Math.min(100, score);
+  };
+  
+  const calculateResearchScore = (): number => {
+    let score = 0;
+    
+    // Исследовательский профиль более высокий для ученых
+    if (formData.role === "researcher") score += 40;
+    
+    // Академическое образование повышает уровень
+    if (formData.education === "phd") score += 30;
+    if (formData.education === "master") score += 20;
+    
+    // Математический бэкграунд критичен для исследований
+    if (formData.mathBackground === "advanced") score += 20;
+    
+    // Креативное мышление важно для исследований
+    score += formData.creativeProblemSolving * 5;
+    
+    return Math.min(100, score);
+  };
+  
+  const calculateEthicsAndLawScore = (): number => {
+    let score = 0;
+    
+    // Прямой интерес к этике и правовым аспектам
+    if (formData.interest === "ethics") score += 50;
+    if (formData.interest === "law") score += 50;
+    
+    // Анализ поддоменов
+    if (formData.subdomains.includes("bias-fairness")) score += 15;
+    if (formData.subdomains.includes("transparency")) score += 15;
+    if (formData.subdomains.includes("ai-regulation")) score += 20;
+    if (formData.subdomains.includes("privacy-law")) score += 20;
+    
+    // Внимание к деталям важно для правовых аспектов
+    score += formData.attentionToDetail * 5;
     
     return Math.min(100, score);
   };
@@ -700,6 +854,61 @@ export default function DeepDiagnosisPage() {
                     ))}
                   </RadioGroup>
                 </div>
+                
+                <div className="space-y-4">
+                  <Label className="text-white mb-2 block">Ваш возраст</Label>
+                  <RadioGroup
+                    value={formData.ageGroup}
+                    onValueChange={(value) => setFormData({ ...formData, ageGroup: value })}
+                    className="grid grid-cols-2 md:grid-cols-3 gap-3"
+                  >
+                    {ageGroups.map((group) => (
+                      <div
+                        key={group.id}
+                        className={`flex items-center space-x-2 border rounded-lg p-3 transition-all cursor-pointer ${
+                          formData.ageGroup === group.id
+                            ? "border-blue-500 bg-blue-500/10"
+                            : "border-white/10 hover:border-white/30"
+                        }`}
+                        onClick={() => setFormData({ ...formData, ageGroup: group.id })}
+                      >
+                        <RadioGroupItem value={group.id} id={`age-${group.id}`} />
+                        <Label htmlFor={`age-${group.id}`} className="cursor-pointer">
+                          {group.label}
+                        </Label>
+                      </div>
+                    ))}
+                  </RadioGroup>
+                </div>
+                
+                <div className="space-y-4">
+                  <Label className="text-white mb-2 block">Ваше образование</Label>
+                  <RadioGroup
+                    value={formData.education}
+                    onValueChange={(value) => setFormData({ ...formData, education: value })}
+                    className="space-y-3"
+                  >
+                    {educationLevels.map((level) => (
+                      <div
+                        key={level.id}
+                        className={`flex items-start space-x-3 border rounded-lg p-4 transition-all cursor-pointer ${
+                          formData.education === level.id
+                            ? "border-blue-500 bg-blue-500/10"
+                            : "border-white/10 hover:border-white/30"
+                        }`}
+                        onClick={() => setFormData({ ...formData, education: level.id })}
+                      >
+                        <RadioGroupItem value={level.id} id={`edu-${level.id}`} className="mt-1" />
+                        <div className="space-y-1.5">
+                          <Label htmlFor={`edu-${level.id}`} className="text-lg font-medium cursor-pointer">
+                            {level.label}
+                          </Label>
+                          <p className="text-sm text-white/60">{level.description}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </RadioGroup>
+                </div>
               </div>
             )}
             
@@ -813,6 +1022,77 @@ export default function DeepDiagnosisPage() {
                       </div>
                     ))}
                   </RadioGroup>
+                </div>
+                
+                <Separator className="my-6" />
+                
+                <div className="space-y-6">
+                  <h3 className="text-lg font-medium">Оцените свои когнитивные способности</h3>
+                  
+                  <div className="space-y-5">
+                    <div className="space-y-3">
+                      <Label>Аналитическое мышление</Label>
+                      <div className="space-y-3">
+                        <Slider
+                          value={[formData.analyticalThinking]}
+                          min={1}
+                          max={5}
+                          step={1}
+                          onValueChange={(value) => setFormData({ ...formData, analyticalThinking: value[0] })}
+                          className="py-2"
+                        />
+                        <div className="flex justify-between text-xs text-white/60">
+                          <span>Базовое</span>
+                          <span>Среднее</span>
+                          <span>Продвинутое</span>
+                          <span>Высокое</span>
+                          <span>Экспертное</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <Label>Творческий подход к решению проблем</Label>
+                      <div className="space-y-3">
+                        <Slider
+                          value={[formData.creativeProblemSolving]}
+                          min={1}
+                          max={5}
+                          step={1}
+                          onValueChange={(value) => setFormData({ ...formData, creativeProblemSolving: value[0] })}
+                          className="py-2"
+                        />
+                        <div className="flex justify-between text-xs text-white/60">
+                          <span>Базовое</span>
+                          <span>Среднее</span>
+                          <span>Продвинутое</span>
+                          <span>Высокое</span>
+                          <span>Экспертное</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <Label>Внимание к деталям</Label>
+                      <div className="space-y-3">
+                        <Slider
+                          value={[formData.attentionToDetail]}
+                          min={1}
+                          max={5}
+                          step={1}
+                          onValueChange={(value) => setFormData({ ...formData, attentionToDetail: value[0] })}
+                          className="py-2"
+                        />
+                        <div className="flex justify-between text-xs text-white/60">
+                          <span>Базовое</span>
+                          <span>Среднее</span>
+                          <span>Продвинутое</span>
+                          <span>Высокое</span>
+                          <span>Экспертное</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
