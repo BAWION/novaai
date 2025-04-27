@@ -32,6 +32,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Separator } from "@/components/ui/separator";
 
 // Иконки
 import { 
@@ -280,43 +281,7 @@ export default function DeepDiagnosisPage() {
     { id: "advanced", label: "Продвинутый", description: "Продвинутая статистика, оптимизация, мат. моделирование" }
   ];
   
-  // Возрастные группы
-  const ageGroups = [
-    { id: "under-18", label: "До 18 лет" },
-    { id: "18-24", label: "18-24 года" },
-    { id: "25-34", label: "25-34 года" },
-    { id: "35-44", label: "35-44 года" },
-    { id: "45-54", label: "45-54 года" },
-    { id: "55-plus", label: "55 лет и старше" }
-  ];
-  
-  // Уровни образования
-  const educationLevels = [
-    { id: "school", label: "Среднее образование", description: "Школа или колледж" },
-    { id: "bachelor", label: "Бакалавр", description: "Высшее образование (бакалавриат)" },
-    { id: "master", label: "Магистр", description: "Высшее образование (магистратура)" },
-    { id: "phd", label: "Доктор наук", description: "Кандидат или доктор наук" },
-    { id: "self-taught", label: "Самоучка", description: "Самостоятельное образование" }
-  ];
-  
-  // Желаемое время на освоение материала
-  const completionTimes = [
-    { id: "less-than-month", label: "Менее месяца", description: "Нужно освоить максимально быстро" },
-    { id: "1-3-months", label: "1-3 месяца", description: "Короткая интенсивная программа" },
-    { id: "3-6-months", label: "3-6 месяцев", description: "Средняя по длительности программа" },
-    { id: "6-12-months", label: "6-12 месяцев", description: "Длительная глубокая программа" },
-    { id: "1-year-plus", label: "Более года", description: "Глубокое и всестороннее изучение" }
-  ];
-  
-  // Барьеры для обучения
-  const learningBarrierOptions = [
-    { id: "time-constraints", label: "Нехватка времени", description: "Сложно выделить достаточно времени" },
-    { id: "technical-background", label: "Технические знания", description: "Недостаточно базовых технических знаний" },
-    { id: "math-knowledge", label: "Математические знания", description: "Сложности с математикой и статистикой" },
-    { id: "english-language", label: "Знание английского", description: "Сложности с материалами на английском языке" },
-    { id: "learning-approach", label: "Подход к обучению", description: "Трудно учиться самостоятельно без структуры" },
-    { id: "motivation", label: "Мотивация", description: "Сложно поддерживать мотивацию длительное время" }
-  ];
+
   
   // Функция перехода к следующему шагу
   const handleNext = () => {
@@ -1331,12 +1296,79 @@ export default function DeepDiagnosisPage() {
                 </div>
                 
                 <div className="space-y-4">
+                  <Label>За какой период вы хотели бы освоить ключевые навыки?</Label>
+                  <RadioGroup
+                    value={formData.desiredCompletionTime}
+                    onValueChange={(value) => setFormData({ ...formData, desiredCompletionTime: value })}
+                    className="space-y-3"
+                  >
+                    {completionTimes.map((option) => (
+                      <div
+                        key={option.id}
+                        className={`flex items-start space-x-3 border rounded-lg p-4 transition-all cursor-pointer ${
+                          formData.desiredCompletionTime === option.id
+                            ? "border-blue-500 bg-blue-500/10"
+                            : "border-white/10 hover:border-white/30"
+                        }`}
+                        onClick={() => setFormData({ ...formData, desiredCompletionTime: option.id })}
+                      >
+                        <RadioGroupItem value={option.id} id={`compl-${option.id}`} className="mt-1" />
+                        <div>
+                          <Label htmlFor={`compl-${option.id}`} className="text-lg font-medium cursor-pointer">
+                            {option.label}
+                          </Label>
+                          <p className="text-sm text-white/60">{option.description}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </RadioGroup>
+                </div>
+                
+                <div className="space-y-4">
+                  <Label>Что мешает вам учиться?</Label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {learningBarrierOptions.map((barrier) => (
+                      <div key={barrier.id} className="flex items-start space-x-2">
+                        <Checkbox
+                          id={`barrier-${barrier.id}`}
+                          checked={formData.learningBarriers.includes(barrier.id)}
+                          onCheckedChange={(checked) => {
+                            const newBarriers = checked
+                              ? [...formData.learningBarriers, barrier.id]
+                              : formData.learningBarriers.filter((b) => b !== barrier.id);
+                            setFormData({ ...formData, learningBarriers: newBarriers });
+                          }}
+                        />
+                        <div>
+                          <Label htmlFor={`barrier-${barrier.id}`} className="text-sm font-medium cursor-pointer">
+                            {barrier.label}
+                          </Label>
+                          <p className="text-xs text-white/60">{barrier.description}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                <Separator className="my-6" />
+                
+                <div className="space-y-4">
                   <Label>Конкретные цели обучения (необязательно)</Label>
                   <Textarea
-                    placeholder="Опишите ваши конкретные цели обучения..."
+                    placeholder="Например: хочу научиться создавать чат-бот для собственного проекта, который будет отвечать на вопросы пользователей"
                     value={formData.specificGoals || ""}
                     onChange={(e) => setFormData({ ...formData, specificGoals: e.target.value })}
-                    className="h-20"
+                    className="min-h-[100px]"
+                  />
+                </div>
+                
+                <div className="space-y-4">
+                  <Label>Опишите конкретный проект, который вы хотели бы реализовать (необязательно)</Label>
+                  <Textarea
+                    placeholder="Например: создание системы рекомендаций для интернет-магазина на основе истории покупок пользователей"
+                    value={formData.specificProjects || ""}
+                    onChange={(e) => setFormData({ ...formData, specificProjects: e.target.value })}
+                    className="min-h-[100px]"
                   />
                 </div>
               </div>
