@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/context/auth-context";
 import { useAuth } from "@/context/auth-context";
 import { UserProfileProvider } from "@/context/user-profile-context";
+import { TrackingProvider } from "@/context/tracking-context";
 import { ParticlesBackground } from "@/components/particles-background";
 import { SidebarProvider } from "@/components/layout/sidebar";
 import { PWAInstallPrompt, MobilePWAInstallButton } from "@/components/pwa/install-prompt";
@@ -148,16 +149,18 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <UserProfileProvider>
-          <SidebarProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Router />
-              <PWAInstallPrompt />
-              <MobilePWAInstallButton />
-              <ConnectionStatus />
-              <PWAModeBadge />
-            </TooltipProvider>
-          </SidebarProvider>
+          <TrackingProvider>
+            <SidebarProvider>
+              <TooltipProvider>
+                <Toaster />
+                <Router />
+                <PWAInstallPrompt />
+                <MobilePWAInstallButton />
+                <ConnectionStatus />
+                <PWAModeBadge />
+              </TooltipProvider>
+            </SidebarProvider>
+          </TrackingProvider>
         </UserProfileProvider>
       </AuthProvider>
     </QueryClientProvider>
