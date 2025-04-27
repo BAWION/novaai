@@ -79,7 +79,7 @@ const NavItem = React.memo(function NavItem({ icon, label, to, isActive, onClick
             }`}
             style={{ willChange: 'none' }}
           >
-            <span className="text-lg">🔹</span>
+            <span className="text-lg">{icon}</span>
           </div>
           
           {/* Отображаем текст без анимации появления/исчезновения, используем только CSS-переходы */}
