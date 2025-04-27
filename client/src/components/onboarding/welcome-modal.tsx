@@ -57,8 +57,8 @@ export function WelcomeModal({ isOpen, onOpenChange, userName = "студент"
     // Сохраняем данные диагностики, чтобы их можно было использовать на странице dashboard
     sessionStorage.setItem("onboardingData", JSON.stringify(onboardingData));
     
-    // Переходим к компактной версии диагностики
-    setLocation("/quick-diagnosis");
+    // Переходим к полной версии диагностики
+    setLocation("/deep-diagnosis");
   };
 
   // Функция для пропуска онбординга
