@@ -283,7 +283,7 @@ export function CourseCard({
           >
             <div className="flex space-x-3 items-center mb-3">
               <div className={cn("rounded-lg p-2.5 text-xl", styles.icon)}>
-                <i className={`fas fa-${icon}`}></i>
+                <i className="fas fa-book"></i>
               </div>
               <div>
                 <h4 className="font-semibold">{title}</h4>
@@ -386,7 +386,7 @@ export function CourseCard({
       {renderSkillMatch()}
       <div className="flex justify-between items-start">
         <div className={cn("rounded-lg p-2", styles.icon)}>
-          <i className={`fas fa-${icon} text-lg`}></i>
+          <i className="fas fa-book text-lg"></i>
         </div>
         <span className={cn("px-2 py-0.5 rounded text-xs font-medium", levelInfo.bgColor)}>
           {levelInfo.text}
