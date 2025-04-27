@@ -49,7 +49,7 @@ export function BottomNavigation() {
                       : "text-white/60"
                   }`}
                 >
-                  <i className={`fas ${item.icon} text-lg`}></i>
+                  <span className="text-lg">🔹</span>
                 </div>
                 <span className="text-xs">{item.label}</span>
               </div>
