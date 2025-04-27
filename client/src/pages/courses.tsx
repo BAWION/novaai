@@ -311,17 +311,24 @@ export default function Courses() {
   const { data: apiCourses = [], isLoading: isLoadingApiCourses } = useQuery({
     queryKey: ['/api/courses'],
     queryFn: async () => {
-      const response = await fetch('/api/courses');
-      if (!response.ok) {
-        throw new Error('Failed to fetch courses');
+      try {
+        const response = await fetch('/api/courses');
+        if (!response.ok) {
+          throw new Error('Failed to fetch courses');
+        }
+        const data = await response.json();
+        console.log('API курсы:', data); // Отладка для просмотра данных
+        return data;
+      } catch (error) {
+        console.error('Ошибка при загрузке курсов:', error);
+        return [];
       }
-      return response.json();
     }
   });
 
   // Преобразуем курсы из API в формат нашего приложения
   const formattedApiCourses = apiCourses.map((course: any) => ({
-    id: course.id,
+    id: `api_${course.id}`, // добавляем префикс, чтобы избежать конфликта ID
     title: course.title,
     description: course.description,
     icon: course.icon || 'book',
