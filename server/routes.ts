@@ -16,6 +16,7 @@ import mlApiRouter from "./routes/ml-api";
 import gapAnalysisRouter from "./routes/gap-analysis-api";
 import aiAssistantRouter from "./routes/ai-assistant-api";
 import profilesRouter from "./routes/profiles-api";
+import eventLogsRouter from "./routes/event-logs-api";
 import { setCurrentUserId } from "./storage-integration";
 // Добавляем кириллическую поддержку
 import 'express';
@@ -791,6 +792,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Подключаем маршруты для профилей пользователей
   app.use("/api/profiles", profilesRouter);
+  
+  // Подключаем маршруты для логирования событий
+  app.use("/api/events", eventLogsRouter);
   
   // Временно отключены маршруты, для которых требуются дополнительные схемы
   // // Маршруты для отслеживания событий обучения
