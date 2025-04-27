@@ -446,7 +446,7 @@ export default function Courses() {
                       selectedCourse.color === 'secondary' ? 'from-[#2EBAE1] to-[#5ED1F9]' :
                       'from-[#FF3A8C] to-[#FF6AB5]'
                     } flex items-center justify-center text-white`}>
-                      <i className={`fas fa-${selectedCourse.icon} text-2xl`}></i>
+                      <i className="fas fa-book text-2xl"></i>
                     </div>
                     <div>
                       <h2 className="font-orbitron text-2xl font-bold">
