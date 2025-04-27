@@ -258,11 +258,11 @@ export default function Dashboard() {
     }
   }, [user, userProfile]);
 
-  // Обработчик начала онбординга
+  // Обработчик начала онбординга - направляем сразу на глубокую диагностику
   const handleStartOnboarding = () => {
     setShowOnboardingPrompt(false);
     setShowWelcomeModal(false);
-    setLocation("/onboarding-page");
+    setLocation("/deep-diagnosis");
   };
 
   // Обработчик закрытия подсказки об онбординге
