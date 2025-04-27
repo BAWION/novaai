@@ -208,7 +208,7 @@ export function CourseCard({
         onClick={handleClick}
       >
         <div className={cn("rounded-lg p-2", styles.icon)}>
-          <i className={`fas fa-${icon} text-lg`}></i>
+          <i className="fas fa-book text-lg"></i>
         </div>
         <div className="flex-1">
           <h3 className="font-semibold">{title}</h3>
@@ -238,7 +238,7 @@ export function CourseCard({
         {renderSkillMatch()}
         <div className="flex justify-between items-start mb-3">
           <div className={cn("rounded-xl p-3", styles.icon)}>
-            <i className={`fas fa-${icon} text-2xl`}></i>
+            <i className="fas fa-book text-2xl"></i>
           </div>
           <div className="flex flex-col items-end">
             <span className={cn("px-2 py-0.5 rounded text-xs font-medium", levelInfo.bgColor)}>

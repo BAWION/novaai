@@ -273,7 +273,7 @@ export default function Courses() {
 
   // Преобразуем курсы из API в формат для UI
   const apiCoursesFormatted = React.useMemo(() => {
-    if (!apiCourses) return [];
+    if (!apiCourses || !Array.isArray(apiCourses)) return [];
     
     return apiCourses.map((course: any): Course => ({
       id: course.id,
@@ -287,9 +287,9 @@ export default function Courses() {
       updated: course.updatedAt ? new Date(course.updatedAt).toISOString().split('T')[0] : "2025-04-27",
       color: course.color || "primary",
       skillMatch: {
-        percentage: 80,
-        label: "Рекомендуется",
-        isRecommended: true
+        percentage: 0,
+        label: "Пройдите диагностику для рекомендаций",
+        isRecommended: false
       }
     }));
   }, [apiCourses]);
