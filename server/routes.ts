@@ -458,6 +458,142 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Маршруты для модулей курса
+  app.get("/api/courses/:courseId/modules", async (req, res) => {
+    try {
+      const courseId = parseInt(req.params.courseId);
+      const modules = await storage.getCourseModules(courseId);
+      res.json(modules);
+    } catch (error) {
+      console.error("Get course modules error:", error);
+      res.status(500).json({ message: "Failed to get course modules" });
+    }
+  });
+
+  app.get("/api/modules/:id", async (req, res) => {
+    try {
+      const moduleId = parseInt(req.params.id);
+      const module = await storage.getCourseModule(moduleId);
+      
+      if (!module) {
+        return res.status(404).json({ message: "Module not found" });
+      }
+      
+      res.json(module);
+    } catch (error) {
+      console.error("Get module error:", error);
+      res.status(500).json({ message: "Failed to get module" });
+    }
+  });
+
+  // Маршруты для уроков
+  app.get("/api/modules/:moduleId/lessons", async (req, res) => {
+    try {
+      const moduleId = parseInt(req.params.moduleId);
+      const lessons = await storage.getModuleLessons(moduleId);
+      res.json(lessons);
+    } catch (error) {
+      console.error("Get module lessons error:", error);
+      res.status(500).json({ message: "Failed to get module lessons" });
+    }
+  });
+
+  app.get("/api/lessons/:id", async (req, res) => {
+    try {
+      const lessonId = parseInt(req.params.id);
+      const lesson = await storage.getLesson(lessonId);
+      
+      if (!lesson) {
+        return res.status(404).json({ message: "Lesson not found" });
+      }
+      
+      res.json(lesson);
+    } catch (error) {
+      console.error("Get lesson error:", error);
+      res.status(500).json({ message: "Failed to get lesson" });
+    }
+  });
+
+  // Маршрут для получения прогресса пользователя по урокам
+  app.get("/api/user/lessons/progress", authMiddleware, async (req, res) => {
+    try {
+      const userId = req.session.user!.id;
+      const progress = await storage.getUserLessonsProgress(userId);
+      res.json(progress);
+    } catch (error) {
+      console.error("Get user lessons progress error:", error);
+      res.status(500).json({ message: "Failed to get lessons progress" });
+    }
+  });
+
+  // Маршрут для обновления прогресса пользователя по уроку
+  app.post("/api/user/lessons/:lessonId/progress", authMiddleware, async (req, res) => {
+    try {
+      const userId = req.session.user!.id;
+      const lessonId = parseInt(req.params.lessonId);
+      const { status, lastPosition, notes } = req.body;
+      
+      const updated = await storage.updateUserLessonProgress(userId, lessonId, {
+        status,
+        lastPosition,
+        notes
+      });
+      
+      res.json(updated);
+    } catch (error) {
+      console.error("Update lesson progress error:", error);
+      res.status(500).json({ message: "Failed to update lesson progress" });
+    }
+  });
+
+  // Маршруты для практических заданий
+  app.get("/api/lessons/:lessonId/assignments", async (req, res) => {
+    try {
+      const lessonId = parseInt(req.params.lessonId);
+      const assignments = await storage.getLessonAssignments(lessonId);
+      res.json(assignments);
+    } catch (error) {
+      console.error("Get lesson assignments error:", error);
+      res.status(500).json({ message: "Failed to get lesson assignments" });
+    }
+  });
+
+  app.get("/api/assignments/:id", async (req, res) => {
+    try {
+      const assignmentId = parseInt(req.params.id);
+      const assignment = await storage.getAssignment(assignmentId);
+      
+      if (!assignment) {
+        return res.status(404).json({ message: "Assignment not found" });
+      }
+      
+      res.json(assignment);
+    } catch (error) {
+      console.error("Get assignment error:", error);
+      res.status(500).json({ message: "Failed to get assignment" });
+    }
+  });
+
+  // Маршрут для отправки результатов выполнения задания
+  app.post("/api/user/assignments/:assignmentId/results", authMiddleware, async (req, res) => {
+    try {
+      const userId = req.session.user!.id;
+      const assignmentId = parseInt(req.params.assignmentId);
+      const { answers, score } = req.body;
+      
+      const result = await storage.submitAssignmentResult(userId, assignmentId, {
+        answers,
+        score,
+        attemptsCount: 1 // Увеличиваем счетчик попыток в хранилище
+      });
+      
+      res.json(result);
+    } catch (error) {
+      console.error("Submit assignment result error:", error);
+      res.status(500).json({ message: "Failed to submit assignment result" });
+    }
+  });
+
   // User course progress routes
   app.get("/api/user/courses", authMiddleware, async (req, res) => {
     try {

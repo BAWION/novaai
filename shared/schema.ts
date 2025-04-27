@@ -90,6 +90,49 @@ export const courses = pgTable("courses", {
   access: accessEnum("access").notNull(),
   category: categoryEnum("category").default('tech'),
   authorId: integer("author_id").references(() => users.id),
+  objectives: json("objectives"), // Цели обучения
+  prerequisites: json("prerequisites"), // Предварительные требования 
+  skillsGained: json("skills_gained"), // Навыки, полученные после прохождения
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Модули курса
+export const courseModules = pgTable("course_modules", {
+  id: serial("id").primaryKey(),
+  courseId: integer("course_id").notNull().references(() => courses.id),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  orderIndex: integer("order_index").notNull(), // Порядок модуля в курсе
+  estimatedDuration: integer("estimated_duration"), // В минутах
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Уроки в модулях
+export const lessons = pgTable("lessons", {
+  id: serial("id").primaryKey(),
+  moduleId: integer("module_id").notNull().references(() => courseModules.id),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  content: text("content").notNull(), // Контент урока в формате Markdown или HTML
+  orderIndex: integer("order_index").notNull(), // Порядок урока в модуле
+  type: varchar("type", { length: 50 }).notNull(), // Тип урока: видео, текст, практика и т.д.
+  estimatedDuration: integer("estimated_duration"), // В минутах
+  mediaUrls: json("media_urls"), // Ссылки на медиафайлы
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Практические задания
+export const assignments = pgTable("assignments", {
+  id: serial("id").primaryKey(),
+  lessonId: integer("lesson_id").notNull().references(() => lessons.id),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  type: varchar("type", { length: 50 }).notNull(), // quiz, coding, project
+  content: json("content").notNull(), // Содержимое задания (вопросы, ответы, примеры кода)
+  points: integer("points").default(10), // Количество баллов за выполнение
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -132,11 +175,84 @@ export const insertUserCourseProgressSchema = createInsertSchema(userCourseProgr
   completedAt: true,
 });
 
+// Схемы для новых таблиц курсов
+export const insertCourseModuleSchema = createInsertSchema(courseModules).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertLessonSchema = createInsertSchema(lessons).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertAssignmentSchema = createInsertSchema(assignments).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// Схема для отслеживания прогресса по урокам
+export const userLessonProgress = pgTable("user_lesson_progress", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  lessonId: integer("lesson_id").notNull().references(() => lessons.id),
+  status: progressStatusEnum("status").default("not_started"),
+  completedAt: timestamp("completed_at"),
+  notes: text("notes"),
+  lastPosition: integer("last_position").default(0), // Последняя позиция просмотра/чтения
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => {
+  return {
+    userLessonIdx: uniqueIndex("user_lesson_idx").on(table.userId, table.lessonId),
+  };
+});
+
+// Схема для отслеживания выполнения заданий
+export const userAssignmentResults = pgTable("user_assignment_results", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  assignmentId: integer("assignment_id").notNull().references(() => assignments.id),
+  score: integer("score").default(0),
+  answers: json("answers"), // Ответы пользователя
+  feedback: text("feedback"), // Обратная связь от системы или преподавателя
+  completedAt: timestamp("completed_at"),
+  attemptsCount: integer("attempts_count").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => {
+  return {
+    userAssignmentIdx: uniqueIndex("user_assignment_idx").on(table.userId, table.assignmentId),
+  };
+});
+
+export const insertUserLessonProgressSchema = createInsertSchema(userLessonProgress).omit({
+  id: true,
+  completedAt: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertUserAssignmentResultsSchema = createInsertSchema(userAssignmentResults).omit({
+  id: true,
+  completedAt: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Типы для вставки данных
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertUserProfile = z.infer<typeof insertUserProfileSchema>;
 export type InsertCourse = z.infer<typeof insertCourseSchema>;
 export type InsertUserCourseProgress = z.infer<typeof insertUserCourseProgressSchema>;
+export type InsertCourseModule = z.infer<typeof insertCourseModuleSchema>;
+export type InsertLesson = z.infer<typeof insertLessonSchema>;
+export type InsertAssignment = z.infer<typeof insertAssignmentSchema>;
+export type InsertUserLessonProgress = z.infer<typeof insertUserLessonProgressSchema>;
+export type InsertUserAssignmentResults = z.infer<typeof insertUserAssignmentResultsSchema>;
 
 // Определение таблицы функциональных флагов для ML-функций
 export const featureFlags = pgTable("feature_flags", {
@@ -399,7 +515,12 @@ export type InsertUserSkillGap = z.infer<typeof insertUserSkillGapSchema>;
 export type User = typeof users.$inferSelect;
 export type UserProfile = typeof userProfiles.$inferSelect;
 export type Course = typeof courses.$inferSelect;
+export type CourseModule = typeof courseModules.$inferSelect;
+export type Lesson = typeof lessons.$inferSelect;
+export type Assignment = typeof assignments.$inferSelect;
 export type UserCourseProgress = typeof userCourseProgress.$inferSelect;
+export type UserLessonProgress = typeof userLessonProgress.$inferSelect;
+export type UserAssignmentResult = typeof userAssignmentResults.$inferSelect;
 export type FeatureFlag = typeof featureFlags.$inferSelect;
 export type UserActivityLog = typeof userActivityLogs.$inferSelect;
 export type MlModel = typeof mlModels.$inferSelect;
