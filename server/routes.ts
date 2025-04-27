@@ -17,6 +17,8 @@ import gapAnalysisRouter from "./routes/gap-analysis-api";
 import aiAssistantRouter from "./routes/ai-assistant-api";
 import profilesRouter from "./routes/profiles-api";
 import { setCurrentUserId } from "./storage-integration";
+// Добавляем кириллическую поддержку
+import 'express';
 // Временно отключаем маршруты, для которых у нас пока нет определенных типов в схеме
 // import { learningEventsRouter } from "./routes/learning-events";
 // import { lessonProgressRouter } from "./routes/lesson-progress";
