@@ -12,6 +12,7 @@ import {
   learningEvents,
   contentEmbeddings,
   userEmbeddings,
+  eventLogs,
   type InsertFeatureFlag,
   type InsertUserActivityLog,
   type InsertMlModel,
@@ -25,6 +26,8 @@ import {
   type LearningEvent,
   type ContentEmbedding,
   type UserEmbedding,
+  type EventLog,
+  type InsertEventLog,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, sql, desc, getTableColumns, inArray } from "drizzle-orm";
@@ -484,5 +487,103 @@ export class MLStorage {
       .from(userEmbeddings)
       .where(eq(userEmbeddings.userId, userId));
     return embedding;
+  }
+
+  /**
+   * Event Logs - универсальное логирование событий для метрик и аналитики
+   */
+  async logEvent(eventData: InsertEventLog): Promise<EventLog> {
+    const [event] = await db
+      .insert(eventLogs)
+      .values(eventData)
+      .returning();
+    return event;
+  }
+
+  async getEvents(
+    params?: {
+      userId?: number;
+      eventType?: string;
+      startDate?: Date;
+      endDate?: Date;
+      limit?: number;
+      offset?: number;
+    }
+  ): Promise<EventLog[]> {
+    let query = db.select().from(eventLogs);
+    
+    if (params?.userId) {
+      query = query.where(eq(eventLogs.userId, params.userId));
+    }
+    
+    if (params?.eventType) {
+      query = query.where(eq(eventLogs.eventType, params.eventType));
+    }
+    
+    if (params?.startDate) {
+      query = query.where(sql`${eventLogs.timestamp} >= ${params.startDate}`);
+    }
+    
+    if (params?.endDate) {
+      query = query.where(sql`${eventLogs.timestamp} <= ${params.endDate}`);
+    }
+    
+    query = query.orderBy(desc(eventLogs.timestamp));
+    
+    if (params?.limit) {
+      query = query.limit(params.limit);
+    }
+    
+    if (params?.offset) {
+      query = query.offset(params.offset);
+    }
+    
+    return await query;
+  }
+
+  async getEventStats(
+    eventType: string,
+    timeframe: 'day' | 'week' | 'month',
+    startDate?: Date,
+    endDate?: Date
+  ): Promise<{ date: string; count: number }[]> {
+    // Определяем SQL-выражение для группировки по дате в зависимости от timeframe
+    let dateGroupSql;
+    switch (timeframe) {
+      case 'day':
+        dateGroupSql = sql`DATE_TRUNC('day', ${eventLogs.timestamp})`;
+        break;
+      case 'week':
+        dateGroupSql = sql`DATE_TRUNC('week', ${eventLogs.timestamp})`;
+        break;
+      case 'month':
+        dateGroupSql = sql`DATE_TRUNC('month', ${eventLogs.timestamp})`;
+        break;
+    }
+
+    let query = db
+      .select({
+        date: dateGroupSql,
+        count: sql`COUNT(*)`
+      })
+      .from(eventLogs)
+      .where(eq(eventLogs.eventType, eventType));
+
+    if (startDate) {
+      query = query.where(sql`${eventLogs.timestamp} >= ${startDate}`);
+    }
+
+    if (endDate) {
+      query = query.where(sql`${eventLogs.timestamp} <= ${endDate}`);
+    }
+
+    query = query.groupBy(dateGroupSql).orderBy(dateGroupSql);
+
+    const result = await query;
+    
+    return result.map(row => ({
+      date: row.date.toISOString().split('T')[0],
+      count: Number(row.count)
+    }));
   }
 }

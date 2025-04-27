@@ -442,7 +442,26 @@ export const userEmbeddings = pgTable("user_embeddings", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Таблица для универсального логирования событий (event log с JSONB)
+export const eventLogs = pgTable("event_logs", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
+  eventType: varchar("event_type", { length: 100 }).notNull(),
+  timestamp: timestamp("timestamp").defaultNow(),
+  data: json("data").notNull(), // JSONB данные о событии, максимально гибкая структура
+}, (table) => {
+  return {
+    userEventTypeIdx: index("user_event_type_idx").on(table.userId, table.eventType),
+    timestampIdx: index("event_timestamp_idx").on(table.timestamp),
+  };
+});
+
 // Схемы для вставки данных для ML-компонентов
+export const insertEventLogSchema = createInsertSchema(eventLogs).omit({
+  id: true,
+  timestamp: true,
+});
+
 export const insertFeatureFlagSchema = createInsertSchema(featureFlags).omit({
   id: true,
   createdAt: true,
@@ -534,3 +553,5 @@ export type UserSkill = typeof userSkills.$inferSelect;
 export type CourseSkillRequirement = typeof courseSkillRequirements.$inferSelect;
 export type CourseSkillOutcome = typeof courseSkillOutcomes.$inferSelect;
 export type UserSkillGap = typeof userSkillGaps.$inferSelect;
+export type EventLog = typeof eventLogs.$inferSelect;
+export type InsertEventLog = z.infer<typeof insertEventLogSchema>;
