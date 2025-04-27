@@ -167,22 +167,26 @@ export const TrackingProvider = ({ children }: { children: ReactNode }) => {
     });
   };
   
+  // Создадим объект контекста
+  const trackingContextValue: TrackingContextType = {
+    trackEvent,
+    pageView,
+    trackCourseView,
+    trackCourseStart,
+    trackModuleView,
+    trackLessonView,
+    trackLessonComplete,
+    trackQuizAttempt,
+    trackButtonClick,
+    trackSearch,
+    trackFeatureUse
+  };
+  
+  // Устанавливаем глобальный контекст для отладки
+  setGlobalTrackingContext(trackingContextValue);
+  
   return (
-    <TrackingContext.Provider
-      value={{
-        trackEvent,
-        pageView,
-        trackCourseView,
-        trackCourseStart,
-        trackModuleView,
-        trackLessonView,
-        trackLessonComplete,
-        trackQuizAttempt,
-        trackButtonClick,
-        trackSearch,
-        trackFeatureUse
-      }}
-    >
+    <TrackingContext.Provider value={trackingContextValue}>
       {children}
     </TrackingContext.Provider>
   );
@@ -194,4 +198,15 @@ export const useTracking = () => {
     throw new Error('useTracking must be used within a TrackingProvider');
   }
   return context;
+};
+
+// Вспомогательная функция для экспорта трекера в глобальную область для тестирования
+let globalTrackingContext: TrackingContextType | null = null;
+
+export const setGlobalTrackingContext = (context: TrackingContextType) => {
+  globalTrackingContext = context;
+  // Добавляем в глобальный объект window для доступа из консоли
+  if (typeof window !== 'undefined') {
+    (window as any).novaTracking = globalTrackingContext;
+  }
 };
