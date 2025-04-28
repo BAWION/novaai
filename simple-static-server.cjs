@@ -1,18 +1,14 @@
 /**
- * Специальный скрипт деплоя для NovaAI University на Replit
- * Полностью обходит стандартный механизм деплоя Replit и создает собственный сервер
+ * Простой статический веб-сервер для деплоя на Replit
+ * Обслуживает только статические файлы с правильными MIME-типами
  */
 
-// Используем require вместо import для совместимости
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
-const { createProxyMiddleware } = require('http-proxy-middleware');
-const { spawn } = require('child_process');
 
-// Определяем порты и пути
+// Определяем порт и пути
 const PORT = process.env.PORT || 3000;
-const API_PORT = 5000;
 const DIST_DIR = path.join(__dirname, 'dist', 'public');
 
 // Проверяем наличие файлов для деплоя
@@ -30,38 +26,6 @@ app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
   next();
 });
-
-// Запускаем API-сервер на другом порту
-console.log('🚀 Запускаем API-сервер на порту', API_PORT);
-const serverProcess = spawn('npx', ['tsx', 'server/index.ts'], {
-  env: { ...process.env, NODE_ENV: 'production', PORT: API_PORT }
-});
-
-// Логируем вывод API-сервера
-serverProcess.stdout.on('data', (data) => {
-  console.log(`[API Server]: ${data}`);
-});
-
-serverProcess.stderr.on('data', (data) => {
-  console.error(`[API Server ERROR]: ${data}`);
-});
-
-// Проксирование API-запросов
-app.use('/api', createProxyMiddleware({
-  target: `http://localhost:${API_PORT}`,
-  changeOrigin: true,
-  pathRewrite: { '^/api': '/api' },
-  onProxyReq: (proxyReq, req, res) => {
-    // Копируем cookies для авторизации
-    if (req.headers.cookie) {
-      proxyReq.setHeader('Cookie', req.headers.cookie);
-    }
-  },
-  onError: (err, req, res) => {
-    console.error('Proxy error:', err);
-    res.status(503).send('API сервер недоступен, попробуйте позже');
-  }
-}));
 
 // Устанавливаем MIME-типы для всех файлов
 const mimeTypes = {
@@ -110,17 +74,6 @@ app.use(express.static(DIST_DIR, {
   }
 }));
 
-// Специальный обработчик для HTML-файлов
-app.get('/*.html', (req, res) => {
-  const filePath = path.join(DIST_DIR, req.path);
-  if (fs.existsSync(filePath)) {
-    res.setHeader('Content-Type', 'text/html; charset=UTF-8');
-    res.sendFile(filePath);
-  } else {
-    next();
-  }
-});
-
 // Роут для проверки состояния сервера
 app.get('/status', (req, res) => {
   res.setHeader('Content-Type', 'application/json; charset=UTF-8');
@@ -130,6 +83,17 @@ app.get('/status', (req, res) => {
     environment: process.env.NODE_ENV || 'production',
     version: '1.0.0'
   });
+});
+
+// Обработка HTML-запросов
+app.get('/*.html', (req, res, next) => {
+  const filePath = path.join(DIST_DIR, req.path);
+  if (fs.existsSync(filePath)) {
+    res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+    res.sendFile(filePath);
+  } else {
+    next();
+  }
 });
 
 // SPA fallback для всех остальных путей
@@ -150,23 +114,19 @@ app.use((err, req, res, next) => {
   res.status(500).send('Что-то пошло не так! Пожалуйста, попробуйте позже.');
 });
 
-// Обработка завершения работы
-process.on('SIGINT', () => {
-  console.log('🛑 Получен сигнал завершения, останавливаем серверы...');
-  serverProcess.kill();
-  process.exit();
-});
-
 // Запускаем веб-сервер
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`
 ===========================================================
-🚀 NovaAI University | Кастомный деплой запущен!
+🚀 NovaAI University | Статический деплой запущен!
 ===========================================================
 📁 Статика: ${DIST_DIR}
 🌐 Веб-сервер: http://localhost:${PORT}
-🔌 API-сервер: http://localhost:${API_PORT}/api
 🔍 Статус: http://localhost:${PORT}/status
+===========================================================
+⚠️ ВАЖНО: Эта версия не включает API-сервер!
+   Вы можете просматривать интерфейс, но функции требующие
+   API-запросов работать не будут.
 ===========================================================
 ⚡ Использование:
     1. В интерфейсе Replit выберите "Open app" 
