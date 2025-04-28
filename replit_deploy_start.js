@@ -49,10 +49,40 @@ app.use('/api', createProxyMiddleware({
   }
 }));
 
-// Обслуживание статических файлов
+// Обслуживание статических файлов с правильными MIME-типами
 app.use(express.static(DIST_DIR, {
   index: false, // Отключаем автоматическую отдачу index.html
-  maxAge: '7d' // Кэширование статики на 7 дней
+  maxAge: '7d', // Кэширование статики на 7 дней
+  setHeaders: (res, path) => {
+    // Установка правильных заголовков Content-Type
+    if (path.endsWith('.html')) {
+      res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+    } else if (path.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css; charset=UTF-8');
+    } else if (path.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript; charset=UTF-8');
+    } else if (path.endsWith('.json')) {
+      res.setHeader('Content-Type', 'application/json; charset=UTF-8');
+    } else if (path.endsWith('.svg')) {
+      res.setHeader('Content-Type', 'image/svg+xml; charset=UTF-8');
+    } else if (path.endsWith('.png')) {
+      res.setHeader('Content-Type', 'image/png');
+    } else if (path.endsWith('.jpg') || path.endsWith('.jpeg')) {
+      res.setHeader('Content-Type', 'image/jpeg');
+    } else if (path.endsWith('.gif')) {
+      res.setHeader('Content-Type', 'image/gif');
+    } else if (path.endsWith('.ico')) {
+      res.setHeader('Content-Type', 'image/x-icon');
+    } else if (path.endsWith('.woff')) {
+      res.setHeader('Content-Type', 'font/woff');
+    } else if (path.endsWith('.woff2')) {
+      res.setHeader('Content-Type', 'font/woff2');
+    } else if (path.endsWith('.ttf')) {
+      res.setHeader('Content-Type', 'font/ttf');
+    }
+    // Добавляем заголовок для кеширования
+    res.setHeader('Cache-Control', 'public, max-age=604800'); // 7 дней
+  }
 }));
 
 // Роут для проверки состояния сервера
@@ -76,7 +106,8 @@ app.get('*', (req, res) => {
     return res.status(404).send('Файл не найден');
   }
   
-  // Для всех остальных запросов возвращаем index.html
+  // Для всех остальных запросов возвращаем index.html с правильным Content-Type
+  res.setHeader('Content-Type', 'text/html; charset=UTF-8');
   res.sendFile(path.join(DIST_DIR, 'index.html'));
 });
 
