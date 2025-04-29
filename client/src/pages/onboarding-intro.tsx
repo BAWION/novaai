@@ -33,7 +33,7 @@ export default function OnboardingIntro() {
 
   // Начало процесса онбординга
   const startOnboarding = () => {
-    setLocation("/onboarding-page");
+    setLocation("/deep-diagnosis");
   };
 
   // Пропустить вступление
