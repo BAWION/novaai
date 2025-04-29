@@ -74,6 +74,7 @@ export function CourseDropdown() {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
+        setActivationMethod(null);
       }
     }
 
@@ -83,10 +84,39 @@ export function CourseDropdown() {
     };
   }, []);
 
+  // Используем состояние для отслеживания метода активации (hover или click)
+  // Нам нужно различать эти методы для корректной работы
+  const [activationMethod, setActivationMethod] = useState<'hover' | 'click' | null>(null);
+
+  // Обработчик наведения мыши
+  const handleMouseEnter = () => {
+    setIsOpen(true);
+    setActivationMethod('hover');
+  };
+
+  // Обработчик ухода мыши
+  const handleMouseLeave = () => {
+    // Только если открыто через наведение, то закрываем
+    if (activationMethod === 'hover') {
+      setIsOpen(false);
+    }
+  };
+
+  // Обработчик клика
+  const handleClick = () => {
+    setIsOpen(!isOpen);
+    setActivationMethod('click');
+  };
+
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div 
+      className="relative" 
+      ref={dropdownRef}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleClick}
         className="flex items-center text-white/70 hover:text-white transition group"
       >
         <span>Курсы</span>
