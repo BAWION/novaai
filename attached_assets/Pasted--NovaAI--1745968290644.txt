@@ -1,0 +1,30 @@
+Карта-каталог курсов NovaAI — «не только код»
+(что может появиться в течение года; каждую ячейку можно развить до трека 5-10 мини-курсов)
+
+
+Категория	Подкатегория / трек	Типичные модули	Для кого
+1. Базовая грамотность	AI Literacy 101	История ИИ · Как работает LLM · Ограничения/галлюцинации	«Я впервые слышу про GPT»
+Prompt Thinking	Роли, контекст, chain-of-thought, guardrails	Любой, кто общается с чат-ботами
+AI Ethics & Safety	Bias, explainability, red-team	Учителя, гос-службы, HR
+2. Личная продуктивность	AI Study Buddy	Генерация конспектов, флеш-карт, тестов	Старшеклассники, студенты
+Everyday AI	План питания, бюджет, путешествия, рецепты	Любой взрослый
+Creativity Boost	Midjourney, StableDiffusion, Runway для соцсетей	Инд мейкеры, контент-креаторы
+3. Бизнес-инструменты (role-based)	AI for PM/PO	Roadmap-генератор, спецификации, A/B-гипотезы	Продукт-менеджеры
+GPT for Marketers	Перс-emails, ad-copy, SEO-бриф	Маркетологи, SMM
+AI Customer Support	База знаний + RAG-чат-бот	Сервис-менеджеры
+HR & Recruiting AI	Автоскрининг резюме, чат-интервью, off-boarding	HR-generalist
+4. Индустрии (vertical tracks)	Finance & Fintech	Подготовка отчётов XBRL, риск-модели, fraud-LLM	Аналитики, фин-директора
+Retail/e-Commerce	Персональные витрины, динамические прайсы, AI-чаты	Менеджеры магазинов
+Health & Med-Edu	Диагностический triage-бот, Med-prompt safety	Врачи, мед-стартапы
+Manufacturing	Визуальный контроль брака, предиктивное ТО	Инженеры, Lean-аналитики
+5. Без кода, но «с конструктором»	No-Code AI	Zapier + GPT --> автоматизация писем	Предприниматель-одиночка
+Chatbot Builder	Botpress / Voiceflow / RAG на GDocs	Владелец сайта, консультант
+Data to Dashboard	Natural-language → SQL → Supabase chart	Аналитик без Python
+6. Low-code / citizen-dev	LangChain Cookbook	5 рецептов: суммаризация, классификация, зарубежный перевод	Junior dev, «хакер выходного дня»
+Custom-Vision in 3 часа	Azure CVI, Roboflow, Jet-ML	QA инженеры фабрик
+7. Лидерство / стратегия	AI Ops & Governance	ISO 42001, risk register, cost monitoring	CIO / CTO
+AI Product Strategy	TAM, конкурентный анализ LLM, build vs buy	Стартап-фаундер
+Change Management	Коммуникация, обучение персонала, KPI	HR-директоры, CEO
+8. Расширенные специализированные	Deepfake Detection	Методы проверки, бережная коммуникация	Журналисты, факт-чекеры
+AI for Accessibility	Генерация субтитров, голос-2-текст, WCAG-toolkit	Дизайнеры, фронтендеры
+RegTech & Compliance AI	KYC-автомат, санк-скрининг	Банки, FinCrime команды

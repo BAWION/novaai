@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Link } from "wouter";
 import { ethicsCourse, lawCourse } from "@/data";
 import { useQuery } from "@tanstack/react-query";
+import { coursesCatalog, courseCategories, courseSubCategories } from "@/data/courses-catalog";
 
 // Define course types and data
 interface Course {
@@ -283,8 +284,31 @@ export default function Courses() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
+  const [selectedTrack, setSelectedTrack] = useState<string | null>(null);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
-
+  const [showAllCourses, setShowAllCourses] = useState(false);
+  const [showBusinessOnly, setShowBusinessOnly] = useState(false);
+  
+  // Преобразуем данные из каталога курсов в формат Course для совместимости
+  const convertCatalogCourseToOldFormat = (catalogCourse: any): Course => {
+    return {
+      id: catalogCourse.id,
+      title: catalogCourse.title,
+      description: catalogCourse.description,
+      icon: catalogCourse.icon,
+      modules: catalogCourse.modules,
+      level: catalogCourse.level as 'beginner' | 'intermediate' | 'advanced',
+      category: catalogCourse.category,
+      instructor: catalogCourse.instructor,
+      duration: catalogCourse.duration,
+      rating: catalogCourse.rating,
+      enrolled: catalogCourse.enrolled || 0,
+      updated: catalogCourse.updated || "2025-04-01",
+      color: catalogCourse.color as 'primary' | 'secondary' | 'accent',
+      skillMatch: catalogCourse.skillMatch
+    };
+  };
+  
   // Добавление курсов из новых категорий
   const ethicsCourseFormatted: Course = {
     id: ethicsCourse.id,
@@ -369,8 +393,13 @@ export default function Courses() {
     }
   }));
 
-  // Объединяем курсы из API с локальными курсами
-  const allCourses = [...SAMPLE_COURSES, ...formattedApiCourses, ethicsCourseFormatted, lawCourseFormatted];
+  // Конвертируем новый каталог курсов в старый формат
+  const catalogCoursesFormatted = coursesCatalog.map(convertCatalogCourseToOldFormat);
+  
+  // Объединяем курсы из API с локальными курсами и новым каталогом
+  const allCourses = showAllCourses 
+    ? [...SAMPLE_COURSES, ...formattedApiCourses, ethicsCourseFormatted, lawCourseFormatted, ...catalogCoursesFormatted]
+    : [...catalogCoursesFormatted]; // По умолчанию показываем только новый расширенный каталог
 
   // Filter courses based on search and filters
   // Преобразовать id в строки для поддержки строковых идентификаторов
@@ -391,7 +420,16 @@ export default function Courses() {
     
     const matchesLevel = selectedLevel ? course.level === selectedLevel : true;
     
-    return matchesSearch && matchesCategory && matchesLevel;
+    // Фильтр по треку (новое)
+    const isBusinessCourse = showBusinessOnly && course.themeStyle === 'business';
+    const matchesTrack = selectedTrack 
+      ? (catalogCoursesFormatted.some(c => c.id === course.id && (c as any).track === selectedTrack))
+      : true;
+    
+    // Учитываем фильтр по бизнес-курсам
+    const passesBusinessFilter = showBusinessOnly ? isBusinessCourse : true;
+    
+    return matchesSearch && matchesCategory && matchesLevel && matchesTrack && passesBusinessFilter;
   });
 
   // All unique categories
@@ -399,6 +437,11 @@ export default function Courses() {
     new Set(allCourses.flatMap(course => 
       Array.isArray(course.category) ? course.category : [course.category]
     ))
+  );
+  
+  // Все треки из нового каталога
+  const tracks = Array.from(
+    new Set(coursesCatalog.map(course => course.track))
   );
 
   // Format date
