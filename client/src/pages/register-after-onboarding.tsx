@@ -93,9 +93,12 @@ export default function RegisterAfterOnboarding() {
           username: data.username,
           password: data.password,
           displayName: data.fullName,
-          email: data.email || "", // Используем введенный email или пустую строку
-          // Добавляем данные онбординга
-          ...profileData // Разворачиваем данные профиля в основной объект
+          email: data.email,
+          // Добавляем данные онбординга как профиль
+          profile: {
+            ...profileData,
+            userId: 0 // Это будет заменено на сервере после создания пользователя
+          }
         }),
       });
       
@@ -186,7 +189,8 @@ export default function RegisterAfterOnboarding() {
                     <Input
                       id="fullName"
                       type="text"
-                      className="bg-space-800/50 border-white/10"
+                      className="bg-space-800/50 border-white/10 text-white font-medium"
+                      style={{ fontSize: "18px", letterSpacing: "1px" }}
                       {...register("fullName", { required: "Имя обязательно" })}
                     />
                     {errors.fullName && (
@@ -199,7 +203,8 @@ export default function RegisterAfterOnboarding() {
                     <Input
                       id="username"
                       type="text"
-                      className="bg-space-800/50 border-white/10"
+                      className="bg-space-800/50 border-white/10 text-white font-medium"
+                      style={{ fontSize: "18px", letterSpacing: "1px" }}
                       {...register("username", { required: "Имя пользователя обязательно" })}
                     />
                     {errors.username && (
@@ -262,13 +267,17 @@ export default function RegisterAfterOnboarding() {
                   </div>
                   {/* Добавляем поле для email */}
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email (необязательно)</Label>
+                    <Label htmlFor="email">Email (обязательно)</Label>
                     <Input
                       id="email"
                       type="email"
-                      className="bg-space-800/50 border-white/10"
-                      {...register("email")}
+                      className="bg-space-800/50 border-white/10 text-white font-medium"
+                      style={{ fontSize: "18px", letterSpacing: "1px" }}
+                      {...register("email", { required: "Email обязателен" })}
                     />
+                    {errors.email && (
+                      <p className="text-sm text-red-500">{errors.email.message}</p>
+                    )}
                   </div>
 
                 </CardContent>

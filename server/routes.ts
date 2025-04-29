@@ -133,19 +133,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         email, 
         password, 
         displayName,
-        // Данные профиля
-        role,
-        pythonLevel,
-        experience,
-        interest,
-        goal,
-        industry,
-        jobTitle,
-        specificGoals,
-        preferredLearningStyle,
-        availableTimePerWeek,
-        preferredDifficulty
+        // Профиль может приходить как вложенный объект profile или как отдельные поля
+        profile
       } = req.body;
+      
+      // Извлекаем данные профиля либо из вложенного объекта, либо из прямых полей
+      const profileData = profile || {};
       
       // Проверяем, существует ли пользователь с таким именем
       const existingUser = await storage.getUserByUsername(username);
@@ -162,27 +155,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       // Создаем профиль пользователя
-      const profileData = {
+      const finalProfileData = {
         userId: newUser.id,
-        role: role || "student",
-        pythonLevel: pythonLevel || 0,
-        experience,
-        interest,
-        goal,
-        industry,
-        jobTitle,
-        specificGoals,
-        preferredLearningStyle,
-        availableTimePerWeek,
-        preferredDifficulty
+        role: profileData.role || "student",
+        pythonLevel: profileData.pythonLevel || 0,
+        experience: profileData.experience,
+        interest: profileData.interest,
+        goal: profileData.goal,
+        industry: profileData.industry,
+        jobTitle: profileData.jobTitle,
+        specificGoals: profileData.specificGoals,
+        preferredLearningStyle: profileData.preferredLearningStyle,
+        availableTimePerWeek: profileData.availableTimePerWeek,
+        preferredDifficulty: profileData.preferredDifficulty
       };
       
-      // Создаем профиль, если есть данные для профиля
-      if (role || pythonLevel || experience || interest || goal) {
-        await storage.createUserProfile(profileData);
-      }
+      // Создаем профиль всегда для полного потока с онбордингом
+      await storage.createUserProfile(finalProfileData);
       
-      // Записываем пользователя в сессию
+      // Записываем пользователя в сессию для автоматического входа
       req.session.user = {
         id: newUser.id,
         username: newUser.username,
@@ -195,7 +186,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         username: newUser.username, 
         displayName: newUser.displayName,
         message: "Пользователь успешно создан",
-        profileCreated: !!(role || pythonLevel || experience || interest || goal)
+        profileCreated: true
       });
     } catch (error) {
       console.error("Registration with profile error:", error);
