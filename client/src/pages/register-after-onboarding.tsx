@@ -24,7 +24,8 @@ import { useAuth } from "@/context/auth-context";
 export default function RegisterAfterOnboarding() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const { registerMutation, user } = useAuth();
+  const { user } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [onboardingData, setOnboardingData] = useState<any>(null);
   
   const { register, handleSubmit, formState: { errors } } = useForm({
@@ -65,13 +66,35 @@ export default function RegisterAfterOnboarding() {
       return;
     }
     
+    setIsSubmitting(true);
+    
     try {
+      // Получаем данные онбординга из sessionStorage
+      const onboardingDataString = sessionStorage.getItem("onboardingData");
+      const profileData = onboardingDataString ? JSON.parse(onboardingDataString) : {};
+      
       // Отправляем запрос на регистрацию
-      await registerMutation.mutateAsync({
-        username: data.username,
-        password: data.password,
-        fullName: data.fullName
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: data.username,
+          password: data.password,
+          fullName: data.fullName,
+          // Добавляем данные онбординга
+          profile: profileData
+        }),
       });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Ошибка при регистрации");
+      }
+      
+      // Получаем данные пользователя
+      const userData = await response.json();
       
       // После успешной регистрации показываем сообщение
       toast({
@@ -93,6 +116,8 @@ export default function RegisterAfterOnboarding() {
         description: error instanceof Error ? error.message : "Произошла ошибка при регистрации",
         variant: "destructive"
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
   
@@ -209,9 +234,9 @@ export default function RegisterAfterOnboarding() {
                   <Button 
                     type="submit" 
                     className="w-full"
-                    disabled={registerMutation.isPending}
+                    disabled={isSubmitting}
                   >
-                    {registerMutation.isPending ? (
+                    {isSubmitting ? (
                       <>
                         <span className="mr-2">Создание аккаунта</span>
                         <div className="w-4 h-4 rounded-full border-2 border-white/20 border-t-white animate-spin"></div>
