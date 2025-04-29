@@ -74,7 +74,7 @@ export default function RegisterAfterOnboarding() {
       const profileData = onboardingDataString ? JSON.parse(onboardingDataString) : {};
       
       // Отправляем запрос на регистрацию
-      const response = await fetch('/api/register', {
+      const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -82,7 +82,8 @@ export default function RegisterAfterOnboarding() {
         body: JSON.stringify({
           username: data.username,
           password: data.password,
-          fullName: data.fullName,
+          displayName: data.fullName,
+          email: "", // Добавляем пустое поле email, которое требуется на сервере
           // Добавляем данные онбординга
           profile: profileData
         }),
@@ -249,8 +250,19 @@ export default function RegisterAfterOnboarding() {
                       <p className="text-sm text-red-500">{errors.confirmPassword.message}</p>
                     )}
                   </div>
+                  {/* Добавляем поле для email */}
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email (необязательно)</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      className="bg-space-800/50 border-white/10"
+                      {...register("email")}
+                    />
+                  </div>
+
                 </CardContent>
-                <CardFooter>
+                <CardFooter className="flex flex-col gap-4">
                   <Button 
                     type="submit" 
                     className="w-full"
@@ -262,6 +274,24 @@ export default function RegisterAfterOnboarding() {
                         <div className="w-4 h-4 rounded-full border-2 border-white/20 border-t-white animate-spin"></div>
                       </>
                     ) : "Создать аккаунт"}
+                  </Button>
+                  
+                  <div className="relative w-full my-2">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t border-white/10"></span>
+                    </div>
+                    <div className="relative flex justify-center text-xs">
+                      <span className="bg-space-900 px-2 text-white/40">или</span>
+                    </div>
+                  </div>
+                  
+                  <Button 
+                    type="button" 
+                    className="w-full bg-[#0088cc] hover:bg-[#0077b3] flex items-center justify-center gap-2"
+                    onClick={() => window.location.href = '/api/auth/telegram'}
+                  >
+                    <i className="fab fa-telegram text-lg"></i>
+                    <span>Войти через Telegram</span>
                   </Button>
                 </CardFooter>
               </form>
