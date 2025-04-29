@@ -1,0 +1,220 @@
+Путь 1: Онбординг → Регистрация → Личный кабинет
+Шаг 1: Главная страница (home-page.tsx)
+
+Пользователь нажимает одну из кнопок: "Начать", "Начать бесплатно" или "Персонализировать свой путь"
+Все эти кнопки направляют на страницу /onboarding-intro
+Шаг 2: Страница вводной информации (onboarding-intro.tsx)
+
+Пользователь видит серию из трех модальных окон/слайдов:
+
+Слайд 1: Знакомство с диагностикой
+
+Заголовок: "Добро пожаловать в NovaAI University"
+Текст: "Наш искусственный интеллект создаст персонализированную траекторию обучения специально для вас"
+Иконка: Мозг/ИИ
+Кнопка: "Далее"
+Слайд 2: Ценность диагностики
+
+Заголовок: "Персонализация имеет значение"
+Текст: "Диагностика навыков позволит нам подобрать оптимальные курсы и задания, соответствующие вашему уровню и целям"
+Иконка: Радар навыков/График
+Кнопка: "Далее"
+Слайд 3: Что будет дальше
+
+Заголовок: "Ваш путь к мастерству"
+Текст: "После диагностики вы получите доступ к персонализированным рекомендациям и сможете сразу приступить к обучению"
+Иконка: Ракета/Путь
+Кнопки: "Пропустить" и "Начать диагностику"
+При нажатии "Начать диагностику" пользователь переходит на страницу /onboarding-page
+
+Шаг 3: Страница онбординга (onboarding-page.tsx)
+
+Пользователь проходит расширенную форму онбординга:
+Выбор роли (студент, профессионал, преподаватель, исследователь)
+Оценка знаний Python (от 1 до 5)
+Уровень опыта работы с ML/AI (начинающий, изучаю основы, имею опыт, эксперт)
+Выбор области интересов (машинное обучение, компьютерное зрение и т.д.)
+Выбор целей (изучение новых технологий, карьерное развитие и т.д.)
+Система собирает данные и сохраняет во временное хранилище (sessionStorage)
+По завершении онбординга пользователь перенаправляется на страницу /register-after-onboarding
+Шаг 4: Регистрация после онбординга (register-after-onboarding.tsx)
+
+Пользователь видит сообщение: "На основе вашего онбординга мы создали персонализированную траекторию обучения. Для сохранения результатов и доступа к курсам создайте аккаунт."
+Форма содержит два способа регистрации:
+Через Telegram (кнопка "Войти через Telegram")
+Через E-mail (форма с полями для ввода)
+На странице отображается визуализация предварительных рекомендаций (например, список рекомендуемых курсов)
+Шаг 5: Личный кабинет с рекомендациями (dashboard.tsx)
+
+После регистрации система автоматически:
+Создает профиль пользователя с данными онбординга
+Связывает рекомендации курсов с аккаунтом пользователя
+Пользователь видит персонализированный дашборд с рекомендованными курсами
+Реализация модальных окон:
+Создание компонента OnboardingIntroSlides:
+
+interface OnboardingIntroSlidesProps {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  onComplete: () => void;
+}
+/**
+ * Компонент, отображающий вводные слайды о диагностике
+ */
+export function OnboardingIntroSlides({ isOpen, onOpenChange, onComplete }: OnboardingIntroSlidesProps) {
+  const [step, setStep] = useState(1);
+  const totalSteps = 3;
+  // При открытии модального окна сбрасываем шаг на первый
+  useEffect(() => {
+    if (isOpen) {
+      setStep(1);
+    }
+  }, [isOpen]);
+  // Функция для перехода к следующему шагу
+  const nextStep = () => {
+    if (step < totalSteps) {
+      setStep(step + 1);
+    } else {
+      // На последнем шаге закрываем модальное окно и вызываем onComplete
+      onOpenChange(false);
+      onComplete();
+    }
+  };
+  // Функция для пропуска всех шагов
+  const skipSteps = () => {
+    onOpenChange(false);
+    onComplete();
+  };
+  return (
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md bg-space-900/90 backdrop-blur-md border border-white/10">
+        <DialogHeader>
+          <DialogTitle className="text-center font-orbitron bg-clip-text text-transparent bg-gradient-to-r from-primary via-purple-400 to-secondary">
+            {step === 1 && "Добро пожаловать в NovaAI University"}
+            {step === 2 && "Персонализация имеет значение"}
+            {step === 3 && "Ваш путь к мастерству"}
+          </DialogTitle>
+        </DialogHeader>
+        <div className="p-4 text-center">
+          {step === 1 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-4"
+            >
+              <div className="mx-auto w-16 h-16 mb-4 text-primary">
+                <i className="fas fa-brain text-5xl"></i>
+              </div>
+              <p className="text-white/80">
+                Наш искусственный интеллект создаст персонализированную траекторию обучения специально для вас.
+              </p>
+            </motion.div>
+          )}
+          {step === 2 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-4"
+            >
+              <div className="mx-auto w-16 h-16 mb-4 text-secondary">
+                <i className="fas fa-chart-radar text-5xl"></i>
+              </div>
+              <p className="text-white/80">
+                Диагностика навыков позволит нам подобрать оптимальные курсы и задания, соответствующие вашему уровню и целям.
+              </p>
+            </motion.div>
+          )}
+          {step === 3 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-4"
+            >
+              <div className="mx-auto w-16 h-16 mb-4 text-primary">
+                <i className="fas fa-rocket text-5xl"></i>
+              </div>
+              <p className="text-white/80">
+                После диагностики вы получите доступ к персонализированным рекомендациям и сможете сразу приступить к обучению.
+              </p>
+            </motion.div>
+          )}
+        </div>
+        <DialogFooter className="flex flex-col sm:flex-row sm:justify-between">
+          {step < totalSteps ? (
+            <div className="w-full flex justify-between">
+              <Button variant="ghost" onClick={skipSteps}>
+                Пропустить все
+              </Button>
+              <Button onClick={nextStep}>
+                Далее
+                <i className="fas fa-arrow-right ml-2"></i>
+              </Button>
+            </div>
+          ) : (
+            <div className="w-full flex justify-between">
+              <Button variant="ghost" onClick={skipSteps}>
+                Пропустить
+              </Button>
+              <Button onClick={nextStep}>
+                Начать диагностику
+                <i className="fas fa-rocket ml-2"></i>
+              </Button>
+            </div>
+          )}
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+Создание страницы onboarding-intro.tsx:
+
+import React, { useState, useEffect } from "react";
+import { useLocation } from "wouter";
+import { OnboardingIntroSlides } from "@/components/onboarding/onboarding-intro-slides";
+import { ParticlesBackground } from "@/components/particles-background";
+export default function OnboardingIntro() {
+  const [location, setLocation] = useLocation();
+  const [showIntroSlides, setShowIntroSlides] = useState(true);
+  // Обработчик завершения слайдов
+  const handleIntroComplete = () => {
+    // Перенаправляем на страницу онбординга
+    setLocation("/onboarding-page");
+  };
+  return (
+    <div className="min-h-screen bg-space-900 flex items-center justify-center">
+      <ParticlesBackground />
+      
+      {/* Фоновый контент для красоты, пока открыты слайды */}
+      <div className="container mx-auto px-4 text-center">
+        <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary via-purple-400 to-secondary">
+          NovaAI University
+        </h1>
+        <p className="text-xl text-white/70 mt-4 max-w-xl mx-auto">
+          Персонализированная образовательная платформа на основе искусственного интеллекта
+        </p>
+      </div>
+      {/* Модальные окна с вводной информацией */}
+      <OnboardingIntroSlides 
+        isOpen={showIntroSlides}
+        onOpenChange={setShowIntroSlides}
+        onComplete={handleIntroComplete}
+      />
+    </div>
+  );
+}
+Изменения на главной странице (home-page.tsx):
+Обновим все кнопки, чтобы они вели на /onboarding-intro вместо /onboarding-page:
+
+<a href="/onboarding-intro" className="inline-block py-3 px-8 text-lg rounded bg-primary hover:bg-primary/90 active:bg-primary/80 transition-colors text-white no-underline font-medium tap-highlight-none">
+  Начать бесплатно
+  <i className="fas fa-arrow-right ml-2"></i>
+</a>
+Такая реализация позволит:
+
+Показать пользователю ценность диагностики перед её началом
+Создать плавный и информативный переход к онбордингу
+Повысить вероятность качественного заполнения диагностики
+Использовать единый стиль с модальными окнами, которые показываются при регистрации
