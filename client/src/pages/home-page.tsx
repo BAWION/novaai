@@ -104,7 +104,7 @@ export default function HomePage() {
             <a href="/login" className="btn-mobile px-4 py-2 rounded-lg border-2 border-white/30 hover:bg-white/10 active:bg-white/20 transition-all duration-150 text-white font-medium no-underline inline-block tap-highlight-none">
               Войти
             </a>
-            <a href="/onboarding" className="btn-mobile px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 active:bg-primary/80 transition-all duration-150 text-white font-medium no-underline inline-block tap-highlight-none">
+            <a href="/onboarding-intro" className="btn-mobile px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 active:bg-primary/80 transition-all duration-150 text-white font-medium no-underline inline-block tap-highlight-none">
               Начать
             </a>
           </div>
@@ -129,7 +129,7 @@ export default function HomePage() {
                   NovaAI University — это <span className="font-bold text-white">преимущественно бесплатная</span> образовательная платформа для <span className="font-bold text-white">всех уровней</span> — от школьников до Senior-разработчиков, с адаптивной AI-системой обучения и практическими лабораториями.
                 </p>
                 <div className="flex flex-wrap gap-4">
-                  <a href="/onboarding" className="inline-block py-3 px-8 text-lg rounded bg-primary hover:bg-primary/90 active:bg-primary/80 transition-colors text-white no-underline font-medium tap-highlight-none">
+                  <a href="/onboarding-intro" className="inline-block py-3 px-8 text-lg rounded bg-primary hover:bg-primary/90 active:bg-primary/80 transition-colors text-white no-underline font-medium tap-highlight-none">
                     Начать бесплатно
                     <i className="fas fa-arrow-right ml-2"></i>
                   </a>
@@ -258,7 +258,7 @@ export default function HomePage() {
                         <p className="text-white/80"><span className="font-bold text-white">Адаптивная траектория</span>: система подстраивается под ваши цели и опыт</p>
                       </li>
                     </ul>
-                    <a href="/onboarding" className="inline-block py-2 px-6 rounded bg-primary hover:bg-primary/90 transition-colors text-white no-underline font-medium">
+                    <a href="/onboarding-intro" className="inline-block py-2 px-6 rounded bg-primary hover:bg-primary/90 transition-colors text-white no-underline font-medium">
                       Персонализировать свой путь
                     </a>
                   </div>
@@ -656,7 +656,7 @@ export default function HomePage() {
                   Присоединяйтесь к сообществу из более чем 50,000 студентов и начните осваивать
                   искусственный интеллект уже сегодня.
                 </p>
-                <Link href="/onboarding">
+                <Link href="/onboarding-intro">
                   <Button size="lg" className="text-lg px-10 py-6">
                     Начать бесплатное обучение для всех уровней
                     <i className="fas fa-rocket ml-2"></i>

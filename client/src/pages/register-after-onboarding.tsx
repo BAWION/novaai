@@ -1,322 +1,316 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation } from "wouter";
+import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
-import { Glassmorphism } from "@/components/ui/glassmorphism";
-import { ParticlesBackground } from "@/components/particles-background";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { 
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardFooter, 
+  CardHeader, 
+  CardTitle 
+} from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/context/auth-context";
-import { ChevronRight, UserPlus, Check, Lock } from "lucide-react";
 
+/**
+ * Страница регистрации после прохождения онбординга (Путь 1)
+ * Позволяет пользователю создать аккаунт после прохождения диагностики
+ * для сохранения результатов и получения рекомендаций
+ */
 export default function RegisterAfterOnboarding() {
-  const [location, navigate] = useLocation();
-  const { login, isAuthenticated, user } = useAuth();
+  const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const [isRegistering, setIsRegistering] = useState(false);
-  const [showRegisterForm, setShowRegisterForm] = useState(false);
-  const [credentials, setCredentials] = useState({
-    username: "",
-    password: "",
-    displayName: ""
-  });
-  const [error, setError] = useState("");
-
-  // Проверяем, есть ли данные онбординга
+  const { registerMutation, user } = useAuth();
   const [onboardingData, setOnboardingData] = useState<any>(null);
   
+  const { register, handleSubmit, formState: { errors } } = useForm({
+    defaultValues: {
+      username: "",
+      password: "",
+      confirmPassword: "",
+      fullName: ""
+    }
+  });
+
+  // Если пользователь уже авторизован, перенаправляем его на дашборд
   useEffect(() => {
-    // Если пользователь уже авторизован, перенаправляем на дашборд
-    if (isAuthenticated && user) {
-      navigate("/dashboard");
+    if (user) {
+      setLocation("/dashboard");
+    }
+    
+    // Получаем данные онбординга из sessionStorage
+    const storedData = sessionStorage.getItem("onboardingData");
+    if (storedData) {
+      try {
+        setOnboardingData(JSON.parse(storedData));
+      } catch (e) {
+        console.error("Ошибка при загрузке данных онбординга:", e);
+      }
+    }
+  }, [user, setLocation]);
+  
+  // Обработчик отправки формы
+  const onSubmit = async (data: any) => {
+    // Проверяем, совпадают ли пароли
+    if (data.password !== data.confirmPassword) {
+      toast({
+        title: "Ошибка",
+        description: "Пароли не совпадают",
+        variant: "destructive"
+      });
       return;
     }
     
-    // Загружаем данные онбординга из sessionStorage
-    const savedData = sessionStorage.getItem("onboardingData");
-    if (savedData) {
-      try {
-        setOnboardingData(JSON.parse(savedData));
-      } catch (e) {
-        console.error("Ошибка при парсинге данных онбординга:", e);
-      }
-    } else {
-      // Если данных нет, перенаправляем на страницу онбординга
-      navigate("/onboarding-page");
-    }
-  }, [isAuthenticated, user, navigate]);
-
-  const toggleRegisterForm = () => {
-    setShowRegisterForm(!showRegisterForm);
-    setError("");
-  };
-
-  const handleTelegramLogin = () => {
-    // Здесь будет логика для входа через Telegram
-    // ...
-    toast({
-      title: "Вход через Telegram",
-      description: "Функция находится в разработке",
-    });
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setCredentials(prev => ({ ...prev, [name]: value }));
-    setError("");
-  };
-
-  const handleRegisterSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsRegistering(true);
-    setError("");
-
-    // Проверяем заполненность полей
-    if (!credentials.username || !credentials.password) {
-      setError("Пожалуйста, заполните все обязательные поля");
-      setIsRegistering(false);
-      return;
-    }
-
     try {
-      // 1. Отправляем запрос на регистрацию
-      const registerResponse = await apiRequest("POST", "/api/auth/register", credentials);
-      
-      if (!registerResponse.ok) {
-        const errorData = await registerResponse.json();
-        throw new Error(errorData.message || "Ошибка регистрации");
-      }
-      
-      // 2. Получаем данные нового пользователя
-      const userData = await registerResponse.json();
-      
-      // 3. Обновляем состояние авторизации
-      login(userData);
-      
-      // 4. Отправляем данные онбординга на сервер, если они есть
-      if (onboardingData) {
-        try {
-          const onboardingResponse = await apiRequest("POST", "/api/profiles/onboarding", {
-            ...onboardingData,
-            userId: userData.id
-          });
-          
-          if (!onboardingResponse.ok) {
-            console.error("Ошибка при сохранении данных онбординга");
-          }
-          
-          // Очищаем данные из sessionStorage
-          sessionStorage.removeItem("onboardingData");
-          
-        } catch (err) {
-          console.error("Ошибка при отправке данных онбординга:", err);
-        }
-      }
-      
-      // 5. Показываем сообщение об успешной регистрации
-      toast({
-        title: "Регистрация прошла успешно",
-        description: `Добро пожаловать, ${userData.displayName || userData.username}!`,
+      // Отправляем запрос на регистрацию
+      await registerMutation.mutateAsync({
+        username: data.username,
+        password: data.password,
+        fullName: data.fullName
       });
       
-      // 6. Перенаправляем на dashboard
-      navigate("/dashboard");
+      // После успешной регистрации показываем сообщение
+      toast({
+        title: "Успешно!",
+        description: "Регистрация прошла успешно. Добро пожаловать в NovaAI University!",
+      });
       
-    } catch (err: any) {
-      setError(err.message || "Ошибка регистрации. Пожалуйста, попробуйте снова.");
-      console.error("Ошибка регистрации:", err);
-    } finally {
-      setIsRegistering(false);
+      // Очищаем данные онбординга из sessionStorage после успешной регистрации
+      sessionStorage.removeItem("onboardingData");
+      
+      // Перенаправляем на дашборд
+      setTimeout(() => {
+        setLocation("/dashboard");
+      }, 1000);
+    } catch (error) {
+      // Обрабатываем ошибку
+      toast({
+        title: "Ошибка регистрации",
+        description: error instanceof Error ? error.message : "Произошла ошибка при регистрации",
+        variant: "destructive"
+      });
     }
   };
-
+  
   return (
-    <div className="min-h-screen bg-space-900 relative overflow-hidden flex flex-col md:flex-row">
-      <ParticlesBackground />
-      
-      <div className="flex-1 flex items-center justify-center p-4 md:p-10">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="w-full max-w-md"
-        >
-          <Glassmorphism className="rounded-2xl p-6 md:p-8 w-full relative overflow-hidden border-white/10" borderGradient>
-            <div className="text-center mb-6">
-              <h2 className="font-orbitron text-2xl font-semibold">
-                Сохраните результаты диагностики
-              </h2>
-              <p className="text-white/60 mt-1">Создайте аккаунт для доступа к персонализированным рекомендациям</p>
-            </div>
-
-            {!showRegisterForm ? (
-              <>
-                <div className="mb-6">
-                  <button
-                    onClick={handleTelegramLogin}
-                    className="w-full bg-[#0088cc] hover:bg-[#0099dd] text-white py-3 px-4 rounded-lg flex items-center justify-center transition duration-300 tap-highlight-none btn-mobile"
-                  >
-                    <i className="fab fa-telegram mr-2"></i>
-                    Войти через Telegram
-                  </button>
-                </div>
-
-                <div className="relative my-6">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-white/10"></div>
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-space-800 px-2 text-white/50">или</span>
-                  </div>
-                </div>
-
-                <button
-                  onClick={toggleRegisterForm}
-                  className="w-full border border-white/20 hover:bg-white/10 text-white py-3 px-4 rounded-lg transition duration-300 tap-highlight-none btn-mobile"
-                >
-                  <UserPlus className="h-5 w-5 mr-2" />
-                  Зарегистрироваться с E-mail
-                </button>
-              </>
-            ) : (
-              <form onSubmit={handleRegisterSubmit} className="space-y-4">
-                <div>
-                  <label htmlFor="username" className="block text-white/80 text-sm font-medium mb-1">
-                    Логин
-                  </label>
-                  <input
-                    id="username"
-                    name="username"
-                    type="text"
-                    value={credentials.username}
-                    onChange={handleInputChange}
-                    className="w-full bg-white/10 border border-white/20 rounded-lg py-2 px-3 text-white placeholder:text-white/50 focus:ring-2 focus:ring-[#6E3AFF]/50 focus:border-[#6E3AFF] transition-all"
-                    placeholder="Введите логин"
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <label htmlFor="displayName" className="block text-white/80 text-sm font-medium mb-1">
-                    Имя (опционально)
-                  </label>
-                  <input
-                    id="displayName"
-                    name="displayName"
-                    type="text"
-                    value={credentials.displayName}
-                    onChange={handleInputChange}
-                    className="w-full bg-white/10 border border-white/20 rounded-lg py-2 px-3 text-white placeholder:text-white/50 focus:ring-2 focus:ring-[#6E3AFF]/50 focus:border-[#6E3AFF] transition-all"
-                    placeholder="Как к вам обращаться"
-                  />
-                </div>
-                
-                <div>
-                  <label htmlFor="password" className="block text-white/80 text-sm font-medium mb-1">
-                    Пароль
-                  </label>
-                  <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    value={credentials.password}
-                    onChange={handleInputChange}
-                    className="w-full bg-white/10 border border-white/20 rounded-lg py-2 px-3 text-white placeholder:text-white/50 focus:ring-2 focus:ring-[#6E3AFF]/50 focus:border-[#6E3AFF] transition-all"
-                    placeholder="Придумайте пароль"
-                    required
-                  />
-                </div>
-
-                {error && (
-                  <div className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-sm text-white">
-                    {error}
-                  </div>
-                )}
-
-                <div className="flex space-x-3 pt-2">
-                  <button
-                    type="button"
-                    onClick={toggleRegisterForm}
-                    className="flex-1 border border-white/20 hover:bg-white/10 text-white py-2 px-4 rounded-lg transition duration-300 tap-highlight-none btn-mobile"
-                    disabled={isRegistering}
-                  >
-                    Назад
-                  </button>
-                  <button
-                    type="submit"
-                    className="flex-1 bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] text-white py-2 px-4 rounded-lg transition duration-300 tap-highlight-none btn-mobile"
-                    disabled={isRegistering}
-                  >
-                    {isRegistering ? (
-                      <span className="flex items-center justify-center">
-                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Регистрация...
-                      </span>
-                    ) : "Создать аккаунт"}
-                  </button>
-                </div>
-              </form>
-            )}
-            
-            <div className="mt-6 text-center text-sm text-white/50">
-              Уже есть аккаунт?{" "}
-              <a href="/login" className="text-[#8BE0F7] hover:underline">Войти</a>
-            </div>
-          </Glassmorphism>
-        </motion.div>
+    <div 
+      className="relative min-h-screen bg-space-950 bg-no-repeat bg-cover bg-center overflow-hidden"
+      style={{ 
+        backgroundImage: "radial-gradient(circle at 50% 50%, rgba(110, 58, 255, 0.1) 0%, rgba(21, 26, 48, 0) 70%)"
+      }}
+    >
+      {/* Фоновые элементы */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-purple-500/5 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-1/4 h-1/4 bg-blue-500/5 rounded-full blur-3xl"></div>
       </div>
       
-      {/* Правая колонка с преимуществами и рекомендациями */}
-      <div className="hidden md:flex md:w-1/2 bg-gradient-to-b from-indigo-900/30 to-purple-900/30 backdrop-blur-sm items-center justify-center p-10">
-        <div className="max-w-md">
-          <motion.div 
+      {/* Верхний блок с логотипом и названием */}
+      <header className="pt-10 pb-8 px-4">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-center"
+        >
+          <h1 className="text-4xl font-orbitron bg-clip-text text-transparent bg-gradient-to-r from-[#B28DFF] via-[#8BE0F7] to-[#B28DFF]">
+            NovaAI University
+          </h1>
+          <p className="text-white/60 mt-2">
+            Последний шаг для получения персонализированных рекомендаций
+          </p>
+        </motion.div>
+      </header>
+      
+      {/* Основной контент */}
+      <main className="container mx-auto px-4 py-8">
+        <div className="flex flex-col md:flex-row gap-8 max-w-6xl mx-auto">
+          {/* Форма регистрации */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="md:w-1/2 w-full"
+          >
+            <Card className="border-white/5 bg-space-900/40 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle>Создайте аккаунт</CardTitle>
+                <CardDescription>
+                  Сохраните результаты диагностики и получите доступ к персонализированным рекомендациям
+                </CardDescription>
+              </CardHeader>
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="fullName">Ваше имя</Label>
+                    <Input
+                      id="fullName"
+                      type="text"
+                      className="bg-space-800/50 border-white/10"
+                      {...register("fullName", { required: "Имя обязательно" })}
+                    />
+                    {errors.fullName && (
+                      <p className="text-sm text-red-500">{errors.fullName.message}</p>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="username">Имя пользователя</Label>
+                    <Input
+                      id="username"
+                      type="text"
+                      className="bg-space-800/50 border-white/10"
+                      {...register("username", { required: "Имя пользователя обязательно" })}
+                    />
+                    {errors.username && (
+                      <p className="text-sm text-red-500">{errors.username.message}</p>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Пароль</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      className="bg-space-800/50 border-white/10"
+                      {...register("password", { 
+                        required: "Пароль обязателен",
+                        minLength: {
+                          value: 6,
+                          message: "Пароль должен содержать минимум 6 символов"
+                        }
+                      })}
+                    />
+                    {errors.password && (
+                      <p className="text-sm text-red-500">{errors.password.message}</p>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="confirmPassword">Подтвердите пароль</Label>
+                    <Input
+                      id="confirmPassword"
+                      type="password"
+                      className="bg-space-800/50 border-white/10"
+                      {...register("confirmPassword", { 
+                        required: "Подтверждение пароля обязательно"
+                      })}
+                    />
+                    {errors.confirmPassword && (
+                      <p className="text-sm text-red-500">{errors.confirmPassword.message}</p>
+                    )}
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button 
+                    type="submit" 
+                    className="w-full"
+                    disabled={registerMutation.isPending}
+                  >
+                    {registerMutation.isPending ? (
+                      <>
+                        <span className="mr-2">Создание аккаунта</span>
+                        <div className="w-4 h-4 rounded-full border-2 border-white/20 border-t-white animate-spin"></div>
+                      </>
+                    ) : "Создать аккаунт"}
+                  </Button>
+                </CardFooter>
+              </form>
+            </Card>
+            
+            <div className="mt-4 text-center text-white/60 text-sm">
+              Уже есть аккаунт?{" "}
+              <a 
+                href="/login" 
+                className="text-primary hover:underline"
+              >
+                Войти
+              </a>
+            </div>
+          </motion.div>
+          
+          {/* Информация справа */}
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
+            className="md:w-1/2 w-full"
           >
-            <h2 className="text-3xl font-orbitron bg-clip-text text-transparent bg-gradient-to-r from-[#B28DFF] via-[#8BE0F7] to-[#B28DFF] mb-6">
-              Мы подготовили рекомендации для вас
-            </h2>
-            
-            <Glassmorphism className="rounded-xl p-6 mb-6 border-white/10">
-              <h3 className="text-xl font-medium text-white mb-4">
-                На основе вашей диагностики
-              </h3>
-              
-              <ul className="space-y-4">
-                <li className="flex items-start">
-                  <span className="bg-green-500/20 p-1 rounded-full mr-3 mt-0.5">
-                    <Check className="h-4 w-4 text-green-400" />
-                  </span>
-                  <span className="text-white/80">Персонализированная траектория обучения</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="bg-green-500/20 p-1 rounded-full mr-3 mt-0.5">
-                    <Check className="h-4 w-4 text-green-400" />
-                  </span>
-                  <span className="text-white/80">Оптимальные курсы для вашего уровня</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="bg-green-500/20 p-1 rounded-full mr-3 mt-0.5">
-                    <Check className="h-4 w-4 text-green-400" />
-                  </span>
-                  <span className="text-white/80">Практические проекты соответствующей сложности</span>
-                </li>
-              </ul>
-            </Glassmorphism>
-            
-            <div className="flex items-center p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-              <Lock className="h-5 w-5 text-blue-400 mr-3" />
-              <p className="text-sm text-white/70">
-                Создайте аккаунт, чтобы получить полный доступ к персонализированным рекомендациям и продолжить обучение.
-              </p>
-            </div>
+            <Card className="border-white/5 bg-space-900/40 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle>Результаты вашей диагностики</CardTitle>
+                <CardDescription>
+                  Создайте аккаунт, чтобы сохранить эти результаты и получить доступ к персональным рекомендациям
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {onboardingData ? (
+                  <div className="space-y-4">
+                    <div className="p-4 bg-primary/10 rounded-lg">
+                      <h3 className="font-medium mb-2 flex items-center gap-2">
+                        <i className="fas fa-user-graduate text-primary"></i>
+                        <span>Информация о профиле</span>
+                      </h3>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <p className="text-sm text-white/60">Роль</p>
+                          <p className="font-medium">{onboardingData.role || 'Не указано'}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-white/60">Опыт</p>
+                          <p className="font-medium">{onboardingData.experience || 'Не указано'}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-white/60">Уровень Python</p>
+                          <p className="font-medium">{onboardingData.pythonLevel || 'Не указано'}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-white/60">Интересы</p>
+                          <p className="font-medium">{onboardingData.interest || 'Не указано'}</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="p-4 bg-blue-500/10 rounded-lg">
+                      <h3 className="font-medium mb-3 flex items-center gap-2">
+                        <i className="fas fa-lightbulb text-blue-400"></i>
+                        <span>Что вы получите после регистрации</span>
+                      </h3>
+                      <ul className="space-y-2">
+                        <li className="flex items-start gap-2">
+                          <i className="fas fa-check text-green-400 mt-1"></i>
+                          <span>Персонализированную подборку курсов и материалов</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <i className="fas fa-check text-green-400 mt-1"></i>
+                          <span>Индивидуальную карту развития навыков</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <i className="fas fa-check text-green-400 mt-1"></i>
+                          <span>Адаптивную систему обучения под ваш уровень</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <i className="fas fa-check text-green-400 mt-1"></i>
+                          <span>Доступ к ИИ-ассистенту для сопровождения обучения</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center p-6">
+                    <div className="w-12 h-12 rounded-full border-4 border-primary/30 border-t-primary animate-spin mx-auto mb-4"></div>
+                    <p className="text-white/60">Загрузка результатов диагностики...</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </motion.div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
