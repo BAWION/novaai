@@ -28,12 +28,22 @@ export default function RegisterAfterOnboarding() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [onboardingData, setOnboardingData] = useState<any>(null);
   
-  const { register, handleSubmit, formState: { errors } } = useForm({
+  // Типы для формы регистрации
+  type RegisterFormData = {
+    username: string;
+    password: string;
+    confirmPassword: string;
+    fullName: string;
+    email: string;
+  };
+
+  const { register, handleSubmit, formState: { errors } } = useForm<RegisterFormData>({
     defaultValues: {
       username: "",
       password: "",
       confirmPassword: "",
-      fullName: ""
+      fullName: "",
+      email: ""
     }
   });
 
@@ -53,9 +63,9 @@ export default function RegisterAfterOnboarding() {
       }
     }
   }, [user, setLocation]);
-  
+
   // Обработчик отправки формы
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: RegisterFormData) => {
     // Проверяем, совпадают ли пароли
     if (data.password !== data.confirmPassword) {
       toast({
@@ -73,8 +83,8 @@ export default function RegisterAfterOnboarding() {
       const onboardingDataString = sessionStorage.getItem("onboardingData");
       const profileData = onboardingDataString ? JSON.parse(onboardingDataString) : {};
       
-      // Отправляем запрос на регистрацию
-      const response = await fetch('/api/auth/register', {
+      // Отправляем запрос на регистрацию с профилем
+      const response = await fetch('/api/auth/register-and-profile', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -83,9 +93,9 @@ export default function RegisterAfterOnboarding() {
           username: data.username,
           password: data.password,
           displayName: data.fullName,
-          email: "", // Добавляем пустое поле email, которое требуется на сервере
+          email: data.email || "", // Используем введенный email или пустую строку
           // Добавляем данные онбординга
-          profile: profileData
+          ...profileData // Разворачиваем данные профиля в основной объект
         }),
       });
       
