@@ -673,54 +673,110 @@ export default function Courses() {
       ) : (
         <div className="space-y-6">
           {/* Search and filters */}
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="w-full md:w-1/2 lg:w-2/3">
-              <div className="relative">
-                <i className="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-white/50"></i>
-                <Input 
-                  className="bg-space-800/50 border-white/10 pl-10 pr-4 py-3 w-full rounded-lg"
-                  placeholder="Поиск курсов..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
+          <div className="space-y-4">
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="w-full md:w-1/2 lg:w-2/3">
+                <div className="relative">
+                  <i className="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-white/50"></i>
+                  <Input 
+                    className="bg-space-800/50 border-white/10 pl-10 pr-4 py-3 w-full rounded-lg"
+                    placeholder="Поиск курсов..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="w-full md:w-1/2 lg:w-1/3 flex gap-2">
+                <select 
+                  className="w-1/2 mr-2 bg-space-800/50 border border-white/10 px-4 py-3 rounded-lg text-white appearance-none focus:outline-none focus:ring-1 focus:ring-primary relative"
+                  value={selectedLevel || ''}
+                  onChange={(e) => setSelectedLevel(e.target.value || null)}
+                  style={{ 
+                    backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgba(255, 255, 255, 0.5)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
+                    backgroundRepeat: 'no-repeat',
+                    backgroundPosition: 'right 1rem center',
+                    backgroundSize: '1rem',
+                    color: 'white'
+                  }}
+                >
+                  <option value="" style={{backgroundColor: '#1a1a2e', color: 'white'}}>Все уровни</option>
+                  <option value="beginner" style={{backgroundColor: '#1a1a2e', color: 'white'}}>Начальный</option>
+                  <option value="intermediate" style={{backgroundColor: '#1a1a2e', color: 'white'}}>Средний</option>
+                  <option value="advanced" style={{backgroundColor: '#1a1a2e', color: 'white'}}>Продвинутый</option>
+                  <option value="expert" style={{backgroundColor: '#1a1a2e', color: 'white'}}>Экспертный</option>
+                </select>
+                
+                <div className="w-1/2 flex">
+                  <button 
+                    className={`mr-2 flex-1 py-3 px-3 rounded-lg font-medium transition-all ${showAllCourses ? 'bg-primary/70 hover:bg-primary' : 'bg-space-800/50 hover:bg-space-700/50 border border-white/10'}`}
+                    onClick={() => setShowAllCourses(!showAllCourses)}
+                  >
+                    <i className={`fas fa-graduation-cap ${showAllCourses ? 'text-white' : 'text-white/60'}`}></i>
+                    <span className="sr-only">Все курсы</span>
+                  </button>
+                  <button 
+                    className={`flex-1 py-3 px-3 rounded-lg font-medium transition-all ${showBusinessOnly ? 'bg-blue-600/80 hover:bg-blue-600' : 'bg-space-800/50 hover:bg-space-700/50 border border-white/10'}`}
+                    onClick={() => setShowBusinessOnly(!showBusinessOnly)}
+                  >
+                    <i className={`fas fa-briefcase ${showBusinessOnly ? 'text-white' : 'text-white/60'}`}></i>
+                    <span className="sr-only">Бизнес-курсы</span>
+                  </button>
+                </div>
               </div>
             </div>
-            <div className="w-full md:w-1/2 lg:w-1/3 flex gap-2">
-              <select 
-                className="w-1/2 mr-2 bg-space-800/50 border border-white/10 px-4 py-3 rounded-lg text-white appearance-none focus:outline-none focus:ring-1 focus:ring-primary relative"
-                value={selectedCategory || ''}
-                onChange={(e) => setSelectedCategory(e.target.value || null)}
-                style={{ 
-                  backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgba(255, 255, 255, 0.5)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
-                  backgroundRepeat: 'no-repeat',
-                  backgroundPosition: 'right 1rem center',
-                  backgroundSize: '1rem',
-                  color: 'white'
-                }}
-              >
-                <option value="" style={{backgroundColor: '#1a1a2e', color: 'white'}}>Все категории</option>
-                {categories.map(category => (
-                  <option key={category} value={category} style={{backgroundColor: '#1a1a2e', color: 'white'}}>{category}</option>
+            
+            {/* Трек-фильтры */}
+            <div>
+              <h3 className="text-white/70 text-sm mb-2">Треки обучения:</h3>
+              <div className="flex flex-wrap gap-2">
+                <span 
+                  className={`px-3 py-1.5 rounded-full cursor-pointer text-sm transition-all ${selectedTrack === null ? 'bg-primary/80 text-white' : 'bg-space-800/70 text-white/70 hover:bg-space-700/70'}`}
+                  onClick={() => setSelectedTrack(null)}
+                >
+                  Все треки
+                </span>
+                {tracks.map(track => (
+                  <span 
+                    key={track}
+                    className={`px-3 py-1.5 rounded-full cursor-pointer text-sm transition-all ${selectedTrack === track ? 'bg-primary/80 text-white' : 'bg-space-800/70 text-white/70 hover:bg-space-700/70'}`}
+                    onClick={() => setSelectedTrack(track)}
+                  >
+                    {track}
+                  </span>
                 ))}
-              </select>
-              
-              <select 
-                className="w-1/2 bg-space-800/50 border border-white/10 px-4 py-3 rounded-lg text-white appearance-none focus:outline-none focus:ring-1 focus:ring-primary"
-                value={selectedLevel || ''}
-                onChange={(e) => setSelectedLevel(e.target.value || null)}
-                style={{ 
-                  backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgba(255, 255, 255, 0.5)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
-                  backgroundRepeat: 'no-repeat',
-                  backgroundPosition: 'right 1rem center',
-                  backgroundSize: '1rem',
-                  color: 'white'
-                }}
-              >
-                <option value="" style={{backgroundColor: '#1a1a2e', color: 'white'}}>Все уровни</option>
-                <option value="beginner" style={{backgroundColor: '#1a1a2e', color: 'white'}}>Начальный</option>
-                <option value="intermediate" style={{backgroundColor: '#1a1a2e', color: 'white'}}>Средний</option>
-                <option value="advanced" style={{backgroundColor: '#1a1a2e', color: 'white'}}>Продвинутый</option>
-              </select>
+              </div>
+            </div>
+            
+            {/* Категории */}
+            <div>
+              <div className="flex justify-between">
+                <h3 className="text-white/70 text-sm mb-2">Категории:</h3>
+                <span className="text-white/50 text-xs cursor-pointer hover:text-white/70 transition-colors" onClick={() => setSelectedCategory(null)}>
+                  Сбросить
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <span 
+                  className={`px-3 py-1.5 rounded-full cursor-pointer text-sm transition-all ${selectedCategory === null ? 'bg-secondary/80 text-white' : 'bg-space-800/70 text-white/70 hover:bg-space-700/70'}`}
+                  onClick={() => setSelectedCategory(null)}
+                >
+                  Все категории
+                </span>
+                {categories.slice(0, 10).map(category => (
+                  <span 
+                    key={category}
+                    className={`px-3 py-1.5 rounded-full cursor-pointer text-sm transition-all ${selectedCategory === category ? 'bg-secondary/80 text-white' : 'bg-space-800/70 text-white/70 hover:bg-space-700/70'}`}
+                    onClick={() => setSelectedCategory(category)}
+                  >
+                    {category}
+                  </span>
+                ))}
+                {categories.length > 10 && (
+                  <span className="px-3 py-1.5 rounded-full text-sm text-white/50">
+                    и ещё {categories.length - 10}...
+                  </span>
+                )}
+              </div>
             </div>
           </div>
           
