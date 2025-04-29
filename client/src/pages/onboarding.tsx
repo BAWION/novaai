@@ -11,7 +11,8 @@ import {
   type SkillLevel,
   type AIExperience,
   type UserInterest,
-  type UserGoal
+  type UserGoal,
+  type CourseTrack
 } from "@/lib/constants";
 import { ParticlesBackground } from "@/components/particles-background";
 import { useUserProfile } from "@/context/user-profile-context";
@@ -21,7 +22,8 @@ export default function Onboarding() {
   const { updateUserProfile } = useUserProfile();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [progress, setProgress] = useState(20);
-  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, string[]>>({});
   const [showComplete, setShowComplete] = useState(false);
 
   const totalQuestions = onboardingQuestions.length;
@@ -31,16 +33,49 @@ export default function Onboarding() {
   }, [currentQuestionIndex, totalQuestions]);
 
   const handleOptionSelect = (questionId: string, value: string) => {
-    setAnswers((prev) => ({ ...prev, [questionId]: value }));
-
-    setTimeout(() => {
-      if (currentQuestionIndex < totalQuestions - 1) {
-        setCurrentQuestionIndex((prev) => prev + 1);
-      } else {
-        // Show completion when all questions are answered
-        setShowComplete(true);
-      }
-    }, 500);
+    const currentQuestion = onboardingQuestions[currentQuestionIndex];
+    
+    if (currentQuestion.multiSelect) {
+      // Для вопросов с множественным выбором
+      setSelectedOptions(prev => {
+        const currentSelected = prev[questionId] || [];
+        const updatedSelected = currentSelected.includes(value)
+          ? currentSelected.filter(v => v !== value) // Если уже выбран, удаляем
+          : [...currentSelected, value]; // Если не выбран, добавляем
+          
+        return { ...prev, [questionId]: updatedSelected };
+      });
+      
+      // Обновляем ответы сразу после выбора новых значений
+      setAnswers(prev => {
+        // Получаем обновленный список выбранных опций
+        const currentSelected = prev[questionId] || [];
+        let updatedSelected: string[];
+        
+        if (Array.isArray(currentSelected)) {
+          updatedSelected = currentSelected.includes(value)
+            ? currentSelected.filter(v => v !== value) // Если уже выбран, удаляем
+            : [...currentSelected, value]; // Если не выбран, добавляем
+        } else {
+          updatedSelected = [value]; // Если ответ не массив (первый выбор), создаем массив
+        }
+        
+        return { ...prev, [questionId]: updatedSelected };
+      });
+    } else {
+      // Для вопросов с одиночным выбором
+      setAnswers(prev => ({ ...prev, [questionId]: value }));
+      
+      // Автоматический переход к следующему вопросу
+      setTimeout(() => {
+        if (currentQuestionIndex < totalQuestions - 1) {
+          setCurrentQuestionIndex(prev => prev + 1);
+        } else {
+          // Show completion when all questions are answered
+          setShowComplete(true);
+        }
+      }, 500);
+    }
   };
 
   const handlePrevQuestion = () => {
@@ -58,14 +93,42 @@ export default function Onboarding() {
   };
 
   const handleViewRoadmap = () => {
-    // Process and save the user's answers
+    // Обрабатываем ответы и определяем рекомендуемый трек обучения
+    const calculateRecommendedTrack = () => {
+      const pythonLevel = typeof answers.python === 'string' ? parseInt(answers.python || "0") : 0;
+      const experience = answers.experience as string;
+      
+      if (pythonLevel <= 1 && experience === 'beginner') {
+        return 'zero-to-hero' as CourseTrack; // Для полных новичков
+      } else if (pythonLevel >= 3 && ['experienced', 'expert'].includes(experience)) {
+        return 'research-ai' as CourseTrack; // Для опытных
+      } else if (answers.interest === 'nlp' || answers.interest === 'natural-language-processing') {
+        return 'nlp-expert' as CourseTrack; // Для интересующихся NLP
+      } else {
+        return 'applied-ds' as CourseTrack; // По умолчанию практический DS
+      }
+    };
+    
+    // Собираем метаданные диагностики для более точной персонализации
+    const diagnosticData: Record<string, any> = {};
+    Object.entries(answers).forEach(([key, value]) => {
+      if (key !== 'role' && key !== 'python' && key !== 'experience' && 
+          key !== 'interest' && key !== 'goal') {
+        diagnosticData[key] = value;
+      }
+    });
+    
+    // Собираем профиль пользователя
     const profileData = {
-      role: answers.role as UserRole,
-      pythonLevel: parseInt(answers.python || "1") as SkillLevel,
-      experience: answers.experience as AIExperience,
-      interest: answers.interest as UserInterest,
-      goal: answers.goal as UserGoal,
-      recommendedTrack: 'zero-to-hero' // This would normally be calculated from the answers
+      role: answers.role as string as UserRole,
+      pythonLevel: typeof answers.python === 'string' ? parseInt(answers.python || "1") as SkillLevel : 1,
+      experience: answers.experience as string as AIExperience,
+      interest: answers.interest as string as UserInterest,
+      goal: answers.goal as string as UserGoal,
+      recommendedTrack: calculateRecommendedTrack(),
+      completedOnboarding: true, 
+      streakDays: 0,
+      metadata: diagnosticData // Сохраняем все ответы на диагностические вопросы
     };
     
     updateUserProfile(profileData);
@@ -113,6 +176,14 @@ export default function Onboarding() {
                       <h3 className="font-space font-medium text-lg mb-3">
                         {currentQuestion.question}
                       </h3>
+                      {currentQuestion.multiSelect && (
+                        <div className="text-sm text-white/70 mb-2">
+                          <span className="inline-flex items-center">
+                            <i className="fas fa-check-square mr-1"></i> 
+                            Можно выбрать несколько вариантов
+                          </span>
+                        </div>
+                      )}
                       <div className={
                         currentQuestion.id === 'python' 
                           ? "flex flex-wrap gap-3" 
@@ -124,7 +195,11 @@ export default function Onboarding() {
                             text={option.text}
                             icon={option.icon}
                             value={option.value}
-                            isSelected={answers[currentQuestion.id] === option.value}
+                            isSelected={
+                              currentQuestion.multiSelect
+                                ? selectedOptions[currentQuestion.id]?.includes(option.value)
+                                : answers[currentQuestion.id] === option.value
+                            }
                             variant={currentQuestion.id === 'python' ? "compact" : "default"}
                             onClick={(value) => handleOptionSelect(currentQuestion.id, value)}
                           />
@@ -176,7 +251,13 @@ export default function Onboarding() {
                   <button
                     onClick={handleNextQuestion}
                     className={`${
-                      answers[currentQuestion.id] ? "opacity-100" : "opacity-50 pointer-events-none"
+                      currentQuestion.multiSelect 
+                        ? selectedOptions[currentQuestion.id]?.length > 0 
+                          ? "opacity-100" 
+                          : "opacity-50 pointer-events-none"
+                        : answers[currentQuestion.id] 
+                          ? "opacity-100" 
+                          : "opacity-50 pointer-events-none"
                     } bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:from-[#4922B2] hover:to-[#1682A1] text-white py-2 px-4 rounded-lg font-medium transition duration-300`}
                   >
                     Далее<i className="fas fa-arrow-right ml-2"></i>
