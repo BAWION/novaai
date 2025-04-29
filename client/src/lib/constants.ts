@@ -14,9 +14,11 @@ export interface OnboardingQuestion {
     icon: string;
     value: string;
   }[];
+  multiSelect?: boolean; // Возможность множественного выбора
 }
 
 export const onboardingQuestions: OnboardingQuestion[] = [
+  // Базовые демографические вопросы
   {
     id: 'role',
     question: 'Какая у вас роль?',
@@ -28,16 +30,51 @@ export const onboardingQuestions: OnboardingQuestion[] = [
     ]
   },
   {
+    id: 'age',
+    question: 'Ваш возраст',
+    options: [
+      { id: 'age1', text: 'До 18 лет', icon: 'child', value: 'under18' },
+      { id: 'age2', text: '18-24 года', icon: 'user', value: '18-24' },
+      { id: 'age3', text: '25-34 года', icon: 'user', value: '25-34' },
+      { id: 'age4', text: '35+ лет', icon: 'user', value: '35plus' }
+    ]
+  },
+  // Технические навыки
+  {
     id: 'python',
     question: 'Оцените свои знания Python',
     options: [
-      { id: 'py1', text: '1 из 5', icon: '', value: '1' },
-      { id: 'py2', text: '2 из 5', icon: '', value: '2' },
-      { id: 'py3', text: '3 из 5', icon: '', value: '3' },
-      { id: 'py4', text: '4 из 5', icon: '', value: '4' },
-      { id: 'py5', text: '5 из 5', icon: '', value: '5' }
+      { id: 'py0', text: 'Нет опыта', icon: 'times-circle', value: '0' },
+      { id: 'py1', text: '1 из 5', icon: 'star', value: '1' },
+      { id: 'py2', text: '2 из 5', icon: 'star', value: '2' },
+      { id: 'py3', text: '3 из 5', icon: 'star', value: '3' },
+      { id: 'py4', text: '4 из 5', icon: 'star', value: '4' },
+      { id: 'py5', text: '5 из 5', icon: 'star', value: '5' }
     ]
   },
+  {
+    id: 'math',
+    question: 'Уровень математической подготовки',
+    options: [
+      { id: 'math0', text: 'Базовый школьный уровень', icon: 'calculator', value: '1' },
+      { id: 'math1', text: 'Углубленный школьный курс', icon: 'calculator', value: '2' },
+      { id: 'math2', text: 'Основы высшей математики', icon: 'square-root-alt', value: '3' },
+      { id: 'math3', text: 'Высшая математика (вуз)', icon: 'square-root-alt', value: '4' },
+      { id: 'math4', text: 'Продвинутая математика', icon: 'brain', value: '5' }
+    ]
+  },
+  {
+    id: 'programming',
+    question: 'Опыт программирования (любой язык)',
+    options: [
+      { id: 'prog0', text: 'Нет опыта', icon: 'times-circle', value: '0' },
+      { id: 'prog1', text: 'Менее 6 месяцев', icon: 'code', value: '1' },
+      { id: 'prog2', text: '6-12 месяцев', icon: 'code', value: '2' },
+      { id: 'prog3', text: '1-3 года', icon: 'laptop-code', value: '3' },
+      { id: 'prog4', text: 'Более 3 лет', icon: 'laptop-code', value: '4' }
+    ]
+  },
+  // ML/AI опыт
   {
     id: 'experience',
     question: 'Опыт работы с ML/AI',
@@ -48,6 +85,19 @@ export const onboardingQuestions: OnboardingQuestion[] = [
       { id: 'exp4', text: 'Эксперт', icon: 'award', value: 'expert' }
     ]
   },
+  {
+    id: 'ml_concepts',
+    question: 'Знакомые концепции ML',
+    options: [
+      { id: 'ml1', text: 'Нейронные сети', icon: 'network-wired', value: 'neural_networks' },
+      { id: 'ml2', text: 'Классификация', icon: 'tags', value: 'classification' },
+      { id: 'ml3', text: 'Регрессия', icon: 'chart-line', value: 'regression' },
+      { id: 'ml4', text: 'Глубокое обучение', icon: 'brain', value: 'deep_learning' },
+      { id: 'ml5', text: 'Пока ничего', icon: 'question', value: 'none' }
+    ],
+    multiSelect: true
+  },
+  // Интересы и цели
   {
     id: 'interest',
     question: 'Что вас интересует больше всего?',
@@ -68,6 +118,71 @@ export const onboardingQuestions: OnboardingQuestion[] = [
       { id: 'goal2', text: 'Практиковать навыки', icon: 'laptop-code', value: 'practice-skills' },
       { id: 'goal3', text: 'Сменить профессию', icon: 'exchange-alt', value: 'career-change' },
       { id: 'goal4', text: 'Создать проект', icon: 'project-diagram', value: 'create-project' }
+    ]
+  },
+  // Конкретные технические вопросы (Python)
+  {
+    id: 'py_question1',
+    question: 'Что делает этот код? x = [i for i in range(10) if i % 2 == 0]',
+    options: [
+      { id: 'pyq1_1', text: 'Создает список четных чисел от 0 до 9', icon: 'check', value: 'correct' },
+      { id: 'pyq1_2', text: 'Создает список нечетных чисел от 0 до 9', icon: 'times', value: 'wrong1' },
+      { id: 'pyq1_3', text: 'Считает количество четных чисел от 0 до 9', icon: 'times', value: 'wrong2' },
+      { id: 'pyq1_4', text: 'Не знаю', icon: 'question-circle', value: 'dont_know' }
+    ]
+  },
+  {
+    id: 'py_question2',
+    question: 'Что такое переменная в программировании?',
+    options: [
+      { id: 'pyq2_1', text: 'Ячейка памяти с именем для хранения данных', icon: 'check', value: 'correct' },
+      { id: 'pyq2_2', text: 'Функция, которая постоянно меняется', icon: 'times', value: 'wrong1' },
+      { id: 'pyq2_3', text: 'Специальный тип числовых данных', icon: 'times', value: 'wrong2' },
+      { id: 'pyq2_4', text: 'Не знаю', icon: 'question-circle', value: 'dont_know' }
+    ]
+  },
+  // Вопросы по математике для ML
+  {
+    id: 'math_question1',
+    question: 'Что означает "стандартное отклонение" в статистике?',
+    options: [
+      { id: 'mq1_1', text: 'Меру разброса данных относительно среднего', icon: 'check', value: 'correct' },
+      { id: 'mq1_2', text: 'Среднее значение всех точек данных', icon: 'times', value: 'wrong1' },
+      { id: 'mq1_3', text: 'Отклонение точности алгоритма от стандарта', icon: 'times', value: 'wrong2' },
+      { id: 'mq1_4', text: 'Не знаю', icon: 'question-circle', value: 'dont_know' }
+    ]
+  },
+  // Этика и ценности в AI
+  {
+    id: 'ethics_question1',
+    question: 'Какой из этих принципов относится к этике ИИ?',
+    options: [
+      { id: 'eq1_1', text: 'Прозрачность и объяснимость алгоритмов', icon: 'check', value: 'correct' },
+      { id: 'eq1_2', text: 'Максимизация прибыли любой ценой', icon: 'times', value: 'wrong1' },
+      { id: 'eq1_3', text: 'Скрытие истинных целей системы', icon: 'times', value: 'wrong2' },
+      { id: 'eq1_4', text: 'Не знаю', icon: 'question-circle', value: 'dont_know' }
+    ]
+  },
+  // Стиль обучения и предпочтения
+  {
+    id: 'learning_style',
+    question: 'Как вы предпочитаете учиться?',
+    options: [
+      { id: 'ls1', text: 'Просмотр видео и презентаций', icon: 'video', value: 'visual' },
+      { id: 'ls2', text: 'Практические упражнения и проекты', icon: 'keyboard', value: 'practical' },
+      { id: 'ls3', text: 'Чтение статей и учебников', icon: 'book', value: 'reading' },
+      { id: 'ls4', text: 'Интерактивные задания', icon: 'gamepad', value: 'interactive' }
+    ]
+  },
+  // Время для обучения
+  {
+    id: 'time_available',
+    question: 'Сколько времени в неделю вы готовы уделять обучению?',
+    options: [
+      { id: 'time1', text: 'Менее 3 часов', icon: 'clock', value: 'minimal' },
+      { id: 'time2', text: '3-7 часов', icon: 'clock', value: 'moderate' },
+      { id: 'time3', text: '8-15 часов', icon: 'clock', value: 'significant' },
+      { id: 'time4', text: 'Более 15 часов', icon: 'clock', value: 'extensive' }
     ]
   }
 ];
