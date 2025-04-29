@@ -50,7 +50,7 @@ export default function HomePage() {
     {
       icon: "fa-laptop-code",
       title: "Практические задания",
-      description: "Интерактивные лаборатории с автоматической проверкой решений и мгновенной обратной связью"
+      description: "Интерактивные лаборатории для мгновенного применения навыков с автоматической проверкой и моментальной обратной связью"
     },
     {
       icon: "fa-certificate",
@@ -196,7 +196,7 @@ export default function HomePage() {
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-bold mb-4">Почему выбирают NovaAI University</h2>
               <p className="text-xl text-white/70 max-w-2xl mx-auto">
-                Инновационный подход к обучению искусственному интеллекту, сочетающий теорию с практикой
+                Платформа, где <span className="font-bold text-white">ИИ сам проектирует и непрерывно обновляет</span> образовательный контент, а вы <span className="font-bold text-white">мгновенно применяете</span> новые навыки на практике
               </p>
             </div>
             
@@ -241,21 +241,21 @@ export default function HomePage() {
                     <ul className="space-y-4 mb-8">
                       <li className="flex gap-3 items-start">
                         <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-primary flex-shrink-0 mt-1">
-                          <i className="fas fa-check text-sm"></i>
+                          <i className="fas fa-robot text-sm"></i>
                         </div>
-                        <p className="text-white/80">Интерактивные дашборды для отслеживания прогресса</p>
+                        <p className="text-white/80"><span className="font-bold text-white">ИИ-контент</span>: система сама создает, обновляет и адаптирует образовательные материалы</p>
                       </li>
                       <li className="flex gap-3 items-start">
                         <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-primary flex-shrink-0 mt-1">
-                          <i className="fas fa-check text-sm"></i>
+                          <i className="fas fa-bolt text-sm"></i>
                         </div>
-                        <p className="text-white/80">AI-подбор курсов на основе ваших целей и опыта</p>
+                        <p className="text-white/80"><span className="font-bold text-white">Мгновенное применение</span>: практические задания для немедленного закрепления навыков</p>
                       </li>
                       <li className="flex gap-3 items-start">
                         <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-primary flex-shrink-0 mt-1">
-                          <i className="fas fa-check text-sm"></i>
+                          <i className="fas fa-chart-line text-sm"></i>
                         </div>
-                        <p className="text-white/80">Визуализация прогресса в освоении навыков</p>
+                        <p className="text-white/80"><span className="font-bold text-white">Адаптивная траектория</span>: система подстраивается под ваши цели и опыт</p>
                       </li>
                     </ul>
                     <a href="/onboarding" className="inline-block py-2 px-6 rounded bg-primary hover:bg-primary/90 transition-colors text-white no-underline font-medium">
