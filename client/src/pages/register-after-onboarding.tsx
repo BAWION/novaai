@@ -24,7 +24,7 @@ import { useAuth } from "@/context/auth-context";
 export default function RegisterAfterOnboarding() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, login } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [onboardingData, setOnboardingData] = useState<any>(null);
   
@@ -100,6 +100,8 @@ export default function RegisterAfterOnboarding() {
             userId: 0 // Это будет заменено на сервере после создания пользователя
           }
         }),
+        // Важно: добавляем credentials для сохранения сессии
+        credentials: 'include'
       });
       
       if (!response.ok) {
@@ -109,6 +111,10 @@ export default function RegisterAfterOnboarding() {
       
       // Получаем данные пользователя
       const userData = await response.json();
+
+      // Важно: устанавливаем пользователя в контекст аутентификации
+      // чтобы он сразу получил авторизацию
+      login(userData);
       
       // После успешной регистрации показываем сообщение
       toast({
@@ -119,9 +125,14 @@ export default function RegisterAfterOnboarding() {
       // Очищаем данные онбординга из sessionStorage после успешной регистрации
       sessionStorage.removeItem("onboardingData");
       
+      // Делаем дополнительный запрос, чтобы обновить сессию
+      await fetch('/api/auth/me', {
+        credentials: 'include'
+      });
+      
       // Перенаправляем на дашборд
       setTimeout(() => {
-        setLocation("/dashboard");
+        window.location.href = '/dashboard'; // Используем прямое перенаправление вместо setLocation
       }, 1000);
     } catch (error) {
       // Обрабатываем ошибку
