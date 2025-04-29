@@ -9,7 +9,7 @@ packages = ["imagemagick", "zip"]
 [deployment]
 deploymentTarget = "autoscale"
 build = ["npm", "run", "build"]
-run = ["npm", "run", "start"]
+run = ["sh", "-c", "node deploy-replit.cjs"]
 
 [workflows]
 runButton = "Project"
