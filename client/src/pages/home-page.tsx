@@ -126,7 +126,7 @@ export default function HomePage() {
                   Освойте <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-purple-500 to-secondary">искусственный интеллект</span> и стройте карьеру будущего
                 </h1>
                 <p className="text-xl text-white/80 mb-8 max-w-xl">
-                  NovaAI University — это современная образовательная платформа с адаптивной системой обучения и практическими лабораториями для освоения AI и Data Science.
+                  NovaAI University — это <span className="font-bold text-white">преимущественно бесплатная</span> образовательная платформа для <span className="font-bold text-white">всех уровней</span> — от школьников до Senior-разработчиков, с адаптивной AI-системой обучения и практическими лабораториями.
                 </p>
                 <div className="flex flex-wrap gap-4">
                   <a href="/onboarding" className="inline-block py-3 px-8 text-lg rounded bg-primary hover:bg-primary/90 active:bg-primary/80 transition-colors text-white no-underline font-medium tap-highlight-none">
@@ -236,7 +236,7 @@ export default function HomePage() {
                       Ваш персональный путь <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">в мир AI</span>
                     </h2>
                     <p className="text-white/80 text-lg mb-8">
-                      NovaAI University создает персонализированный маршрут обучения на основе ваших целей, опыта и темпа обучения.
+                      NovaAI University — это единственная на российском рынке онлайн-экосистема, где ИИ сам проектирует, обновляет и персонализирует обучение для пользователей от школьника до Senior-разработчика.
                     </p>
                     <ul className="space-y-4 mb-8">
                       <li className="flex gap-3 items-start">
@@ -658,7 +658,7 @@ export default function HomePage() {
                 </p>
                 <Link href="/onboarding">
                   <Button size="lg" className="text-lg px-10 py-6">
-                    Начать бесплатное обучение
+                    Начать бесплатное обучение для всех уровней
                     <i className="fas fa-rocket ml-2"></i>
                   </Button>
                 </Link>
