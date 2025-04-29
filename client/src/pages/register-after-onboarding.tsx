@@ -28,14 +28,14 @@ export default function RegisterAfterOnboarding() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [onboardingData, setOnboardingData] = useState<any>(null);
   
-  // Типы для формы регистрации
-  type RegisterFormData = {
+  // Определяем типы для формы регистрации
+  interface RegisterFormData {
     username: string;
     password: string;
     confirmPassword: string;
     fullName: string;
     email: string;
-  };
+  }
 
   const { register, handleSubmit, formState: { errors } } = useForm<RegisterFormData>({
     defaultValues: {
