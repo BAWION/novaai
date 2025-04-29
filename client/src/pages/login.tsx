@@ -232,13 +232,23 @@ export default function Login() {
                   <label htmlFor="password" className="block text-white/80 text-sm font-medium mb-1">
                     Пароль
                   </label>
+                  <style>
+                    {`
+                      .colorful-password-login {
+                        font-size: 24px;
+                        letter-spacing: 4px;
+                        color: #9d4edd !important;
+                        text-shadow: 0 0 8px rgba(157, 78, 221, 0.5);
+                      }
+                    `}
+                  </style>
                   <input
                     id="password"
                     name="password"
                     type="password"
                     value={credentials.password}
                     onChange={handleInputChange}
-                    className="w-full bg-white/10 border border-white/20 rounded-lg py-2 px-3 text-white placeholder:text-white/50 focus:ring-2 focus:ring-[#6E3AFF]/50 focus:border-[#6E3AFF] transition-all"
+                    className="w-full bg-white/10 border border-purple-500/80 rounded-lg py-2 px-3 text-white placeholder:text-white/50 focus:ring-2 focus:ring-[#6E3AFF]/50 focus:border-[#6E3AFF] transition-all colorful-password-login"
                     placeholder="Введите пароль"
                     required
                   />
