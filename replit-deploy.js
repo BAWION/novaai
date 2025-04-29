@@ -6,7 +6,7 @@ const express = require('express');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const path = require('path');
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+// Используем текущую директорию
 const app = express();
 
 // Настройка CORS

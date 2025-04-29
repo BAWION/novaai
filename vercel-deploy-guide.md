@@ -1,92 +1,55 @@
-# Руководство по деплою NovaAI University на Vercel
+# Инструкция по настройке деплоя на Vercel с подключением к API на Replit
 
-Это руководство описывает процесс деплоя фронтенда NovaAI University на Vercel с корректной работой стилей и проксированием API на Replit.
+## 1. Обновленная конфигурация Vercel
 
-## Подготовка файлов для деплоя
+В файле `vercel.json` используем основной домен Replit для API запросов:
 
-Все файлы для деплоя уже подготовлены в директории `dist/vercel-deploy`:
-
-1. `index.html` - отредактированный HTML файл с правильными ссылками на CSS и JS
-2. `vercel.json` - конфигурация для Vercel с настройками MIME-типов и проксирования
-3. `assets/` - директория с JS/CSS ресурсами
-
-## Шаги для деплоя на Vercel
-
-### 1. Клонирование репозитория на GitHub
-
-1. Создайте новый репозиторий на GitHub
-2. Отправьте текущий проект в репозиторий:
-   ```
-   git init
-   git add .
-   git commit -m "Initial commit"
-   git remote add origin https://github.com/your-username/novaai-university.git
-   git push -u origin main
-   ```
-
-### 2. Подключение к Vercel
-
-1. Зарегистрируйтесь на [Vercel](https://vercel.com) если у вас еще нет аккаунта
-2. Нажмите "New Project" на дашборде
-3. Импортируйте ваш GitHub репозиторий
-4. В настройках проекта:
-   - **Framework Preset**: Other
-   - **Root Directory**: `dist/vercel-deploy`
-   - **Build Command**: Оставьте пустым (файлы уже собраны)
-   - **Output Directory**: Оставьте `.` (текущая директория)
-
-5. Нажмите "Deploy"
-
-### 3. Настройка переменных окружения (если необходимо)
-
-Если ваше приложение использует переменные окружения на фронтенде, добавьте их в настройках проекта Vercel:
-- **Settings** > **Environment Variables**
-- Добавьте необходимые переменные (например, `VITE_API_URL`)
-
-### 4. Настройка домена (опционально)
-
-Если вы хотите использовать свой домен:
-1. Перейдите в **Domains** в настройках проекта
-2. Добавьте ваш домен и следуйте инструкциям для настройки DNS
-
-## Проверка деплоя
-
-После успешного деплоя на Vercel, ваше приложение будет доступно по URL:
-```
-https://[имя-вашего-проекта].vercel.app
+```json
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://nova-alpha-seven.replit.app/api/:path*"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Credentials", "value": "true" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET,POST,PUT,DELETE,OPTIONS" },
+        { "key": "Access-Control-Allow-Headers", "value": "X-Requested-With, Content-Type, Accept, Authorization" }
+      ]
+    }
+  ]
+}
 ```
 
-Проверьте, что:
-1. Страница загружается с правильными стилями
-2. API-запросы корректно проксируются на Replit-сервер
-3. Service Worker корректно регистрируется
+## 2. Настройка Replit для публичного API
 
-## Решение проблем
+В проекте на Replit добавляем файл `simple-replit-server.js` и изменяем настройки деплоя:
 
-### Не загружаются стили
+1. Перейдите в настройки деплоя на Replit (вкладка Deployment)
+2. В разделе Run Command введите: `node simple-replit-server.js`
+3. Нажмите "Save changes" и выполните новый деплой
 
-Если CSS стили не загружаются:
+## 3. Проверка работоспособности
 
-1. Проверьте Network панель в инструментах разработчика браузера
-2. Убедитесь, что файл CSS загружается с правильным Content-Type
-3. Проверьте, что хеш в имени CSS файла в `index.html` совпадает с реальным файлом в директории `assets`
+После деплоя проверьте API запросы. Следующий запрос должен вернуть 401, что будет означать, что API доступен:
 
-### API-запросы не проходят
+```
+curl -I https://nova-alpha-seven.replit.app/api/auth/me
+```
 
-Если API-запросы не работают:
+## 4. Решение проблем
 
-1. Убедитесь, что Replit-сервер запущен и доступен
-2. Проверьте настройки CORS на сервере
-3. Проверьте, что в `vercel.json` указан правильный URL для проксирования API:
-   ```json
-   {
-     "src": "/api/(.*)",
-     "dest": "https://novaai-university.replit.app/api/$1"
-   }
-   ```
+Если API запросы по-прежнему не работают, проверьте:
 
-## Дополнительные ресурсы
+1. **Логи Replit** - убедитесь, что сервер запускается без ошибок
+2. **Настройки CORS** - проверьте заголовки ответа на наличие CORS заголовков
+3. **Брандмауэр** - убедитесь, что порты не блокируются
 
-- [Документация Vercel по деплою статических сайтов](https://vercel.com/docs/concepts/deployments/overview)
-- [Настройка CORS на Express-сервере](https://expressjs.com/en/resources/middleware/cors.html)
-- [Настройка прокси в Vercel](https://vercel.com/docs/concepts/projects/project-configuration#rewrites)
+## 5. Альтернативный подход
+
+В качестве альтернативы вы можете создать независимый API сервер на отдельном проекте Replit, который будет обрабатывать только API запросы, без фронтенда. Это может быть более надежным вариантом, если вам не удается решить проблему с текущей конфигурацией.
