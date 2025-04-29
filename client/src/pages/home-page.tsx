@@ -656,12 +656,10 @@ export default function HomePage() {
                   Присоединяйтесь к сообществу из более чем 50,000 студентов и начните осваивать
                   искусственный интеллект уже сегодня.
                 </p>
-                <Link href="/onboarding-intro">
-                  <Button size="lg" className="text-lg px-10 py-6">
-                    Начать бесплатное обучение для всех уровней
-                    <i className="fas fa-rocket ml-2"></i>
-                  </Button>
-                </Link>
+                <a href="/onboarding-intro" className="inline-block text-lg px-10 py-6 rounded bg-primary hover:bg-primary/90 active:bg-primary/80 transition-colors text-white no-underline font-medium">
+                  Начать бесплатное обучение для всех уровней
+                  <i className="fas fa-rocket ml-2"></i>
+                </a>
               </Glassmorphism>
             </motion.div>
           </div>
