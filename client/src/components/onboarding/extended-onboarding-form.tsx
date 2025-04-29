@@ -177,7 +177,43 @@ export function ExtendedOnboardingForm({
     try {
       // Если на последнем шаге, отправляем данные
       if (step === 3) {
-        onboardingMutation.mutate(values);
+        // Для неавторизованных пользователей сохраняем данные в sessionStorage
+        if (userId === 0) {
+          console.log("Сохраняем данные онбординга в sessionStorage", values);
+          // Сохраняем данные в sessionStorage
+          sessionStorage.setItem("onboardingData", JSON.stringify({
+            role: values.role,
+            pythonLevel: values.pythonLevel,
+            experience: values.experience,
+            interest: values.interest,
+            goal: values.goal,
+            preferredLearningStyle: values.preferredLearningStyle,
+            availableTimePerWeek: values.availableTimePerWeek,
+            preferredDifficulty: values.preferredDifficulty
+          }));
+          
+          // Получаем рекомендации непосредственно через API
+          const recsResponse = await fetch('/api/recommendations/generate', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              userId: 0, // Используем 0 для неавторизованных пользователей
+              ...values
+            }),
+          });
+          
+          if (!recsResponse.ok) {
+            throw new Error('Ошибка при получении рекомендаций');
+          }
+          
+          const result = await recsResponse.json();
+          onComplete(result.recommendedCourseIds || []);
+        } else {
+          // Для авторизованных пользователей используем мутацию
+          onboardingMutation.mutate(values);
+        }
       } else {
         // Переходим к следующему шагу
         setStep(step + 1);
