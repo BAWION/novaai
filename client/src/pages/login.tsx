@@ -248,8 +248,7 @@ export default function Login() {
                     type="password"
                     value={credentials.password}
                     onChange={handleInputChange}
-                    className="w-full bg-white/10 border border-purple-500/80 rounded-lg py-2 px-3 text-white placeholder:text-white/50 focus:ring-2 focus:ring-[#6E3AFF]/50 focus:border-[#6E3AFF] transition-all colorful-password-login"
-                    placeholder="Введите пароль"
+                    className="w-full bg-white/10 border-2 border-purple-500 rounded-lg py-2 px-3 text-white focus:ring-2 focus:ring-[#6E3AFF]/50 focus:border-[#6E3AFF] transition-all colorful-password-login"
                     required
                   />
                 </div>
