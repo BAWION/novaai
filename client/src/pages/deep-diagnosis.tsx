@@ -478,10 +478,38 @@ export default function DeepDiagnosisPage() {
     }
   };
   
-  // Функция для перехода на Dashboard с результатами анализа
+  // Функция для перехода к регистрации после завершения диагностики
   const handleContinueToDashboard = () => {
-    const redirectUrl = formData.redirectAfterComplete || "/dashboard";
-    setLocation(redirectUrl);
+    // Сохраняем результаты диагностики и рекомендации в sessionStorage
+    try {
+      // Сохраняем данные диагностики для использования на странице регистрации
+      sessionStorage.setItem("onboardingData", JSON.stringify({
+        // Основная информация
+        role: formData.role,
+        experience: formData.experience,
+        pythonLevel: formData.pythonLevel,
+        interest: formData.interest,
+        goal: formData.goal,
+        // Дополнительные данные
+        learningPreferences: {
+          style: formData.preferredLearningStyle,
+          timeCommitment: formData.timeCommitment
+        },
+        // Сохраняем результаты анализа
+        skillProfile: userSkillProfile,
+        recommendations: recommendations
+      }));
+      
+      // Перенаправляем на страницу регистрации
+      setLocation("/register-after-onboarding");
+    } catch (error) {
+      console.error("Ошибка при сохранении данных диагностики:", error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось сохранить результаты диагностики. Попробуйте еще раз.",
+        variant: "destructive"
+      });
+    }
   };
   
   // Функции расчета уровней навыков на основе ответов
@@ -1811,8 +1839,8 @@ export default function DeepDiagnosisPage() {
                       onClick={handleContinueToDashboard}
                       className="bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:opacity-90 text-white"
                     >
-                      Перейти к обучению
-                      <Rocket className="h-4 w-4 ml-2" />
+                      Перейти к регистрации
+                      <User className="h-4 w-4 ml-2" />
                     </Button>
                   )}
                 </div>
