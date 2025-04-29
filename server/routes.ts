@@ -173,12 +173,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Создаем профиль всегда для полного потока с онбордингом
       await storage.createUserProfile(finalProfileData);
       
+      // Важно: обеспечиваем гарантированное сохранение сессии
       // Записываем пользователя в сессию для автоматического входа
       req.session.user = {
         id: newUser.id,
         username: newUser.username,
         displayName: newUser.displayName
       };
+      
+      // Принудительно сохраняем сессию перед отправкой ответа
+      await new Promise<void>((resolve, reject) => {
+        req.session.save((err) => {
+          if (err) {
+            console.error("Ошибка при сохранении сессии:", err);
+            reject(err);
+          } else {
+            resolve();
+          }
+        });
+      });
+      
+      console.log("Сессия создана и сохранена для пользователя:", newUser.username);
       
       // Возвращаем данные нового пользователя
       return res.status(201).json({
@@ -274,8 +289,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.get("/api/auth/me", (req, res) => {
     if (!req.session.user) {
+      console.log("GET /api/auth/me: Пользователь не аутентифицирован");
       return res.status(401).json({ message: "Not authenticated" });
     }
+    console.log("GET /api/auth/me: Пользователь аутентифицирован:", req.session.user);
     res.json(req.session.user);
   });
 
