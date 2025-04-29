@@ -17,6 +17,8 @@ import Login from "@/pages/login";
 import Register from "@/pages/register";
 import Onboarding from "@/pages/onboarding";
 import OnboardingPage from "@/pages/onboarding-page";
+import OnboardingIntro from "@/pages/onboarding-intro";
+import RegisterAfterOnboarding from "@/pages/register-after-onboarding";
 import QuickDiagnosis from "@/pages/quick-diagnosis";
 import DeepDiagnosis from "@/pages/deep-diagnosis";
 import OrbitalLobby from "@/pages/orbital-lobby";
@@ -88,7 +90,7 @@ function Router() {
   // Check if we're on public pages
   const isPublicPage = location === "/" || location === "/login" || location === "/register" || 
     location === "/onboarding" || location === "/onboarding-page" || location === "/quick-diagnosis" ||
-    location === "/deep-diagnosis";
+    location === "/deep-diagnosis" || location === "/onboarding-intro" || location === "/register-after-onboarding";
   
   return (
     <div className="flex flex-col min-h-screen">
@@ -102,6 +104,12 @@ function Router() {
           <Route path="/register" component={Register} />
           <Route path="/onboarding" component={Onboarding} />
           <Route path="/onboarding-page" component={OnboardingPage} />
+          <Route path="/onboarding-intro">
+            {() => <OnboardingIntro />}
+          </Route>
+          <Route path="/register-after-onboarding">
+            {() => <RegisterAfterOnboarding />}
+          </Route>
           <Route path="/quick-diagnosis" component={QuickDiagnosis} />
           <Route path="/deep-diagnosis" component={DeepDiagnosis} />
           
