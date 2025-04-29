@@ -155,10 +155,21 @@ export function RegisterForm() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Пароль</FormLabel>
+              <style>
+                {`
+                  .register-password-input {
+                    font-size: 24px;
+                    letter-spacing: 4px;
+                    color: #9d4edd !important;
+                    text-shadow: 0 0 8px rgba(157, 78, 221, 0.5);
+                  }
+                `}
+              </style>
               <FormControl>
                 <Input 
                   type="password" 
-                  placeholder="••••••" 
+                  placeholder="Введите пароль" 
+                  className="register-password-input border-purple-500/80"
                   {...field} 
                   disabled={isLoading}
                 />
