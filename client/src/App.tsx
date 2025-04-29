@@ -38,6 +38,7 @@ import KnowledgeVault from "@/pages/knowledge-vault";
 import SkillsPage from "@/pages/skills-page";
 import GapAnalysisPage from "@/pages/gap-analysis-page";
 import AIAssistantPage from "@/pages/ai-assistant-page";
+import MicroLesson from "@/pages/micro-lesson";
 
 interface ProtectedRouteProps {
   component: React.ComponentType;
@@ -144,6 +145,10 @@ function Router() {
           
           {/* AI-ассистент */}
           <ProtectedRoute path="/ai-assistant" component={AIAssistantPage} />
+          
+          {/* Микро-уроки */}
+          <ProtectedRoute path="/micro-lesson/:lessonId?" component={MicroLesson} />
+          <ProtectedRoute path="/python-intro-1" component={MicroLesson} />
           
           <Route component={NotFound} />
         </Switch>
