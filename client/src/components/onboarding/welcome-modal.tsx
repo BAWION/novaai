@@ -24,7 +24,7 @@ interface WelcomeModalProps {
 export function WelcomeModal({ isOpen, onOpenChange, userName = "студент" }: WelcomeModalProps) {
   const [, setLocation] = useLocation();
   const [step, setStep] = useState(1);
-  const totalSteps = 3;
+  const [totalSteps, setTotalSteps] = useState(3); // Используем состояние для возможности изменения
   
   // Автоматически открываем модальное окно для путей после регистрации через онбординг
   useEffect(() => {
@@ -34,15 +34,29 @@ export function WelcomeModal({ isOpen, onOpenChange, userName = "студент"
     if (isFromRegistration === "true") {
       // Показываем модальное окно
       onOpenChange(true);
+      // Устанавливаем шаг на первый (приветствие), пропуская предложение диагностики
+      setStep(1);
       // Удаляем флаг после обработки
       sessionStorage.removeItem("fromRegistrationAfterOnboarding");
+      // Сохраняем информацию, что пользователь уже прошел диагностику
+      sessionStorage.setItem("diagnosticsCompleted", "true");
     }
   }, [onOpenChange]);
 
-  // При открытии модального окна сбрасываем шаг на первый
+  // При открытии модального окна проверяем, прошел ли пользователь диагностику
   useEffect(() => {
     if (isOpen) {
-      setStep(1);
+      // Если пользователь уже прошел диагностику (через путь "диагностика → регистрация")
+      const diagnosticsCompleted = sessionStorage.getItem("diagnosticsCompleted") === "true";
+      if (diagnosticsCompleted) {
+        // Показываем только информацию о платформе, без шагов с диагностикой
+        // Адаптируем общее количество шагов
+        setTotalSteps(1);
+      } else {
+        // Стандартное поведение - показываем все шаги включая диагностику
+        setTotalSteps(3);
+        setStep(1);
+      }
     }
   }, [isOpen]);
 
@@ -200,19 +214,33 @@ export function WelcomeModal({ isOpen, onOpenChange, userName = "студент"
         <DialogFooter className="flex flex-col sm:flex-row gap-2">
           {step === totalSteps ? (
             <>
-              <Button
-                variant="outline"
-                className="sm:ml-auto bg-transparent border-white/20 hover:bg-white/10 text-white"
-                onClick={skipOnboarding}
-              >
-                Пропустить диагностику
-              </Button>
-              <Button 
-                className="bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:opacity-90 text-white"
-                onClick={goToDiagnostics}
-              >
-                Пройти диагностику
-              </Button>
+              {/* Модифицируем кнопки в зависимости от того, прошел ли пользователь диагностику */}
+              {totalSteps === 1 ? (
+                // Для пользователей, которые уже прошли диагностику
+                <Button 
+                  className="bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:opacity-90 text-white w-full"
+                  onClick={skipOnboarding}
+                >
+                  Начать обучение
+                </Button>
+              ) : (
+                // Для новых пользователей, предлагаем пройти диагностику
+                <>
+                  <Button
+                    variant="outline"
+                    className="sm:ml-auto bg-transparent border-white/20 hover:bg-white/10 text-white"
+                    onClick={skipOnboarding}
+                  >
+                    Пропустить диагностику
+                  </Button>
+                  <Button 
+                    className="bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:opacity-90 text-white"
+                    onClick={goToDiagnostics}
+                  >
+                    Пройти диагностику
+                  </Button>
+                </>
+              )}
             </>
           ) : (
             <Button 
