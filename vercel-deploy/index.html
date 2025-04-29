@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NovaAI University</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#1a1a2e">
+  
+  <!-- Перенаправление на основной домен -->
+  <script type="text/javascript">
+    window.onload = function() {
+      // Проверяем, загружена ли страница в фрейме
+      if (window.self !== window.top) {
+        console.log("Страница загружена во фрейме, пропускаем перенаправление");
+        return;
+      }
+      
+      // Проверяем текущий URL
+      const currentUrl = window.location.href;
+      
+      // Если это временный домен и не локальный хост
+      if (currentUrl.includes("-vitaliy-s-projects") && 
+          !currentUrl.includes("localhost") && 
+          !currentUrl.includes("127.0.0.1")) {
+        
+        console.log("Перенаправление на основной домен");
+        // Заменяем временный домен на основной
+        const newUrl = currentUrl.replace(
+          /https:\/\/nova-[a-z0-9]+-vitaliy-s-projects-[0-9]+\.vercel\.app/,
+          "https://nova-alpha-seven.vercel.app"
+        );
+        
+        // Перенаправляем только если URL действительно изменился
+        if (newUrl !== currentUrl) {
+          console.log(`Перенаправление на: ${newUrl}`);
+          window.location.href = newUrl;
+        }
+      }
+    };
+  </script>
+  
+  <!-- Для решения проблемы с 404 ошибкой при обновлении страницы -->
+  <script>
+    // Check to see if this is a redirect back from Vercel
+    // and ensure we don't redirect again
+    const hasRedirected = sessionStorage.getItem('redirected');
+    const path = window.location.pathname;
+    
+    if (!hasRedirected && path !== '/' && !path.startsWith('/api/')) {
+      sessionStorage.setItem('redirected', 'true');
+      
+      // Пользователь пришел по глубокой ссылке, запоминаем путь
+      sessionStorage.setItem('originalPath', path);
+      
+      // Перенаправляем на главную страницу
+      window.location.href = '/';
+    } 
+    
+    // Если мы на главной и есть сохраненный путь, восстанавливаем его
+    if (path === '/' && sessionStorage.getItem('originalPath')) {
+      const originalPath = sessionStorage.getItem('originalPath');
+      sessionStorage.removeItem('originalPath');
+      sessionStorage.removeItem('redirected');
+      
+      // Используем историю браузера, чтобы избежать перезагрузки страницы
+      if (originalPath && originalPath !== '/') {
+        window.history.replaceState(null, null, originalPath);
+      }
+    }
+  </script>
+  
+  <!-- Проверка доступа к API -->
+  <script>
+    async function checkApiAccess() {
+      try {
+        const response = await fetch('/api/auth/me', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        const status = response.status;
+        const statusText = response.statusText;
+        
+        console.log(`API Status: ${status} ${statusText}`);
+        
+        // Статус 401 здесь ожидаем, так как мы не авторизованы
+        if (status === 401) {
+          console.log("API работает корректно (требуется авторизация)");
+        } else if (status === 404) {
+          console.error("API недоступен (Not Found)");
+        }
+        
+      } catch (error) {
+        console.error("Ошибка при проверке API:", error);
+      }
+    }
+    
+    // Проверяем API после загрузки страницы
+    window.addEventListener('load', function() {
+      setTimeout(checkApiAccess, 1000);
+    });
+  </script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="/assets/index.js"></script>
+  
+  <!-- Скрипт для временного перенаправления -->
+  <noscript>
+    <p>Для работы приложения необходимо включить JavaScript</p>
+  </noscript>
+</body>
+</html>

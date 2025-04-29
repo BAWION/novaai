@@ -3,6 +3,10 @@
     {
       "source": "/api/:path*",
       "destination": "https://nova-alpha-seven.replit.app/api/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/$1"
     }
   ],
   "headers": [
