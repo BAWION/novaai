@@ -130,6 +130,10 @@ export default function RegisterAfterOnboarding() {
         credentials: 'include'
       });
       
+      // Устанавливаем флаг, что пользователь пришел с регистрации после онбординга
+      // Это нужно для показа приветственного модального окна на дашборде
+      sessionStorage.setItem("fromRegistrationAfterOnboarding", "true");
+      
       // Перенаправляем на дашборд
       setTimeout(() => {
         window.location.href = '/dashboard'; // Используем прямое перенаправление вместо setLocation

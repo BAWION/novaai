@@ -25,6 +25,19 @@ export function WelcomeModal({ isOpen, onOpenChange, userName = "студент"
   const [, setLocation] = useLocation();
   const [step, setStep] = useState(1);
   const totalSteps = 3;
+  
+  // Автоматически открываем модальное окно для путей после регистрации через онбординг
+  useEffect(() => {
+    // Проверяем, был ли пользователь перенаправлен с регистрации после онбординга
+    const isFromRegistration = sessionStorage.getItem("fromRegistrationAfterOnboarding");
+    
+    if (isFromRegistration === "true") {
+      // Показываем модальное окно
+      onOpenChange(true);
+      // Удаляем флаг после обработки
+      sessionStorage.removeItem("fromRegistrationAfterOnboarding");
+    }
+  }, [onOpenChange]);
 
   // При открытии модального окна сбрасываем шаг на первый
   useEffect(() => {

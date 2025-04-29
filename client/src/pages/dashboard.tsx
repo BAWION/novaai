@@ -250,11 +250,19 @@ export default function Dashboard() {
 
   // Проверка статуса пользователя и показ приветственного модального окна
   useEffect(() => {
-    // Если пользователь авторизован, но еще не прошел онбординг
-    if (user && userProfile && !userProfile.completedOnboarding) {
+    // Если пользователь пришел после регистрации из onboarding
+    // или если пользователь авторизован, но еще не прошел онбординг
+    const fromRegistration = sessionStorage.getItem("fromRegistrationAfterOnboarding") === "true";
+    
+    if (fromRegistration || (user && userProfile && !userProfile.completedOnboarding)) {
       // Показываем приветственное модальное окно, вместо обычной подсказки
       setShowWelcomeModal(true);
       console.log("Открываем приветственное модальное окно для нового пользователя");
+      
+      // Удаляем флаг, если он был установлен
+      if (fromRegistration) {
+        sessionStorage.removeItem("fromRegistrationAfterOnboarding");
+      }
     }
   }, [user, userProfile]);
 
