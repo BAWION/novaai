@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { useUserProfile } from "@/context/user-profile-context";
 import { useAuth } from "@/context/auth-context";
 import { ExtendedOnboardingForm } from "@/components/onboarding/extended-onboarding-form";
 import { RecommendationsDisplay } from "@/components/onboarding/recommendations-display";
+import { useToast } from "@/hooks/use-toast";
 
 /**
  * Страница расширенного онбординга
@@ -13,10 +14,11 @@ import { RecommendationsDisplay } from "@/components/onboarding/recommendations-
  */
 export default function OnboardingPage() {
   const { userProfile, updateUserProfile } = useUserProfile();
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
   const [completedOnboarding, setCompletedOnboarding] = useState(false);
   const [recommendedCourseIds, setRecommendedCourseIds] = useState<number[]>([]);
+  const { toast } = useToast();
   
   // ID пользователя из authContext или 0 для анонимного пользователя
   const userId = user?.id || 0;
@@ -42,6 +44,20 @@ export default function OnboardingPage() {
         ...userProfile,
         completedOnboarding: true
       });
+    } else {
+      // Если пользователь не авторизован, сохраняем данные в sessionStorage
+      // и перенаправляем на страницу регистрации
+      
+      // Показываем уведомление о необходимости создать аккаунт
+      toast({
+        title: "Диагностика завершена",
+        description: "Для сохранения результатов и получения персонализированных рекомендаций создайте аккаунт.",
+      });
+      
+      // Перенаправляем на страницу регистрации
+      setTimeout(() => {
+        setLocation("/register-after-onboarding");
+      }, 1500);
     }
   };
   
