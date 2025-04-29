@@ -168,8 +168,7 @@ export function RegisterForm() {
               <FormControl>
                 <Input 
                   type="password" 
-                  placeholder="Введите пароль" 
-                  className="register-password-input border-purple-500/80"
+                  className="register-password-input border-2 border-purple-500"
                   {...field} 
                   disabled={isLoading}
                 />

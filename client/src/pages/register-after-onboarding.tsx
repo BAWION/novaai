@@ -200,9 +200,6 @@ export default function RegisterAfterOnboarding() {
                     <Label htmlFor="password">Пароль</Label>
                     <style>
                       {`
-                        .colorful-password::placeholder {
-                          color: rgba(255, 255, 255, 0.5);
-                        }
                         .colorful-password {
                           font-size: 24px;
                           letter-spacing: 4px;
@@ -214,8 +211,7 @@ export default function RegisterAfterOnboarding() {
                     <Input
                       id="password"
                       type="password"
-                      placeholder="Введите пароль"
-                      className="bg-space-800/50 border-white/20 text-white border border-purple-500/80 colorful-password"
+                      className="bg-space-800/50 border-white/20 text-white border-2 border-purple-500 colorful-password"
                       {...register("password", { 
                         required: "Пароль обязателен",
                         minLength: {
@@ -233,9 +229,6 @@ export default function RegisterAfterOnboarding() {
                     <Label htmlFor="confirmPassword">Подтвердите пароль</Label>
                     <style>
                       {`
-                        .colorful-confirm-password::placeholder {
-                          color: rgba(255, 255, 255, 0.5);
-                        }
                         .colorful-confirm-password {
                           font-size: 24px;
                           letter-spacing: 4px;
@@ -247,8 +240,7 @@ export default function RegisterAfterOnboarding() {
                     <Input
                       id="confirmPassword"
                       type="password"
-                      placeholder="Подтвердите пароль"
-                      className="bg-space-800/50 border-white/20 text-white border border-blue-500/80 colorful-confirm-password"
+                      className="bg-space-800/50 border-white/20 text-white border-2 border-blue-500 colorful-confirm-password"
                       {...register("confirmPassword", { 
                         required: "Подтверждение пароля обязательно"
                       })}
