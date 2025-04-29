@@ -134,9 +134,50 @@ export default function RegisterAfterOnboarding() {
       // Это нужно для показа приветственного модального окна на дашборде
       sessionStorage.setItem("fromRegistrationAfterOnboarding", "true");
       
-      // Перенаправляем на дашборд
-      setTimeout(() => {
-        window.location.href = '/dashboard'; // Используем прямое перенаправление вместо setLocation
+      // Добавляем задержку перед переходом на дашборд для успешного сохранения сессии
+      setTimeout(async () => {
+        try {
+          // Еще раз запрашиваем текущего пользователя перед редиректом
+          const meResponse = await fetch('/api/auth/me', {
+            credentials: 'include'
+          });
+          
+          if (meResponse.ok) {
+            const sessionUser = await meResponse.json();
+            console.log("Сессия обновлена перед переходом:", sessionUser);
+            
+            // Явно обновляем контекст авторизации с полученными данными пользователя
+            login(sessionUser);
+            
+            // Используем прямое перенаправление для полной перезагрузки страницы и сессии
+            window.location.href = '/dashboard';
+          } else {
+            // Если сессия все еще не установлена, отправляем данные авторизации снова
+            console.log("Сессия не установлена, повторная попытка авторизации");
+            const loginResponse = await fetch('/api/auth/login', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                username: data.username,
+                password: data.password
+              }),
+              credentials: 'include'
+            });
+            
+            if (loginResponse.ok) {
+              window.location.href = '/dashboard';
+            } else {
+              console.error("Не удалось автоматически войти");
+              // В крайнем случае перенаправляем на логин
+              window.location.href = '/login?registered=true';
+            }
+          }
+        } catch (error) {
+          console.error("Ошибка при обновлении сессии:", error);
+          window.location.href = '/dashboard';
+        }
       }, 1000);
     } catch (error) {
       // Обрабатываем ошибку
