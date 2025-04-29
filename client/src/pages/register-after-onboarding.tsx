@@ -189,8 +189,8 @@ export default function RegisterAfterOnboarding() {
                     <Input
                       id="fullName"
                       type="text"
-                      className="bg-space-800/50 border-white/10 text-white font-medium"
-                      style={{ fontSize: "18px", letterSpacing: "1px" }}
+                      className="bg-space-800/50 border-white/10 font-medium"
+                      style={{ fontSize: "18px", letterSpacing: "1px", color: "#000000" }}
                       {...register("fullName", { required: "Имя обязательно" })}
                     />
                     {errors.fullName && (
@@ -203,8 +203,8 @@ export default function RegisterAfterOnboarding() {
                     <Input
                       id="username"
                       type="text"
-                      className="bg-space-800/50 border-white/10 text-white font-medium"
-                      style={{ fontSize: "18px", letterSpacing: "1px" }}
+                      className="bg-space-800/50 border-white/10 font-medium"
+                      style={{ fontSize: "18px", letterSpacing: "1px", color: "#000000" }}
                       {...register("username", { required: "Имя пользователя обязательно" })}
                     />
                     {errors.username && (
@@ -271,8 +271,8 @@ export default function RegisterAfterOnboarding() {
                     <Input
                       id="email"
                       type="email"
-                      className="bg-space-800/50 border-white/10 text-white font-medium"
-                      style={{ fontSize: "18px", letterSpacing: "1px" }}
+                      className="bg-space-800/50 border-white/10 font-medium"
+                      style={{ fontSize: "18px", letterSpacing: "1px", color: "#000000" }}
                       {...register("email", { required: "Email обязателен" })}
                     />
                     {errors.email && (
