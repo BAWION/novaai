@@ -198,18 +198,32 @@ export default function RegisterAfterOnboarding() {
                   
                   <div className="space-y-2">
                     <Label htmlFor="password">Пароль</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      className="bg-space-800/50 border-white/10"
-                      {...register("password", { 
-                        required: "Пароль обязателен",
-                        minLength: {
-                          value: 6,
-                          message: "Пароль должен содержать минимум 6 символов"
-                        }
-                      })}
-                    />
+                    <div className="relative">
+                      <Input
+                        id="password"
+                        type="password"
+                        className="bg-space-800/50 border-white/10 text-white border-2 border-purple-500 pr-10"
+                        {...register("password", { 
+                          required: "Пароль обязателен",
+                          minLength: {
+                            value: 6,
+                            message: "Пароль должен содержать минимум 6 символов"
+                          }
+                        })}
+                      />
+                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex space-x-1">
+                        {[...Array(8)].map((_, i) => (
+                          <div 
+                            key={i} 
+                            className="w-1.5 h-1.5 rounded-full" 
+                            style={{ 
+                              backgroundColor: ['#9d4edd', '#c77dff', '#7b2cbf', '#5a189a', '#3c096c', '#ff9e00', '#ff0054', '#0077b6'][i % 8],
+                              opacity: 0.8
+                            }}
+                          />
+                        ))}
+                      </div>
+                    </div>
                     {errors.password && (
                       <p className="text-sm text-red-500">{errors.password.message}</p>
                     )}
@@ -217,14 +231,28 @@ export default function RegisterAfterOnboarding() {
                   
                   <div className="space-y-2">
                     <Label htmlFor="confirmPassword">Подтвердите пароль</Label>
-                    <Input
-                      id="confirmPassword"
-                      type="password"
-                      className="bg-space-800/50 border-white/10"
-                      {...register("confirmPassword", { 
-                        required: "Подтверждение пароля обязательно"
-                      })}
-                    />
+                    <div className="relative">
+                      <Input
+                        id="confirmPassword"
+                        type="password"
+                        className="bg-space-800/50 border-white/10 text-white border-2 border-blue-500 pr-10"
+                        {...register("confirmPassword", { 
+                          required: "Подтверждение пароля обязательно"
+                        })}
+                      />
+                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex space-x-1">
+                        {[...Array(8)].map((_, i) => (
+                          <div 
+                            key={i} 
+                            className="w-1.5 h-1.5 rounded-full" 
+                            style={{ 
+                              backgroundColor: ['#00b4d8', '#48cae4', '#90e0ef', '#ade8f4', '#0096c7', '#0077b6', '#023e8a', '#03045e'][i % 8],
+                              opacity: 0.8
+                            }}
+                          />
+                        ))}
+                      </div>
+                    </div>
                     {errors.confirmPassword && (
                       <p className="text-sm text-red-500">{errors.confirmPassword.message}</p>
                     )}
