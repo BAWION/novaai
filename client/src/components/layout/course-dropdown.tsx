@@ -104,7 +104,10 @@ export function CourseDropdown() {
 
   // Обработчик клика
   const handleClick = () => {
-    setIsOpen(!isOpen);
+    console.log("Клик по меню курсов!");
+    const newOpenState = !isOpen;
+    console.log("Новое состояние открытия:", newOpenState);
+    setIsOpen(newOpenState);
     setActivationMethod('click');
   };
 
