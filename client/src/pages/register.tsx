@@ -53,6 +53,18 @@ export default function Register() {
                       </Button>
                     </p>
                   </div>
+                  
+                  <div className="mt-4 text-center">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="inline-flex items-center"
+                      onClick={() => setLocation("/")}
+                    >
+                      <i className="fas fa-home mr-2"></i>
+                      Вернуться на главную
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
               

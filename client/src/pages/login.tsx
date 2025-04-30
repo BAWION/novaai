@@ -312,6 +312,16 @@ export default function Login() {
                 условиями использования
               </span>
             </div>
+            
+            <div className="mt-4 text-center">
+              <button
+                onClick={() => navigate("/")}
+                className="text-white/70 hover:text-white py-2 px-4 rounded-lg text-sm transition-all border border-white/10 hover:bg-white/5 inline-flex items-center"
+              >
+                <i className="fas fa-home mr-2"></i>
+                Вернуться на главную
+              </button>
+            </div>
           </Glassmorphism>
         </motion.div>
 
