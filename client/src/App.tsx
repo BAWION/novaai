@@ -1,17 +1,12 @@
 import React, { useEffect } from "react";
 import { Switch, Route, useLocation } from "wouter";
-import { queryClient } from "./lib/queryClient";
-import { QueryClientProvider } from "@tanstack/react-query";
-import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AuthProvider } from "@/context/auth-context";
 import { useAuth } from "@/context/auth-context";
-import { UserProfileProvider } from "@/context/user-profile-context";
-import { TrackingProvider } from "@/context/tracking-context";
 import { ParticlesBackground } from "@/components/particles-background";
 import { SidebarProvider } from "@/components/layout/sidebar";
 import { PWAInstallPrompt, MobilePWAInstallButton } from "@/components/pwa/install-prompt";
 import { ConnectionStatus, PWAModeBadge } from "@/components/pwa/offline-status";
+import { Providers } from "@/context/providers";
 import HomePage from "@/pages/home-page";
 import Login from "@/pages/login";
 import Register from "@/pages/register";
@@ -154,24 +149,17 @@ function Router() {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <UserProfileProvider>
-          <TrackingProvider>
-            <SidebarProvider>
-              <TooltipProvider>
-                <Toaster />
-                <Router />
-                <PWAInstallPrompt />
-                <MobilePWAInstallButton />
-                <ConnectionStatus />
-                <PWAModeBadge />
-              </TooltipProvider>
-            </SidebarProvider>
-          </TrackingProvider>
-        </UserProfileProvider>
-      </AuthProvider>
-    </QueryClientProvider>
+    <Providers>
+      <SidebarProvider>
+        <TooltipProvider>
+          <Router />
+          <PWAInstallPrompt />
+          <MobilePWAInstallButton />
+          <ConnectionStatus />
+          <PWAModeBadge />
+        </TooltipProvider>
+      </SidebarProvider>
+    </Providers>
   );
 }
 

@@ -1,0 +1,170 @@
+Общая архитектура проекта
+После анализа кода я выявил следующую структуру проекта:
+
+1. Фронтенд часть:
+Использует React с TypeScript
+Маршрутизация через wouter
+Управление состоянием через React Context
+Запросы к API через TanStack Query (бывший React Query)
+2. Бэкенд часть:
+Express.js сервер
+PostgreSQL база данных с Drizzle ORM
+Хранение сессий пользователей
+RESTful API эндпоинты
+3. Основные модули и связи:
+Аутентификация и пользователи:
+/api/auth/register → Создание аккаунта 
+/api/auth/login → Авторизация
+/api/auth/me → Проверка текущего пользователя
+/api/profile → Профиль пользователя
+Курсы и обучение:
+/api/courses → Список курсов
+/api/learning-events → События обучения
+/api/skills/user → Навыки пользователя
+Диагностика:
+/api/diagnosis → Результаты диагностического теста
+/deep-diagnosis → Страница диагностики
+Выявленные разрывы и проблемы:
+Проблема аутентификации:
+
+Логин успешно проходит, но затем /api/profile возвращает 401 Unauthorized.
+В логах видим "[Auth] Session user: undefined" после успешного входа.
+Сессия создается, но не сохраняется между запросами или не привязывается к профилю.
+Проблема с курсами и каталогом:
+
+Существует два источника данных о курсах: локальный (client/src/data/courses-catalog.ts) и API (/api/courses).
+В веб-интерфейсе мы смешиваем их, но нет четкой стратегии синхронизации.
+Проблема с профилем пользователя:
+
+После логина появляется ошибка "Failed to fetch user profile" в консоли.
+Профиль не загружается, хотя пользователь авторизован.
+Отсутствие единой стратегии управления состоянием:
+
+Для аутентификации используется контекст auth-context
+Для профиля - user-profile-context
+Для курсов - прямые запросы React Query
+Это создает проблемы с синхронизацией данных
+Решения для создания единой системы:
+1. Исправление аутентификации:
+Основная проблема в том, что сессия не сохраняется правильно между запросами. Надо:
+
+// В server/auth.ts
+app.post("/api/auth/login", passport.authenticate("local"), (req, res) => {
+  // После аутентификации явно сохранить сессию
+  req.session.save(err => {
+    if (err) return res.status(500).send("Ошибка сохранения сессии");
+    res.status(200).json(req.user);
+  });
+});
+// Добавить в server/index.ts
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'supersecret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { 
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 1000 * 60 * 60 * 24 // 24 часа
+  }
+}));
+2. Единая стратегия для данных курсов:
+// В client/src/hooks/use-courses.tsx создать единый хук:
+export function useCourses() {
+  // Получение курсов из API
+  const { data: apiCourses = [], isLoading: isLoadingApi } = useQuery({
+    queryKey: ['/api/courses'],
+    queryFn: async () => {
+      const response = await fetch('/api/courses');
+      if (!response.ok) throw new Error('Failed to fetch courses');
+      return response.json();
+    }
+  });
+  
+  // Объединение с локальным каталогом
+  const allCourses = useMemo(() => {
+    const formatted = apiCourses.map(formatApiCourse);
+    const catalogCourses = coursesCatalog.map(convertCatalogCourse);
+    return [...formatted, ...catalogCourses];
+  }, [apiCourses]);
+  
+  return { 
+    courses: allCourses,
+    isLoading: isLoadingApi,
+    // Другие методы: фильтрация, поиск и т.д.
+  };
+}
+3. Связь между диагностикой и рекомендациями курсов:
+// В client/src/hooks/use-recommendations.tsx
+export function useRecommendations() {
+  const { user } = useAuth();
+  const { profile } = useProfile();
+  
+  // Получение результатов диагностики
+  const { data: diagnosis } = useQuery({
+    queryKey: ['/api/diagnosis', user?.id],
+    enabled: !!user?.id
+  });
+  
+  // Получение навыков
+  const { data: skills } = useQuery({
+    queryKey: ['/api/skills/user', user?.id],
+    enabled: !!user?.id
+  });
+  
+  // Рекомендации на основе диагностики и навыков
+  const recommendations = useMemo(() => {
+    if (!diagnosis || !skills) return [];
+    
+    // Логика рекомендаций...
+    return recommendCourses(diagnosis, skills, profile);
+  }, [diagnosis, skills, profile]);
+  
+  return { recommendations };
+}
+4. Единый контекст для всего приложения:
+// В client/src/context/app-context.tsx
+export const AppContext = createContext<AppContextType | null>(null);
+export function AppProvider({ children }: { children: ReactNode }) {
+  // Auth
+  const auth = useAuthState();
+  
+  // Profile
+  const profile = useProfileState();
+  
+  // Courses
+  const courses = useCoursesState();
+  
+  // Learning
+  const learning = useLearningState();
+  
+  // Shared state между модулями
+  useEffect(() => {
+    if (auth.user && !profile.isLoading && !profile.data) {
+      profile.loadProfile(auth.user.id);
+    }
+  }, [auth.user, profile]);
+  
+  // Синхронизация между модулями
+  useEffect(() => {
+    if (profile.data && courses.recommendations.length === 0) {
+      courses.generateRecommendations(profile.data);
+    }
+  }, [profile.data, courses]);
+  
+  return (
+    <AppContext.Provider value={{
+      auth,
+      profile,
+      courses,
+      learning
+    }}>
+      {children}
+    </AppContext.Provider>
+  );
+}
+Основные принципы для улучшения интеграции:
+Единая точка входа для данных: Все данные должны проходить через централизованные хуки/контексты.
+Четкая стратегия кэширования: Использовать React Query для всех запросов к API.
+Реагирование на изменения auth state: Сделать другие модули зависимыми от состояния аутентификации.
+Унифицированные типы данных: Все модели данных должны быть совместимы по всему приложению.
+Обработка ошибок: Единая стратегия обработки ошибок API.
+Хотите, чтобы я сосредоточился на какой-то конкретной части этой системы для более детальной разработки?
