@@ -101,50 +101,50 @@ export function AppProvider({ children }: { children: ReactNode }) {
   
   // Courses Queries
   const { 
-    data: allCourses = [],
+    data: allCourses = [] as any[],
     isLoading: isCoursesLoading,
     error: coursesError
-  } = useQuery({
+  } = useQuery<any[]>({
     queryKey: ['/api/courses'],
     enabled: true, // Всегда загружаем курсы
   });
   
   // User Courses (если пользователь авторизован)
   const {
-    data: userCourses = [],
+    data: userCourses = [] as any[],
     isLoading: isUserCoursesLoading,
     error: userCoursesError
-  } = useQuery({
+  } = useQuery<any[]>({
     queryKey: ['/api/courses/user', user?.id],
     enabled: !!user?.id,
   });
   
   // Рекомендуемые курсы для пользователя
   const {
-    data: recommendedCourses = [],
+    data: recommendedCourses = [] as any[],
     isLoading: isRecommendedLoading,
     error: recommendedError
-  } = useQuery({
+  } = useQuery<any[]>({
     queryKey: ['/api/courses/recommended', user?.id],
     enabled: !!user?.id,
   });
   
   // Прогресс обучения пользователя
   const {
-    data: learningProgress = [],
+    data: learningProgress = [] as any[],
     isLoading: isProgressLoading,
     error: progressError
-  } = useQuery({
+  } = useQuery<any[]>({
     queryKey: ['/api/learning/progress', user?.id],
     enabled: !!user?.id,
   });
   
   // Навыки пользователя
   const {
-    data: userSkills = [],
+    data: userSkills = [] as any[],
     isLoading: isSkillsLoading,
     error: skillsError
-  } = useQuery({
+  } = useQuery<any[]>({
     queryKey: ['/api/skills/user', user?.id],
     enabled: !!user?.id,
   });
@@ -153,7 +153,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const {
     data: lastAccessed = null,
     isLoading: isLastAccessedLoading
-  } = useQuery({
+  } = useQuery<any | null>({
     queryKey: ['/api/learning/last-accessed', user?.id],
     enabled: !!user?.id,
   });
@@ -162,7 +162,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const {
     data: assessmentResults = null,
     isLoading: isAssessmentLoading
-  } = useQuery({
+  } = useQuery<any | null>({
     queryKey: ['/api/diagnosis/results', user?.id],
     enabled: !!user?.id,
   });
@@ -179,9 +179,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     isAuthLoading;
   
   // Вычисляем пройденные уроки на основе прогресса
-  const completedLessons = (learningProgress || [])
-    .filter((progress: any) => progress.completed)
-    .map((progress: any) => progress.lessonId);
+  const completedLessons = Array.isArray(learningProgress) 
+    ? learningProgress
+        .filter((progress: any) => progress.completed)
+        .map((progress: any) => progress.lessonId)
+    : [];
   
   // Методы для работы с курсами
   const fetchCourse = async (id: number) => {
@@ -196,7 +198,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
   
   const filterCourses = (filters: Record<string, any>) => {
-    return allCourses.filter((course: any) => {
+    if (!Array.isArray(allCourses)) return [];
+    
+    return (allCourses as any[]).filter((course: any) => {
       let match = true;
       
       // Проверяем каждый фильтр
@@ -310,17 +314,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
     },
     
     courses: {
-      allCourses,
+      allCourses: allCourses as any[],
       isLoading: isCoursesLoading,
       error: coursesError as Error | null,
-      userCourses,
-      recommended: recommendedCourses,
+      userCourses: userCourses as any[],
+      recommended: recommendedCourses as any[],
       fetchCourse,
       filterCourses
     },
     
     learning: {
-      progress: learningProgress,
+      progress: learningProgress as any[],
       isLoading: isProgressLoading,
       error: progressError as Error | null,
       updateProgress,
@@ -329,7 +333,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     },
     
     skills: {
-      userSkills,
+      userSkills: userSkills as any[],
       isLoading: isSkillsLoading,
       assessmentResults,
       updateSkills

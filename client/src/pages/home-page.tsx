@@ -4,6 +4,7 @@ import { Glassmorphism } from "@/components/ui/glassmorphism";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { ParticlesBackground } from "@/components/particles-background";
+import { AppIntegrationTest } from "@/components/app-integration-test";
 import { screenshots } from "../screenshots";
 
 export default function HomePage() {
