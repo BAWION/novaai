@@ -235,9 +235,8 @@ export default function AILiteracyCoursePage() {
                   <Button 
                     className="w-full" 
                     onClick={() => {
-                      // Устанавливаем ID урока напрямую
-                      setCurrentLessonId(5);
-                      setActiveTab("lessons");
+                      // Перенаправляем на страницу урока
+                      navigate("/courses/ai-literacy-101/modules/5/lessons/5");
                     }}
                   >
                     Продолжить обучение
@@ -266,8 +265,8 @@ export default function AILiteracyCoursePage() {
                   lastLesson="Определение искусственного интеллекта"
                   progress={25}
                   onContinue={() => {
-                    setCurrentLessonId(5);
-                    setActiveTab("lessons");
+                    // Перенаправляем на страницу урока
+                    navigate("/courses/ai-literacy-101/modules/5/lessons/5");
                   }}
                 />
                 
@@ -324,11 +323,9 @@ export default function AILiteracyCoursePage() {
                   <ModuleAccordion
                     modules={modules}
                     currentLessonId={currentLessonId || undefined}
-                    onLessonSelect={(lessonId) => {
-                      setCurrentLessonId(lessonId);
-                      // Переключаемся на вкладку с уроком
-                      setActiveTab("lessons");
-                      // Не делаем навигацию на другую страницу
+                    onLessonSelect={(lessonId, moduleId) => {
+                      // Переходим на страницу урока
+                      navigate(`/courses/ai-literacy-101/modules/${moduleId}/lessons/${lessonId}`);
                     }}
                   />
                 ) : (
