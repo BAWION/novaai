@@ -579,7 +579,7 @@ export default function Courses() {
                   
                   <div className="mt-8 flex flex-wrap gap-3">
                     <Link 
-                      to={selectedCourse.id === "0" ? "/course-ai/python-for-ai-beginners" : "#"}
+                      to={selectedCourse.id === "0" ? "/course-ai/python-for-ai-beginners" : `/modules/1/lessons/1`}
                       className="bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:from-[#4922B2] hover:to-[#1682A1] text-white py-3 px-6 rounded-lg font-medium transition duration-300 flex items-center"
                     >
                       <i className="fas fa-play-circle mr-2"></i>
