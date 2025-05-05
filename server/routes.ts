@@ -458,7 +458,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.get("/api/courses/:id", async (req, res) => {
     try {
+      // Проверяем, что id представляет собой число
       const courseId = parseInt(req.params.id);
+      
+      if (isNaN(courseId)) {
+        return res.status(400).json({ message: "Invalid course ID format" });
+      }
+      
       const course = await storage.getCourse(courseId);
       
       if (!course) {
