@@ -292,6 +292,7 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                     ) : lesson.type === "video" ? (
                       <div>
                         {lesson.content ? (
+                          // Если в содержимом есть ссылка на видео, можно ее отобразить
                           <div>
                             <ReactMarkdown>{lesson.content}</ReactMarkdown>
                             <div className="aspect-video bg-muted rounded-lg mt-4 flex items-center justify-center">
@@ -314,6 +315,7 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                             <div className="mt-6 space-y-6 border-t pt-6">
                               <h3 className="text-xl font-medium">Тестирование знаний</h3>
                               <p className="text-muted-foreground">Ответьте на вопросы, чтобы проверить свое понимание материала</p>
+                              {/* В будущем здесь будут отображаться вопросы теста */}
                             </div>
                           </div>
                         ) : (
@@ -457,13 +459,51 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                   <strong>Совет 2:</strong> Используйте ИИ-ассистента, если у вас возникли вопросы по материалу урока.
                 </div>
                 <div className="p-3 bg-primary/10 rounded-lg">
-                  <strong>Совет 3:</strong> После завершения урока, попробуйте объяснить основные концепции своими словами.
+                  <strong>Совет 3:</strong> После завершения урока попробуйте применить полученные знания на практике.
+                </div>
+              </CardContent>
+            </Card>
+            
+            {/* Прогресс по модулю */}
+            <Card className="mt-6">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">Прогресс по модулю</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>Общий прогресс</span>
+                      <span>35%</span>
+                    </div>
+                    <Progress value={35} className="h-2" />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    {module.lessons.map((moduleLesson) => (
+                      <div 
+                        key={moduleLesson.id}
+                        className={`p-2 rounded-md flex items-center ${moduleLesson.id.toString() === lessonId ? 'bg-primary/20' : ''}`}
+                      >
+                        {moduleLesson.completed ? (
+                          <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
+                        ) : moduleLesson.id.toString() === lessonId ? (
+                          <div className="h-4 w-4 mr-2 bg-primary rounded-full"></div>
+                        ) : (
+                          <div className="h-4 w-4 mr-2 border rounded-full"></div>
+                        )}
+                        <span className={`text-sm ${moduleLesson.completed ? 'line-through opacity-70' : ''}`}>
+                          {moduleLesson.title}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </CardContent>
             </Card>
           </div>
         </div>
-      </motion.div>
+      </div>
     </DashboardLayout>
   );
 }
