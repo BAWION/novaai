@@ -475,7 +475,7 @@ export default function CoursePage() {
   const currentLesson = findCurrentLesson();
   
   return (
-    <DashboardLayout>
+    <DashboardLayout title={course?.title || "Курс"}>
       <div className="max-w-7xl mx-auto py-6 px-4">
         {/* Хлебные крошки и заголовок */}
         <div className="mb-6">
@@ -509,10 +509,19 @@ export default function CoursePage() {
           <div className="md:col-span-2">
             {currentView === "outline" && (
               <CourseOutline
-                course={demoCourse}
-                expandedModuleIds={expandedModuleIds}
-                onLessonClick={handleLessonClick}
-                onExpandToggle={handleExpandToggle}
+                modules={course.modules || []}
+                onModuleSelect={(moduleId) => {
+                  setSelectedModuleId(moduleId);
+                  setCurrentView("content");
+                  // Если модуль не развернут, разворачиваем его
+                  if (!expandedModuleIds.includes(moduleId)) {
+                    setExpandedModuleIds([...expandedModuleIds, moduleId]);
+                  }
+                }}
+                onLessonSelect={(lessonId) => {
+                  setSelectedLessonId(lessonId);
+                  setCurrentView("content");
+                }}
               />
             )}
             
