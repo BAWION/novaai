@@ -12,10 +12,11 @@ import { queryClient } from "@/lib/queryClient";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ModuleAccordion } from "@/components/courses/module-accordion";
-import { Loader2, BookOpen, CheckCircle, Lock, Clock, Trophy } from "lucide-react";
+import { Loader2, BookOpen, CheckCircle, Lock, Clock, Trophy, Video, ArrowLeft, ArrowRight } from "lucide-react";
 import { CourseOutline } from "@/components/courses/course-outline";
 import { ResumeBanner } from "@/components/courses/resume-banner";
 import { AIAssistantPanel } from "@/components/courses/ai-assistant-panel";
+import ReactMarkdown from "react-markdown";
 
 // Типы данных курса
 interface Lesson {
@@ -233,7 +234,11 @@ export default function AILiteracyCoursePage() {
                 <CardFooter>
                   <Button 
                     className="w-full" 
-                    onClick={() => navigate("/courses/ai-literacy-101/modules/5/lessons/5")}
+                    onClick={() => {
+                      // Устанавливаем ID урока напрямую
+                      setCurrentLessonId(5);
+                      setActiveTab("lessons");
+                    }}
                   >
                     Продолжить обучение
                   </Button>
@@ -312,92 +317,22 @@ export default function AILiteracyCoursePage() {
               </TabsContent>
               
               <TabsContent value="modules">
-                <CourseOutline
-                  modules={[
-                    {
-                      id: 1,
-                      title: "Основы ИИ — что такое искусственный интеллект?",
-                      description: "Понимание базовых концепций и терминологии искусственного интеллекта",
-                      completed: false,
-                      progress: 25,
-                      lessons: [
-                        {
-                          id: 1,
-                          title: "Определение искусственного интеллекта",
-                          completed: true,
-                          type: "text",
-                          duration: 60
-                        },
-                        {
-                          id: 2,
-                          title: "Отличие ИИ от других технологий",
-                          completed: false,
-                          type: "text",
-                          duration: 60
-                        },
-                        {
-                          id: 3,
-                          title: "Типы искусственного интеллекта",
-                          completed: false,
-                          type: "text",
-                          duration: 90
-                        },
-                        {
-                          id: 4,
-                          title: "Мифы и заблуждения об ИИ",
-                          completed: false,
-                          type: "quiz",
-                          duration: 60
-                        }
-                      ]
-                    },
-                    {
-                      id: 2,
-                      title: "История искусственного интеллекта",
-                      description: "Ключевые этапы развития ИИ от философских концепций до современных систем",
-                      completed: false,
-                      progress: 0,
-                      lessons: [
-                        {
-                          id: 5,
-                          title: "Философские корни ИИ",
-                          completed: false,
-                          type: "text",
-                          duration: 60
-                        },
-                        {
-                          id: 6,
-                          title: "Рождение ИИ как науки (1940-1950-е)",
-                          completed: false,
-                          type: "text",
-                          duration: 60
-                        },
-                        {
-                          id: 7,
-                          title: "Периоды расцвета и упадка (1960-1990-е)",
-                          completed: false,
-                          type: "text",
-                          duration: 90
-                        },
-                        {
-                          id: 8,
-                          title: "Современная эра ИИ (2000-н.в.)",
-                          completed: false,
-                          type: "text",
-                          duration: 60
-                        }
-                      ]
-                    }
-                  ]}
-                  onModuleSelect={(moduleId) => {
-                    setCurrentModuleId(moduleId);
-                    setActiveTab("lessons");
-                  }}
-                  onLessonSelect={(lessonId) => {
-                    setCurrentLessonId(lessonId);
-                    setActiveTab("lessons");
-                  }}
-                />
+                {modules && modules.length > 0 ? (
+                  <ModuleAccordion
+                    modules={modules}
+                    currentLessonId={currentLessonId || undefined}
+                    onLessonSelect={(lessonId) => {
+                      setCurrentLessonId(lessonId);
+                      // Переключаемся на вкладку с уроком
+                      setActiveTab("lessons");
+                      // Не делаем навигацию на другую страницу
+                    }}
+                  />
+                ) : (
+                  <Card className="p-4 text-center">
+                    <p>Модули курса не найдены</p>
+                  </Card>
+                )}
               </TabsContent>
               
               <TabsContent value="lessons">
@@ -416,8 +351,23 @@ export default function AILiteracyCoursePage() {
                       <CardDescription>{currentLesson.description}</CardDescription>
                     </CardHeader>
                     <CardContent className="prose prose-lg max-w-none dark:prose-invert">
-                      {/* Контент урока в формате Markdown */}
-                      <div dangerouslySetInnerHTML={{ __html: "Контент урока будет отображаться здесь" }} />
+                      {currentLesson.type === "text" ? (
+                        <ReactMarkdown>
+                          {currentLesson.content || "Содержимое урока отсутствует"}
+                        </ReactMarkdown>
+                      ) : currentLesson.type === "video" ? (
+                        <div>
+                          <ReactMarkdown>{currentLesson.content || ""}</ReactMarkdown>
+                          <div className="aspect-video bg-muted rounded-lg mt-4 flex items-center justify-center">
+                            <Video className="h-16 w-16 text-muted-foreground" />
+                            <p className="ml-4">Видеоматериал урока</p>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-center py-8">
+                          <p>Контент урока загружается...</p>
+                        </div>
+                      )}
                     </CardContent>
                     <CardFooter className="flex justify-between">
                       <Button variant="outline">Предыдущий урок</Button>

@@ -166,7 +166,8 @@ export function ModuleAccordion({ modules = [], currentLessonId, onLessonSelect 
                       onClick={() => {
                         if (!lesson.locked) {
                           onLessonSelect(lesson.id);
-                          navigate(`/courses/ai-literacy-101/modules/${module.id}/lessons/${lesson.id}`);
+                          // Не делаем навигацию на другую страницу, 
+                          // вместо этого просто передаем ID урока через коллбэк
                         }
                       }}
                     >
@@ -212,7 +213,7 @@ export function ModuleAccordion({ modules = [], currentLessonId, onLessonSelect 
                           size="sm"
                           onClick={(e) => {
                             e.stopPropagation();
-                            navigate(`/courses/ai-literacy-101/modules/${module.id}/lessons/${lesson.id}`);
+                            onLessonSelect(lesson.id);
                           }}
                         >
                           Начать
