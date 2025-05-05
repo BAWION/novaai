@@ -83,24 +83,33 @@ export const LessonView: React.FC<LessonViewProps> = ({
 
   // Получаем данные модуля для навигации между уроками
   const { data: module, isLoading: moduleLoading } = useQuery<Module>({
-    queryKey: [`/api/modules/${moduleId}`],
-    enabled: !!moduleId,
+    queryKey: [`/api/modules/${moduleIdStr}`],
+    enabled: !!moduleIdStr,
+    staleTime: 5 * 60 * 1000, // Кэшируем на 5 минут
     queryFn: async () => {
       try {
-        console.log(`Загрузка модуля с ID ${moduleId}`);
-        const response = await fetch(`/api/modules/${moduleId}`);
+        console.log(`Загрузка модуля с ID ${moduleIdStr}`);
+        const timestamp = new Date().getTime();
+        const response = await fetch(`/api/modules/${moduleIdStr}?t=${timestamp}`);
         if (!response.ok) {
           throw new Error('Не удалось загрузить модуль');
         }
         const moduleData = await response.json();
         
-        // Если у нас уже есть урок, но он не включен в уроки модуля, 
-        // дополнительно загрузим уроки модуля
-        if (!moduleData.lessons || moduleData.lessons.length === 0) {
-          console.log(`Загрузка уроков для модуля ${moduleId}`);
-          const lessonsResponse = await fetch(`/api/modules/${moduleId}/lessons`);
-          if (lessonsResponse.ok) {
-            moduleData.lessons = await lessonsResponse.json();
+        // Всегда загружаем уроки модуля, чтобы иметь актуальные данные
+        console.log(`Загрузка уроков для модуля ${moduleIdStr}`);
+        const lessonsResponse = await fetch(`/api/modules/${moduleIdStr}/lessons?t=${timestamp}`);
+        if (lessonsResponse.ok) {
+          const lessons = await lessonsResponse.json();
+          moduleData.lessons = lessons;
+          console.log(`Загружено ${lessons.length} уроков для модуля ${moduleIdStr}`);
+          
+          // Предварительно загружаем данные текущего урока для уверенности
+          if (lessonIdStr) {
+            const lessonData = lessons.find((l: any) => l.id.toString() === lessonIdStr);
+            if (lessonData) {
+              console.log(`Найден урок в списке модуля:`, lessonData.title);
+            }
           }
         }
         
@@ -116,21 +125,23 @@ export const LessonView: React.FC<LessonViewProps> = ({
   const goToPreviousLesson = () => {
     if (!module?.lessons) return;
     
-    const currentIndex = module.lessons.findIndex(l => l.id.toString() === lessonId.toString());
+    const currentIndex = module.lessons.findIndex(l => l.id.toString() === lessonIdStr);
     if (currentIndex > 0) {
       const prevLesson = module.lessons[currentIndex - 1];
+      const prevLessonIdStr = prevLesson.id.toString();
       
       // Предварительно загружаем данные предыдущего урока
       queryClient.prefetchQuery({
-        queryKey: [`/api/lessons/${prevLesson.id}`],
+        queryKey: [`/api/lessons/${prevLessonIdStr}`],
         queryFn: async () => {
-          const response = await fetch(`/api/lessons/${prevLesson.id}`);
+          const timestamp = new Date().getTime();
+          const response = await fetch(`/api/lessons/${prevLessonIdStr}?t=${timestamp}`);
           if (!response.ok) throw new Error('Не удалось загрузить урок');
           return response.json();
         }
       }).then(() => {
         // После предзагрузки делаем переход
-        navigate(`/courses/${courseSlug}/modules/${moduleId}/lessons/${prevLesson.id}`);
+        navigate(`/courses/${courseSlug}/modules/${moduleIdStr}/lessons/${prevLessonIdStr}`);
       });
     }
   };
@@ -138,31 +149,33 @@ export const LessonView: React.FC<LessonViewProps> = ({
   const goToNextLesson = () => {
     if (!module?.lessons) return;
     
-    const currentIndex = module.lessons.findIndex(l => l.id.toString() === lessonId.toString());
+    const currentIndex = module.lessons.findIndex(l => l.id.toString() === lessonIdStr);
     if (currentIndex !== -1 && currentIndex < module.lessons.length - 1) {
       const nextLesson = module.lessons[currentIndex + 1];
+      const nextLessonIdStr = nextLesson.id.toString();
       
       // Предварительно загружаем данные следующего урока
       queryClient.prefetchQuery({
-        queryKey: [`/api/lessons/${nextLesson.id}`],
+        queryKey: [`/api/lessons/${nextLessonIdStr}`],
         queryFn: async () => {
-          const response = await fetch(`/api/lessons/${nextLesson.id}`);
+          const timestamp = new Date().getTime();
+          const response = await fetch(`/api/lessons/${nextLessonIdStr}?t=${timestamp}`);
           if (!response.ok) throw new Error('Не удалось загрузить урок');
           return response.json();
         }
       }).then(() => {
         // После предзагрузки делаем переход
-        navigate(`/courses/${courseSlug}/modules/${moduleId}/lessons/${nextLesson.id}`);
+        navigate(`/courses/${courseSlug}/modules/${moduleIdStr}/lessons/${nextLessonIdStr}`);
       });
     }
   };
 
   // Определить, является ли урок первым или последним в модуле
   const isFirstLesson = module?.lessons && 
-    module.lessons.findIndex(l => l.id.toString() === lessonId.toString()) === 0;
+    module.lessons.findIndex(l => l.id.toString() === lessonIdStr) === 0;
   
   const isLastLesson = module?.lessons && 
-    module.lessons.findIndex(l => l.id.toString() === lessonId.toString()) === module.lessons.length - 1;
+    module.lessons.findIndex(l => l.id.toString() === lessonIdStr) === module.lessons.length - 1;
 
   // Если идет загрузка
   if (lessonLoading || moduleLoading) {
@@ -189,6 +202,14 @@ export const LessonView: React.FC<LessonViewProps> = ({
     );
   }
 
+  // Отладочная информация
+  console.log('Рендеринг компонента LessonView с данными урока:', { 
+    id: lesson.id, 
+    title: lesson.title, 
+    contentLength: lesson.content ? lesson.content.length : 0,
+    contentStart: lesson.content ? lesson.content.substring(0, 50) + '...' : 'Нет содержимого'
+  });
+
   return (
     <Card className="shadow-lg">
       <CardHeader>
@@ -210,10 +231,20 @@ export const LessonView: React.FC<LessonViewProps> = ({
       </CardHeader>
       
       <CardContent className="prose prose-lg max-w-none dark:prose-invert">
+        {/* Предварительная проверка содержимого */}
+        {!lesson.content && (
+          <div className="p-4 mb-4 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded">
+            <h3 className="font-semibold">Внимание!</h3>
+            <p>Урок не содержит контента. ID урока: {lesson.id}</p>
+          </div>
+        )}
+        
         {lesson.type === "text" ? (
           <div>
             {lesson.content ? (
-              <ReactMarkdown>{lesson.content}</ReactMarkdown>
+              <div className="lesson-content">
+                <ReactMarkdown>{lesson.content}</ReactMarkdown>
+              </div>
             ) : (
               <p className="text-muted-foreground italic">Содержимое урока отсутствует</p>
             )}
@@ -286,7 +317,7 @@ export const LessonView: React.FC<LessonViewProps> = ({
         </Button>
         
         {onComplete && (
-          <Button onClick={() => onComplete(Number(lessonId))}>
+          <Button onClick={() => onComplete(Number(lessonIdStr))}>
             Завершить урок <CheckCircle className="ml-2 h-4 w-4" />
           </Button>
         )}
