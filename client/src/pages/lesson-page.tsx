@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AIAssistantPanel } from "@/components/courses/ai-assistant-panel";
 import { Glassmorphism } from "@/components/ui/glassmorphism";
 import { queryClient } from "@/lib/queryClient";
+import ReactMarkdown from "react-markdown";
 
 interface Lesson {
   id: number;
@@ -67,14 +68,53 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
 
   // Запрос данных урока
   const { data: lesson, isLoading: lessonLoading } = useQuery<Lesson>({
-    queryKey: ["/api/modules", moduleId, "lessons", lessonId],
-    enabled: !!moduleId && !!lessonId,
+    queryKey: [`/api/lessons/${lessonId}`],
+    enabled: !!lessonId,
+    queryFn: async () => {
+      try {
+        console.log(`Загрузка урока с ID ${lessonId}`);
+        const response = await fetch(`/api/lessons/${lessonId}`);
+        if (!response.ok) {
+          throw new Error('Не удалось загрузить урок');
+        }
+        return await response.json();
+      } catch (error) {
+        console.error('Ошибка при загрузке урока:', error);
+        throw error;
+      }
+    }
   });
 
   // Запрос данных модуля
   const { data: module, isLoading: moduleLoading } = useQuery<Module>({
-    queryKey: ["/api/modules", moduleId],
+    queryKey: [`/api/modules/${moduleId}`],
     enabled: !!moduleId,
+    queryFn: async () => {
+      try {
+        console.log(`Загрузка модуля с ID ${moduleId}`);
+        const response = await fetch(`/api/modules/${moduleId}`);
+        if (!response.ok) {
+          throw new Error('Не удалось загрузить модуль');
+        }
+        
+        const moduleData = await response.json();
+        
+        // Если у нас уже есть урок, но он не включен в уроки модуля, 
+        // дополнительно загрузим уроки модуля
+        if (!moduleData.lessons || moduleData.lessons.length === 0) {
+          console.log(`Загрузка уроков для модуля ${moduleId}`);
+          const lessonsResponse = await fetch(`/api/modules/${moduleId}/lessons`);
+          if (lessonsResponse.ok) {
+            moduleData.lessons = await lessonsResponse.json();
+          }
+        }
+        
+        return moduleData;
+      } catch (error) {
+        console.error('Ошибка при загрузке модуля:', error);
+        throw error;
+      }
+    }
   });
 
   // Мутация для обновления прогресса
@@ -235,67 +275,65 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="prose prose-lg max-w-none dark:prose-invert">
-                    {/* Заглушка для демонстрации контента урока */}
                     {lesson.type === "text" ? (
                       <div>
-                        <h2>Определение искусственного интеллекта</h2>
-                        <p>
-                          <strong>Искусственный интеллект (ИИ)</strong> — это область компьютерных наук, 
-                          которая фокусируется на создании систем, способных выполнять задачи, 
-                          традиционно требующие человеческого интеллекта.
-                        </p>
-                        <p>
-                          Согласно классическому определению, предложенному Джоном Маккарти в 1956 году, 
-                          искусственный интеллект — это "наука и инженерия создания интеллектуальных машин".
-                        </p>
-                        <h3>Ключевые характеристики ИИ:</h3>
-                        <ul>
-                          <li><strong>Обучаемость</strong> — способность улучшать производительность на основе данных</li>
-                          <li><strong>Рассуждение</strong> — способность делать выводы на основе неполной информации</li>
-                          <li><strong>Решение проблем</strong> — способность формулировать решения сложных задач</li>
-                          <li><strong>Восприятие</strong> — способность интерпретировать сенсорные данные</li>
-                          <li><strong>Понимание языка</strong> — способность понимать и генерировать естественный язык</li>
-                        </ul>
-                        <blockquote>
-                          "ИИ — это новое электричество. Подобно тому, как 100 лет назад электричество преобразило практически все отрасли, 
-                          сегодня мы с трудом можем представить отрасль, которая не изменится благодаря ИИ в ближайшие несколько лет." 
-                          — Эндрю Нг
-                        </blockquote>
+                        {lesson.content ? (
+                          <ReactMarkdown>{lesson.content}</ReactMarkdown>
+                        ) : (
+                          <p className="text-muted-foreground italic">Содержимое урока отсутствует</p>
+                        )}
                       </div>
                     ) : lesson.type === "video" ? (
-                      <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-                        <Video className="h-16 w-16 text-muted-foreground" />
-                        <p className="ml-4">Здесь будет размещено видео урока</p>
-                      </div>
-                    ) : lesson.type === "quiz" ? (
-                      <div className="space-y-6">
-                        <div>
-                          <h3 className="text-lg font-medium">Вопрос 1</h3>
-                          <p className="mb-4">Что из перечисленного НЕ является характеристикой искусственного интеллекта?</p>
-                          <div className="space-y-2">
-                            <div className="flex items-center">
-                              <input type="radio" id="q1-a" name="q1" className="h-4 w-4 mr-2" />
-                              <label htmlFor="q1-a">Способность к самосознанию</label>
-                            </div>
-                            <div className="flex items-center">
-                              <input type="radio" id="q1-b" name="q1" className="h-4 w-4 mr-2" />
-                              <label htmlFor="q1-b">Обучаемость на основе данных</label>
-                            </div>
-                            <div className="flex items-center">
-                              <input type="radio" id="q1-c" name="q1" className="h-4 w-4 mr-2" />
-                              <label htmlFor="q1-c">Решение сложных проблем</label>
-                            </div>
-                            <div className="flex items-center">
-                              <input type="radio" id="q1-d" name="q1" className="h-4 w-4 mr-2" />
-                              <label htmlFor="q1-d">Восприятие и интерпретация данных</label>
+                      <div>
+                        {lesson.content ? (
+                          // Если в содержимом есть ссылка на видео, можно ее отобразить
+                          <div>
+                            <ReactMarkdown>{lesson.content}</ReactMarkdown>
+                            <div className="aspect-video bg-muted rounded-lg mt-4 flex items-center justify-center">
+                              <Video className="h-16 w-16 text-muted-foreground" />
+                              <p className="ml-4">Видеоматериал урока</p>
                             </div>
                           </div>
-                        </div>
+                        ) : (
+                          <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
+                            <Video className="h-16 w-16 text-muted-foreground" />
+                            <p className="ml-4">Видеоматериал недоступен</p>
+                          </div>
+                        )}
+                      </div>
+                    ) : lesson.type === "quiz" ? (
+                      <div>
+                        {lesson.content ? (
+                          <div>
+                            <ReactMarkdown>{lesson.content}</ReactMarkdown>
+                            <div className="mt-6 space-y-6 border-t pt-6">
+                              <h3 className="text-xl font-medium">Тестирование знаний</h3>
+                              <p className="text-muted-foreground">Ответьте на вопросы, чтобы проверить свое понимание материала</p>
+                              {/* В будущем здесь будут отображаться вопросы теста */}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="space-y-6">
+                            <p className="text-muted-foreground italic">Содержимое теста отсутствует</p>
+                          </div>
+                        )}
                       </div>
                     ) : (
-                      <div className="flex flex-col items-center justify-center">
-                        <FileText className="h-16 w-16 text-muted-foreground" />
-                        <p className="mt-4">Интерактивное содержимое урока будет отображаться здесь</p>
+                      <div>
+                        {lesson.content ? (
+                          <div>
+                            <ReactMarkdown>{lesson.content}</ReactMarkdown>
+                            <div className="mt-6 border-t pt-6">
+                              <h3 className="text-xl font-medium">Практическое задание</h3>
+                              <p className="text-muted-foreground">Интерактивная часть урока будет доступна в будущих версиях</p>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center justify-center py-10">
+                            <FileText className="h-16 w-16 text-muted-foreground" />
+                            <p className="mt-4">Интерактивное содержимое урока отсутствует</p>
+                          </div>
+                        )}
                       </div>
                     )}
                   </CardContent>
