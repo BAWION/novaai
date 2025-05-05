@@ -76,13 +76,13 @@ export default function AILiteracyCoursePage() {
 
   // Запрос информации о курсе
   const { data: course, isLoading: courseLoading } = useQuery<Course>({
-    queryKey: ["/api/courses/slug/ai-literacy-101"],
+    queryKey: ["/api/courses/ai-literacy-101"],
     enabled: !!user,
   });
 
   // Запрос модулей курса
   const { data: modules, isLoading: modulesLoading } = useQuery<Module[]>({
-    queryKey: ["/api/courses/ai-literacy-101/modules"],
+    queryKey: ["/api/courses/5/modules"],
     enabled: !!course?.id,
   });
 
