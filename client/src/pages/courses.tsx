@@ -584,7 +584,8 @@ export default function Courses() {
                         if (selectedCourse.id === "0") {
                           setLocation("/course-ai/python-for-ai-beginners");
                         } else {
-                          setLocation(`/modules/1/lessons/1`);
+                          // Проверяем, есть ли у нас модуль с уроками в API
+                          setLocation(`/courses/ai-literacy-101`);
                         }
                       }}
                       className="bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:from-[#4922B2] hover:to-[#1682A1] text-white py-3 px-6 rounded-lg font-medium transition duration-300 flex items-center"
