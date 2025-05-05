@@ -149,16 +149,16 @@ export function Sidebar() {
   };
 
   const navigationItems = [
-    { icon: "fa-tachometer-alt", label: "Панель управления", to: "/dashboard" },
-    { icon: "fa-route", label: "Дорожная карта", to: "/roadmap" },
-    { icon: "fa-flask", label: "Лаборатория", to: "/labhub" },
-    { icon: "fa-book", label: "Курсы", to: "/courses" },
-    { icon: "fa-save", label: "Хранилище знаний", to: "/knowledge-vault" },
-    { icon: "fa-brain", label: "Gap-анализ", to: "/gap-analysis" },
-    { icon: "fa-robot", label: "AI-ассистент", to: "/ai-assistant" },
-    { icon: "fa-users", label: "Сообщество", to: "/community" },
-    { icon: "fa-briefcase", label: "Business AI", to: "/business" },
-    { icon: "fa-user-astronaut", label: "Профиль", to: "/profile" },
+    { icon: "fa-tachometer-alt", label: "Панель управления", to: "/app/dashboard" },
+    { icon: "fa-route", label: "Дорожная карта", to: "/app/roadmap" },
+    { icon: "fa-flask", label: "Лаборатория", to: "/app/labhub" },
+    { icon: "fa-book", label: "Курсы", to: "/app/courses" },
+    { icon: "fa-save", label: "Хранилище знаний", to: "/app/knowledge-vault" },
+    { icon: "fa-brain", label: "Gap-анализ", to: "/app/gap-analysis" },
+    { icon: "fa-robot", label: "AI-ассистент", to: "/app/ai-assistant" },
+    { icon: "fa-users", label: "Сообщество", to: "/app/community" },
+    { icon: "fa-briefcase", label: "Business AI", to: "/app/business" },
+    { icon: "fa-user-astronaut", label: "Профиль", to: "/app/profile" },
   ];
 
   return (
@@ -225,9 +225,9 @@ export function Sidebar() {
             <NavItem
               icon="fa-cog"
               label="Настройки"
-              to="/settings"
-              isActive={location === "/settings"}
-              onClick={() => handleNavigation("/settings")}
+              to="/app/settings"
+              isActive={location === "/app/settings"}
+              onClick={() => handleNavigation("/app/settings")}
             />
             <div
               onClick={handleLogout}
