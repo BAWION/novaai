@@ -34,6 +34,7 @@ import SkillsPage from "@/pages/skills-page";
 import GapAnalysisPage from "@/pages/gap-analysis-page";
 import AIAssistantPage from "@/pages/ai-assistant-page";
 import AILiteracyCoursePage from "@/pages/ai-literacy-course";
+import LessonPage from "@/pages/lesson-page";
 
 interface ProtectedRouteProps {
   component: React.ComponentType;
@@ -149,14 +150,8 @@ function Router() {
           
           {/* Lesson Page - внутри курса AI Literacy */}
           <ProtectedRoute path="/courses/ai-literacy-101/modules/:moduleId/lessons/:lessonId" component={() => {
-            const LessonPage = React.lazy(() => import('@/pages/lesson-page'));
-            return (
-              <React.Suspense fallback={<div className="flex items-center justify-center min-h-screen">
-                <div className="w-12 h-12 rounded-full border-4 border-primary/30 border-t-primary animate-spin"></div>
-              </div>}>
-                <LessonPage inCourseContext="ai-literacy-101" />
-              </React.Suspense>
-            );
+            // Загружаем компонент и не используем Suspense, чтобы избежать моргания
+            return <LessonPage inCourseContext="ai-literacy-101" />;
           }} />
           
           {/* Обратная совместимость для старых URL */}

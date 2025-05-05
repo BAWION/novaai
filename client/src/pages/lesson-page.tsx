@@ -274,11 +274,13 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                       </div>
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="prose prose-lg max-w-none dark:prose-invert">
+                  <CardContent className="prose prose-lg max-w-none dark:prose-invert bg-white dark:bg-zinc-800 p-6 rounded-lg shadow-sm">
                     {lesson.type === "text" ? (
                       <div>
                         {lesson.content ? (
-                          <ReactMarkdown>{lesson.content}</ReactMarkdown>
+                          <div className="dark:text-white text-black">
+                            <ReactMarkdown>{lesson.content}</ReactMarkdown>
+                          </div>
                         ) : (
                           <p className="text-muted-foreground italic">Содержимое урока отсутствует</p>
                         )}
