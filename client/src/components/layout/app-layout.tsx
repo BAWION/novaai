@@ -20,14 +20,25 @@ const BusinessAIOverview = lazy(() => import("@/pages/business"));
 const Profile = lazy(() => import("@/pages/profile"));
 const Settings = lazy(() => import("@/pages/settings"));
 
+// Типизация конфигурации страниц
+type PageConfig = {
+  [key: string]: {
+    title: string;
+    subtitle: string;
+    component: React.LazyExoticComponent<() => React.JSX.Element>;
+  }
+};
+
 // Конфигурация страниц
-const pagesConfig = {
+const pagesConfig: PageConfig = {
   dashboard: { 
     title: "Панель управления",
+    subtitle: "",
     component: Dashboard
   },
   roadmap: { 
     title: "Дорожная карта",
+    subtitle: "",
     component: Roadmap
   },
   courses: { 
@@ -37,34 +48,42 @@ const pagesConfig = {
   },
   labhub: { 
     title: "Лаборатория",
+    subtitle: "Практические задания и эксперименты",
     component: LabHub
   },
   "knowledge-vault": { 
     title: "Хранилище знаний",
+    subtitle: "Ваша персональная база знаний",
     component: KnowledgeVault
   },
   "gap-analysis": { 
     title: "Gap-анализ",
+    subtitle: "Анализ разрывов в навыках",
     component: GapAnalysisPage
   },
   "ai-assistant": { 
     title: "AI-ассистент",
+    subtitle: "Поддержка в изучении и применении AI",
     component: AIAssistantPage
   },
   community: { 
     title: "Сообщество",
+    subtitle: "Общение с другими учениками",
     component: Community
   },
   business: { 
     title: "Business AI",
+    subtitle: "Применение AI в бизнес-процессах",
     component: BusinessAIOverview
   },
   profile: { 
     title: "Профиль",
+    subtitle: "Управление личной информацией",
     component: Profile
   },
   settings: { 
     title: "Настройки",
+    subtitle: "Персонализация платформы",
     component: Settings
   }
 };

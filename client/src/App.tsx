@@ -72,10 +72,18 @@ function Router() {
   const { isAuthenticated } = useAuth();
   const [location] = useLocation();
   
-  // Check if we're on public pages
+  // Определяем, находимся ли мы на публичной странице
   const isPublicPage = location === "/" || location === "/login" || location === "/register" || 
     location === "/onboarding" || location === "/onboarding-page" || location === "/quick-diagnosis" ||
     location === "/deep-diagnosis" || location === "/onboarding-intro" || location === "/register-after-onboarding";
+  
+  // Определяем, находимся ли мы на специальной странице, требующей своего макета
+  const isSpecialPage = 
+    location.startsWith("/orbital-lobby") || 
+    location.startsWith("/business/cases") || 
+    location.startsWith("/course-ai") ||
+    location.startsWith("/courses/") ||
+    location.startsWith("/skills");
   
   return (
     <div className="flex flex-col min-h-screen">
@@ -98,41 +106,18 @@ function Router() {
           <Route path="/quick-diagnosis" component={QuickDiagnosis} />
           <Route path="/deep-diagnosis" component={DeepDiagnosis} />
           
-          {/* Основной контейнер для приложения - MainLayout, который не перезагружает боковую панель */}
-          <ProtectedRoute path="/dashboard" component={() => <MainLayout />} />
-          <ProtectedRoute path="/roadmap" component={() => <MainLayout />} />
-          <ProtectedRoute path="/courses" component={() => <MainLayout />} />
-          <ProtectedRoute path="/labhub" component={() => <MainLayout />} />
-          <ProtectedRoute path="/community" component={() => <MainLayout />} />
-          <ProtectedRoute path="/profile" component={() => <MainLayout />} />
-          <ProtectedRoute path="/settings" component={() => <MainLayout />} />
+          {/* Основной макет приложения с сайдбаром и единым контейнером */}
+          <ProtectedRoute path="/app" component={AppLayout} />
+          
+          {/* Специальные страницы со своим макетом */}
           <ProtectedRoute path="/orbital-lobby" component={OrbitalLobby} />
-          
-          {/* Business AI Module Routes */}
-          <ProtectedRoute path="/business" component={() => <MainLayout />} />
           <ProtectedRoute path="/business/cases" component={CaseLibrary} />
-          
-          {/* Курсы с ИИ-ассистентом */}
           <ProtectedRoute path="/course-ai/:courseId?" component={CourseAI} />
-          
-          {/* Детальная страница курса */}
           <ProtectedRoute path="/courses/:slug" component={CoursePage} />
-          
-          {/* Knowledge Vault - Хранилище знаний */}
-          <ProtectedRoute path="/knowledge-vault" component={() => <MainLayout />} />
-          
-          {/* Карта навыков и учебный прогресс */}
           <Route path="/skills" component={SkillsPage} />
-          
-          {/* Gap-анализ навыков */}
-          <ProtectedRoute path="/gap-analysis" component={() => <MainLayout />} />
-          
-          {/* AI-ассистент */}
-          <ProtectedRoute path="/ai-assistant" component={() => <MainLayout />} />
           
           {/* AI Literacy 101 - Course with Lessons */}
           <ProtectedRoute path="/courses/ai-literacy-101" component={() => {
-            // Используем реализацию подстраниц - основная страница курса
             const [location] = useLocation();
             return (
               <PageTransition location={location} className="w-full h-full">
@@ -174,6 +159,85 @@ function Router() {
                   <div className="w-12 h-12 rounded-full border-4 border-primary/30 border-t-primary animate-spin"></div>
                 </div>
               );
+            }}
+          </Route>
+          
+          {/* Маршруты для редиректа на /app/... */}
+          <Route path="/dashboard">
+            {() => { 
+              const [, navigate] = useLocation();
+              useEffect(() => { navigate("/app/dashboard"); }, [navigate]);
+              return null;
+            }}
+          </Route>
+          <Route path="/roadmap">
+            {() => { 
+              const [, navigate] = useLocation();
+              useEffect(() => { navigate("/app/roadmap"); }, [navigate]);
+              return null;
+            }}
+          </Route>
+          <Route path="/courses">
+            {() => { 
+              const [, navigate] = useLocation();
+              useEffect(() => { navigate("/app/courses"); }, [navigate]);
+              return null;
+            }}
+          </Route>
+          <Route path="/labhub">
+            {() => { 
+              const [, navigate] = useLocation();
+              useEffect(() => { navigate("/app/labhub"); }, [navigate]);
+              return null;
+            }}
+          </Route>
+          <Route path="/community">
+            {() => { 
+              const [, navigate] = useLocation();
+              useEffect(() => { navigate("/app/community"); }, [navigate]);
+              return null;
+            }}
+          </Route>
+          <Route path="/profile">
+            {() => { 
+              const [, navigate] = useLocation();
+              useEffect(() => { navigate("/app/profile"); }, [navigate]);
+              return null;
+            }}
+          </Route>
+          <Route path="/settings">
+            {() => { 
+              const [, navigate] = useLocation();
+              useEffect(() => { navigate("/app/settings"); }, [navigate]);
+              return null;
+            }}
+          </Route>
+          <Route path="/knowledge-vault">
+            {() => { 
+              const [, navigate] = useLocation();
+              useEffect(() => { navigate("/app/knowledge-vault"); }, [navigate]);
+              return null;
+            }}
+          </Route>
+          <Route path="/gap-analysis">
+            {() => { 
+              const [, navigate] = useLocation();
+              useEffect(() => { navigate("/app/gap-analysis"); }, [navigate]);
+              return null;
+            }}
+          </Route>
+          <Route path="/ai-assistant">
+            {() => { 
+              const [, navigate] = useLocation();
+              useEffect(() => { navigate("/app/ai-assistant"); }, [navigate]);
+              return null;
+            }}
+          </Route>
+          <Route path="/business">
+            {() => { 
+              const [, navigate] = useLocation();
+              useEffect(() => { navigate("/app/business"); }, [navigate]);
+              return null;
             }}
           </Route>
           
