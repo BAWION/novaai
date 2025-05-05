@@ -124,7 +124,7 @@ export function Sidebar() {
     setLocation("/login");
   };
 
-  // Улучшенная функция для SPA-навигации между разделами
+  // Оптимизированная функция для перехода между разделами
   // Не закрываем боковую панель на десктопе, чтобы избежать моргания
   const handleNavigation = (to: string) => {
     // Если мы уже на этой странице, ничего не делаем (предотвращаем перерендер)
@@ -135,30 +135,23 @@ export function Sidebar() {
       setIsOpen(false);
     }
     
-    // Программная навигация без перезагрузки страницы
-    setLocation(to);
-    
-    // Дополнительно предотвращаем скролл страницы при навигации
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    
-    // Отправляем событие для аналитики
-    const event = new CustomEvent('navigation', { 
-      detail: { from: location, to }
-    });
-    document.dispatchEvent(event);
+    // Используем setTimeout для плавного перехода
+    setTimeout(() => {
+      setLocation(to);
+    }, 10);
   };
 
   const navigationItems = [
-    { icon: "fa-tachometer-alt", label: "Панель управления", to: "/app/dashboard" },
-    { icon: "fa-route", label: "Дорожная карта", to: "/app/roadmap" },
-    { icon: "fa-flask", label: "Лаборатория", to: "/app/labhub" },
-    { icon: "fa-book", label: "Курсы", to: "/app/courses" },
-    { icon: "fa-save", label: "Хранилище знаний", to: "/app/knowledge-vault" },
-    { icon: "fa-brain", label: "Gap-анализ", to: "/app/gap-analysis" },
-    { icon: "fa-robot", label: "AI-ассистент", to: "/app/ai-assistant" },
-    { icon: "fa-users", label: "Сообщество", to: "/app/community" },
-    { icon: "fa-briefcase", label: "Business AI", to: "/app/business" },
-    { icon: "fa-user-astronaut", label: "Профиль", to: "/app/profile" },
+    { icon: "fa-tachometer-alt", label: "Панель управления", to: "/dashboard" },
+    { icon: "fa-route", label: "Дорожная карта", to: "/roadmap" },
+    { icon: "fa-flask", label: "Лаборатория", to: "/labhub" },
+    { icon: "fa-book", label: "Курсы", to: "/courses" },
+    { icon: "fa-save", label: "Хранилище знаний", to: "/knowledge-vault" },
+    { icon: "fa-brain", label: "Gap-анализ", to: "/gap-analysis" },
+    { icon: "fa-robot", label: "AI-ассистент", to: "/ai-assistant" },
+    { icon: "fa-users", label: "Сообщество", to: "/community" },
+    { icon: "fa-briefcase", label: "Business AI", to: "/business" },
+    { icon: "fa-user-astronaut", label: "Профиль", to: "/profile" },
   ];
 
   return (
@@ -225,9 +218,9 @@ export function Sidebar() {
             <NavItem
               icon="fa-cog"
               label="Настройки"
-              to="/app/settings"
-              isActive={location === "/app/settings"}
-              onClick={() => handleNavigation("/app/settings")}
+              to="/settings"
+              isActive={location === "/settings"}
+              onClick={() => handleNavigation("/settings")}
             />
             <div
               onClick={handleLogout}
