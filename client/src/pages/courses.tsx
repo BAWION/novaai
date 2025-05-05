@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Glassmorphism } from "@/components/ui/glassmorphism";
 import { ProgressRing } from "@/components/ui/progress-ring";
 import { Input } from "@/components/ui/input";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { ethicsCourse, lawCourse } from "@/data";
 import { useQuery } from "@tanstack/react-query";
 import { coursesCatalog, courseCategories, courseSubCategories } from "@/data/courses-catalog";
@@ -281,6 +281,7 @@ const SkillMatchBadge = ({ skillMatch }: { skillMatch?: Course['skillMatch'] }) 
 };
 
 export default function Courses() {
+  const [, setLocation] = useLocation();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
@@ -578,13 +579,19 @@ export default function Courses() {
                   </div>
                   
                   <div className="mt-8 flex flex-wrap gap-3">
-                    <Link 
-                      to={selectedCourse.id === "0" ? "/course-ai/python-for-ai-beginners" : `/modules/1/lessons/1`}
+                    <button 
+                      onClick={() => {
+                        if (selectedCourse.id === "0") {
+                          setLocation("/course-ai/python-for-ai-beginners");
+                        } else {
+                          setLocation(`/modules/1/lessons/1`);
+                        }
+                      }}
                       className="bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:from-[#4922B2] hover:to-[#1682A1] text-white py-3 px-6 rounded-lg font-medium transition duration-300 flex items-center"
                     >
                       <i className="fas fa-play-circle mr-2"></i>
                       {selectedCourse.progress ? 'Продолжить обучение' : 'Начать обучение'}
-                    </Link>
+                    </button>
                     <button className="border border-white/20 hover:bg-white/10 text-white py-3 px-6 rounded-lg font-medium transition duration-300 flex items-center">
                       <i className="far fa-bookmark mr-2"></i>
                       Добавить в избранное
