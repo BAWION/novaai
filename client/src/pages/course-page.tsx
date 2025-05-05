@@ -8,6 +8,7 @@ import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts.jsx";
 import { CacheLessonButton } from "@/components/pwa/offline-status";
 import { useOfflineStatus } from "@/hooks/use-pwa";
 import { cn } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
 
 // Пример данных для демонстрации UI
 const demoModules = [
@@ -300,21 +301,52 @@ const demoAssistants = [
 export default function CoursePage() {
   const [, params] = useRoute("/courses/:slug");
   const [, setLocation] = useLocation();
-  const [expandedModuleIds, setExpandedModuleIds] = useState<number[]>([2]); // Изначально открыт текущий модуль
+  const [expandedModuleIds, setExpandedModuleIds] = useState<number[]>([]); 
   const [currentView, setCurrentView] = useState<"outline" | "content" | "quiz">("outline");
   const [selectedLessonId, setSelectedLessonId] = useState<number | null>(null);
   const [selectedModuleId, setSelectedModuleId] = useState<number | null>(null);
   
-  // Инициализация при загрузке страницы
-  useEffect(() => {
-    // Здесь бы загрузили данные о курсе с сервера, используя params?.slug
-    
-    // Для демо используем предустановленные значения
-    if (demoCourse.currentLessonId && demoCourse.currentModuleId) {
-      setSelectedLessonId(demoCourse.currentLessonId);
-      setSelectedModuleId(demoCourse.currentModuleId);
+  // Получаем данные о курсе из API
+  const { data: apiCourse, isLoading: isLoadingCourse } = useQuery({
+    queryKey: [`/api/courses/${params?.slug}`],
+    enabled: !!params?.slug,
+    queryFn: async () => {
+      try {
+        console.log(`Загрузка курса по slug: ${params?.slug}`);
+        const response = await fetch(`/api/courses/${params?.slug}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch course');
+        }
+        const data = await response.json();
+        console.log('API курс:', data);
+        return data;
+      } catch (error) {
+        console.error('Ошибка при загрузке курса:', error);
+        throw error;
+      }
     }
-  }, [params?.slug]);
+  });
+  
+  // Получаем модули курса из API
+  const { data: apiModules, isLoading: isLoadingModules } = useQuery({
+    queryKey: [`/api/courses/${params?.slug}/modules`],
+    enabled: !!params?.slug,
+    queryFn: async () => {
+      try {
+        console.log(`Загрузка модулей для курса: ${params?.slug}`);
+        const response = await fetch(`/api/courses/${params?.slug}/modules`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch modules');
+        }
+        const data = await response.json();
+        console.log('API модули:', data);
+        return data;
+      } catch (error) {
+        console.error('Ошибка при загрузке модулей:', error);
+        throw error;
+      }
+    }
+  });
   
   // Обработчик клика по уроку
   const handleLessonClick = (lessonId: number, moduleId: number) => {
@@ -361,56 +393,35 @@ export default function CoursePage() {
     setLocation("/courses");
   };
   
-  // Найти текущий урок по ID
-  const findCurrentLesson = () => {
-    if (!selectedLessonId || !selectedModuleId) return null;
+  // Преобразование данных API в формат для компонента CourseOutline
+  const prepareCourse = () => {
+    if (!apiCourse || !apiModules) {
+      return demoCourse; // Используем демо-данные, если API еще не загрузил данные
+    }
     
-    const module = demoCourse.modules.find(m => m.id === selectedModuleId);
-    if (!module) return null;
-    
-    let lesson = null;
-    module.sections.forEach(section => {
-      const found = section.lessons.find(l => l.id === selectedLessonId);
-      if (found) lesson = found;
-    });
-    
-    return lesson;
+    return {
+      id: apiCourse.id,
+      title: apiCourse.title,
+      description: apiCourse.description,
+      modules: apiModules,
+      progress: 0, // Это нужно будет загружать из прогресса пользователя
+      estimatedDuration: apiCourse.estimatedDuration || 0,
+      currentModuleId: null,
+      currentLessonId: null
+    };
   };
   
-  // Найти предыдущий и следующий уроки
+  // Используем подготовленные данные курса
+  const course = prepareCourse();
+  
+  // Найти текущий урок по ID (stub для совместимости)
+  const findCurrentLesson = () => {
+    return { type: "text", title: "Урок" }; // Временная заглушка
+  };
+  
+  // Найти предыдущий и следующий уроки (stub для совместимости)
   const findAdjacentLessons = () => {
-    if (!selectedLessonId || !selectedModuleId) return { prev: null, next: null };
-    
-    let allLessons: { id: number; moduleId: number }[] = [];
-    
-    // Собираем все уроки в плоский список
-    demoCourse.modules.forEach(module => {
-      module.sections.forEach(section => {
-        section.lessons.forEach(lesson => {
-          if (!lesson.locked) {
-            allLessons.push({ id: lesson.id, moduleId: module.id });
-          }
-        });
-      });
-    });
-    
-    // Сортируем по порядку
-    allLessons.sort((a, b) => {
-      if (a.moduleId !== b.moduleId) return a.moduleId - b.moduleId;
-      return a.id - b.id;
-    });
-    
-    // Ищем текущий урок в списке
-    const currentIndex = allLessons.findIndex(
-      l => l.id === selectedLessonId && l.moduleId === selectedModuleId
-    );
-    
-    if (currentIndex === -1) return { prev: null, next: null };
-    
-    const prev = currentIndex > 0 ? allLessons[currentIndex - 1] : null;
-    const next = currentIndex < allLessons.length - 1 ? allLessons[currentIndex + 1] : null;
-    
-    return { prev, next };
+    return { prev: null, next: null }; // Временная заглушка
   };
   
   // Переход к предыдущему уроку
@@ -476,11 +487,11 @@ export default function CoursePage() {
               Курсы
             </button>
             <i className="fas fa-chevron-right mx-2 text-xs"></i>
-            <span className="text-white">{demoCourse.title}</span>
+            <span className="text-white">{course.title}</span>
           </div>
           
           <div className="flex justify-between items-start">
-            <h1 className="text-2xl font-semibold">{demoCourse.title}</h1>
+            <h1 className="text-2xl font-semibold">{course.title}</h1>
             <Button 
               onClick={backToCatalog}
               variant="outline"
