@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Clock, CheckCircle, Lock, PlayCircle, Loader2 } from "lucide-react";
 import { useLocation } from "wouter";
+import { motion } from "framer-motion";
 
 interface Lesson {
   id: number;
@@ -90,6 +91,13 @@ export function ModuleAccordion({ modules = [], currentLessonId, onLessonSelect 
   const handleValueChange = (value: string) => {
     setExpandedModule(value);
   };
+
+  // Анимационные варианты для уроков
+  const lessonVariants = {
+    initial: { opacity: 0, y: 5 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.2 }
+  };
   
   return (
     <Accordion 
@@ -158,8 +166,11 @@ export function ModuleAccordion({ modules = [], currentLessonId, onLessonSelect 
                 
                 {!isLoadingLessons && lessonsToDisplay.length > 0 ? (
                   lessonsToDisplay.map((lesson: Lesson) => (
-                    <div
+                    <motion.div
                       key={lesson.id}
+                      initial="initial"
+                      animate="animate"
+                      variants={lessonVariants}
                       className={`p-3 rounded-md border flex justify-between items-center ${
                         currentLessonId === lesson.id ? "bg-primary/10 border-primary" : ""
                       } ${lesson.locked ? "opacity-70" : "hover:bg-accent/20 cursor-pointer"}`}
@@ -218,7 +229,7 @@ export function ModuleAccordion({ modules = [], currentLessonId, onLessonSelect 
                           Начать
                         </Button>
                       )}
-                    </div>
+                    </motion.div>
                   ))
                 ) : !isLoadingLessons ? (
                   <div className="py-2 px-4 text-center text-muted-foreground">
