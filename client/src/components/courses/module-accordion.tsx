@@ -11,7 +11,6 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Clock, CheckCircle, Lock, PlayCircle, Loader2 } from "lucide-react";
 import { useLocation } from "wouter";
-import { useQuery } from "@tanstack/react-query";
 
 interface Lesson {
   id: number;
@@ -41,26 +40,44 @@ interface ModuleAccordionProps {
 
 export function ModuleAccordion({ modules = [], currentLessonId, onLessonSelect }: ModuleAccordionProps) {
   const [, navigate] = useLocation();
-  const [expandedModules, setExpandedModules] = useState<Record<number, boolean>>({});
-  const [loadedModulesLessons, setLoadedModulesLessons] = useState<Record<number, boolean>>({});
+  const [expandedModule, setExpandedModule] = useState<string | null>(null);
+  const [lessonsData, setLessonsData] = useState<Record<number, Lesson[]>>({});
+  const [loadingModules, setLoadingModules] = useState<Record<number, boolean>>({});
   
-  // Эта функция будет использоваться для получения данных
-  const fetchModuleLessons = async (moduleId: number) => {
-    try {
-      console.log(`Загрузка уроков для модуля ${moduleId}`);
-      const response = await fetch(`/api/modules/${moduleId}/lessons`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch lessons');
+  // Загрузка уроков при раскрытии модуля
+  useEffect(() => {
+    if (!expandedModule) return;
+    
+    const moduleId = parseInt(expandedModule.replace('module-', ''));
+    
+    // Если уроки уже загружены, не делаем повторный запрос
+    if (lessonsData[moduleId]) return;
+    
+    const fetchLessons = async () => {
+      try {
+        setLoadingModules(prev => ({ ...prev, [moduleId]: true }));
+        console.log(`Загрузка уроков для модуля ${moduleId}`);
+        
+        const response = await fetch(`/api/modules/${moduleId}/lessons`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch lessons');
+        }
+        
+        const data = await response.json();
+        console.log('Получены уроки модуля:', data);
+        
+        setLessonsData(prev => ({ ...prev, [moduleId]: data }));
+      } catch (error) {
+        console.error('Ошибка при загрузке уроков:', error);
+      } finally {
+        setLoadingModules(prev => ({ ...prev, [moduleId]: false }));
       }
-      const data = await response.json();
-      console.log('Уроки модуля:', data);
-      return data;
-    } catch (error) {
-      console.error('Ошибка при загрузке уроков:', error);
-      return [];
-    }
-  };
+    };
+    
+    fetchLessons();
+  }, [expandedModule]);
   
+  // Проверка на отсутствие модулей
   if (!modules || modules.length === 0) {
     return (
       <Card className="p-4 text-center">
@@ -69,30 +86,35 @@ export function ModuleAccordion({ modules = [], currentLessonId, onLessonSelect 
     );
   }
 
-  const handleModuleToggle = (moduleId: number, isExpanded: boolean) => {
-    setExpandedModules(prev => ({
-      ...prev,
-      [moduleId]: isExpanded
-    }));
+  // Функция обработки раскрытия/сворачивания модуля
+  const handleValueChange = (value: string) => {
+    setExpandedModule(value);
   };
   
   return (
-    <Accordion type="single" collapsible className="w-full">
+    <Accordion 
+      type="single" 
+      collapsible 
+      className="w-full"
+      value={expandedModule || undefined}
+      onValueChange={handleValueChange}
+    >
       {modules.map((module) => {
-        // Используем React Query для загрузки уроков каждого модуля - вне функции map
-        const queryKey = [`/api/modules/${module.id}/lessons`];
-        const { data: moduleLessons, isLoading: isLoadingLessons } = useQuery({
-          queryKey,
-          enabled: !!expandedModules[module.id], // Загружаем только если модуль развернут
-          queryFn: () => fetchModuleLessons(module.id)
-        });
+        // Определяем, загружаются ли уроки для данного модуля
+        const isLoadingLessons = loadingModules[module.id] || false;
+        
+        // Получаем уроки для этого модуля
+        const moduleLessons = lessonsData[module.id] || [];
 
-        // Уроки для отображения - либо из API, либо из пропсов (если есть)
-        const lessonsToDisplay = (expandedModules[module.id] && moduleLessons) ? 
+        // Определяем, открыт ли этот модуль
+        const isModuleExpanded = expandedModule === `module-${module.id}`;
+        
+        // Уроки для отображения - либо из API, либо из пропсов
+        const lessonsToDisplay = (isModuleExpanded && moduleLessons.length > 0) ? 
           moduleLessons : 
-          module.lessons || [];
+          (module.lessons || []);
 
-        // Вычисляем прогресс модуля (если не указан в данных)
+        // Вычисляем прогресс модуля
         const moduleProgress = module.progress !== undefined ? 
           module.progress : 
           (lessonsToDisplay.length > 0 ? 
@@ -103,14 +125,8 @@ export function ModuleAccordion({ modules = [], currentLessonId, onLessonSelect 
           <AccordionItem 
             key={module.id} 
             value={`module-${module.id}`}
-            // Используем обработчик событий через дочерний элемент AccordionTrigger
           >
-            <AccordionTrigger 
-              onClick={() => {
-                // При клике на AccordionTrigger обновляем состояние расширения
-                handleModuleToggle(module.id, !expandedModules[module.id]);
-              }}
-              className="hover:bg-accent/20 px-4 rounded-md">
+            <AccordionTrigger className="hover:bg-accent/20 px-4 rounded-md">
               <div className="flex flex-col items-start text-left w-full">
                 <div className="flex items-center justify-between w-full">
                   <div className="flex items-center">
