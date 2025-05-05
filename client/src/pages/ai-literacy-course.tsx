@@ -74,15 +74,15 @@ export default function AILiteracyCoursePage() {
     }
   }, [user, isAuthenticated, navigate]);
 
-  // Запрос информации о курсе
+  // Запрос информации о курсе с использованием slug
   const { data: course, isLoading: courseLoading } = useQuery<Course>({
     queryKey: ["/api/courses/ai-literacy-101"],
     enabled: !!user,
   });
 
-  // Запрос модулей курса
+  // Запрос модулей курса с использованием того же slug
   const { data: modules, isLoading: modulesLoading } = useQuery<Module[]>({
-    queryKey: ["/api/courses/5/modules"],
+    queryKey: ["/api/courses/ai-literacy-101/modules"],
     enabled: !!course?.id,
   });
 
