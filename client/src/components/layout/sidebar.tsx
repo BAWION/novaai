@@ -124,7 +124,7 @@ export function Sidebar() {
     setLocation("/login");
   };
 
-  // Оптимизированная функция для перехода между разделами
+  // Улучшенная функция для SPA-навигации между разделами
   // Не закрываем боковую панель на десктопе, чтобы избежать моргания
   const handleNavigation = (to: string) => {
     // Если мы уже на этой странице, ничего не делаем (предотвращаем перерендер)
@@ -135,10 +135,17 @@ export function Sidebar() {
       setIsOpen(false);
     }
     
-    // Используем setTimeout для плавного перехода
-    setTimeout(() => {
-      setLocation(to);
-    }, 10);
+    // Программная навигация без перезагрузки страницы
+    setLocation(to);
+    
+    // Дополнительно предотвращаем скролл страницы при навигации
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    // Отправляем событие для аналитики
+    const event = new CustomEvent('navigation', { 
+      detail: { from: location, to }
+    });
+    document.dispatchEvent(event);
   };
 
   const navigationItems = [

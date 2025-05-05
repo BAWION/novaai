@@ -18,23 +18,15 @@ import RegisterAfterOnboarding from "@/pages/register-after-onboarding";
 import QuickDiagnosis from "@/pages/quick-diagnosis";
 import DeepDiagnosis from "@/pages/deep-diagnosis";
 import OrbitalLobby from "@/pages/orbital-lobby";
-import Dashboard from "@/pages/dashboard";
-import Roadmap from "@/pages/roadmap";
-import Courses from "@/pages/courses";
-import LabHub from "@/pages/labhub";
-import Community from "@/pages/community";
-import Profile from "@/pages/profile";
-import Settings from "@/pages/settings";
 import NotFound from "@/pages/not-found";
-import BusinessAIOverview from "@/pages/business";
 import CaseLibrary from "@/pages/business/cases";
 import CourseAI from "@/pages/course-ai";
 import CoursePage from "@/pages/course-page";
-import KnowledgeVault from "@/pages/knowledge-vault";
 import SkillsPage from "@/pages/skills-page";
-import GapAnalysisPage from "@/pages/gap-analysis-page";
-import AIAssistantPage from "@/pages/ai-assistant-page";
 import AILiteracyCoursePage from "@/pages/ai-literacy-course";
+import { MainLayout } from "@/components/layout/main-layout";
+
+// Динамический импорт для страниц главного контейнера не требуется - они загружаются внутри MainLayout
 
 interface ProtectedRouteProps {
   component: React.ComponentType;
@@ -112,18 +104,18 @@ function Router() {
           <Route path="/quick-diagnosis" component={QuickDiagnosis} />
           <Route path="/deep-diagnosis" component={DeepDiagnosis} />
           
-          {/* Protected Routes */}
-          <ProtectedRoute path="/dashboard" component={Dashboard} />
-          <ProtectedRoute path="/roadmap" component={Roadmap} />
-          <ProtectedRoute path="/courses" component={Courses} />
-          <ProtectedRoute path="/labhub" component={LabHub} />
-          <ProtectedRoute path="/community" component={Community} />
-          <ProtectedRoute path="/profile" component={Profile} />
-          <ProtectedRoute path="/settings" component={Settings} />
+          {/* Основной контейнер для приложения - MainLayout, который не перезагружает боковую панель */}
+          <ProtectedRoute path="/dashboard" component={() => <MainLayout />} />
+          <ProtectedRoute path="/roadmap" component={() => <MainLayout />} />
+          <ProtectedRoute path="/courses" component={() => <MainLayout />} />
+          <ProtectedRoute path="/labhub" component={() => <MainLayout />} />
+          <ProtectedRoute path="/community" component={() => <MainLayout />} />
+          <ProtectedRoute path="/profile" component={() => <MainLayout />} />
+          <ProtectedRoute path="/settings" component={() => <MainLayout />} />
           <ProtectedRoute path="/orbital-lobby" component={OrbitalLobby} />
           
           {/* Business AI Module Routes */}
-          <ProtectedRoute path="/business" component={BusinessAIOverview} />
+          <ProtectedRoute path="/business" component={() => <MainLayout />} />
           <ProtectedRoute path="/business/cases" component={CaseLibrary} />
           
           {/* Курсы с ИИ-ассистентом */}
@@ -133,16 +125,16 @@ function Router() {
           <ProtectedRoute path="/courses/:slug" component={CoursePage} />
           
           {/* Knowledge Vault - Хранилище знаний */}
-          <ProtectedRoute path="/knowledge-vault" component={KnowledgeVault} />
+          <ProtectedRoute path="/knowledge-vault" component={() => <MainLayout />} />
           
           {/* Карта навыков и учебный прогресс */}
           <Route path="/skills" component={SkillsPage} />
           
           {/* Gap-анализ навыков */}
-          <ProtectedRoute path="/gap-analysis" component={GapAnalysisPage} />
+          <ProtectedRoute path="/gap-analysis" component={() => <MainLayout />} />
           
           {/* AI-ассистент */}
-          <ProtectedRoute path="/ai-assistant" component={AIAssistantPage} />
+          <ProtectedRoute path="/ai-assistant" component={() => <MainLayout />} />
           
           {/* AI Literacy 101 - Course with Lessons */}
           <ProtectedRoute path="/courses/ai-literacy-101" component={() => {
