@@ -7,6 +7,7 @@ import { SidebarProvider } from "@/components/layout/sidebar";
 import { PWAInstallPrompt, MobilePWAInstallButton } from "@/components/pwa/install-prompt";
 import { ConnectionStatus, PWAModeBadge } from "@/components/pwa/offline-status";
 import { Providers } from "@/context/providers";
+import { PageTransition } from "@/components/ui/page-transition";
 import HomePage from "@/pages/home-page";
 import Login from "@/pages/login";
 import Register from "@/pages/register";
@@ -71,10 +72,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ component: Component, p
     );
   }
   
-  // Если пользователь авторизован, отрисовываем компонент
+  // Если пользователь авторизован, отрисовываем компонент с анимацией перехода
   return (
     <Route path={path}>
-      <Component />
+      <PageTransition location={path}>
+        <Component />
+      </PageTransition>
     </Route>
   );
 };
@@ -144,17 +147,26 @@ function Router() {
           {/* AI Literacy 101 - Course with Lessons */}
           <ProtectedRoute path="/courses/ai-literacy-101" component={() => {
             // Используем реализацию подстраниц - основная страница курса
-            return <AILiteracyCoursePage />;
+            const [location] = useLocation();
+            return (
+              <PageTransition location={location} className="w-full h-full">
+                <AILiteracyCoursePage />
+              </PageTransition>
+            );
           }} />
           
           {/* Lesson Page - внутри курса AI Literacy */}
           <ProtectedRoute path="/courses/ai-literacy-101/modules/:moduleId/lessons/:lessonId" component={() => {
             const LessonPage = React.lazy(() => import('@/pages/lesson-page'));
+            const [location] = useLocation();
+            
             return (
               <React.Suspense fallback={<div className="flex items-center justify-center min-h-screen">
                 <div className="w-12 h-12 rounded-full border-4 border-primary/30 border-t-primary animate-spin"></div>
               </div>}>
-                <LessonPage inCourseContext="ai-literacy-101" />
+                <PageTransition location={location} className="w-full h-full">
+                  <LessonPage inCourseContext="ai-literacy-101" />
+                </PageTransition>
               </React.Suspense>
             );
           }} />

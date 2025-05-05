@@ -1,42 +1,53 @@
-import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from "framer-motion";
+import { ReactNode, useEffect } from "react";
+import { useLocation } from "wouter";
 
 interface PageTransitionProps {
-  children: React.ReactNode;
+  children: ReactNode;
   location: string;
   className?: string;
 }
 
-export const PageTransition = ({ children, location, className = '' }: PageTransitionProps) => {
-  const [displayLocation, setDisplayLocation] = useState(location);
-  const [transitionStage, setTransitionStage] = useState('fadeIn');
-
-  useEffect(() => {
-    if (location !== displayLocation) {
-      setTransitionStage('fadeOut');
-    }
-  }, [location, displayLocation]);
-
-  const handleAnimationEnd = () => {
-    if (transitionStage === 'fadeOut') {
-      setTransitionStage('fadeIn');
-      setDisplayLocation(location);
-    }
+export const PageTransition = ({
+  children,
+  location,
+  className = "",
+}: PageTransitionProps) => {
+  // Варианты анимации
+  const variants = {
+    initial: { opacity: 0, x: 0 },
+    enter: { opacity: 1, x: 0, transition: { duration: 0.3, ease: "easeInOut" } },
+    exit: { opacity: 0, x: 0, transition: { duration: 0.2, ease: "easeInOut" } },
   };
 
   return (
     <AnimatePresence mode="wait">
       <motion.div
-        key={displayLocation}
+        key={location}
+        initial="initial"
+        animate="enter"
+        exit="exit"
+        variants={variants}
         className={className}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.3 }}
-        onAnimationComplete={handleAnimationEnd}
       >
         {children}
       </motion.div>
     </AnimatePresence>
   );
+};
+
+// Обёртка для использования с компонентами страниц
+export const withPageTransition = <P extends object>(
+  Component: React.ComponentType<P>,
+  className?: string
+) => {
+  return (props: P) => {
+    const [location] = useLocation();
+    
+    return (
+      <PageTransition location={location} className={className}>
+        <Component {...props} />
+      </PageTransition>
+    );
+  };
 };
