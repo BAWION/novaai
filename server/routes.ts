@@ -483,9 +483,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Маршруты для модулей курса
-  app.get("/api/courses/:courseId/modules", async (req, res) => {
+  app.get("/api/courses/:courseIdOrSlug/modules", async (req, res) => {
     try {
-      const courseId = parseInt(req.params.courseId);
+      const courseIdOrSlug = req.params.courseIdOrSlug;
+      let courseId: number;
+      
+      // Проверяем, это ID или slug
+      if (!isNaN(parseInt(courseIdOrSlug))) {
+        courseId = parseInt(courseIdOrSlug);
+      } else {
+        // Если это slug, получаем сначала курс
+        const course = await storage.getCourseBySlug(courseIdOrSlug);
+        if (!course) {
+          return res.status(404).json({ message: "Course not found" });
+        }
+        courseId = course.id;
+      }
+      
       const modules = await storage.getCourseModules(courseId);
       res.json(modules);
     } catch (error) {
