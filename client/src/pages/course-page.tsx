@@ -9,6 +9,8 @@ import { CacheLessonButton } from "@/components/pwa/offline-status";
 import { useOfflineStatus } from "@/hooks/use-pwa";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
+import ReactMarkdown from "react-markdown";
+import { Video } from "lucide-react";
 
 // Пример данных для демонстрации UI
 const demoModules = [
@@ -554,13 +556,16 @@ export default function CoursePage() {
                 <h2 className="text-xl font-semibold mb-6">{currentLesson?.title}</h2>
                 
                 <div className="prose prose-invert max-w-none">
-                  <p>Это пример содержимого урока. В реальном приложении здесь был бы контент урока, загруженный с сервера.</p>
-                  
-                  <p>Для урока типа <strong>{currentLesson?.type}</strong> можно было бы показать:</p>
+                  {currentLesson?.content ? (
+                    <ReactMarkdown>{currentLesson.content}</ReactMarkdown>
+                  ) : (
+                    <p className="text-muted-foreground italic">Содержимое урока отсутствует</p>
+                  )}
                   
                   {currentLesson?.type === "video" && (
-                    <div className="aspect-video bg-black/50 rounded-lg flex items-center justify-center mb-4">
-                      <i className="fas fa-play-circle text-5xl text-primary"></i>
+                    <div className="aspect-video bg-black/50 rounded-lg flex items-center justify-center mb-4 mt-4">
+                      <Video className="h-16 w-16 text-primary" />
+                      <p className="ml-4">Видеоматериал урока</p>
                     </div>
                   )}
                   
