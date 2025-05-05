@@ -1,6 +1,17 @@
 import { Request, Response, Router } from "express";
 import { z } from "zod";
 import { storage } from "../storage";
+import { IStorage } from "../storage";
+
+// Расширяем типы Express для поддержки аутентификации пользователя
+declare global {
+  namespace Express {
+    interface Request {
+      isAuthenticated(): boolean;
+      user?: any;
+    }
+  }
+}
 
 export const courseProgressRouter = Router();
 
