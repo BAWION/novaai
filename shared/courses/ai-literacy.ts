@@ -1,7 +1,7 @@
 // AI Literacy 101 - Структура курса
 // Файл содержит полную структуру курса для использования при вставке в базу данных
 
-import { type Course, type CourseModule, type Lesson } from '../schema';
+import { type Course, type CourseModule, type Lesson, courseLevelEnum } from '../schema';
 
 export const AI_LITERACY_COURSE: Omit<Course, 'id' | 'createdAt' | 'updatedAt'> = {
   title: "AI Literacy 101: Основы искусственного интеллекта",

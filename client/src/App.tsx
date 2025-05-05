@@ -33,6 +33,7 @@ import KnowledgeVault from "@/pages/knowledge-vault";
 import SkillsPage from "@/pages/skills-page";
 import GapAnalysisPage from "@/pages/gap-analysis-page";
 import AIAssistantPage from "@/pages/ai-assistant-page";
+import AILiteracyCoursePage from "@/pages/ai-literacy-course";
 
 interface ProtectedRouteProps {
   component: React.ComponentType;
@@ -139,6 +140,9 @@ function Router() {
           
           {/* AI-ассистент */}
           <ProtectedRoute path="/ai-assistant" component={AIAssistantPage} />
+          
+          {/* AI Literacy 101 */}
+          <ProtectedRoute path="/courses/ai-literacy-101" component={AILiteracyCoursePage} />
           
           <Route component={NotFound} />
         </Switch>
