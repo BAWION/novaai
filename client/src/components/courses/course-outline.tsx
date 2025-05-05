@@ -64,7 +64,7 @@ export function CourseOutline({
               <span>Общий прогресс: {totalProgress}%</span>
               <span className="flex items-center">
                 <Clock className="h-4 w-4 mr-1" />
-                {modules.reduce((sum, module) => sum + module.lessons.reduce((s, l) => s + l.duration, 0), 0)} мин
+                {modules?.reduce((sum, module) => sum + (module?.lessons?.reduce((s, l) => s + (l?.duration || 0), 0) || 0), 0) || 0} мин
               </span>
             </div>
           </div>
@@ -78,7 +78,7 @@ export function CourseOutline({
       />
       
       {/* Рекомендуемый модуль для изучения */}
-      {modules.length > 0 && modules[0].progress < 100 && !modules[0].completed && (
+      {modules && modules.length > 0 && modules[0] && modules[0].progress < 100 && !modules[0].completed && (
         <Card className="border-dashed border-primary/30 bg-primary/5">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg">Рекомендуемый модуль</CardTitle>
@@ -86,16 +86,16 @@ export function CourseOutline({
           <CardContent className="space-y-4">
             <div className="flex justify-between items-start">
               <div>
-                <h3 className="font-medium">{modules[0].title}</h3>
-                <p className="text-sm text-muted-foreground">{modules[0].description}</p>
+                <h3 className="font-medium">{modules[0]?.title || 'Название модуля'}</h3>
+                <p className="text-sm text-muted-foreground">{modules[0]?.description || 'Описание модуля'}</p>
               </div>
               <Badge variant="outline" className="ml-2">
-                {modules[0].progress}% завершено
+                {modules[0]?.progress || 0}% завершено
               </Badge>
             </div>
-            <Progress value={modules[0].progress} className="h-1" />
+            <Progress value={modules[0]?.progress || 0} className="h-1" />
             <Button 
-              onClick={() => onModuleSelect(modules[0].id)}
+              onClick={() => modules[0] && onModuleSelect(modules[0].id)}
               className="w-full"
             >
               Начать обучение <ChevronRight className="ml-2 h-4 w-4" />
