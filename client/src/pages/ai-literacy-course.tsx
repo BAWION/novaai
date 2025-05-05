@@ -233,7 +233,7 @@ export default function AILiteracyCoursePage() {
                 <CardFooter>
                   <Button 
                     className="w-full" 
-                    onClick={() => navigate("/modules/1/lessons/1")}
+                    onClick={() => navigate("/courses/ai-literacy-101/modules/5/lessons/5")}
                   >
                     Продолжить обучение
                   </Button>
@@ -260,7 +260,7 @@ export default function AILiteracyCoursePage() {
                   courseTitle={course.title}
                   lastLesson="Определение искусственного интеллекта"
                   progress={25}
-                  onContinue={() => navigate("/modules/1/lessons/1")}
+                  onContinue={() => navigate("/courses/ai-literacy-101/modules/5/lessons/5")}
                 />
                 
                 {/* Цели обучения */}
