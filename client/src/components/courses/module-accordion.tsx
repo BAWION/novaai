@@ -8,6 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import { Clock, CheckCircle, Lock, PlayCircle } from "lucide-react";
 import { useLocation } from "wouter";
 
@@ -35,8 +36,17 @@ interface ModuleAccordionProps {
   onLessonSelect: (lessonId: number) => void;
 }
 
-export function ModuleAccordion({ modules, currentLessonId, onLessonSelect }: ModuleAccordionProps) {
+export function ModuleAccordion({ modules = [], currentLessonId, onLessonSelect }: ModuleAccordionProps) {
   const [, navigate] = useLocation();
+  
+  if (!modules || modules.length === 0) {
+    return (
+      <Card className="p-4 text-center">
+        <p>Модули курса не найдены</p>
+      </Card>
+    );
+  }
+  
   return (
     <Accordion type="single" collapsible className="w-full">
       {modules.map((module) => (
@@ -73,7 +83,7 @@ export function ModuleAccordion({ modules, currentLessonId, onLessonSelect }: Mo
                   onClick={() => {
                     if (!lesson.locked) {
                       onLessonSelect(lesson.id);
-                      navigate(`/modules/${module.id}/lessons/${lesson.id}`);
+                      navigate(`/courses/ai-literacy-101/modules/${module.id}/lessons/${lesson.id}`);
                     }
                   }}
                 >
@@ -119,7 +129,7 @@ export function ModuleAccordion({ modules, currentLessonId, onLessonSelect }: Mo
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
-                        navigate(`/modules/${module.id}/lessons/${lesson.id}`);
+                        navigate(`/courses/ai-literacy-101/modules/${module.id}/lessons/${lesson.id}`);
                       }}
                     >
                       Начать
