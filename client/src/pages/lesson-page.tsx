@@ -134,8 +134,35 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/modules", moduleId, "lessons"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/courses/progress/user"] });
+      // Инвалидируем все запросы, связанные с данными курса и прогрессом
+      queryClient.invalidateQueries({ queryKey: [`/api/modules/${moduleId}/lessons`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/lessons/${lessonId}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/modules/${moduleId}`] });
+      queryClient.invalidateQueries({ queryKey: ["/api/learning/progress"] });
+      
+      // Вручную обновляем текущий урок в кэше, чтобы сразу показать изменения
+      const currentLessonKey = [`/api/lessons/${lessonId}`];
+      const currentLesson = queryClient.getQueryData<Lesson>(currentLessonKey);
+      
+      if (currentLesson) {
+        queryClient.setQueryData(currentLessonKey, {
+          ...currentLesson,
+          completed: true
+        });
+      }
+      
+      // Обновляем список уроков модуля
+      const moduleLessonsKey = [`/api/modules/${moduleId}/lessons`];
+      const moduleLessons = queryClient.getQueryData<Lesson[]>(moduleLessonsKey);
+      
+      if (moduleLessons) {
+        const updatedLessons = moduleLessons.map(l => 
+          l.id.toString() === lessonId 
+            ? { ...l, completed: true } 
+            : l
+        );
+        queryClient.setQueryData(moduleLessonsKey, updatedLessons);
+      }
       
       toast({
         title: "Урок завершен!",
@@ -149,10 +176,14 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
         if (currentIndex !== -1 && currentIndex < module.lessons.length - 1) {
           const nextLesson = module.lessons[currentIndex + 1];
           // Перейти к следующему уроку (используя новый формат URL)
-          navigate(`/courses/${courseContext}/modules/${moduleId}/lessons/${nextLesson.id}`);
+          setTimeout(() => {
+            navigate(`/courses/${courseContext}/modules/${moduleId}/lessons/${nextLesson.id}`);
+          }, 1000);
         } else {
           // Если это последний урок в модуле, вернуться к странице курса
-          navigate(`/courses/${courseContext}`);
+          setTimeout(() => {
+            navigate(`/courses/${courseContext}`);
+          }, 1000);
         }
       }
     },
