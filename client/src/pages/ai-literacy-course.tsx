@@ -60,7 +60,7 @@ interface Course {
 }
 
 export default function AILiteracyCoursePage() {
-  const { user, isLoading: authLoading } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("overview");
@@ -69,10 +69,10 @@ export default function AILiteracyCoursePage() {
 
   // Проверка аутентификации
   useEffect(() => {
-    if (!authLoading && !user) {
-      navigate("/auth");
+    if (!isAuthenticated || !user) {
+      navigate("/login");
     }
-  }, [user, authLoading, navigate]);
+  }, [user, isAuthenticated, navigate]);
 
   // Запрос информации о курсе
   const { data: course, isLoading: courseLoading } = useQuery<Course>({
@@ -162,9 +162,9 @@ export default function AILiteracyCoursePage() {
   };
 
   // Загрузка данных
-  if (authLoading || courseLoading || modulesLoading || progressLoading) {
+  if (courseLoading || modulesLoading || progressLoading) {
     return (
-      <DashboardLayout>
+      <DashboardLayout title="AI Literacy 101">
         <div className="flex items-center justify-center min-h-screen">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
           <span className="ml-2">Загрузка курса...</span>
@@ -176,7 +176,7 @@ export default function AILiteracyCoursePage() {
   // Если курс не найден
   if (!course) {
     return (
-      <DashboardLayout>
+      <DashboardLayout title="Курс не найден">
         <div className="flex flex-col items-center justify-center min-h-screen">
           <h1 className="text-2xl font-bold">Курс не найден</h1>
           <p className="mt-2 text-muted-foreground">Проверьте URL или выберите другой курс</p>
@@ -189,7 +189,7 @@ export default function AILiteracyCoursePage() {
   }
 
   return (
-    <DashboardLayout>
+    <DashboardLayout title={course.title || "AI Literacy 101"}>
       <div className="container mx-auto py-8 px-4">
         {/* Заголовок курса */}
         <Glassmorphism className="p-6 mb-8">
