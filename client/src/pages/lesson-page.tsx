@@ -297,8 +297,8 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
               
               <TabsContent value="content">
                 <LessonView 
-                  lessonId={lessonId} 
-                  moduleId={moduleId} 
+                  lessonId={lessonId || ''} 
+                  moduleId={moduleId || ''} 
                   courseSlug={courseContext}
                   onComplete={handleLessonComplete}
                 />

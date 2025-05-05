@@ -46,18 +46,33 @@ export const LessonView: React.FC<LessonViewProps> = ({
   const [, navigate] = useLocation();
 
   // Получаем данные урока
+  // Преобразуем ID в строку для безопасного использования
+  const lessonIdStr = lessonId ? String(lessonId) : '';
+  const moduleIdStr = moduleId ? String(moduleId) : '';
+  
   const { data: lesson, isLoading: lessonLoading } = useQuery<Lesson>({
-    queryKey: [`/api/lessons/${lessonId}`],
-    enabled: !!lessonId,
+    queryKey: [`/api/lessons/${lessonIdStr}`],
+    enabled: !!lessonIdStr,
+    staleTime: 5 * 60 * 1000, // Кэшируем на 5 минут
     queryFn: async () => {
       try {
-        console.log(`Загрузка урока с ID ${lessonId}`);
-        const response = await fetch(`/api/lessons/${lessonId}`);
+        console.log(`Загрузка урока с ID ${lessonIdStr}`);
+        // Добавляем параметр времени для предотвращения кэширования браузером
+        const timestamp = new Date().getTime();
+        const response = await fetch(`/api/lessons/${lessonIdStr}?t=${timestamp}`);
         if (!response.ok) {
           throw new Error('Не удалось загрузить урок');
         }
         const lessonData = await response.json();
         console.log('Полученные данные урока:', lessonData);
+        
+        // Проверяем наличие контента и выводим предупреждение, если его нет
+        if (!lessonData.content) {
+          console.warn(`Урок ${lessonIdStr} не содержит контента`);
+        } else {
+          console.log(`Длина контента урока ${lessonIdStr}: ${lessonData.content.length} символов`);
+        }
+        
         return lessonData;
       } catch (error) {
         console.error('Ошибка при загрузке урока:', error);
