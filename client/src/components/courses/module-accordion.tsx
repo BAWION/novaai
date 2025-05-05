@@ -72,71 +72,77 @@ export function ModuleAccordion({ modules = [], currentLessonId, onLessonSelect 
             </div>
           </AccordionTrigger>
           <AccordionContent className="px-4">
-            <p className="text-sm text-muted-foreground mb-4">{module.description}</p>
+            <p className="text-sm text-muted-foreground mb-4">{module?.description || 'Описание отсутствует'}</p>
             <div className="space-y-2">
-              {module.lessons.map((lesson) => (
-                <div
-                  key={lesson.id}
-                  className={`p-3 rounded-md border flex justify-between items-center ${
-                    currentLessonId === lesson.id ? "bg-primary/10 border-primary" : ""
-                  } ${lesson.locked ? "opacity-70" : "hover:bg-accent/20 cursor-pointer"}`}
-                  onClick={() => {
-                    if (!lesson.locked) {
-                      onLessonSelect(lesson.id);
-                      navigate(`/courses/ai-literacy-101/modules/${module.id}/lessons/${lesson.id}`);
-                    }
-                  }}
-                >
-                  <div className="flex items-start">
-                    {lesson.completed ? (
-                      <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 mr-3 flex-shrink-0" />
-                    ) : lesson.locked ? (
-                      <Lock className="h-5 w-5 text-muted-foreground mt-0.5 mr-3 flex-shrink-0" />
-                    ) : (
-                      <PlayCircle className="h-5 w-5 text-primary mt-0.5 mr-3 flex-shrink-0" />
-                    )}
-                    <div>
-                      <div className="font-medium">{lesson.title}</div>
-                      <div className="flex items-center mt-1 text-xs text-muted-foreground">
-                        <Clock className="h-3 w-3 mr-1" />
-                        <span>{lesson.duration} мин</span>
-                        <span className="mx-2">•</span>
-                        <Badge variant="outline" className="text-xs py-0 h-5">
-                          {lesson.type === "video"
-                            ? "Видео"
-                            : lesson.type === "quiz"
-                            ? "Тест"
-                            : lesson.type === "interactive"
-                            ? "Практика"
-                            : "Текст"}
-                        </Badge>
+              {module?.lessons?.length > 0 ? (
+                module.lessons.map((lesson) => (
+                  <div
+                    key={lesson.id}
+                    className={`p-3 rounded-md border flex justify-between items-center ${
+                      currentLessonId === lesson.id ? "bg-primary/10 border-primary" : ""
+                    } ${lesson.locked ? "opacity-70" : "hover:bg-accent/20 cursor-pointer"}`}
+                    onClick={() => {
+                      if (!lesson.locked) {
+                        onLessonSelect(lesson.id);
+                        navigate(`/courses/ai-literacy-101/modules/${module.id}/lessons/${lesson.id}`);
+                      }
+                    }}
+                  >
+                    <div className="flex items-start">
+                      {lesson.completed ? (
+                        <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 mr-3 flex-shrink-0" />
+                      ) : lesson.locked ? (
+                        <Lock className="h-5 w-5 text-muted-foreground mt-0.5 mr-3 flex-shrink-0" />
+                      ) : (
+                        <PlayCircle className="h-5 w-5 text-primary mt-0.5 mr-3 flex-shrink-0" />
+                      )}
+                      <div>
+                        <div className="font-medium">{lesson.title}</div>
+                        <div className="flex items-center mt-1 text-xs text-muted-foreground">
+                          <Clock className="h-3 w-3 mr-1" />
+                          <span>{lesson.duration} мин</span>
+                          <span className="mx-2">•</span>
+                          <Badge variant="outline" className="text-xs py-0 h-5">
+                            {lesson.type === "video"
+                              ? "Видео"
+                              : lesson.type === "quiz"
+                              ? "Тест"
+                              : lesson.type === "interactive"
+                              ? "Практика"
+                              : "Текст"}
+                          </Badge>
+                        </div>
                       </div>
                     </div>
+                    {lesson.locked ? (
+                      <Badge variant="outline">Заблокировано</Badge>
+                    ) : lesson.completed ? (
+                      <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20">
+                        Завершено
+                      </Badge>
+                    ) : currentLessonId === lesson.id ? (
+                      <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+                        Текущий
+                      </Badge>
+                    ) : (
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/courses/ai-literacy-101/modules/${module.id}/lessons/${lesson.id}`);
+                        }}
+                      >
+                        Начать
+                      </Button>
+                    )}
                   </div>
-                  {lesson.locked ? (
-                    <Badge variant="outline">Заблокировано</Badge>
-                  ) : lesson.completed ? (
-                    <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20">
-                      Завершено
-                    </Badge>
-                  ) : currentLessonId === lesson.id ? (
-                    <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
-                      Текущий
-                    </Badge>
-                  ) : (
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(`/courses/ai-literacy-101/modules/${module.id}/lessons/${lesson.id}`);
-                      }}
-                    >
-                      Начать
-                    </Button>
-                  )}
+                ))
+              ) : (
+                <div className="py-2 px-4 text-center text-muted-foreground">
+                  <p>Уроки ещё не добавлены</p>
                 </div>
-              ))}
+              )}
             </div>
           </AccordionContent>
         </AccordionItem>
