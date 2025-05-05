@@ -169,25 +169,49 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
     completeLessonMutation.mutate();
   };
 
-  // Функция для перехода к предыдущему уроку
+  // Функция для перехода к предыдущему уроку с использованием ReactQuery для плавного перехода
   const goToPreviousLesson = () => {
     if (!module?.lessons) return;
     
     const currentIndex = module.lessons.findIndex(l => l.id.toString() === lessonId);
     if (currentIndex > 0) {
       const prevLesson = module.lessons[currentIndex - 1];
-      navigate(`/courses/${courseContext}/modules/${moduleId}/lessons/${prevLesson.id}`);
+      
+      // Предварительно загружаем данные следующего урока, чтобы переход был плавным
+      queryClient.prefetchQuery({
+        queryKey: [`/api/lessons/${prevLesson.id}`],
+        queryFn: async () => {
+          const response = await fetch(`/api/lessons/${prevLesson.id}`);
+          if (!response.ok) throw new Error('Не удалось загрузить урок');
+          return response.json();
+        }
+      }).then(() => {
+        // После предзагрузки делаем переход
+        navigate(`/courses/${courseContext}/modules/${moduleId}/lessons/${prevLesson.id}`);
+      });
     }
   };
 
-  // Функция для перехода к следующему уроку
+  // Функция для перехода к следующему уроку с предзагрузкой
   const goToNextLesson = () => {
     if (!module?.lessons) return;
     
     const currentIndex = module.lessons.findIndex(l => l.id.toString() === lessonId);
     if (currentIndex !== -1 && currentIndex < module.lessons.length - 1) {
       const nextLesson = module.lessons[currentIndex + 1];
-      navigate(`/courses/${courseContext}/modules/${moduleId}/lessons/${nextLesson.id}`);
+      
+      // Предварительно загружаем данные следующего урока
+      queryClient.prefetchQuery({
+        queryKey: [`/api/lessons/${nextLesson.id}`],
+        queryFn: async () => {
+          const response = await fetch(`/api/lessons/${nextLesson.id}`);
+          if (!response.ok) throw new Error('Не удалось загрузить урок');
+          return response.json();
+        }
+      }).then(() => {
+        // После предзагрузки делаем переход
+        navigate(`/courses/${courseContext}/modules/${moduleId}/lessons/${nextLesson.id}`);
+      });
     }
   };
 

@@ -142,10 +142,7 @@ function Router() {
           <ProtectedRoute path="/ai-assistant" component={AIAssistantPage} />
           
           {/* AI Literacy 101 - Course with Lessons */}
-          <ProtectedRoute path="/courses/ai-literacy-101" component={() => {
-            // Используем реализацию подстраниц - основная страница курса
-            return <AILiteracyCoursePage />;
-          }} />
+          <ProtectedRoute path="/courses/ai-literacy-101" component={AILiteracyCoursePage} />
           
           {/* Lesson Page - внутри курса AI Literacy */}
           <ProtectedRoute path="/courses/ai-literacy-101/modules/:moduleId/lessons/:lessonId" component={() => {
