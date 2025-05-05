@@ -583,9 +583,17 @@ export default function Courses() {
                       onClick={() => {
                         if (selectedCourse.id === "0") {
                           setLocation("/course-ai/python-for-ai-beginners");
-                        } else {
-                          // Проверяем, есть ли у нас модуль с уроками в API
+                        } else if (selectedCourse.id === 7 || selectedCourse.title.includes("AI Ethics")) {
+                          // AI Ethics курс - ведем на детальную страницу курса, где будут модули
                           setLocation(`/courses/ai-literacy-101`);
+                        } else {
+                          // Для остальных курсов пробуем открыть первый урок первого модуля
+                          const courseId = typeof selectedCourse.id === 'string' 
+                            ? selectedCourse.id 
+                            : selectedCourse.id.toString();
+                          
+                          // URL к первому уроку первого модуля курса
+                          setLocation(`/modules/1/lessons/1`);
                         }
                       }}
                       className="bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:from-[#4922B2] hover:to-[#1682A1] text-white py-3 px-6 rounded-lg font-medium transition duration-300 flex items-center"
