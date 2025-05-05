@@ -296,12 +296,96 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
               </TabsList>
               
               <TabsContent value="content">
-                <LessonView 
-                  lessonId={lessonId || ''} 
-                  moduleId={moduleId || ''} 
-                  courseSlug={courseContext}
-                  onComplete={handleLessonComplete}
-                />
+                {/* Прямое отображение урока вместо компонента LessonView */}
+                <Card className="shadow-lg">
+                  <CardHeader>
+                    <div className="flex justify-between items-center">
+                      <CardTitle>{lesson.title}</CardTitle>
+                      <Badge variant="outline">
+                        {lesson.type === "text" ? "Текст" : 
+                        lesson.type === "video" ? "Видео" : 
+                        lesson.type === "quiz" ? "Тест" : 
+                        "Интерактивный"}
+                      </Badge>
+                    </div>
+                    <CardDescription>
+                      <div className="flex items-center mt-1">
+                        <Clock className="h-4 w-4 mr-1" />
+                        <span>{lesson.estimatedDuration} минут</span>
+                      </div>
+                    </CardDescription>
+                  </CardHeader>
+                  
+                  <CardContent className="prose prose-lg max-w-none dark:prose-invert">
+                    {/* Отладочная информация */}
+                    {!lesson.content && (
+                      <div className="p-4 mb-4 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded">
+                        <h3 className="font-semibold">Внимание!</h3>
+                        <p>Урок не содержит контента. ID урока: {lesson.id}</p>
+                      </div>
+                    )}
+                    
+                    {lesson.type === "text" ? (
+                      <div>
+                        {lesson.content ? (
+                          <div className="lesson-content">
+                            <ReactMarkdown>{lesson.content}</ReactMarkdown>
+                          </div>
+                        ) : (
+                          <p className="text-muted-foreground italic">Содержимое урока отсутствует</p>
+                        )}
+                      </div>
+                    ) : lesson.type === "video" ? (
+                      <div>
+                        {lesson.content ? (
+                          <div>
+                            <ReactMarkdown>{lesson.content}</ReactMarkdown>
+                            <div className="aspect-video bg-muted rounded-lg mt-4 flex items-center justify-center">
+                              <Video className="h-16 w-16 text-muted-foreground" />
+                              <p className="ml-4">Видеоматериал урока</p>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
+                            <Video className="h-16 w-16 text-muted-foreground" />
+                            <p className="ml-4">Видеоматериал недоступен</p>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div>
+                        {lesson.content ? (
+                          <ReactMarkdown>{lesson.content}</ReactMarkdown>
+                        ) : (
+                          <p className="text-muted-foreground italic">Содержимое урока отсутствует</p>
+                        )}
+                      </div>
+                    )}
+                  </CardContent>
+                  
+                  <CardFooter className="flex justify-between border-t pt-6">
+                    <Button 
+                      variant="outline" 
+                      onClick={goToPreviousLesson}
+                      disabled={isFirstLesson}
+                    >
+                      <ArrowLeft className="mr-2 h-4 w-4" />
+                      Предыдущий урок
+                    </Button>
+                    
+                    <Button onClick={handleLessonComplete}>
+                      Завершить урок <CheckCircle className="ml-2 h-4 w-4" />
+                    </Button>
+                    
+                    <Button 
+                      onClick={goToNextLesson}
+                      disabled={isLastLesson}
+                    >
+                      Следующий урок
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </CardFooter>
+                </Card>
               </TabsContent>
               
               <TabsContent value="materials">
