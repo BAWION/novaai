@@ -44,6 +44,23 @@ export function ModuleAccordion({ modules = [], currentLessonId, onLessonSelect 
   const [expandedModules, setExpandedModules] = useState<Record<number, boolean>>({});
   const [loadedModulesLessons, setLoadedModulesLessons] = useState<Record<number, boolean>>({});
   
+  // Эта функция будет использоваться для получения данных
+  const fetchModuleLessons = async (moduleId: number) => {
+    try {
+      console.log(`Загрузка уроков для модуля ${moduleId}`);
+      const response = await fetch(`/api/modules/${moduleId}/lessons`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch lessons');
+      }
+      const data = await response.json();
+      console.log('Уроки модуля:', data);
+      return data;
+    } catch (error) {
+      console.error('Ошибка при загрузке уроков:', error);
+      return [];
+    }
+  };
+  
   if (!modules || modules.length === 0) {
     return (
       <Card className="p-4 text-center">
@@ -62,32 +79,12 @@ export function ModuleAccordion({ modules = [], currentLessonId, onLessonSelect 
   return (
     <Accordion type="single" collapsible className="w-full">
       {modules.map((module) => {
-        // Используем React Query для загрузки уроков каждого модуля
+        // Используем React Query для загрузки уроков каждого модуля - вне функции map
+        const queryKey = [`/api/modules/${module.id}/lessons`];
         const { data: moduleLessons, isLoading: isLoadingLessons } = useQuery({
-          queryKey: [`/api/modules/${module.id}/lessons`],
+          queryKey,
           enabled: !!expandedModules[module.id], // Загружаем только если модуль развернут
-          queryFn: async () => {
-            try {
-              console.log(`Загрузка уроков для модуля ${module.id}`);
-              const response = await fetch(`/api/modules/${module.id}/lessons`);
-              if (!response.ok) {
-                throw new Error('Failed to fetch lessons');
-              }
-              const data = await response.json();
-              console.log('Уроки модуля:', data);
-              
-              // Отмечаем модуль как загруженный
-              setLoadedModulesLessons(prev => ({
-                ...prev,
-                [module.id]: true
-              }));
-              
-              return data;
-            } catch (error) {
-              console.error('Ошибка при загрузке уроков:', error);
-              return [];
-            }
-          }
+          queryFn: () => fetchModuleLessons(module.id)
         });
 
         // Уроки для отображения - либо из API, либо из пропсов (если есть)
@@ -99,18 +96,21 @@ export function ModuleAccordion({ modules = [], currentLessonId, onLessonSelect 
         const moduleProgress = module.progress !== undefined ? 
           module.progress : 
           (lessonsToDisplay.length > 0 ? 
-            Math.round((lessonsToDisplay.filter(l => l.completed).length / lessonsToDisplay.length) * 100) : 
+            Math.round((lessonsToDisplay.filter((l: Lesson) => l.completed).length / lessonsToDisplay.length) * 100) : 
             0);
 
         return (
           <AccordionItem 
             key={module.id} 
             value={`module-${module.id}`}
-            onExpandedChange={(expanded) => {
-              handleModuleToggle(module.id, expanded);
-            }}
+            // Используем обработчик событий через дочерний элемент AccordionTrigger
           >
-            <AccordionTrigger className="hover:bg-accent/20 px-4 rounded-md">
+            <AccordionTrigger 
+              onClick={() => {
+                // При клике на AccordionTrigger обновляем состояние расширения
+                handleModuleToggle(module.id, !expandedModules[module.id]);
+              }}
+              className="hover:bg-accent/20 px-4 rounded-md">
               <div className="flex flex-col items-start text-left w-full">
                 <div className="flex items-center justify-between w-full">
                   <div className="flex items-center">
@@ -141,7 +141,7 @@ export function ModuleAccordion({ modules = [], currentLessonId, onLessonSelect 
                 )}
                 
                 {!isLoadingLessons && lessonsToDisplay.length > 0 ? (
-                  lessonsToDisplay.map((lesson) => (
+                  lessonsToDisplay.map((lesson: Lesson) => (
                     <div
                       key={lesson.id}
                       className={`p-3 rounded-md border flex justify-between items-center ${
