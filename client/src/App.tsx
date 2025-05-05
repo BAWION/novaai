@@ -141,20 +141,43 @@ function Router() {
           {/* AI-ассистент */}
           <ProtectedRoute path="/ai-assistant" component={AIAssistantPage} />
           
-          {/* AI Literacy 101 */}
-          <ProtectedRoute path="/courses/ai-literacy-101" component={AILiteracyCoursePage} />
+          {/* AI Literacy 101 - Course with Lessons */}
+          <ProtectedRoute path="/courses/ai-literacy-101" component={() => {
+            // Используем реализацию подстраниц - основная страница курса
+            return <AILiteracyCoursePage />;
+          }} />
           
-          {/* Lesson Page */}
-          <ProtectedRoute path="/modules/:moduleId/lessons/:lessonId" component={() => {
+          {/* Lesson Page - внутри курса AI Literacy */}
+          <ProtectedRoute path="/courses/ai-literacy-101/modules/:moduleId/lessons/:lessonId" component={() => {
             const LessonPage = React.lazy(() => import('@/pages/lesson-page'));
             return (
               <React.Suspense fallback={<div className="flex items-center justify-center min-h-screen">
                 <div className="w-12 h-12 rounded-full border-4 border-primary/30 border-t-primary animate-spin"></div>
               </div>}>
-                <LessonPage />
+                <LessonPage inCourseContext="ai-literacy-101" />
               </React.Suspense>
             );
           }} />
+          
+          {/* Обратная совместимость для старых URL */}
+          <Route path="/modules/:moduleId/lessons/:lessonId">
+            {(params) => {
+              const moduleId = params.moduleId;
+              const lessonId = params.lessonId;
+              const [, navigate] = useLocation();
+              
+              // Редирект на новый формат URL
+              useEffect(() => {
+                navigate(`/courses/ai-literacy-101/modules/${moduleId}/lessons/${lessonId}`);
+              }, [moduleId, lessonId, navigate]);
+              
+              return (
+                <div className="flex items-center justify-center min-h-screen">
+                  <div className="w-12 h-12 rounded-full border-4 border-primary/30 border-t-primary animate-spin"></div>
+                </div>
+              );
+            }}
+          </Route>
           
           <Route component={NotFound} />
         </Switch>
