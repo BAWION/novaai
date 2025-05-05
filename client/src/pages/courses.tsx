@@ -581,20 +581,41 @@ export default function Courses() {
                   <div className="mt-8 flex flex-wrap gap-3">
                     <button 
                       onClick={() => {
-                        if (selectedCourse.id === "0") {
-                          setLocation("/course-ai/python-for-ai-beginners");
-                        } else if (selectedCourse.id === 7 || selectedCourse.title.includes("AI Ethics") || selectedCourse.title.includes("AI Literacy")) {
-                          // AI Ethics и AI Literacy курсы - ведем на детальную страницу курса
-                          setLocation(`/courses/ai-literacy-101`);
-                        } else {
-                          // Для демонстрации используем фиксированные модуль и урок из API
-                          // В реальной реализации здесь нужно делать запрос к API для получения ID первого урока первого модуля курса
-                          // или получать последний просмотренный урок пользователя
-                          console.log("Переход к первому уроку первого модуля");
+                        // Получаем ID курса из API или используем стандартный slug
+                        const courseId = String(selectedCourse.id).startsWith('api_') 
+                          ? selectedCourse.id.substring(4) // Убираем префикс 'api_'
+                          : selectedCourse.id;
                           
-                          // Обеспечиваем чистые данные для API без NaN-значений
-                          setLocation(`/courses/ai-literacy-101`);
+                        // Получаем slug курса из API или используем стандартный slug
+                        let courseSlug;
+                        if (apiCourses && apiCourses.length > 0) {
+                          // Ищем курс в API курсах по ID
+                          const apiCourse = apiCourses.find((c: any) => c.id === Number(courseId));
+                          
+                          if (apiCourse && apiCourse.slug) {
+                            courseSlug = apiCourse.slug;
+                            console.log(`Найден slug курса в API: ${courseSlug}`);
+                          }
                         }
+                        
+                        // Если не нашли slug, используем стандартное поведение
+                        if (!courseSlug) {
+                          if (selectedCourse.id === "0") {
+                            setLocation("/course-ai/python-for-ai-beginners");
+                            return;
+                          } else if (selectedCourse.id === 7 || selectedCourse.title.includes("AI Ethics")) {
+                            // AI Ethics курсы - ведем на детальную страницу курса
+                            courseSlug = "ai-ethics";
+                          } else if (selectedCourse.title.includes("AI Literacy")) {
+                            courseSlug = "ai-literacy-101";
+                          } else {
+                            // По умолчанию используем индекс курса
+                            courseSlug = String(courseId);
+                          }
+                        }
+                        
+                        console.log(`Переход на страницу курса: /courses/${courseSlug}`);
+                        setLocation(`/courses/${courseSlug}`);
                       }}
                       className="bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:from-[#4922B2] hover:to-[#1682A1] text-white py-3 px-6 rounded-lg font-medium transition duration-300 flex items-center"
                     >
