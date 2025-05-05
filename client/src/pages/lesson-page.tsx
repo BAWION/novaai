@@ -65,6 +65,8 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
   
   // Определяем контекст курса для навигации
   const courseContext = inCourseContext || "ai-literacy-101";
+  
+  console.log('LessonPage: Параметры URL:', { moduleId, lessonId, inCourseContext, courseContext });
 
   // Запрос данных урока
   const { data: lesson, isLoading: lessonLoading } = useQuery<Lesson>({
@@ -77,7 +79,9 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
         if (!response.ok) {
           throw new Error('Не удалось загрузить урок');
         }
-        return await response.json();
+        const lessonData = await response.json();
+        console.log('Полученные данные урока:', lessonData);
+        return lessonData;
       } catch (error) {
         console.error('Ошибка при загрузке урока:', error);
         throw error;
@@ -218,6 +222,17 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
   // Определить, является ли урок первым или последним в модуле
   const isFirstLesson = module?.lessons && module.lessons.findIndex(l => l.id.toString() === lessonId) === 0;
   const isLastLesson = module?.lessons && module.lessons.findIndex(l => l.id.toString() === lessonId) === module.lessons.length - 1;
+
+  // Отладка: выводим содержимое урока и модуля
+  useEffect(() => {
+    if (lesson) {
+      console.log('Текущий урок:', lesson);
+      console.log('Содержимое урока:', lesson.content);
+    }
+    if (module) {
+      console.log('Текущий модуль:', module);
+    }
+  }, [lesson, module]);
 
   // Отображение загрузки
   if (lessonLoading || moduleLoading) {
