@@ -458,14 +458,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.get("/api/courses/:id", async (req, res) => {
     try {
-      // Проверяем, что id представляет собой число
-      const courseId = parseInt(req.params.id);
+      // Проверяем, может быть это slug или id
+      const idParam = req.params.id;
+      let course;
       
-      if (isNaN(courseId)) {
-        return res.status(400).json({ message: "Invalid course ID format" });
+      // Пробуем сначала как число (id)
+      const courseId = parseInt(idParam);
+      if (!isNaN(courseId)) {
+        course = await storage.getCourse(courseId);
+      } else {
+        // Если не число, считаем что это slug
+        course = await storage.getCourseBySlug(idParam);
       }
-      
-      const course = await storage.getCourse(courseId);
       
       if (!course) {
         return res.status(404).json({ message: "Course not found" });
