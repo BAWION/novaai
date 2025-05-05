@@ -36,14 +36,14 @@ export function CourseOutline({
 }: CourseOutlineProps) {
   // Вычисляем общий прогресс курса
   const calculateCourseProgress = (): number => {
-    if (modules.length === 0) return 0;
+    if (!modules || modules.length === 0) return 0;
     
-    const totalProgress = modules.reduce((sum, module) => sum + module.progress, 0);
+    const totalProgress = modules.reduce((sum, module) => sum + (module.progress || 0), 0);
     return Math.round(totalProgress / modules.length);
   };
   
   const totalProgress = calculateCourseProgress();
-  const completedModules = modules.filter(m => m.completed).length;
+  const completedModules = modules?.filter(m => m.completed)?.length || 0;
   
   return (
     <div className="space-y-6">
@@ -53,7 +53,7 @@ export function CourseOutline({
           <CardTitle className="text-lg flex items-center">
             <span>Общий прогресс курса</span>
             <Badge className="ml-auto" variant="outline">
-              {completedModules} из {modules.length} модулей
+              {completedModules} из {modules?.length || 0} модулей
             </Badge>
           </CardTitle>
         </CardHeader>
