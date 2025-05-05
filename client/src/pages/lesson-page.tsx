@@ -36,7 +36,11 @@ interface Module {
   lessons: Lesson[];
 }
 
-export default function LessonPage() {
+interface LessonPageProps {
+  inCourseContext?: string;
+}
+
+export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
   const { moduleId, lessonId } = useParams();
   const [, navigate] = useLocation();
   const { user, isAuthenticated } = useAuth();
@@ -57,6 +61,9 @@ export default function LessonPage() {
       console.error("Некорректные параметры URL:", { moduleId, lessonId });
     }
   }, [moduleId, lessonId]);
+  
+  // Определяем контекст курса для навигации
+  const courseContext = inCourseContext || "ai-literacy-101";
 
   // Запрос данных урока
   const { data: lesson, isLoading: lessonLoading } = useQuery<Lesson>({
@@ -101,11 +108,11 @@ export default function LessonPage() {
         const currentIndex = module.lessons.findIndex(l => l.id.toString() === lessonId);
         if (currentIndex !== -1 && currentIndex < module.lessons.length - 1) {
           const nextLesson = module.lessons[currentIndex + 1];
-          // Перейти к следующему уроку
-          navigate(`/modules/${moduleId}/lessons/${nextLesson.id}`);
+          // Перейти к следующему уроку (используя новый формат URL)
+          navigate(`/courses/${courseContext}/modules/${moduleId}/lessons/${nextLesson.id}`);
         } else {
           // Если это последний урок в модуле, вернуться к странице курса
-          navigate(`/courses/ai-literacy-101`);
+          navigate(`/courses/${courseContext}`);
         }
       }
     },
@@ -129,7 +136,7 @@ export default function LessonPage() {
     const currentIndex = module.lessons.findIndex(l => l.id.toString() === lessonId);
     if (currentIndex > 0) {
       const prevLesson = module.lessons[currentIndex - 1];
-      navigate(`/modules/${moduleId}/lessons/${prevLesson.id}`);
+      navigate(`/courses/${courseContext}/modules/${moduleId}/lessons/${prevLesson.id}`);
     }
   };
 
@@ -140,7 +147,7 @@ export default function LessonPage() {
     const currentIndex = module.lessons.findIndex(l => l.id.toString() === lessonId);
     if (currentIndex !== -1 && currentIndex < module.lessons.length - 1) {
       const nextLesson = module.lessons[currentIndex + 1];
-      navigate(`/modules/${moduleId}/lessons/${nextLesson.id}`);
+      navigate(`/courses/${courseContext}/modules/${moduleId}/lessons/${nextLesson.id}`);
     }
   };
 
@@ -169,7 +176,7 @@ export default function LessonPage() {
         <div className="flex flex-col items-center justify-center min-h-screen">
           <h1 className="text-2xl font-bold">Урок не найден</h1>
           <p className="mt-2 text-muted-foreground">Проверьте URL или выберите другой урок</p>
-          <Button className="mt-4" onClick={() => navigate("/courses/ai-literacy-101")}>
+          <Button className="mt-4" onClick={() => navigate(`/courses/${courseContext}`)}>
             Вернуться к курсу
           </Button>
         </div>
@@ -185,7 +192,7 @@ export default function LessonPage() {
           <Button 
             variant="outline" 
             size="sm" 
-            onClick={() => navigate("/courses/ai-literacy-101")}
+            onClick={() => navigate(`/courses/${courseContext}`)}
             className="mr-4"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
