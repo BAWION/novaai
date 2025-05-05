@@ -231,7 +231,10 @@ export default function AILiteracyCoursePage() {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button className="w-full" onClick={() => setActiveTab("modules")}>
+                  <Button 
+                    className="w-full" 
+                    onClick={() => navigate("/modules/1/lessons/1")}
+                  >
                     Продолжить обучение
                   </Button>
                 </CardFooter>
@@ -257,10 +260,7 @@ export default function AILiteracyCoursePage() {
                   courseTitle={course.title}
                   lastLesson="Определение искусственного интеллекта"
                   progress={25}
-                  onContinue={() => {
-                    setActiveTab("lessons");
-                    setCurrentLessonId(1); // Установка ID последнего урока
-                  }}
+                  onContinue={() => navigate("/modules/1/lessons/1")}
                 />
                 
                 {/* Цели обучения */}
