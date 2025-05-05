@@ -486,21 +486,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/courses/:courseIdOrSlug/modules", async (req, res) => {
     try {
       const courseIdOrSlug = req.params.courseIdOrSlug;
-      let courseId: number;
+      let courseId: number | null = null;
       
       // Проверяем, это ID или slug
-      if (!isNaN(parseInt(courseIdOrSlug))) {
-        courseId = parseInt(courseIdOrSlug);
+      const parsedId = parseInt(courseIdOrSlug);
+      if (!isNaN(parsedId)) {
+        courseId = parsedId;
+        console.log(`Получаем модули для курса по ID: ${courseId}`);
       } else {
         // Если это slug, получаем сначала курс
+        console.log(`Получаем курс по slug: ${courseIdOrSlug}`);
         const course = await storage.getCourseBySlug(courseIdOrSlug);
         if (!course) {
           return res.status(404).json({ message: "Course not found" });
         }
         courseId = course.id;
+        console.log(`Найден курс с ID: ${courseId} для slug: ${courseIdOrSlug}`);
+      }
+      
+      if (courseId === null) {
+        return res.status(400).json({ message: "Invalid course identifier" });
       }
       
       const modules = await storage.getCourseModules(courseId);
+      console.log(`Найдено ${modules.length} модулей для курса с ID: ${courseId}`);
       res.json(modules);
     } catch (error) {
       console.error("Get course modules error:", error);
