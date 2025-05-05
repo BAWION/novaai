@@ -34,6 +34,7 @@ import SkillsPage from "@/pages/skills-page";
 import GapAnalysisPage from "@/pages/gap-analysis-page";
 import AIAssistantPage from "@/pages/ai-assistant-page";
 import AILiteracyCoursePage from "@/pages/ai-literacy-course";
+import TestLessonPage from "@/pages/test-lesson";
 
 interface ProtectedRouteProps {
   component: React.ComponentType;
@@ -155,6 +156,9 @@ function Router() {
               </React.Suspense>
             );
           }} />
+          
+          {/* Тестовая страница урока для отладки */}
+          <Route path="/test-lesson/:lessonId" component={TestLessonPage} />
           
           {/* Обратная совместимость для старых URL */}
           <Route path="/modules/:moduleId/lessons/:lessonId">
