@@ -35,7 +35,7 @@ interface Module {
 interface ModuleAccordionProps {
   modules: Module[];
   currentLessonId?: number;
-  onLessonSelect: (lessonId: number) => void;
+  onLessonSelect: (lessonId: number, moduleId: number) => void;
 }
 
 export function ModuleAccordion({ modules = [], currentLessonId, onLessonSelect }: ModuleAccordionProps) {
@@ -165,9 +165,8 @@ export function ModuleAccordion({ modules = [], currentLessonId, onLessonSelect 
                       } ${lesson.locked ? "opacity-70" : "hover:bg-accent/20 cursor-pointer"}`}
                       onClick={() => {
                         if (!lesson.locked) {
-                          onLessonSelect(lesson.id);
-                          // Не делаем навигацию на другую страницу, 
-                          // вместо этого просто передаем ID урока через коллбэк
+                          onLessonSelect(lesson.id, module.id);
+                          // Теперь передаем также ID модуля для навигации
                         }
                       }}
                     >
@@ -213,7 +212,7 @@ export function ModuleAccordion({ modules = [], currentLessonId, onLessonSelect 
                           size="sm"
                           onClick={(e) => {
                             e.stopPropagation();
-                            onLessonSelect(lesson.id);
+                            onLessonSelect(lesson.id, module.id);
                           }}
                         >
                           Начать
