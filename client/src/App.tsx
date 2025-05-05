@@ -144,28 +144,29 @@ function Router() {
           {/* AI-ассистент */}
           <ProtectedRoute path="/ai-assistant" component={AIAssistantPage} />
           
-          {/* AI Literacy 101 - Общий обработчик для курса и его уроков */}
+          {/* AI Literacy 101 - Course with Lessons */}
           <ProtectedRoute path="/courses/ai-literacy-101" component={() => {
-            const CourseRouteHandler = React.lazy(() => import('@/components/courses/course-route-handler').then(mod => ({ default: mod.CourseRouteHandler })));
-            
+            // Используем реализацию подстраниц - основная страница курса
+            const [location] = useLocation();
             return (
-              <React.Suspense fallback={<div className="flex items-center justify-center min-h-screen">
-                <div className="w-12 h-12 rounded-full border-4 border-primary/30 border-t-primary animate-spin"></div>
-              </div>}>
-                <CourseRouteHandler slug="ai-literacy-101" />
-              </React.Suspense>
+              <PageTransition location={location} className="w-full h-full">
+                <AILiteracyCoursePage />
+              </PageTransition>
             );
           }} />
           
-          {/* Lesson Page - внутри курса AI Literacy - перехватывается обработчиком выше */}
+          {/* Lesson Page - внутри курса AI Literacy */}
           <ProtectedRoute path="/courses/ai-literacy-101/modules/:moduleId/lessons/:lessonId" component={() => {
-            const CourseRouteHandler = React.lazy(() => import('@/components/courses/course-route-handler').then(mod => ({ default: mod.CourseRouteHandler })));
+            const LessonPage = React.lazy(() => import('@/pages/lesson-page'));
+            const [location] = useLocation();
             
             return (
               <React.Suspense fallback={<div className="flex items-center justify-center min-h-screen">
                 <div className="w-12 h-12 rounded-full border-4 border-primary/30 border-t-primary animate-spin"></div>
               </div>}>
-                <CourseRouteHandler slug="ai-literacy-101" />
+                <PageTransition location={location} className="w-full h-full">
+                  <LessonPage inCourseContext="ai-literacy-101" />
+                </PageTransition>
               </React.Suspense>
             );
           }} />
