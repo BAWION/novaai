@@ -34,7 +34,6 @@ import SkillsPage from "@/pages/skills-page";
 import GapAnalysisPage from "@/pages/gap-analysis-page";
 import AIAssistantPage from "@/pages/ai-assistant-page";
 import AILiteracyCoursePage from "@/pages/ai-literacy-course";
-import TestLessonPage from "@/pages/test-lesson";
 
 interface ProtectedRouteProps {
   component: React.ComponentType;
@@ -143,7 +142,10 @@ function Router() {
           <ProtectedRoute path="/ai-assistant" component={AIAssistantPage} />
           
           {/* AI Literacy 101 - Course with Lessons */}
-          <ProtectedRoute path="/courses/ai-literacy-101" component={AILiteracyCoursePage} />
+          <ProtectedRoute path="/courses/ai-literacy-101" component={() => {
+            // Используем реализацию подстраниц - основная страница курса
+            return <AILiteracyCoursePage />;
+          }} />
           
           {/* Lesson Page - внутри курса AI Literacy */}
           <ProtectedRoute path="/courses/ai-literacy-101/modules/:moduleId/lessons/:lessonId" component={() => {
@@ -156,9 +158,6 @@ function Router() {
               </React.Suspense>
             );
           }} />
-          
-          {/* Тестовая страница урока для отладки */}
-          <Route path="/test-lesson/:lessonId" component={TestLessonPage} />
           
           {/* Обратная совместимость для старых URL */}
           <Route path="/modules/:moduleId/lessons/:lessonId">

@@ -12,11 +12,10 @@ import { queryClient } from "@/lib/queryClient";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ModuleAccordion } from "@/components/courses/module-accordion";
-import { Loader2, BookOpen, CheckCircle, Lock, Clock, Trophy, Video, ArrowLeft, ArrowRight } from "lucide-react";
+import { Loader2, BookOpen, CheckCircle, Lock, Clock, Trophy } from "lucide-react";
 import { CourseOutline } from "@/components/courses/course-outline";
 import { ResumeBanner } from "@/components/courses/resume-banner";
 import { AIAssistantPanel } from "@/components/courses/ai-assistant-panel";
-import ReactMarkdown from "react-markdown";
 
 // Типы данных курса
 interface Lesson {
@@ -234,10 +233,7 @@ export default function AILiteracyCoursePage() {
                 <CardFooter>
                   <Button 
                     className="w-full" 
-                    onClick={() => {
-                      // Перенаправляем на страницу урока
-                      navigate("/courses/ai-literacy-101/modules/5/lessons/5");
-                    }}
+                    onClick={() => navigate("/courses/ai-literacy-101/modules/5/lessons/5")}
                   >
                     Продолжить обучение
                   </Button>
@@ -264,10 +260,7 @@ export default function AILiteracyCoursePage() {
                   courseTitle={course.title}
                   lastLesson="Определение искусственного интеллекта"
                   progress={25}
-                  onContinue={() => {
-                    // Перенаправляем на страницу урока
-                    navigate("/courses/ai-literacy-101/modules/5/lessons/5");
-                  }}
+                  onContinue={() => navigate("/courses/ai-literacy-101/modules/5/lessons/5")}
                 />
                 
                 {/* Цели обучения */}
@@ -319,20 +312,92 @@ export default function AILiteracyCoursePage() {
               </TabsContent>
               
               <TabsContent value="modules">
-                {modules && modules.length > 0 ? (
-                  <ModuleAccordion
-                    modules={modules}
-                    currentLessonId={currentLessonId || undefined}
-                    onLessonSelect={(lessonId, moduleId) => {
-                      // Переходим на страницу урока
-                      navigate(`/courses/ai-literacy-101/modules/${moduleId}/lessons/${lessonId}`);
-                    }}
-                  />
-                ) : (
-                  <Card className="p-4 text-center">
-                    <p>Модули курса не найдены</p>
-                  </Card>
-                )}
+                <CourseOutline
+                  modules={[
+                    {
+                      id: 1,
+                      title: "Основы ИИ — что такое искусственный интеллект?",
+                      description: "Понимание базовых концепций и терминологии искусственного интеллекта",
+                      completed: false,
+                      progress: 25,
+                      lessons: [
+                        {
+                          id: 1,
+                          title: "Определение искусственного интеллекта",
+                          completed: true,
+                          type: "text",
+                          duration: 60
+                        },
+                        {
+                          id: 2,
+                          title: "Отличие ИИ от других технологий",
+                          completed: false,
+                          type: "text",
+                          duration: 60
+                        },
+                        {
+                          id: 3,
+                          title: "Типы искусственного интеллекта",
+                          completed: false,
+                          type: "text",
+                          duration: 90
+                        },
+                        {
+                          id: 4,
+                          title: "Мифы и заблуждения об ИИ",
+                          completed: false,
+                          type: "quiz",
+                          duration: 60
+                        }
+                      ]
+                    },
+                    {
+                      id: 2,
+                      title: "История искусственного интеллекта",
+                      description: "Ключевые этапы развития ИИ от философских концепций до современных систем",
+                      completed: false,
+                      progress: 0,
+                      lessons: [
+                        {
+                          id: 5,
+                          title: "Философские корни ИИ",
+                          completed: false,
+                          type: "text",
+                          duration: 60
+                        },
+                        {
+                          id: 6,
+                          title: "Рождение ИИ как науки (1940-1950-е)",
+                          completed: false,
+                          type: "text",
+                          duration: 60
+                        },
+                        {
+                          id: 7,
+                          title: "Периоды расцвета и упадка (1960-1990-е)",
+                          completed: false,
+                          type: "text",
+                          duration: 90
+                        },
+                        {
+                          id: 8,
+                          title: "Современная эра ИИ (2000-н.в.)",
+                          completed: false,
+                          type: "text",
+                          duration: 60
+                        }
+                      ]
+                    }
+                  ]}
+                  onModuleSelect={(moduleId) => {
+                    setCurrentModuleId(moduleId);
+                    setActiveTab("lessons");
+                  }}
+                  onLessonSelect={(lessonId) => {
+                    setCurrentLessonId(lessonId);
+                    setActiveTab("lessons");
+                  }}
+                />
               </TabsContent>
               
               <TabsContent value="lessons">
@@ -351,85 +416,15 @@ export default function AILiteracyCoursePage() {
                       <CardDescription>{currentLesson.description}</CardDescription>
                     </CardHeader>
                     <CardContent className="prose prose-lg max-w-none dark:prose-invert">
-                      {currentLesson.type === "text" ? (
-                        <ReactMarkdown>
-                          {currentLesson.content || "Содержимое урока отсутствует"}
-                        </ReactMarkdown>
-                      ) : currentLesson.type === "video" ? (
-                        <div>
-                          <ReactMarkdown>{currentLesson.content || ""}</ReactMarkdown>
-                          <div className="aspect-video bg-muted rounded-lg mt-4 flex items-center justify-center">
-                            <Video className="h-16 w-16 text-muted-foreground" />
-                            <p className="ml-4">Видеоматериал урока</p>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="text-center py-8">
-                          <p>Контент урока загружается...</p>
-                        </div>
-                      )}
+                      {/* Контент урока в формате Markdown */}
+                      <div dangerouslySetInnerHTML={{ __html: "Контент урока будет отображаться здесь" }} />
                     </CardContent>
                     <CardFooter className="flex justify-between">
-                      <Button 
-                        variant="outline"
-                        onClick={() => {
-                          // Находим предыдущий урок в текущем модуле
-                          const currentModule = modules?.find(m => 
-                            m.lessons?.some(l => l.id === currentLesson.id)
-                          );
-                          
-                          if (currentModule && currentModule.lessons) {
-                            const currentIndex = currentModule.lessons.findIndex(l => l.id === currentLesson.id);
-                            if (currentIndex > 0) {
-                              // Есть предыдущий урок в текущем модуле
-                              setCurrentLessonId(currentModule.lessons[currentIndex - 1].id);
-                            } else if (modules) {
-                              // Нужно перейти к последнему уроку предыдущего модуля
-                              const currentModuleIndex = modules.findIndex(m => m.id === currentModule.id);
-                              if (currentModuleIndex > 0) {
-                                const prevModule = modules[currentModuleIndex - 1];
-                                if (prevModule.lessons && prevModule.lessons.length > 0) {
-                                  setCurrentLessonId(prevModule.lessons[prevModule.lessons.length - 1].id);
-                                }
-                              }
-                            }
-                          }
-                        }}
-                      >
-                        <ArrowLeft className="mr-2 h-4 w-4" /> Предыдущий урок
-                      </Button>
-                      
+                      <Button variant="outline">Предыдущий урок</Button>
                       <Button onClick={() => handleLessonComplete(currentLesson.id)}>
                         Завершить урок <CheckCircle className="ml-2 h-4 w-4" />
                       </Button>
-                      
-                      <Button
-                        onClick={() => {
-                          // Находим следующий урок в текущем модуле
-                          const currentModule = modules?.find(m => 
-                            m.lessons?.some(l => l.id === currentLesson.id)
-                          );
-                          
-                          if (currentModule && currentModule.lessons) {
-                            const currentIndex = currentModule.lessons.findIndex(l => l.id === currentLesson.id);
-                            if (currentIndex < currentModule.lessons.length - 1) {
-                              // Есть следующий урок в текущем модуле
-                              setCurrentLessonId(currentModule.lessons[currentIndex + 1].id);
-                            } else if (modules) {
-                              // Нужно перейти к первому уроку следующего модуля
-                              const currentModuleIndex = modules.findIndex(m => m.id === currentModule.id);
-                              if (currentModuleIndex < modules.length - 1) {
-                                const nextModule = modules[currentModuleIndex + 1];
-                                if (nextModule.lessons && nextModule.lessons.length > 0) {
-                                  setCurrentLessonId(nextModule.lessons[0].id);
-                                }
-                              }
-                            }
-                          }
-                        }}
-                      >
-                        Следующий урок <ArrowRight className="ml-2 h-4 w-4" />
-                      </Button>
+                      <Button>Следующий урок</Button>
                     </CardFooter>
                   </Card>
                 ) : (

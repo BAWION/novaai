@@ -13,7 +13,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AIAssistantPanel } from "@/components/courses/ai-assistant-panel";
 import { Glassmorphism } from "@/components/ui/glassmorphism";
 import { queryClient } from "@/lib/queryClient";
-import { LessonView } from "@/components/courses/lesson-view";
 import ReactMarkdown from "react-markdown";
 
 interface Lesson {
@@ -66,46 +65,19 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
   
   // Определяем контекст курса для навигации
   const courseContext = inCourseContext || "ai-literacy-101";
-  
-  console.log('LessonPage: Параметры URL:', { moduleId, lessonId, inCourseContext, courseContext });
 
-  // Запрос данных урока с предотвращением кэширования
+  // Запрос данных урока
   const { data: lesson, isLoading: lessonLoading } = useQuery<Lesson>({
-    queryKey: [`/api/lessons/${lessonId}`, new Date().getTime()], // Добавляем timestamp для предотвращения кэширования
+    queryKey: [`/api/lessons/${lessonId}`],
     enabled: !!lessonId,
-    staleTime: 0, // Данные всегда считаются устаревшими
-    gcTime: 0, // Отключаем кэширование (в TanStack Query v5 cacheTime заменён на gcTime)
     queryFn: async () => {
       try {
-        console.log(`Загрузка урока с ID ${lessonId}, timestamp: ${new Date().getTime()}`);
-        
-        // Добавляем параметр запроса для предотвращения кэширования
-        const timestamp = new Date().getTime();
-        const url = `/api/lessons/${lessonId}?_t=${timestamp}`;
-        
-        const response = await fetch(url, {
-          headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache',
-            'Expires': '0'
-          }
-        });
-        
+        console.log(`Загрузка урока с ID ${lessonId}`);
+        const response = await fetch(`/api/lessons/${lessonId}`);
         if (!response.ok) {
-          throw new Error(`Не удалось загрузить урок: ${response.status} ${response.statusText}`);
+          throw new Error('Не удалось загрузить урок');
         }
-        
-        const lessonData = await response.json();
-        console.log('Полученные данные урока:', JSON.stringify(lessonData, null, 2));
-        
-        // Проверка наличия контента
-        if (!lessonData.content) {
-          console.warn(`Урок с ID ${lessonId} не содержит контента!`);
-        } else {
-          console.log(`Урок с ID ${lessonId} содержит контент длиной ${lessonData.content.length} символов`);
-        }
-        
-        return lessonData;
+        return await response.json();
       } catch (error) {
         console.error('Ошибка при загрузке урока:', error);
         throw error;
@@ -113,56 +85,28 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
     }
   });
 
-  // Запрос данных модуля с предотвращением кэширования
+  // Запрос данных модуля
   const { data: module, isLoading: moduleLoading } = useQuery<Module>({
-    queryKey: [`/api/modules/${moduleId}`, new Date().getTime()], // Добавляем timestamp для предотвращения кэширования
+    queryKey: [`/api/modules/${moduleId}`],
     enabled: !!moduleId,
-    staleTime: 0, // Данные всегда считаются устаревшими
-    gcTime: 0, // Отключаем кэширование (в TanStack Query v5 cacheTime заменён на gcTime)
     queryFn: async () => {
       try {
-        console.log(`Загрузка модуля с ID ${moduleId}, timestamp: ${new Date().getTime()}`);
-        
-        // Добавляем параметр запроса для предотвращения кэширования
-        const timestamp = new Date().getTime();
-        const url = `/api/modules/${moduleId}?_t=${timestamp}`;
-        
-        const response = await fetch(url, {
-          headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache',
-            'Expires': '0'
-          }
-        });
-        
+        console.log(`Загрузка модуля с ID ${moduleId}`);
+        const response = await fetch(`/api/modules/${moduleId}`);
         if (!response.ok) {
-          throw new Error(`Не удалось загрузить модуль: ${response.status} ${response.statusText}`);
+          throw new Error('Не удалось загрузить модуль');
         }
         
         const moduleData = await response.json();
-        console.log('Полученные данные модуля:', JSON.stringify(moduleData, null, 2));
         
         // Если у нас уже есть урок, но он не включен в уроки модуля, 
         // дополнительно загрузим уроки модуля
         if (!moduleData.lessons || moduleData.lessons.length === 0) {
           console.log(`Загрузка уроков для модуля ${moduleId}`);
-          const lessonsUrl = `/api/modules/${moduleId}/lessons?_t=${timestamp}`;
-          const lessonsResponse = await fetch(lessonsUrl, {
-            headers: {
-              'Cache-Control': 'no-cache, no-store, must-revalidate',
-              'Pragma': 'no-cache', 
-              'Expires': '0'
-            }
-          });
-          
+          const lessonsResponse = await fetch(`/api/modules/${moduleId}/lessons`);
           if (lessonsResponse.ok) {
             moduleData.lessons = await lessonsResponse.json();
-            console.log(`Загружено ${moduleData.lessons.length} уроков для модуля ${moduleId}`);
-          } else {
-            console.error(`Ошибка при загрузке уроков для модуля ${moduleId}: ${lessonsResponse.status}`);
           }
-        } else {
-          console.log(`Модуль ${moduleId} уже содержит ${moduleData.lessons.length} уроков`);
         }
         
         return moduleData;
@@ -225,66 +169,31 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
     completeLessonMutation.mutate();
   };
 
-  // Функция для перехода к предыдущему уроку с использованием ReactQuery для плавного перехода
+  // Функция для перехода к предыдущему уроку
   const goToPreviousLesson = () => {
     if (!module?.lessons) return;
     
     const currentIndex = module.lessons.findIndex(l => l.id.toString() === lessonId);
     if (currentIndex > 0) {
       const prevLesson = module.lessons[currentIndex - 1];
-      
-      // Предварительно загружаем данные следующего урока, чтобы переход был плавным
-      queryClient.prefetchQuery({
-        queryKey: [`/api/lessons/${prevLesson.id}`],
-        queryFn: async () => {
-          const response = await fetch(`/api/lessons/${prevLesson.id}`);
-          if (!response.ok) throw new Error('Не удалось загрузить урок');
-          return response.json();
-        }
-      }).then(() => {
-        // После предзагрузки делаем переход
-        navigate(`/courses/${courseContext}/modules/${moduleId}/lessons/${prevLesson.id}`);
-      });
+      navigate(`/courses/${courseContext}/modules/${moduleId}/lessons/${prevLesson.id}`);
     }
   };
 
-  // Функция для перехода к следующему уроку с предзагрузкой
+  // Функция для перехода к следующему уроку
   const goToNextLesson = () => {
     if (!module?.lessons) return;
     
     const currentIndex = module.lessons.findIndex(l => l.id.toString() === lessonId);
     if (currentIndex !== -1 && currentIndex < module.lessons.length - 1) {
       const nextLesson = module.lessons[currentIndex + 1];
-      
-      // Предварительно загружаем данные следующего урока
-      queryClient.prefetchQuery({
-        queryKey: [`/api/lessons/${nextLesson.id}`],
-        queryFn: async () => {
-          const response = await fetch(`/api/lessons/${nextLesson.id}`);
-          if (!response.ok) throw new Error('Не удалось загрузить урок');
-          return response.json();
-        }
-      }).then(() => {
-        // После предзагрузки делаем переход
-        navigate(`/courses/${courseContext}/modules/${moduleId}/lessons/${nextLesson.id}`);
-      });
+      navigate(`/courses/${courseContext}/modules/${moduleId}/lessons/${nextLesson.id}`);
     }
   };
 
   // Определить, является ли урок первым или последним в модуле
   const isFirstLesson = module?.lessons && module.lessons.findIndex(l => l.id.toString() === lessonId) === 0;
   const isLastLesson = module?.lessons && module.lessons.findIndex(l => l.id.toString() === lessonId) === module.lessons.length - 1;
-
-  // Отладка: выводим содержимое урока и модуля
-  useEffect(() => {
-    if (lesson) {
-      console.log('Текущий урок:', lesson);
-      console.log('Содержимое урока:', lesson.content);
-    }
-    if (module) {
-      console.log('Текущий модуль:', module);
-    }
-  }, [lesson, module]);
 
   // Отображение загрузки
   if (lessonLoading || moduleLoading) {
@@ -347,16 +256,15 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
               </TabsList>
               
               <TabsContent value="content">
-                {/* Прямое отображение урока вместо компонента LessonView */}
                 <Card className="shadow-lg">
                   <CardHeader>
                     <div className="flex justify-between items-center">
                       <CardTitle>{lesson.title}</CardTitle>
                       <Badge variant="outline">
                         {lesson.type === "text" ? "Текст" : 
-                        lesson.type === "video" ? "Видео" : 
-                        lesson.type === "quiz" ? "Тест" : 
-                        "Интерактивный"}
+                         lesson.type === "video" ? "Видео" : 
+                         lesson.type === "quiz" ? "Тест" : 
+                         "Интерактивный"}
                       </Badge>
                     </div>
                     <CardDescription>
@@ -366,33 +274,11 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                       </div>
                     </CardDescription>
                   </CardHeader>
-                  
                   <CardContent className="prose prose-lg max-w-none dark:prose-invert">
-                    {/* Отладочная информация */}
-                    <div className="p-4 mb-4 bg-blue-100 border border-blue-400 text-blue-700 rounded">
-                      <h3 className="font-semibold">Информация об уроке:</h3>
-                      <p>ID урока: {lesson.id}</p>
-                      <p>Название: {lesson.title}</p>
-                      <p>Тип: {lesson.type}</p>
-                      <p>Длительность: {lesson.estimatedDuration} минут</p>
-                      <p>Контент присутствует: {lesson.content ? 'Да' : 'Нет'}</p>
-                      <p>Длина контента: {lesson.content ? lesson.content.length : 0} символов</p>
-                      {lesson.content && (
-                        <div className="mt-2">
-                          <p>Начало контента:</p>
-                          <pre className="bg-gray-100 p-2 mt-1 text-xs overflow-auto max-h-20">
-                            {lesson.content.substring(0, 100)}...
-                          </pre>
-                        </div>
-                      )}
-                    </div>
-                    
                     {lesson.type === "text" ? (
                       <div>
                         {lesson.content ? (
-                          <div className="lesson-content">
-                            <ReactMarkdown>{lesson.content}</ReactMarkdown>
-                          </div>
+                          <ReactMarkdown>{lesson.content}</ReactMarkdown>
                         ) : (
                           <p className="text-muted-foreground italic">Содержимое урока отсутствует</p>
                         )}
@@ -400,6 +286,7 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                     ) : lesson.type === "video" ? (
                       <div>
                         {lesson.content ? (
+                          // Если в содержимом есть ссылка на видео, можно ее отобразить
                           <div>
                             <ReactMarkdown>{lesson.content}</ReactMarkdown>
                             <div className="aspect-video bg-muted rounded-lg mt-4 flex items-center justify-center">
@@ -414,17 +301,42 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                           </div>
                         )}
                       </div>
+                    ) : lesson.type === "quiz" ? (
+                      <div>
+                        {lesson.content ? (
+                          <div>
+                            <ReactMarkdown>{lesson.content}</ReactMarkdown>
+                            <div className="mt-6 space-y-6 border-t pt-6">
+                              <h3 className="text-xl font-medium">Тестирование знаний</h3>
+                              <p className="text-muted-foreground">Ответьте на вопросы, чтобы проверить свое понимание материала</p>
+                              {/* В будущем здесь будут отображаться вопросы теста */}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="space-y-6">
+                            <p className="text-muted-foreground italic">Содержимое теста отсутствует</p>
+                          </div>
+                        )}
+                      </div>
                     ) : (
                       <div>
                         {lesson.content ? (
-                          <ReactMarkdown>{lesson.content}</ReactMarkdown>
+                          <div>
+                            <ReactMarkdown>{lesson.content}</ReactMarkdown>
+                            <div className="mt-6 border-t pt-6">
+                              <h3 className="text-xl font-medium">Практическое задание</h3>
+                              <p className="text-muted-foreground">Интерактивная часть урока будет доступна в будущих версиях</p>
+                            </div>
+                          </div>
                         ) : (
-                          <p className="text-muted-foreground italic">Содержимое урока отсутствует</p>
+                          <div className="flex flex-col items-center justify-center py-10">
+                            <FileText className="h-16 w-16 text-muted-foreground" />
+                            <p className="mt-4">Интерактивное содержимое урока отсутствует</p>
+                          </div>
                         )}
                       </div>
                     )}
                   </CardContent>
-                  
                   <CardFooter className="flex justify-between border-t pt-6">
                     <Button 
                       variant="outline" 
@@ -434,11 +346,16 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                       <ArrowLeft className="mr-2 h-4 w-4" />
                       Предыдущий урок
                     </Button>
-                    
-                    <Button onClick={handleLessonComplete}>
-                      Завершить урок <CheckCircle className="ml-2 h-4 w-4" />
+                    <Button 
+                      onClick={handleLessonComplete}
+                      disabled={completeLessonMutation.isPending}
+                    >
+                      {completeLessonMutation.isPending ? (
+                        <>Отмечаем как завершенный...</>
+                      ) : (
+                        <>Завершить урок <CheckCircle className="ml-2 h-4 w-4" /></>
+                      )}
                     </Button>
-                    
                     <Button 
                       onClick={goToNextLesson}
                       disabled={isLastLesson}

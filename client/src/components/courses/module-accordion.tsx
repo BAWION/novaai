@@ -35,7 +35,7 @@ interface Module {
 interface ModuleAccordionProps {
   modules: Module[];
   currentLessonId?: number;
-  onLessonSelect: (lessonId: number, moduleId: number) => void;
+  onLessonSelect: (lessonId: number) => void;
 }
 
 export function ModuleAccordion({ modules = [], currentLessonId, onLessonSelect }: ModuleAccordionProps) {
@@ -165,8 +165,8 @@ export function ModuleAccordion({ modules = [], currentLessonId, onLessonSelect 
                       } ${lesson.locked ? "opacity-70" : "hover:bg-accent/20 cursor-pointer"}`}
                       onClick={() => {
                         if (!lesson.locked) {
-                          onLessonSelect(lesson.id, module.id);
-                          // Теперь передаем также ID модуля для навигации
+                          onLessonSelect(lesson.id);
+                          navigate(`/courses/ai-literacy-101/modules/${module.id}/lessons/${lesson.id}`);
                         }
                       }}
                     >
@@ -212,7 +212,7 @@ export function ModuleAccordion({ modules = [], currentLessonId, onLessonSelect 
                           size="sm"
                           onClick={(e) => {
                             e.stopPropagation();
-                            onLessonSelect(lesson.id, module.id);
+                            navigate(`/courses/ai-literacy-101/modules/${module.id}/lessons/${lesson.id}`);
                           }}
                         >
                           Начать
