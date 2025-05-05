@@ -84,11 +84,11 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="min-h-screen w-full bg-space-900 text-white overflow-hidden">
+    <div className="min-h-screen w-full bg-space-900 text-white overflow-x-hidden overflow-y-auto">
       <ParticlesBackground />
       
       {/* Header/Navigation */}
-      <header className="w-full py-4 px-6 backdrop-blur-sm bg-black/30 fixed top-0 z-50 fixed-header">
+      <header className="w-full py-4 px-4 sm:px-6 backdrop-blur-sm bg-black/30 fixed top-0 z-50 fixed-header">
         <div className="container mx-auto flex justify-between items-center">
           <div className="flex items-center gap-2">
             <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
@@ -102,66 +102,66 @@ export default function HomePage() {
             <a href="#testimonials" className="text-white/70 hover:text-white transition-colors">Отзывы</a>
           </nav>
           <div className="flex gap-2">
-            <a href="/login" className="btn-mobile px-4 py-2 rounded-lg border-2 border-white/30 hover:bg-white/10 active:bg-white/20 transition-all duration-150 text-white font-medium no-underline inline-block tap-highlight-none">
+            <a href="/login" className="btn-mobile px-3 sm:px-4 py-2 rounded-lg border-2 border-white/30 hover:bg-white/10 active:bg-white/20 transition-all duration-150 text-white font-medium no-underline inline-block tap-highlight-none text-sm sm:text-base">
               Войти
             </a>
-            <a href="/onboarding-intro" className="btn-mobile px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 active:bg-primary/80 transition-all duration-150 text-white font-medium no-underline inline-block tap-highlight-none">
+            <a href="/onboarding-intro" className="btn-mobile px-3 sm:px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 active:bg-primary/80 transition-all duration-150 text-white font-medium no-underline inline-block tap-highlight-none text-sm sm:text-base">
               Начать
             </a>
           </div>
         </div>
       </header>
 
-      <main className="pt-16">
+      <main className="pt-20">
         {/* Hero Section */}
-        <section className="py-20 md:py-32 px-6">
+        <section className="py-12 sm:py-16 md:py-24 px-4 sm:px-6">
           <div className="container mx-auto">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-12">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-8 md:gap-12">
               <motion.div 
-                className="flex-1"
+                className="flex-1 w-full"
                 initial={{ opacity: 0, x: -50 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.7 }}
               >
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 leading-tight">
                   Освойте <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-purple-500 to-secondary">искусственный интеллект</span> и стройте карьеру будущего
                 </h1>
-                <p className="text-xl text-white/80 mb-8 max-w-xl">
-                  NovaAI University — это <span className="font-bold text-white">преимущественно бесплатная</span> образовательная платформа для <span className="font-bold text-white">всех уровней</span> — от школьников до Senior-разработчиков, с адаптивной AI-системой обучения и практическими лабораториями.
+                <p className="text-base sm:text-lg md:text-xl text-white/80 mb-6 sm:mb-8 max-w-xl">
+                  NovaAI University — это <span className="font-bold text-white">преимущественно бесплатная</span> образовательная платформа для <span className="font-bold text-white">всех уровней</span> — от школьников до Senior-разработчиков, с адаптивной AI-системой обучения.
                 </p>
-                <div className="flex flex-wrap gap-4">
-                  <a href="/onboarding-intro" className="inline-block py-3 px-8 text-lg rounded bg-primary hover:bg-primary/90 active:bg-primary/80 transition-colors text-white no-underline font-medium tap-highlight-none">
+                <div className="flex flex-wrap gap-3 sm:gap-4">
+                  <a href="/onboarding-intro" className="inline-block py-2 sm:py-3 px-4 sm:px-8 text-base sm:text-lg rounded bg-primary hover:bg-primary/90 active:bg-primary/80 transition-colors text-white no-underline font-medium tap-highlight-none">
                     Начать бесплатно
                     <i className="fas fa-arrow-right ml-2"></i>
                   </a>
-                  <a href="#screenshots" className="inline-block py-3 px-8 text-lg rounded border border-white/20 hover:bg-white/10 active:bg-white/20 transition-colors text-white no-underline font-medium tap-highlight-none">
+                  <a href="#screenshots" className="inline-block py-2 sm:py-3 px-4 sm:px-8 text-base sm:text-lg rounded border border-white/20 hover:bg-white/10 active:bg-white/20 transition-colors text-white no-underline font-medium tap-highlight-none">
                     Посмотреть демо
                     <i className="fas fa-desktop ml-2"></i>
                   </a>
                 </div>
               </motion.div>
               <motion.div 
-                className="flex-1"
+                className="flex-1 w-full mt-8 md:mt-0"
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.7, delay: 0.3 }}
               >
-                <Glassmorphism className="p-10 rounded-xl backdrop-blur-md shadow-lg shadow-primary/20 relative overflow-hidden">
+                <Glassmorphism className="p-6 sm:p-8 md:p-10 rounded-xl backdrop-blur-md shadow-lg shadow-primary/20 relative overflow-hidden">
                   <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary/30 to-secondary/30 opacity-20"></div>
                   <div className="relative z-10 text-center">
-                    <i className="fas fa-brain text-primary/70 text-8xl mb-6 block"></i>
-                    <div className="grid grid-cols-3 gap-4 mb-6">
-                      <div className="bg-white/5 p-3 rounded-lg">
-                        <i className="fas fa-robot text-3xl text-secondary/70"></i>
+                    <i className="fas fa-brain text-primary/70 text-5xl sm:text-6xl md:text-8xl mb-4 sm:mb-6 block"></i>
+                    <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6">
+                      <div className="bg-white/5 p-2 sm:p-3 rounded-lg">
+                        <i className="fas fa-robot text-xl sm:text-2xl md:text-3xl text-secondary/70"></i>
                       </div>
-                      <div className="bg-white/5 p-3 rounded-lg">
-                        <i className="fas fa-code text-3xl text-secondary/70"></i>
+                      <div className="bg-white/5 p-2 sm:p-3 rounded-lg">
+                        <i className="fas fa-code text-xl sm:text-2xl md:text-3xl text-secondary/70"></i>
                       </div>
-                      <div className="bg-white/5 p-3 rounded-lg">
-                        <i className="fas fa-chart-pie text-3xl text-secondary/70"></i>
+                      <div className="bg-white/5 p-2 sm:p-3 rounded-lg">
+                        <i className="fas fa-chart-pie text-xl sm:text-2xl md:text-3xl text-secondary/70"></i>
                       </div>
                     </div>
-                    <p className="text-xl text-white/80">Искусственный интеллект • Машинное обучение • Data Science</p>
+                    <p className="text-sm sm:text-base md:text-xl text-white/80">Искусственный интеллект • Машинное обучение • Data Science</p>
                   </div>
                 </Glassmorphism>
               </motion.div>
@@ -170,9 +170,9 @@ export default function HomePage() {
         </section>
 
         {/* Stats Section */}
-        <section className="py-10 px-6 bg-black/30 backdrop-blur-md">
+        <section className="py-8 sm:py-10 px-4 sm:px-6 bg-black/30 backdrop-blur-md">
           <div className="container mx-auto">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8">
               {stats.map((stat, index) => (
                 <motion.div 
                   key={index}
@@ -181,10 +181,10 @@ export default function HomePage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.1 * index }}
                 >
-                  <p className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary mb-2">
+                  <p className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary mb-1 sm:mb-2">
                     {stat.value}
                   </p>
-                  <p className="text-white/70">{stat.label}</p>
+                  <p className="text-sm sm:text-base text-white/70">{stat.label}</p>
                 </motion.div>
               ))}
             </div>
@@ -192,16 +192,16 @@ export default function HomePage() {
         </section>
 
         {/* Features Section */}
-        <section id="features" className="py-20 px-6">
+        <section id="features" className="py-12 sm:py-16 md:py-20 px-4 sm:px-6">
           <div className="container mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">Почему выбирают NovaAI University</h2>
-              <p className="text-xl text-white/70 max-w-2xl mx-auto">
-                Платформа, где <span className="font-bold text-white">ИИ сам проектирует и непрерывно обновляет</span> образовательный контент, а вы <span className="font-bold text-white">мгновенно применяете</span> новые навыки на практике
+            <div className="text-center mb-8 sm:mb-12 md:mb-16">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">Почему выбирают NovaAI University</h2>
+              <p className="text-base sm:text-lg md:text-xl text-white/70 max-w-2xl mx-auto">
+                Платформа, где <span className="font-bold text-white">ИИ сам проектирует и обновляет</span> образовательный контент, а вы <span className="font-bold text-white">мгновенно применяете</span> новые навыки
               </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
               {keyFeatures.map((feature, index) => (
                 <motion.div 
                   key={index}
@@ -209,12 +209,12 @@ export default function HomePage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.1 * index }}
                 >
-                  <Glassmorphism className="h-full p-6 rounded-xl border border-white/5">
-                    <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center text-primary mb-4">
-                      <i className={`fas ${feature.icon} text-2xl`}></i>
+                  <Glassmorphism className="h-full p-4 sm:p-6 rounded-xl border border-white/5">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full bg-primary/20 flex items-center justify-center text-primary mb-3 sm:mb-4">
+                      <i className={`fas ${feature.icon} text-xl sm:text-2xl`}></i>
                     </div>
-                    <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
-                    <p className="text-white/70">{feature.description}</p>
+                    <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3">{feature.title}</h3>
+                    <p className="text-sm sm:text-base text-white/70">{feature.description}</p>
                   </Glassmorphism>
                 </motion.div>
               ))}
