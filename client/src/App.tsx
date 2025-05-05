@@ -144,6 +144,18 @@ function Router() {
           {/* AI Literacy 101 */}
           <ProtectedRoute path="/courses/ai-literacy-101" component={AILiteracyCoursePage} />
           
+          {/* Lesson Page */}
+          <ProtectedRoute path="/modules/:moduleId/lessons/:lessonId" component={() => {
+            const LessonPage = React.lazy(() => import('@/pages/lesson-page'));
+            return (
+              <React.Suspense fallback={<div className="flex items-center justify-center min-h-screen">
+                <div className="w-12 h-12 rounded-full border-4 border-primary/30 border-t-primary animate-spin"></div>
+              </div>}>
+                <LessonPage />
+              </React.Suspense>
+            );
+          }} />
+          
           <Route component={NotFound} />
         </Switch>
       </main>
