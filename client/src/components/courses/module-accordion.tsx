@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Clock, CheckCircle, Lock, PlayCircle } from "lucide-react";
+import { useLocation } from "wouter";
 
 interface Lesson {
   id: number;
@@ -35,6 +36,7 @@ interface ModuleAccordionProps {
 }
 
 export function ModuleAccordion({ modules, currentLessonId, onLessonSelect }: ModuleAccordionProps) {
+  const [, navigate] = useLocation();
   return (
     <Accordion type="single" collapsible className="w-full">
       {modules.map((module) => (
@@ -68,7 +70,12 @@ export function ModuleAccordion({ modules, currentLessonId, onLessonSelect }: Mo
                   className={`p-3 rounded-md border flex justify-between items-center ${
                     currentLessonId === lesson.id ? "bg-primary/10 border-primary" : ""
                   } ${lesson.locked ? "opacity-70" : "hover:bg-accent/20 cursor-pointer"}`}
-                  onClick={() => !lesson.locked && onLessonSelect(lesson.id)}
+                  onClick={() => {
+                    if (!lesson.locked) {
+                      onLessonSelect(lesson.id);
+                      navigate(`/modules/${module.id}/lessons/${lesson.id}`);
+                    }
+                  }}
                 >
                   <div className="flex items-start">
                     {lesson.completed ? (
@@ -107,7 +114,14 @@ export function ModuleAccordion({ modules, currentLessonId, onLessonSelect }: Mo
                       Текущий
                     </Badge>
                   ) : (
-                    <Button variant="ghost" size="sm">
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/modules/${module.id}/lessons/${lesson.id}`);
+                      }}
+                    >
                       Начать
                     </Button>
                   )}
