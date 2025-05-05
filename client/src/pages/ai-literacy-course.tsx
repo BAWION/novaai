@@ -265,7 +265,10 @@ export default function AILiteracyCoursePage() {
                   courseTitle={course.title}
                   lastLesson="Определение искусственного интеллекта"
                   progress={25}
-                  onContinue={() => navigate("/courses/ai-literacy-101/modules/5/lessons/5")}
+                  onContinue={() => {
+                    setCurrentLessonId(5);
+                    setActiveTab("lessons");
+                  }}
                 />
                 
                 {/* Цели обучения */}
@@ -370,11 +373,66 @@ export default function AILiteracyCoursePage() {
                       )}
                     </CardContent>
                     <CardFooter className="flex justify-between">
-                      <Button variant="outline">Предыдущий урок</Button>
+                      <Button 
+                        variant="outline"
+                        onClick={() => {
+                          // Находим предыдущий урок в текущем модуле
+                          const currentModule = modules?.find(m => 
+                            m.lessons?.some(l => l.id === currentLesson.id)
+                          );
+                          
+                          if (currentModule && currentModule.lessons) {
+                            const currentIndex = currentModule.lessons.findIndex(l => l.id === currentLesson.id);
+                            if (currentIndex > 0) {
+                              // Есть предыдущий урок в текущем модуле
+                              setCurrentLessonId(currentModule.lessons[currentIndex - 1].id);
+                            } else if (modules) {
+                              // Нужно перейти к последнему уроку предыдущего модуля
+                              const currentModuleIndex = modules.findIndex(m => m.id === currentModule.id);
+                              if (currentModuleIndex > 0) {
+                                const prevModule = modules[currentModuleIndex - 1];
+                                if (prevModule.lessons && prevModule.lessons.length > 0) {
+                                  setCurrentLessonId(prevModule.lessons[prevModule.lessons.length - 1].id);
+                                }
+                              }
+                            }
+                          }
+                        }}
+                      >
+                        <ArrowLeft className="mr-2 h-4 w-4" /> Предыдущий урок
+                      </Button>
+                      
                       <Button onClick={() => handleLessonComplete(currentLesson.id)}>
                         Завершить урок <CheckCircle className="ml-2 h-4 w-4" />
                       </Button>
-                      <Button>Следующий урок</Button>
+                      
+                      <Button
+                        onClick={() => {
+                          // Находим следующий урок в текущем модуле
+                          const currentModule = modules?.find(m => 
+                            m.lessons?.some(l => l.id === currentLesson.id)
+                          );
+                          
+                          if (currentModule && currentModule.lessons) {
+                            const currentIndex = currentModule.lessons.findIndex(l => l.id === currentLesson.id);
+                            if (currentIndex < currentModule.lessons.length - 1) {
+                              // Есть следующий урок в текущем модуле
+                              setCurrentLessonId(currentModule.lessons[currentIndex + 1].id);
+                            } else if (modules) {
+                              // Нужно перейти к первому уроку следующего модуля
+                              const currentModuleIndex = modules.findIndex(m => m.id === currentModule.id);
+                              if (currentModuleIndex < modules.length - 1) {
+                                const nextModule = modules[currentModuleIndex + 1];
+                                if (nextModule.lessons && nextModule.lessons.length > 0) {
+                                  setCurrentLessonId(nextModule.lessons[0].id);
+                                }
+                              }
+                            }
+                          }
+                        }}
+                      >
+                        Следующий урок <ArrowRight className="ml-2 h-4 w-4" />
+                      </Button>
                     </CardFooter>
                   </Card>
                 ) : (
