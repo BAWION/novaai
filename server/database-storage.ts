@@ -173,9 +173,51 @@ export class DatabaseStorage implements Partial<IStorage> {
           courseId,
           progress: data.progress ?? 0,
           completedModules: data.completedModules ?? 0,
+          startedAt: new Date(),
+          lastAccessedAt: new Date(),
         })
         .returning();
       return created;
     }
+  }
+  
+  /**
+   * Получение прогресса всех пользователей по определенному курсу
+   */
+  async getAllUserProgressForCourse(courseId: number): Promise<UserCourseProgress[]> {
+    return db
+      .select()
+      .from(userCourseProgress)
+      .where(eq(userCourseProgress.courseId, courseId));
+  }
+  
+  /**
+   * Получение курсов, по которым пользователь имеет прогресс
+   */
+  async getUserStartedCourses(userId: number): Promise<(Course & { progress: number })[]> {
+    const userProgressRecords = await this.getUserCourseProgress(userId);
+    
+    if (!userProgressRecords.length) {
+      return [];
+    }
+    
+    const courseIds = userProgressRecords.map(record => record.courseId);
+    
+    const coursesList = await db
+      .select()
+      .from(courses)
+      .where(inArray(courses.id, courseIds));
+    
+    // Объединяем информацию о курсах и прогрессе
+    return coursesList.map(course => {
+      const progressRecord = userProgressRecords.find(
+        progress => progress.courseId === course.id
+      );
+      
+      return {
+        ...course,
+        progress: progressRecord?.progress || 0
+      };
+    });
   }
 }
