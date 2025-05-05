@@ -42,6 +42,7 @@ export default function LessonPage() {
   const { user, isAuthenticated } = useAuth();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("content");
+  const [isLoading, setIsLoading] = useState(true);
 
   // Проверка аутентификации
   useEffect(() => {
@@ -49,6 +50,13 @@ export default function LessonPage() {
       navigate("/login");
     }
   }, [user, isAuthenticated, navigate]);
+  
+  // Проверяем валидность параметров URL
+  useEffect(() => {
+    if (!moduleId || !lessonId || isNaN(Number(moduleId)) || isNaN(Number(lessonId))) {
+      console.error("Некорректные параметры URL:", { moduleId, lessonId });
+    }
+  }, [moduleId, lessonId]);
 
   // Запрос данных урока
   const { data: lesson, isLoading: lessonLoading } = useQuery<Lesson>({

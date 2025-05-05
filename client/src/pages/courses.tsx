@@ -583,17 +583,17 @@ export default function Courses() {
                       onClick={() => {
                         if (selectedCourse.id === "0") {
                           setLocation("/course-ai/python-for-ai-beginners");
-                        } else if (selectedCourse.id === 7 || selectedCourse.title.includes("AI Ethics")) {
-                          // AI Ethics курс - ведем на детальную страницу курса, где будут модули
+                        } else if (selectedCourse.id === 7 || selectedCourse.title.includes("AI Ethics") || selectedCourse.title.includes("AI Literacy")) {
+                          // AI Ethics и AI Literacy курсы - ведем на детальную страницу курса
                           setLocation(`/courses/ai-literacy-101`);
                         } else {
-                          // Для остальных курсов пробуем открыть первый урок первого модуля
-                          const courseId = typeof selectedCourse.id === 'string' 
-                            ? selectedCourse.id 
-                            : selectedCourse.id.toString();
+                          // Для демонстрации используем фиксированные модуль и урок из API
+                          // В реальной реализации здесь нужно делать запрос к API для получения ID первого урока первого модуля курса
+                          // или получать последний просмотренный урок пользователя
+                          console.log("Переход к первому уроку первого модуля");
                           
-                          // URL к первому уроку первого модуля курса
-                          setLocation(`/modules/1/lessons/1`);
+                          // Обеспечиваем чистые данные для API без NaN-значений
+                          setLocation(`/courses/ai-literacy-101`);
                         }
                       }}
                       className="bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:from-[#4922B2] hover:to-[#1682A1] text-white py-3 px-6 rounded-lg font-medium transition duration-300 flex items-center"
