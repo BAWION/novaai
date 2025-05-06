@@ -92,7 +92,7 @@ export class AIAgentService {
   /**
    * Создает пользовательский промпт для Образовательного Навигатора
    */
-  private createNavigatorUserPrompt(userProfile, learningProgress, availableCourses) {
+  private createNavigatorUserPrompt(userProfile: any, learningProgress: any, availableCourses: any) {
     return `Проанализируй данные студента и предложи персонализированную образовательную траекторию.
 
 ПРОФИЛЬ СТУДЕНТА:
