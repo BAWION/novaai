@@ -8,12 +8,13 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, ArrowLeft, ArrowRight, BookOpen, Clock, Video, FileText, HelpCircle } from "lucide-react";
+import { CheckCircle, ArrowLeft, ArrowRight, BookOpen, Clock, Video, FileText, HelpCircle, LayersIcon } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AIAssistantPanel } from "@/components/courses/ai-assistant-panel";
 import { Glassmorphism } from "@/components/ui/glassmorphism";
 import { queryClient } from "@/lib/queryClient";
 import ReactMarkdown from "react-markdown";
+import { MicroLessonStructure } from "@/components/courses/micro-lesson-structure";
 
 interface Lesson {
   id: number;
@@ -282,6 +283,12 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
             <Tabs defaultValue="content" value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="mb-6">
                 <TabsTrigger value="content">Содержание</TabsTrigger>
+                <TabsTrigger value="microlesson">
+                  <div className="flex items-center">
+                    <LayersIcon className="w-4 h-4 mr-2" />
+                    Микроструктура
+                  </div>
+                </TabsTrigger>
                 <TabsTrigger value="materials">Материалы</TabsTrigger>
                 <TabsTrigger value="notes">Заметки</TabsTrigger>
               </TabsList>
@@ -398,6 +405,33 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                     </Button>
                   </CardFooter>
                 </Card>
+              </TabsContent>
+              
+              <TabsContent value="microlesson">
+                {/* Здесь вставляем компонент микроструктуры урока */}
+                {user ? (
+                  <MicroLessonStructure 
+                    lessonId={parseInt(lessonId)}
+                    userId={user.id}
+                    onComplete={handleLessonComplete}
+                  />
+                ) : (
+                  <Card className="shadow-lg">
+                    <CardHeader>
+                      <CardTitle>Требуется авторизация</CardTitle>
+                      <CardDescription>
+                        Для доступа к микроструктуре урока необходимо авторизоваться
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex flex-col items-center justify-center py-6">
+                        <p className="text-muted-foreground">
+                          Пожалуйста, войдите в систему для доступа к полной функциональности.
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
               </TabsContent>
               
               <TabsContent value="materials">
