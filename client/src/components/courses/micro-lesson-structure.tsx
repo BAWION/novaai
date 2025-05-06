@@ -11,7 +11,7 @@ import { queryClient } from "@/lib/queryClient";
 import ReactMarkdown from "react-markdown";
 import { QuizComponent, QuizQuestion, QuestionType } from "./quiz-component";
 import { PracticeAssignment, AssignmentType } from "./practice-assignment";
-import { FeedbackSystem, FeedbackItem } from "./feedback-system";
+import { FeedbackSystem, FeedbackItem, SubmitFeedbackData } from "./feedback-system";
 
 interface LessonStructure {
   id: number;
@@ -343,7 +343,7 @@ export function MicroLessonStructure({ lessonId, userId, onComplete }: MicroLess
               <div className="flex justify-between items-center">
                 <CardTitle>
                   <span className="flex items-center">
-                    <LightbulbIcon className="w-5 h-5 mr-2 text-yellow-500" />
+                    <Lightbulb className="w-5 h-5 mr-2 text-yellow-500" />
                     Вступление
                   </span>
                 </CardTitle>
@@ -704,7 +704,7 @@ def classify_text(text):
             className={`flex flex-col items-center ${userProgress?.hookCompleted ? 'text-green-500' : 'text-muted-foreground'}`}
             onClick={() => setActiveSection("hook")}
           >
-            <LightbulbIcon className={`h-4 w-4 ${activeSection === "hook" ? 'text-primary' : ''}`} />
+            <Lightbulb className={`h-4 w-4 ${activeSection === "hook" ? 'text-primary' : ''}`} />
             <span className="text-xs mt-1 cursor-pointer">Крючок</span>
           </div>
           <div 
