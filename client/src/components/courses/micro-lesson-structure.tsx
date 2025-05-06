@@ -244,7 +244,7 @@ export function MicroLessonStructure({ lessonId, userId, onComplete }: MicroLess
         <CardHeader>
           <div className="flex justify-between items-center">
             <CardTitle>Урок завершен</CardTitle>
-            <Badge variant="success" className="bg-green-500 text-white">
+            <Badge variant="outline" className="bg-green-500 text-white">
               100% Завершено
             </Badge>
           </div>
@@ -344,7 +344,7 @@ export function MicroLessonStructure({ lessonId, userId, onComplete }: MicroLess
                     Вступление
                   </span>
                 </CardTitle>
-                <Badge variant={userProgress?.hookCompleted ? "success" : "outline"}>
+                <Badge variant="outline" className={userProgress?.hookCompleted ? "bg-green-500 text-white" : ""}>
                   {userProgress?.hookCompleted ? "Завершено" : "Актуально"}
                 </Badge>
               </div>
@@ -376,7 +376,7 @@ export function MicroLessonStructure({ lessonId, userId, onComplete }: MicroLess
                     Объяснение
                   </span>
                 </CardTitle>
-                <Badge variant={userProgress?.explanationCompleted ? "success" : "outline"}>
+                <Badge variant="outline" className={userProgress?.explanationCompleted ? "bg-green-500 text-white" : ""}>
                   {userProgress?.explanationCompleted ? "Завершено" : "Актуально"}
                 </Badge>
               </div>
@@ -411,7 +411,7 @@ export function MicroLessonStructure({ lessonId, userId, onComplete }: MicroLess
                     Демонстрация
                   </span>
                 </CardTitle>
-                <Badge variant={userProgress?.demoCompleted ? "success" : "outline"}>
+                <Badge variant="outline" className={userProgress?.demoCompleted ? "bg-green-500 text-white" : ""}>
                   {userProgress?.demoCompleted ? "Завершено" : "Актуально"}
                 </Badge>
               </div>
@@ -446,7 +446,7 @@ export function MicroLessonStructure({ lessonId, userId, onComplete }: MicroLess
                     Практика
                   </span>
                 </CardTitle>
-                <Badge variant={userProgress?.practiceCompleted ? "success" : "outline"}>
+                <Badge variant="outline" className={userProgress?.practiceCompleted ? "bg-green-500 text-white" : ""}>
                   {userProgress?.practiceCompleted ? "Завершено" : "Актуально"}
                 </Badge>
               </div>
@@ -481,7 +481,7 @@ export function MicroLessonStructure({ lessonId, userId, onComplete }: MicroLess
                     Рефлексия
                   </span>
                 </CardTitle>
-                <Badge variant={userProgress?.reflectionCompleted ? "success" : "outline"}>
+                <Badge variant="outline" className={userProgress?.reflectionCompleted ? "bg-green-500 text-white" : ""}>
                   {userProgress?.reflectionCompleted ? "Завершено" : "Актуально"}
                 </Badge>
               </div>
