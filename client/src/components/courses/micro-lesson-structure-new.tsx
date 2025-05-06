@@ -1,342 +1,346 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Separator } from '@/components/ui/separator';
-import { Rocket, BookOpen, Coffee, ActivitySquare, CheckCircle2 } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Sparkles, CheckCircle, ArrowRight } from 'lucide-react';
+import { motion } from 'framer-motion';
+import {
+  HookTemplate,
+  ExplainDemoTemplate,
+  QuickTryReflectTemplate,
+  InteractiveQuickTryTemplate
+} from './lesson-templates';
+import type { InteractiveElement } from './lesson-templates';
+import { useToast } from '@/hooks/use-toast';
+import { apiRequest } from '@/lib/queryClient';
 
-// Импортируем наши новые шаблоны
-import { HookTemplate, ExplainDemoTemplate, QuickTryReflectTemplate } from './lesson-templates';
-
-// Интерфейс структуры микроурока
-interface LessonStructure {
-  id: number;
-  lessonId: number;
-  hook: string;
-  hookTitle?: string;
-  hookImage?: string;
-  explain: string;
-  explainTitle?: string;
-  demo: string;
-  demoTitle?: string;
-  demoCode?: string;
-  quickTry: string;
-  quickTryTitle?: string;
-  quickTryTask?: string;
-  reflect: string;
-  reflectTitle?: string;
-  reflectQuestions?: string[];
-  keyPoints?: string[];
-  externalLinks?: Array<{ url: string; title: string }>;
-}
-
-interface UserProgress {
-  id?: number;
-  userId: number;
-  lessonId: number;
-  hookCompleted: boolean;
-  explainCompleted: boolean;
-  demoCompleted: boolean;
-  quickTryCompleted: boolean;
-  reflectCompleted: boolean;
-  reflectionText?: string;
-  lastVisitedSection?: string;
-  completedAt?: string;
+export interface LessonStructure {
+  hook: {
+    title: string;
+    content: string;
+    imageUrl?: string;
+  };
+  explain: {
+    title: string;
+    content: string;
+  };
+  demo: {
+    title: string;
+    content: string;
+  };
+  quickTry: {
+    title: string;
+    content?: string;
+    type?: 'standard' | 'interactive';
+    introduction?: string;
+    interactiveElements?: InteractiveElement[];
+  };
+  reflect: {
+    title: string;
+    content: string;
+  };
 }
 
 interface MicroLessonStructureProps {
   lessonId: number;
+  moduleId: number;
+  title: string;
   structure: LessonStructure;
-  userProgress?: UserProgress;
-  onProgressUpdate?: (progress: Partial<UserProgress>) => Promise<void>;
   onComplete?: () => void;
 }
 
 /**
- * Компонент структуры микроурока - новый вариант с красивыми шаблонами
+ * Новая реализация микроструктуры урока с поддержкой интерактивных элементов
  */
-const MicroLessonStructureNew: React.FC<MicroLessonStructureProps> = ({
+const MicroLessonStructure: React.FC<MicroLessonStructureProps> = ({
   lessonId,
+  moduleId,
+  title,
   structure,
-  userProgress,
-  onProgressUpdate,
   onComplete
 }) => {
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<string>('hook');
-  const [progress, setProgress] = useState<UserProgress>(
-    userProgress || {
-      userId: 0, // Будет заменено при сохранении прогресса
-      lessonId,
-      hookCompleted: false,
-      explainCompleted: false,
-      demoCompleted: false,
-      quickTryCompleted: false,
-      reflectCompleted: false
-    }
-  );
-
-  // Общий прогресс завершения микроурока в процентах
-  const completionPercentage = 
-    (Object.entries(progress)
-      .filter(([key]) => key.endsWith('Completed'))
-      .filter(([_, value]) => value === true).length / 5) * 100;
-
-  // Когда пользователь переключается на таб, отмечаем его как посещенный
+  const [completedSections, setCompletedSections] = useState<Record<string, boolean>>({
+    hook: false,
+    explain: false,
+    demo: false,
+    quickTry: false,
+    reflect: false
+  });
+  
+  // Прогресс завершения урока (процент)
+  const completionProgress = 
+    (Object.values(completedSections).filter(Boolean).length / Object.keys(completedSections).length) * 100;
+  
+  // Загрузка прогресса урока из БД
   useEffect(() => {
-    if (activeTab && activeTab !== progress.lastVisitedSection) {
-      updateProgress({ lastVisitedSection: activeTab });
-      
-      // Автоматически отмечаем секции hook, explain и demo как завершенные при посещении
-      if (activeTab === 'hook' && !progress.hookCompleted) {
-        updateProgress({ hookCompleted: true });
-      } else if (activeTab === 'explain' && !progress.explainCompleted) {
-        updateProgress({ explainCompleted: true });
-      } else if (activeTab === 'demo' && !progress.demoCompleted) {
-        updateProgress({ demoCompleted: true });
+    const fetchProgress = async () => {
+      try {
+        const response = await apiRequest('GET', `/api/lessons/${lessonId}/structure-progress`);
+        const data = await response.json();
+        
+        if (data && data.progress) {
+          setCompletedSections(data.progress);
+        }
+      } catch (error) {
+        console.error('Ошибка при загрузке прогресса микроструктуры:', error);
       }
-    }
-  }, [activeTab]);
-
-  // Обновляем прогресс пользователя
-  const updateProgress = async (updates: Partial<UserProgress>) => {
-    const updatedProgress = { ...progress, ...updates };
-    setProgress(updatedProgress);
+    };
     
-    if (onProgressUpdate) {
-      await onProgressUpdate(updates);
-    }
+    fetchProgress();
+  }, [lessonId]);
+  
+  // Сохранение прогресса при изменении завершенных секций
+  useEffect(() => {
+    const saveProgress = async () => {
+      try {
+        await apiRequest('POST', `/api/lessons/${lessonId}/structure-progress`, {
+          progress: completedSections
+        });
+      } catch (error) {
+        console.error('Ошибка при сохранении прогресса микроструктуры:', error);
+      }
+    };
     
-    // Проверяем, завершен ли урок
-    const allCompleted = 
-      updatedProgress.hookCompleted && 
-      updatedProgress.explainCompleted && 
-      updatedProgress.demoCompleted && 
-      updatedProgress.quickTryCompleted && 
-      updatedProgress.reflectCompleted;
-    
-    if (allCompleted && !progress.completedAt && onComplete) {
-      onComplete();
+    // Проверяем, есть ли хотя бы одна завершенная секция
+    if (Object.values(completedSections).some(Boolean)) {
+      saveProgress();
     }
-  };
-
-  // Обработчик завершения быстрого задания
-  const handleCompleteQuickTry = () => {
-    updateProgress({ quickTryCompleted: true });
-  };
-
-  // Обработчик отправки рефлексии
-  const handleSubmitReflection = (text: string) => {
-    updateProgress({ 
-      reflectCompleted: true,
-      reflectionText: text 
+  }, [completedSections, lessonId]);
+  
+  // Завершение секции
+  const completeSection = (section: string) => {
+    setCompletedSections(prevState => {
+      const newState = {
+        ...prevState,
+        [section]: true
+      };
+      
+      // Если все секции завершены, вызываем onComplete
+      const allCompleted = Object.keys(completedSections).every(
+        key => key === section ? true : newState[key]
+      );
+      
+      if (allCompleted && onComplete) {
+        onComplete();
+        
+        toast({
+          title: "Урок завершен!",
+          description: "Вы успешно прошли все секции урока.",
+          variant: "default"
+        });
+      }
+      
+      return newState;
     });
   };
-
-  // Преобразуем reflectQuestions из строки в массив, если они существуют
-  const reflectQuestionsArray = structure.reflectQuestions || 
-    structure.reflect
-      .split('\n')
-      .filter(line => line.trim().startsWith('- ') || line.trim().startsWith('* '))
-      .map(line => line.replace(/^[-*]\s+/, ''));
-
+  
+  // Переход к следующей секции
+  const nextSection = () => {
+    const sections = ['hook', 'explain', 'demo', 'quickTry', 'reflect'];
+    const currentIndex = sections.indexOf(activeTab);
+    
+    if (currentIndex < sections.length - 1) {
+      setActiveTab(sections[currentIndex + 1]);
+    }
+  };
+  
   return (
     <div className="space-y-6">
-      {/* Прогресс микроурока */}
-      <div className="bg-space-800/50 rounded-lg p-4 border border-space-700">
-        <div className="flex justify-between items-center mb-2">
-          <h3 className="font-medium text-white">Прогресс микроурока</h3>
-          <Badge variant="outline" className={completionPercentage === 100 ? 'bg-green-900/30 text-green-400 border-green-700' : ''}>
-            {completionPercentage === 100 ? (
-              <span className="flex items-center gap-1">
-                <CheckCircle2 size={14} />
-                Завершено
-              </span>
-            ) : (
-              `${Math.round(completionPercentage)}%`
-            )}
-          </Badge>
-        </div>
-        <Progress value={completionPercentage} className="h-2" />
+      <div className="flex flex-col space-y-4">
+        <h2 className="text-2xl font-semibold">{title}</h2>
         
-        <div className="grid grid-cols-5 gap-1 mt-3">
-          <div 
-            className={`text-xs px-2 py-1 rounded flex items-center justify-center ${
-              progress.hookCompleted ? 'bg-green-900/30 text-green-400' : 'bg-space-700 text-white/60'
-            }`}
-          >
-            Hook
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm">
+            <span>Прогресс урока</span>
+            <span>{Math.round(completionProgress)}%</span>
           </div>
-          <div 
-            className={`text-xs px-2 py-1 rounded flex items-center justify-center ${
-              progress.explainCompleted ? 'bg-green-900/30 text-green-400' : 'bg-space-700 text-white/60'
-            }`}
-          >
-            Explain
-          </div>
-          <div 
-            className={`text-xs px-2 py-1 rounded flex items-center justify-center ${
-              progress.demoCompleted ? 'bg-green-900/30 text-green-400' : 'bg-space-700 text-white/60'
-            }`}
-          >
-            Demo
-          </div>
-          <div 
-            className={`text-xs px-2 py-1 rounded flex items-center justify-center ${
-              progress.quickTryCompleted ? 'bg-green-900/30 text-green-400' : 'bg-space-700 text-white/60'
-            }`}
-          >
-            Quick Try
-          </div>
-          <div 
-            className={`text-xs px-2 py-1 rounded flex items-center justify-center ${
-              progress.reflectCompleted ? 'bg-green-900/30 text-green-400' : 'bg-space-700 text-white/60'
-            }`}
-          >
-            Reflect
-          </div>
+          <Progress value={completionProgress} className="h-2" />
         </div>
-      </div>
-      
-      <Separator />
-      
-      {/* Вкладки микроурока */}
-      <Tabs 
-        defaultValue="hook" 
-        value={activeTab} 
-        onValueChange={setActiveTab}
-        className="w-full"
-      >
-        <TabsList className="grid grid-cols-5 h-auto p-1">
-          <TabsTrigger 
-            value="hook" 
-            className="flex flex-col items-center py-2 px-1 data-[state=active]:bg-sky-900/30"
-          >
-            <Rocket size={16} />
-            <span className="mt-1 text-xs">Hook</span>
-          </TabsTrigger>
-          <TabsTrigger 
-            value="explain" 
-            className="flex flex-col items-center py-2 px-1 data-[state=active]:bg-blue-900/30"
-          >
-            <BookOpen size={16} />
-            <span className="mt-1 text-xs">Explain</span>
-          </TabsTrigger>
-          <TabsTrigger 
-            value="demo" 
-            className="flex flex-col items-center py-2 px-1 data-[state=active]:bg-indigo-900/30"
-          >
-            <Coffee size={16} />
-            <span className="mt-1 text-xs">Demo</span>
-          </TabsTrigger>
-          <TabsTrigger 
-            value="quicktry" 
-            className="flex flex-col items-center py-2 px-1 data-[state=active]:bg-violet-900/30"
-          >
-            <ActivitySquare size={16} />
-            <span className="mt-1 text-xs">Quick Try</span>
-          </TabsTrigger>
-          <TabsTrigger 
-            value="reflect" 
-            className="flex flex-col items-center py-2 px-1 data-[state=active]:bg-purple-900/30"
-          >
-            <CheckCircle2 size={16} />
-            <span className="mt-1 text-xs">Reflect</span>
-          </TabsTrigger>
-        </TabsList>
         
-        <div className="mt-6">
-          {/* Hook */}
-          <TabsContent value="hook" className="mt-0">
-            <HookTemplate 
-              title={structure.hookTitle || "Давайте начнем!"}
-              content={structure.hook}
-              imageUrl={structure.hookImage}
-            />
-          </TabsContent>
+        <Tabs defaultValue="hook" value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid grid-cols-5 w-full">
+            <TabsTrigger value="hook" className="relative">
+              Крючок
+              {completedSections.hook && (
+                <CheckCircle size={14} className="absolute -top-1 -right-1 text-green-400" />
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="explain" className="relative">
+              Объяснение
+              {completedSections.explain && (
+                <CheckCircle size={14} className="absolute -top-1 -right-1 text-green-400" />
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="demo" className="relative">
+              Демонстрация
+              {completedSections.demo && (
+                <CheckCircle size={14} className="absolute -top-1 -right-1 text-green-400" />
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="quickTry" className="relative">
+              Практика
+              {completedSections.quickTry && (
+                <CheckCircle size={14} className="absolute -top-1 -right-1 text-green-400" />
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="reflect" className="relative">
+              Рефлексия
+              {completedSections.reflect && (
+                <CheckCircle size={14} className="absolute -top-1 -right-1 text-green-400" />
+              )}
+            </TabsTrigger>
+          </TabsList>
           
-          {/* Explain и Demo в одном компоненте */}
-          <TabsContent value="explain" className="mt-0">
-            <ExplainDemoTemplate 
-              explainTitle={structure.explainTitle || "Объяснение концепции"}
-              explainContent={structure.explain}
-              demoTitle={""}
-              demoContent={""}
-              keyPoints={structure.keyPoints}
-            />
-          </TabsContent>
-          
-          <TabsContent value="demo" className="mt-0">
-            <ExplainDemoTemplate 
-              explainTitle={""}
-              explainContent={""}
-              demoTitle={structure.demoTitle || "Демонстрация на практике"}
-              demoContent={structure.demo}
-              codeSnippet={structure.demoCode}
-              externalLinks={structure.externalLinks}
-            />
-          </TabsContent>
-          
-          {/* QuickTry и Reflect в одном компоненте с разными табами */}
-          <TabsContent value="quicktry" className="mt-0">
-            <QuickTryReflectTemplate 
-              quickTryTitle={structure.quickTryTitle || "Быстрая практика"}
-              quickTryInstructions={structure.quickTry}
-              quickTryTask={structure.quickTryTask || "Выполните небольшое задание для закрепления материала."}
-              reflectTitle={""}
-              reflectPrompt={""}
-              reflectQuestions={[]}
-              onCompleteTask={handleCompleteQuickTry}
-            />
-          </TabsContent>
-          
-          <TabsContent value="reflect" className="mt-0">
-            <QuickTryReflectTemplate 
-              quickTryTitle={""}
-              quickTryInstructions={""}
-              quickTryTask={""}
-              reflectTitle={structure.reflectTitle || "Время для рефлексии"}
-              reflectPrompt={structure.reflect}
-              reflectQuestions={reflectQuestionsArray}
-              onSubmitReflection={handleSubmitReflection}
-            />
-          </TabsContent>
-        </div>
-      </Tabs>
-      
-      {/* Кнопки навигации */}
-      <div className="flex justify-between mt-4">
-        <Button 
-          variant="outline" 
-          onClick={() => {
-            const tabs = ['hook', 'explain', 'demo', 'quicktry', 'reflect'];
-            const currentIndex = tabs.indexOf(activeTab);
-            if (currentIndex > 0) {
-              setActiveTab(tabs[currentIndex - 1]);
-            }
-          }}
-          disabled={activeTab === 'hook'}
-        >
-          Назад
-        </Button>
-        
-        <Button 
-          variant="default" 
-          onClick={() => {
-            const tabs = ['hook', 'explain', 'demo', 'quicktry', 'reflect'];
-            const currentIndex = tabs.indexOf(activeTab);
-            if (currentIndex < tabs.length - 1) {
-              setActiveTab(tabs[currentIndex + 1]);
-            }
-          }}
-          disabled={activeTab === 'reflect'}
-        >
-          Вперед
-        </Button>
+          <div className="mt-6">
+            <TabsContent value="hook" className="space-y-4">
+              <HookTemplate 
+                title={structure.hook.title} 
+                content={structure.hook.content}
+                imageUrl={structure.hook.imageUrl}
+              />
+              
+              <div className="flex justify-between pt-4">
+                <Button 
+                  variant="outline" 
+                  disabled={completedSections.hook}
+                  onClick={() => completeSection('hook')}
+                >
+                  <CheckCircle size={16} className="mr-2" />
+                  Отметить прочитанным
+                </Button>
+                
+                <Button onClick={nextSection}>
+                  Далее
+                  <ArrowRight size={16} className="ml-2" />
+                </Button>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="explain" className="space-y-4">
+              <ExplainDemoTemplate 
+                title={structure.explain.title} 
+                content={structure.explain.content}
+                type="explain"
+              />
+              
+              <div className="flex justify-between pt-4">
+                <Button 
+                  variant="outline" 
+                  disabled={completedSections.explain}
+                  onClick={() => completeSection('explain')}
+                >
+                  <CheckCircle size={16} className="mr-2" />
+                  Отметить прочитанным
+                </Button>
+                
+                <Button onClick={nextSection}>
+                  Далее
+                  <ArrowRight size={16} className="ml-2" />
+                </Button>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="demo" className="space-y-4">
+              <ExplainDemoTemplate 
+                title={structure.demo.title} 
+                content={structure.demo.content}
+                type="demo"
+              />
+              
+              <div className="flex justify-between pt-4">
+                <Button 
+                  variant="outline" 
+                  disabled={completedSections.demo}
+                  onClick={() => completeSection('demo')}
+                >
+                  <CheckCircle size={16} className="mr-2" />
+                  Отметить прочитанным
+                </Button>
+                
+                <Button onClick={nextSection}>
+                  Далее
+                  <ArrowRight size={16} className="ml-2" />
+                </Button>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="quickTry" className="space-y-4">
+              {structure.quickTry.type === 'interactive' && structure.quickTry.interactiveElements ? (
+                <InteractiveQuickTryTemplate 
+                  title={structure.quickTry.title}
+                  introduction={structure.quickTry.introduction || ''}
+                  interactiveElements={structure.quickTry.interactiveElements}
+                  onComplete={() => completeSection('quickTry')}
+                />
+              ) : (
+                <QuickTryReflectTemplate 
+                  title={structure.quickTry.title} 
+                  content={structure.quickTry.content || ''}
+                  type="quickTry"
+                />
+              )}
+              
+              {structure.quickTry.type !== 'interactive' && (
+                <div className="flex justify-between pt-4">
+                  <Button 
+                    variant="outline" 
+                    disabled={completedSections.quickTry}
+                    onClick={() => completeSection('quickTry')}
+                  >
+                    <CheckCircle size={16} className="mr-2" />
+                    Отметить выполненным
+                  </Button>
+                  
+                  <Button onClick={nextSection}>
+                    Далее
+                    <ArrowRight size={16} className="ml-2" />
+                  </Button>
+                </div>
+              )}
+            </TabsContent>
+            
+            <TabsContent value="reflect" className="space-y-4">
+              <QuickTryReflectTemplate 
+                title={structure.reflect.title} 
+                content={structure.reflect.content}
+                type="reflect"
+              />
+              
+              <div className="flex justify-between pt-4">
+                <Button 
+                  variant="outline" 
+                  disabled={completedSections.reflect}
+                  onClick={() => completeSection('reflect')}
+                >
+                  <CheckCircle size={16} className="mr-2" />
+                  Отметить прочитанным
+                </Button>
+                
+                {completionProgress === 100 ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <Button 
+                      className="bg-gradient-to-r from-purple-600 to-indigo-600 border-0"
+                      onClick={onComplete}
+                    >
+                      <Sparkles size={16} className="mr-2" />
+                      Завершить урок
+                    </Button>
+                  </motion.div>
+                ) : null}
+              </div>
+            </TabsContent>
+          </div>
+        </Tabs>
       </div>
     </div>
   );
 };
 
-export default MicroLessonStructureNew;
+export default MicroLessonStructure;
