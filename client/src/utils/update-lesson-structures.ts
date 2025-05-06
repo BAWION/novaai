@@ -1,6 +1,6 @@
 import { apiRequest } from '@/lib/queryClient';
-import lesson5Structure from '@/data/lesson-structure-updates/lesson-5-structure.json';
-import lesson6Structure from '@/data/lesson-structure-updates/lesson-6-structure.json';
+import { lesson5Structure } from '@/data/lesson-structure-updates/lesson-5-structure';
+import { lesson6Structure } from '@/data/lesson-structure-updates/lesson-6-structure';
 
 /**
  * Словарь обновлений структуры уроков (key: lessonId, value: структура)

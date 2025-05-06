@@ -118,6 +118,7 @@ function Router() {
           <ProtectedRoute path="/roadmap" component={Roadmap} />
           <ProtectedRoute path="/courses" component={Courses} />
           <ProtectedRoute path="/labhub" component={LabHub} />
+          <ProtectedRoute path="/admin/lesson-structure" component={LessonStructurePage} />
           <ProtectedRoute path="/community" component={Community} />
           <ProtectedRoute path="/profile" component={Profile} />
           <ProtectedRoute path="/settings" component={Settings} />
@@ -163,8 +164,7 @@ function Router() {
           {/* Демонстрация новых шаблонов */}
           <ProtectedRoute path="/template-demo" component={TemplateDemoPage} />
           
-          {/* Админ - управление структурой уроков */}
-          <ProtectedRoute path="/admin/lesson-structure" component={LessonStructurePage} />
+          {/* Админ - управление структурой уроков (маршрут уже добавлен выше) */}
           
           {/* Обратная совместимость для старых URL */}
           <Route path="/modules/:moduleId/lessons/:lessonId">
