@@ -36,6 +36,7 @@ import AIAssistantPage from "@/pages/ai-assistant-page";
 import AILiteracyCoursePage from "@/pages/ai-literacy-course";
 import LessonPage from "@/pages/lesson-page";
 import CompetencyMapPage from "@/pages/competency-map-page";
+import TemplateDemoPage from "@/pages/template-demo-page";
 
 interface ProtectedRouteProps {
   component: React.ComponentType;
