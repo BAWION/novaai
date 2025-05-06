@@ -20,8 +20,10 @@ import eventLogsRouter from "./routes/event-logs-api";
 import { setCurrentUserId } from "./storage-integration";
 // Добавляем кириллическую поддержку
 import 'express';
-// Импортируем маршрутизатор для модулей и уроков
+// Импортируем маршрутизаторы
 import moduleRouter from "./routes/modules";
+import skillsDnaRouter from "./routes/skills-dna-api";
+import lessonStructureRouter from "./routes/lesson-structure-api";
 // Временно отключаем маршруты, для которых у нас пока нет определенных типов в схеме
 // import { learningEventsRouter } from "./routes/learning-events";
 // import { lessonProgressRouter } from "./routes/lesson-progress";
@@ -841,6 +843,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Подключаем маршруты для модулей и уроков
   app.use("/api", moduleRouter);
+  
+  // Подключаем маршруты для Skills DNA
+  app.use("/api", skillsDnaRouter);
+  
+  // Подключаем маршруты для новой структуры уроков
+  app.use("/api", lessonStructureRouter);
   
   // Временно отключены маршруты, для которых требуются дополнительные схемы
   // // Маршруты для отслеживания событий обучения

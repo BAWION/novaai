@@ -409,18 +409,24 @@ export const userSkillGaps = pgTable("user_skill_gaps", {
 // Определение таблицы компетенций (Skills DNA)
 export const skillsDnaLevelEnum = pgEnum('skills_dna_level', ['awareness', 'knowledge', 'application', 'mastery', 'expertise']);
 
-// Определяем таблицу компетенций
-export const skillsDna = pgTable("skills_dna", {
+// Предварительное объявление таблицы для самоссылки
+export const skillsDnaTable = pgTable("skills_dna", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull().unique(),
   description: text("description"),
   category: skillCategoryEnum("category").notNull(), // Переиспользуем существующее перечисление категорий
   level: skillsDnaLevelEnum("level").notNull(), // Уровень по таксономии Блума 2.0
-  parentId: integer("parent_id").references(() => skillsDna.id), // Self-reference для иерархической структуры
+  parentId: integer("parent_id"), // Временно не указываем ссылку, добавим ее после
   behavioralIndicators: json("behavioral_indicators"), // Массив поведенческих индикаторов
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
+
+// Определяем таблицу компетенций
+export const skillsDna = skillsDnaTable;
+
+// Примечание: Отношения будут реализованы через код вместо отношений Drizzle ORM
+// Самоссылка (parent->child) обрабатывается через поле parentId
 
 // Связь между существующими навыками и новыми компетенциями
 export const skillToDnaMapping = pgTable("skill_to_dna_mapping", {
