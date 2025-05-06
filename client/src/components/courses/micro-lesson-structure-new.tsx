@@ -9,7 +9,9 @@ import {
   HookTemplate,
   ExplainDemoTemplate,
   QuickTryReflectTemplate,
-  InteractiveQuickTryTemplate
+  InteractiveQuickTryTemplate,
+  SimplifiedExplainDemo,
+  SimplifiedQuickTryReflect
 } from './lesson-templates';
 import type { InteractiveElement } from './lesson-templates';
 import { useToast } from '@/hooks/use-toast';
@@ -220,7 +222,7 @@ const MicroLessonStructure: React.FC<MicroLessonStructureProps> = ({
             </TabsContent>
             
             <TabsContent value="explain" className="space-y-4">
-              <ExplainDemoTemplate 
+              <SimplifiedExplainDemo 
                 title={structure.explain.title} 
                 content={structure.explain.content}
                 type="explain"
@@ -244,7 +246,7 @@ const MicroLessonStructure: React.FC<MicroLessonStructureProps> = ({
             </TabsContent>
             
             <TabsContent value="demo" className="space-y-4">
-              <ExplainDemoTemplate 
+              <SimplifiedExplainDemo 
                 title={structure.demo.title} 
                 content={structure.demo.content}
                 type="demo"
@@ -276,7 +278,7 @@ const MicroLessonStructure: React.FC<MicroLessonStructureProps> = ({
                   onComplete={() => completeSection('quickTry')}
                 />
               ) : (
-                <QuickTryReflectTemplate 
+                <SimplifiedQuickTryReflect 
                   title={structure.quickTry.title} 
                   content={structure.quickTry.content || ''}
                   type="quickTry"
@@ -303,7 +305,7 @@ const MicroLessonStructure: React.FC<MicroLessonStructureProps> = ({
             </TabsContent>
             
             <TabsContent value="reflect" className="space-y-4">
-              <QuickTryReflectTemplate 
+              <SimplifiedQuickTryReflect 
                 title={structure.reflect.title} 
                 content={structure.reflect.content}
                 type="reflect"
