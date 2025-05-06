@@ -35,6 +35,7 @@ import GapAnalysisPage from "@/pages/gap-analysis-page";
 import AIAssistantPage from "@/pages/ai-assistant-page";
 import AILiteracyCoursePage from "@/pages/ai-literacy-course";
 import LessonPage from "@/pages/lesson-page";
+import CompetencyMapPage from "@/pages/competency-map-page";
 
 interface ProtectedRouteProps {
   component: React.ComponentType;
@@ -153,6 +154,9 @@ function Router() {
             // Загружаем компонент и не используем Suspense, чтобы избежать моргания
             return <LessonPage inCourseContext="ai-literacy-101" />;
           }} />
+          
+          {/* Карта компетенций курса */}
+          <ProtectedRoute path="/courses/:slug/competency-map" component={CompetencyMapPage} />
           
           {/* Обратная совместимость для старых URL */}
           <Route path="/modules/:moduleId/lessons/:lessonId">

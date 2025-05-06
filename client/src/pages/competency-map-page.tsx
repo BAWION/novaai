@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation, useRoute } from "wouter";
-import { Helmet } from "react-helmet";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/context/auth-context";
 import { ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -37,13 +36,7 @@ const CompetencyMapPage: React.FC = () => {
   }, [courseSlug, setLocation]);
   
   return (
-    <>
-      <Helmet>
-        <title>
-          {isLoadingCourse ? "Загрузка..." : course ? `Карта компетенций: ${course.title}` : "Карта компетенций"}
-        </title>
-      </Helmet>
-      
+    <>      
       <div className="container mx-auto px-4 py-8">
         <Button
           variant="ghost"
