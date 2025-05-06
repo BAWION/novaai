@@ -72,7 +72,8 @@ skillsDnaRouter.get("/skills-dna/:id", async (req, res) => {
       return res.status(400).json({ message: "Invalid skill DNA ID" });
     }
     
-    const [skill] = await db.select().from(skillsDna).where(eq(skillsDna.id, id));
+    const skills = await db.select().from(skillsDna).where(eq(skillsDna.id, id));
+    const skill = skills[0];
     
     if (!skill) {
       return res.status(404).json({ message: "Skill DNA not found" });
