@@ -492,14 +492,24 @@ export default function CoursePage() {
           
           <div className="flex justify-between items-start">
             <h1 className="text-2xl font-semibold">{course.title}</h1>
-            <Button 
-              onClick={backToCatalog}
-              variant="outline"
-              className="flex items-center space-x-2"
-            >
-              <i className="fas fa-arrow-left"></i>
-              <span>Вернуться к каталогу</span>
-            </Button>
+            <div className="flex space-x-2">
+              <Button 
+                onClick={() => setLocation(`/courses/${params?.slug}/competency-map`)}
+                variant="outline"
+                className="flex items-center space-x-2"
+              >
+                <i className="fas fa-map"></i>
+                <span>Карта компетенций</span>
+              </Button>
+              <Button 
+                onClick={backToCatalog}
+                variant="outline"
+                className="flex items-center space-x-2"
+              >
+                <i className="fas fa-arrow-left"></i>
+                <span>Вернуться к каталогу</span>
+              </Button>
+            </div>
           </div>
         </div>
         
