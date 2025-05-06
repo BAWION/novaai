@@ -52,7 +52,8 @@ export class AIAgentService {
       });
       
       // Парсим ответ
-      const recommendations = JSON.parse(response.choices[0].message.content);
+      const content = response.choices[0].message.content || '{}';
+      const recommendations = JSON.parse(content);
       
       // Сохраняем рекомендации в базу данных
       await this.saveRecommendations(userId, recommendations);

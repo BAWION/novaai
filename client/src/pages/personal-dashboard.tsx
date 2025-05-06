@@ -19,6 +19,7 @@ import {
   Bot
 } from "lucide-react";
 import { EducationalNavigator } from "@/components/ai-agent/educational-navigator";
+import { Badge } from "@/components/ui/badge";
 
 // Компонент с аватаром и общей информацией
 const UserProfileOverview = () => {
@@ -399,6 +400,10 @@ export default function PersonalDashboardPage() {
             <Clock className="h-4 w-4" />
             <span>Статистика</span>
           </TabsTrigger>
+          <TabsTrigger value="ai-agents" className="flex items-center gap-2">
+            <Brain className="h-4 w-4" />
+            <span>ИИ-агенты</span>
+          </TabsTrigger>
         </TabsList>
         
         {/* Вкладка "Обзор" */}
@@ -511,6 +516,80 @@ export default function PersonalDashboardPage() {
               [Здесь будет детальная статистика обучения с графиками и диаграммами]
             </p>
           </Glassmorphism>
+        </TabsContent>
+        
+        {/* Вкладка "ИИ-агенты" */}
+        <TabsContent value="ai-agents" className="space-y-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Glassmorphism className="p-6 rounded-xl mb-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold">ИИ-агенты NovaAI University</h3>
+                <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30">
+                  Новая функция
+                </Badge>
+              </div>
+              <p className="text-white/80 mb-4">
+                ИИ-агенты NovaAI University - это умные помощники, которые анализируют ваш прогресс,
+                персонализируют образовательную траекторию и помогают достичь максимальных результатов в обучении.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+                <div className="bg-space-800/50 p-4 rounded-lg border border-primary/20 hover:border-primary/40 transition">
+                  <div className="flex items-center mb-2">
+                    <Brain className="h-5 w-5 text-primary mr-2" />
+                    <h4 className="font-medium">Образовательный Навигатор</h4>
+                  </div>
+                  <p className="text-sm text-white/60 mb-3">
+                    Анализирует ваш прогресс и создает персонализированную траекторию обучения.
+                  </p>
+                  <div className="flex justify-end">
+                    <Badge variant="outline" className="text-green-400 border-green-500/30">
+                      Активен
+                    </Badge>
+                  </div>
+                </div>
+                <div className="bg-space-800/50 p-4 rounded-lg border border-space-700 opacity-75">
+                  <div className="flex items-center mb-2">
+                    <Bot className="h-5 w-5 text-amber-400 mr-2" />
+                    <h4 className="font-medium">Практический Тренер</h4>
+                  </div>
+                  <p className="text-sm text-white/60 mb-3">
+                    Дает персонализированную обратную связь по вашим практическим заданиям.
+                  </p>
+                  <div className="flex justify-end">
+                    <Badge variant="outline" className="text-amber-400 border-amber-500/30">
+                      Скоро
+                    </Badge>
+                  </div>
+                </div>
+                <div className="bg-space-800/50 p-4 rounded-lg border border-space-700 opacity-75">
+                  <div className="flex items-center mb-2">
+                    <Bot className="h-5 w-5 text-amber-400 mr-2" />
+                    <h4 className="font-medium">Карьерный Консультант</h4>
+                  </div>
+                  <p className="text-sm text-white/60 mb-3">
+                    Помогает определить карьерные возможности в области AI на основе ваших навыков.
+                  </p>
+                  <div className="flex justify-end">
+                    <Badge variant="outline" className="text-amber-400 border-amber-500/30">
+                      Скоро
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+            </Glassmorphism>
+          </motion.div>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            <EducationalNavigator />
+          </motion.div>
         </TabsContent>
       </Tabs>
     </DashboardLayout>
