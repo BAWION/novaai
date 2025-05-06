@@ -456,6 +456,39 @@ export const lessonSkillsDna = pgTable("lesson_skills_dna", {
   };
 });
 
+// Связь между модулями и компетенциями
+export const moduleSkillsDna = pgTable("module_skills_dna", {
+  id: serial("id").primaryKey(),
+  moduleId: integer("module_id").notNull().references(() => courseModules.id),
+  dnaId: integer("dna_id").notNull().references(() => skillsDna.id),
+  importance: integer("importance").default(1), // Важность компетенции для модуля: 1 - низкая, 3 - высокая
+  bloomLevel: skillsDnaLevelEnum("bloom_level").notNull(), // Ожидаемый уровень освоения по таксономии Блума
+  description: text("description"), // Описание как этот модуль развивает данную компетенцию
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => {
+  return {
+    moduleDnaIdx: uniqueIndex("module_dna_idx").on(table.moduleId, table.dnaId),
+  };
+});
+
+// Прогресс пользователя по компетенциям
+export const userSkillsDnaProgress = pgTable("user_skills_dna_progress", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  dnaId: integer("dna_id").notNull().references(() => skillsDna.id),
+  currentLevel: skillsDnaLevelEnum("current_level").notNull(), // Текущий уровень освоения 
+  targetLevel: skillsDnaLevelEnum("target_level"), // Целевой уровень освоения
+  progress: integer("progress").default(0), // Прогресс в процентах (0-100)
+  lastAssessmentDate: timestamp("last_assessment_date"), // Дата последней оценки
+  nextAssessmentDate: timestamp("next_assessment_date"), // Дата следующей рекомендуемой оценки 
+  assessmentHistory: json("assessment_history"), // История оценок
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => {
+  return {
+    userDnaIdx: uniqueIndex("user_dna_idx").on(table.userId, table.dnaId),
+  };
+});
+
 // Микро-структура урока
 export const lessonStructure = pgTable("lesson_structure", {
   id: serial("id").primaryKey(),
@@ -659,6 +692,18 @@ export const insertLessonSkillsDnaSchema = createInsertSchema(lessonSkillsDna).o
   createdAt: true,
 });
 
+export const insertModuleSkillsDnaSchema = createInsertSchema(moduleSkillsDna).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertUserSkillsDnaProgressSchema = createInsertSchema(userSkillsDnaProgress).omit({
+  id: true,
+  lastAssessmentDate: true,
+  nextAssessmentDate: true,
+  updatedAt: true,
+});
+
 export const insertLessonStructureSchema = createInsertSchema(lessonStructure).omit({
   id: true,
   createdAt: true,
@@ -681,5 +726,11 @@ export type InsertUserLessonStructureProgress = z.infer<typeof insertUserLessonS
 export type SkillsDna = typeof skillsDna.$inferSelect;
 export type SkillToDnaMapping = typeof skillToDnaMapping.$inferSelect;
 export type LessonSkillsDna = typeof lessonSkillsDna.$inferSelect;
+export type ModuleSkillsDna = typeof moduleSkillsDna.$inferSelect;
+export type UserSkillsDnaProgress = typeof userSkillsDnaProgress.$inferSelect;
 export type LessonStructure = typeof lessonStructure.$inferSelect;
 export type UserLessonStructureProgress = typeof userLessonStructureProgress.$inferSelect;
+
+// Типы для вставки новых компонентов карты компетенций
+export type InsertModuleSkillsDna = z.infer<typeof insertModuleSkillsDnaSchema>;
+export type InsertUserSkillsDnaProgress = z.infer<typeof insertUserSkillsDnaProgressSchema>;
