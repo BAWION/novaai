@@ -16,7 +16,7 @@ import {
 import { and, eq, isNull, or } from "drizzle-orm";
 import { z } from "zod";
 
-export const competencyMapRouter = Router();
+const competencyMapRouter = Router();
 
 // Получить все компетенции (skills_dna)
 competencyMapRouter.get("/", async (req: Request, res: Response) => {
