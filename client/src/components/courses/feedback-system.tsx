@@ -70,8 +70,8 @@ export function FeedbackSystem({
           assignmentId,
           userId,
           content: feedbackContent,
-          rating,
-          helpful: null,
+          rating: rating || undefined,
+          helpful: undefined,
         });
         
         toast({
