@@ -404,6 +404,84 @@ export const userSkillGaps = pgTable("user_skill_gaps", {
   };
 });
 
+// ========== НОВЫЕ ТАБЛИЦЫ ДЛЯ SKILLS DNA И МИКРОУРОКОВ ==========
+
+// Определение таблицы компетенций (Skills DNA)
+export const skillsDnaLevelEnum = pgEnum('skills_dna_level', ['awareness', 'knowledge', 'application', 'mastery', 'expertise']);
+
+// Определяем таблицу компетенций
+export const skillsDna = pgTable("skills_dna", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull().unique(),
+  description: text("description"),
+  category: skillCategoryEnum("category").notNull(), // Переиспользуем существующее перечисление категорий
+  level: skillsDnaLevelEnum("level").notNull(), // Уровень по таксономии Блума 2.0
+  parentId: integer("parent_id").references(() => skillsDna.id), // Self-reference для иерархической структуры
+  behavioralIndicators: json("behavioral_indicators"), // Массив поведенческих индикаторов
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Связь между существующими навыками и новыми компетенциями
+export const skillToDnaMapping = pgTable("skill_to_dna_mapping", {
+  id: serial("id").primaryKey(),
+  skillId: integer("skill_id").notNull().references(() => skills.id),
+  dnaId: integer("dna_id").notNull().references(() => skillsDna.id),
+  weight: real("weight").default(1.0), // Сила связи между навыком и компетенцией (0-1)
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => {
+  return {
+    skillDnaIdx: uniqueIndex("skill_dna_idx").on(table.skillId, table.dnaId),
+  };
+});
+
+// Связь между уроками и компетенциями
+export const lessonSkillsDna = pgTable("lesson_skills_dna", {
+  id: serial("id").primaryKey(),
+  lessonId: integer("lesson_id").notNull().references(() => lessons.id),
+  dnaId: integer("dna_id").notNull().references(() => skillsDna.id),
+  contributionLevel: real("contribution_level").default(1.0), // Насколько урок развивает эту компетенцию (0-1)
+  learningOutcome: text("learning_outcome"), // Четкий результат обучения в формате SMART
+  bloomLevel: skillsDnaLevelEnum("bloom_level").notNull(), // Уровень по таксономии Блума для этого результата
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => {
+  return {
+    lessonDnaIdx: uniqueIndex("lesson_dna_idx").on(table.lessonId, table.dnaId),
+  };
+});
+
+// Микро-структура урока
+export const lessonStructure = pgTable("lesson_structure", {
+  id: serial("id").primaryKey(),
+  lessonId: integer("lesson_id").notNull().references(() => lessons.id).unique(),
+  hook: text("hook"), // Вступительный элемент для привлечения внимания
+  explanation: text("explanation"), // Основной обучающий контент
+  demo: text("demo"), // Демонстрация применения знаний
+  practice: json("practice"), // Интерактивные упражнения для закрепления
+  reflection: json("reflection"), // Вопросы для самопроверки и закрепления
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Прогресс пользователя по структурным элементам урока
+export const userLessonStructureProgress = pgTable("user_lesson_structure_progress", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  lessonId: integer("lesson_id").notNull().references(() => lessons.id),
+  hookCompleted: boolean("hook_completed").default(false),
+  explanationCompleted: boolean("explanation_completed").default(false),
+  demoCompleted: boolean("demo_completed").default(false),
+  practiceCompleted: boolean("practice_completed").default(false),
+  reflectionCompleted: boolean("reflection_completed").default(false),
+  practiceScore: integer("practice_score").default(0), // Результат выполнения практического задания
+  timeSpentSeconds: integer("time_spent_seconds").default(0), // Общее время, проведенное на уроке
+  lastUpdatedAt: timestamp("last_updated_at").defaultNow(),
+}, (table) => {
+  return {
+    userLessonStructureIdx: uniqueIndex("user_lesson_structure_idx").on(table.userId, table.lessonId),
+  };
+});
+
 // Таблица событий пользователя для обучения
 export const learningEvents = pgTable("learning_events", {
   id: serial("id").primaryKey(),
@@ -555,3 +633,47 @@ export type CourseSkillOutcome = typeof courseSkillOutcomes.$inferSelect;
 export type UserSkillGap = typeof userSkillGaps.$inferSelect;
 export type EventLog = typeof eventLogs.$inferSelect;
 export type InsertEventLog = z.infer<typeof insertEventLogSchema>;
+
+// ========== СХЕМЫ И ТИПЫ ДЛЯ SKILLS DNA И МИКРОУРОКОВ ==========
+
+// Схемы для вставки данных Skills DNA
+export const insertSkillsDnaSchema = createInsertSchema(skillsDna).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertSkillToDnaMappingSchema = createInsertSchema(skillToDnaMapping).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertLessonSkillsDnaSchema = createInsertSchema(lessonSkillsDna).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertLessonStructureSchema = createInsertSchema(lessonStructure).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertUserLessonStructureProgressSchema = createInsertSchema(userLessonStructureProgress).omit({
+  id: true,
+  lastUpdatedAt: true,
+});
+
+// Типы для вставки данных Skills DNA
+export type InsertSkillsDna = z.infer<typeof insertSkillsDnaSchema>;
+export type InsertSkillToDnaMapping = z.infer<typeof insertSkillToDnaMappingSchema>;
+export type InsertLessonSkillsDna = z.infer<typeof insertLessonSkillsDnaSchema>;
+export type InsertLessonStructure = z.infer<typeof insertLessonStructureSchema>;
+export type InsertUserLessonStructureProgress = z.infer<typeof insertUserLessonStructureProgressSchema>;
+
+// Типы для выборки данных Skills DNA
+export type SkillsDna = typeof skillsDna.$inferSelect;
+export type SkillToDnaMapping = typeof skillToDnaMapping.$inferSelect;
+export type LessonSkillsDna = typeof lessonSkillsDna.$inferSelect;
+export type LessonStructure = typeof lessonStructure.$inferSelect;
+export type UserLessonStructureProgress = typeof userLessonStructureProgress.$inferSelect;
