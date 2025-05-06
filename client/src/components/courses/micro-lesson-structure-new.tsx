@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
-import { RocketLaunch, BookOpen, Coffee, ActivitySquare, CheckCircle2 } from 'lucide-react';
+import { Rocket, BookOpen, Coffee, ActivitySquare, CheckCircle2 } from 'lucide-react';
 
 // Импортируем наши новые шаблоны
 import { HookTemplate, ExplainDemoTemplate, QuickTryReflectTemplate } from './lesson-templates';
@@ -213,7 +213,7 @@ const MicroLessonStructureNew: React.FC<MicroLessonStructureProps> = ({
             value="hook" 
             className="flex flex-col items-center py-2 px-1 data-[state=active]:bg-sky-900/30"
           >
-            <RocketLaunch size={16} />
+            <Rocket size={16} />
             <span className="mt-1 text-xs">Hook</span>
           </TabsTrigger>
           <TabsTrigger 

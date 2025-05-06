@@ -159,6 +159,9 @@ function Router() {
           {/* Карта компетенций курса */}
           <ProtectedRoute path="/courses/:slug/competency-map" component={CompetencyMapPage} />
           
+          {/* Демонстрация новых шаблонов */}
+          <ProtectedRoute path="/template-demo" component={TemplateDemoPage} />
+          
           {/* Обратная совместимость для старых URL */}
           <Route path="/modules/:moduleId/lessons/:lessonId">
             {(params) => {

@@ -35,8 +35,8 @@ const HookTemplate: React.FC<HookTemplateProps> = ({ title, content, imageUrl })
                 scale: Math.random() * 1.5 + 0.5,
               }}
               animate={{
-                opacity: [undefined, Math.random() * 0.5 + 0.5, undefined],
-                scale: [undefined, Math.random() * 0.8 + 1.2, undefined],
+                opacity: Math.random() * 0.5 + 0.5,
+                scale: Math.random() * 0.8 + 1.2,
               }}
               transition={{
                 duration: Math.random() * 3 + 2,
