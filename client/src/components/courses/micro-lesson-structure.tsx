@@ -4,11 +4,14 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, ArrowLeft, ArrowRight, BookOpen, Clock, Video, FileText, HelpCircle, Target, LightbulbIcon, PuzzleIcon, BookOpenCheck, ThumbsUp } from "lucide-react";
+import { CheckCircle, ArrowLeft, ArrowRight, BookOpen, Clock, Video, FileText, HelpCircle, Target, BookOpenCheck, ThumbsUp, Lightbulb } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 import ReactMarkdown from "react-markdown";
+import { QuizComponent, QuizQuestion, QuestionType } from "./quiz-component";
+import { PracticeAssignment, AssignmentType } from "./practice-assignment";
+import { FeedbackSystem, FeedbackItem } from "./feedback-system";
 
 interface LessonStructure {
   id: number;
@@ -436,6 +439,141 @@ export function MicroLessonStructure({ lessonId, userId, onComplete }: MicroLess
         );
         
       case "practice":
+        // Примерные данные для интерактивных компонентов
+        const sampleQuestions: QuizQuestion[] = [
+          {
+            id: "q1",
+            type: QuestionType.SINGLE_CHOICE,
+            question: "Какой из следующих методов лучше всего подходит для обработки больших объемов текстовых данных?",
+            options: [
+              { id: "a", text: "Нейронные сети", isCorrect: true },
+              { id: "b", text: "Двоичный поиск", isCorrect: false },
+              { id: "c", text: "Сортировка пузырьком", isCorrect: false },
+              { id: "d", text: "Алгоритм Дейкстры", isCorrect: false }
+            ],
+            explanation: "Нейронные сети эффективны при работе с большими наборами текстовых данных благодаря их способности обнаруживать сложные паттерны и зависимости."
+          },
+          {
+            id: "q2",
+            type: QuestionType.MULTIPLE_CHOICE,
+            question: "Выберите все методы, которые обычно используются в обработке естественного языка:",
+            options: [
+              { id: "a", text: "Токенизация", isCorrect: true },
+              { id: "b", text: "Лемматизация", isCorrect: true },
+              { id: "c", text: "Нормализация контраста", isCorrect: false },
+              { id: "d", text: "Векторизация слов", isCorrect: true }
+            ],
+            explanation: "Токенизация, лемматизация и векторизация слов - это основные методы обработки естественного языка. Нормализация контраста относится к обработке изображений."
+          },
+          {
+            id: "q3",
+            type: QuestionType.TEXT_INPUT,
+            question: "Как называется модель, которая используется для генерации текста по образцу (заполните одним словом)?",
+            correctAnswer: "трансформер",
+            explanation: "Трансформеры - это архитектура нейронных сетей, которая произвела революцию в обработке естественного языка и генерации текста."
+          }
+        ];
+        
+        const sampleAssignment: PracticeAssignment = {
+          id: "assignment1",
+          type: AssignmentType.CODE,
+          title: "Создание простого классификатора текста",
+          description: "Практическое задание по классификации текста с использованием машинного обучения",
+          instructions: `
+# Создание простого классификатора текста
+
+В этом задании вы создадите базовый классификатор для определения тематики текста.
+
+## Задание:
+1. Создайте функцию, которая принимает текст и определяет его тематику
+2. Реализуйте логику для распознавания трех категорий: спорт, технологии, развлечения
+3. Используйте ключевые слова для определения категории
+
+## Пример решения:
+\`\`\`python
+def classify_text(text):
+    text = text.lower()
+    
+    sport_keywords = ["футбол", "матч", "соревнования", "тренировка"]
+    tech_keywords = ["программирование", "компьютер", "технология", "код"]
+    entertainment_keywords = ["фильм", "кино", "музыка", "концерт"]
+    
+    sport_score = sum(1 for word in sport_keywords if word in text)
+    tech_score = sum(1 for word in tech_keywords if word in text)
+    entertainment_score = sum(1 for word in entertainment_keywords if word in text)
+    
+    if sport_score > tech_score and sport_score > entertainment_score:
+        return "спорт"
+    elif tech_score > sport_score and tech_score > entertainment_score:
+        return "технологии"
+    elif entertainment_score > sport_score and entertainment_score > tech_score:
+        return "развлечения"
+    else:
+        return "неопределенная тематика"
+\`\`\`
+`,
+          hint: "Помните, что для определения категории можно использовать счетчик совпадений ключевых слов или более сложные алгоритмы на основе TF-IDF.",
+          criteria: [
+            "Функция должна корректно определять категорию для простых текстов",
+            "Код должен быть оптимизирован и не содержать лишних операций",
+            "Предусмотрите обработку случаев, когда категорию определить невозможно"
+          ]
+        };
+        
+        // Пример данных обратной связи
+        const sampleFeedback: FeedbackItem[] = [
+          {
+            id: "f1",
+            type: "ai",
+            content: "Ваше решение правильно определяет категории в большинстве случаев. Хорошая работа с обработкой текста! Подумайте, как улучшить алгоритм, чтобы он мог работать с более сложными примерами.",
+            rating: 4,
+            createdAt: new Date(),
+            suggestedImprovements: [
+              "Добавьте предварительную обработку текста, чтобы удалить стоп-слова",
+              "Используйте стемминг для обработки разных форм одного слова",
+              "Рассмотрите возможность использования более продвинутых алгоритмов, таких как TF-IDF"
+            ]
+          }
+        ];
+        
+        // Обработчики для интерактивных компонентов
+        const handleQuizComplete = (score: number, total: number) => {
+          toast({
+            title: "Квиз завершен",
+            description: `Вы набрали ${score} из ${total} баллов!`,
+            variant: "default",
+          });
+          
+          // Обновляем счет в прогрессе
+          updateProgressMutation.mutate({
+            practiceScore: Math.round((score / total) * 100)
+          });
+        };
+        
+        const handleAssignmentComplete = (solution: string) => {
+          toast({
+            title: "Задание выполнено",
+            description: "Ваше решение было сохранено",
+            variant: "default",
+          });
+        };
+        
+        const handleRequestFeedback = async (solution: string) => {
+          // Имитация запроса обратной связи от ИИ
+          await new Promise(resolve => setTimeout(resolve, 1500));
+          return "Ваш код правильно классифицирует тексты. Хорошая реализация базовой логики. Можно улучшить, добавив предварительную обработку текста и расширив набор ключевых слов.";
+        };
+        
+        const handleSubmitFeedback = async (data: SubmitFeedbackData) => {
+          // Имитация отправки обратной связи
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          toast({
+            title: "Отзыв отправлен",
+            description: "Спасибо за вашу обратную связь!",
+            variant: "default",
+          });
+        };
+        
         return (
           <Card className="shadow-lg">
             <CardHeader>
@@ -454,8 +592,41 @@ export function MicroLessonStructure({ lessonId, userId, onComplete }: MicroLess
                 Применение изученного материала на практике
               </CardDescription>
             </CardHeader>
-            <CardContent className="prose prose-lg max-w-none dark:prose-invert bg-white dark:bg-zinc-800 p-6 rounded-lg shadow-sm">
-              <ReactMarkdown>{lessonStructure.practice}</ReactMarkdown>
+            <CardContent>
+              <div className="space-y-6">
+                {/* Основное содержимое раздела */}
+                <div className="prose prose-lg max-w-none dark:prose-invert bg-white dark:bg-zinc-800 p-6 rounded-lg shadow-sm">
+                  <ReactMarkdown>{lessonStructure.practice}</ReactMarkdown>
+                </div>
+                
+                {/* Квиз для проверки знаний */}
+                <div className="mt-8">
+                  <h3 className="text-lg font-medium mb-4">Проверьте свои знания</h3>
+                  <QuizComponent questions={sampleQuestions} onComplete={handleQuizComplete} />
+                </div>
+                
+                {/* Практическое задание */}
+                <div className="mt-8">
+                  <h3 className="text-lg font-medium mb-4">Практическое задание</h3>
+                  <PracticeAssignment 
+                    assignment={sampleAssignment} 
+                    onComplete={handleAssignmentComplete}
+                    onRequestFeedback={handleRequestFeedback}
+                  />
+                </div>
+                
+                {/* Обратная связь */}
+                <div className="mt-8">
+                  <h3 className="text-lg font-medium mb-4">Обратная связь</h3>
+                  <FeedbackSystem 
+                    feedbackItems={sampleFeedback}
+                    lessonId={lessonId}
+                    assignmentId="assignment1"
+                    userId={userId}
+                    onSubmitFeedback={handleSubmitFeedback}
+                  />
+                </div>
+              </div>
             </CardContent>
             <CardFooter className="flex justify-between border-t pt-4">
               <Button variant="outline" onClick={goToPreviousSection}>

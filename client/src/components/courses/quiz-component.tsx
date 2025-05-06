@@ -1,521 +1,439 @@
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { cn } from "@/lib/utils";
+import { useState } from "react";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { CheckCircle, XCircle, AlertCircle, ChevronRight, RotateCcw } from "lucide-react";
 
-interface QuizAnswer {
-  id: number;
+// Типы вопросов
+export enum QuestionType {
+  SINGLE_CHOICE = "single-choice",
+  MULTIPLE_CHOICE = "multiple-choice",
+  TEXT_INPUT = "text-input",
+  TRUE_FALSE = "true-false",
+}
+
+// Интерфейс варианта ответа
+export interface QuizOption {
+  id: string;
   text: string;
   isCorrect: boolean;
+}
+
+// Интерфейс вопроса
+export interface QuizQuestion {
+  id: string;
+  type: QuestionType;
+  question: string;
   explanation?: string;
+  options?: QuizOption[];
+  correctAnswer?: string; // Для текстовых вопросов
+  correctAnswers?: string[]; // Для вопросов с множественным выбором
 }
 
-interface QuizQuestion {
-  id: number;
-  prompt: string;
-  type: "multiple-choice" | "single-choice" | "text" | "code";
-  answers: QuizAnswer[];
-  points: number;
-}
-
-interface Quiz {
-  id: number;
-  title: string;
-  description?: string;
-  questions: QuizQuestion[];
-  passingScore: number;
-  timeLimit?: number; // в минутах
-}
-
+// Интерфейс для ответа пользователя
 interface UserAnswer {
-  questionId: number;
-  answerIds: number[];
-  textAnswer?: string;
+  questionId: string;
+  type: QuestionType;
+  selectedOptionIds?: string[];
+  textInput?: string;
 }
 
+// Props компонента квиза
 interface QuizComponentProps {
-  quiz: Quiz;
-  onComplete?: (score: number, passed: boolean, answers: UserAnswer[]) => void;
-  savedAnswers?: UserAnswer[];
-  className?: string;
+  questions: QuizQuestion[];
+  onComplete?: (score: number, total: number) => void;
 }
 
-export function QuizComponent({
-  quiz,
-  onComplete,
-  savedAnswers = [],
-  className,
-}: QuizComponentProps) {
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [userAnswers, setUserAnswers] = useState<UserAnswer[]>(savedAnswers);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isCompleted, setIsCompleted] = useState(false);
-  const [score, setScore] = useState(0);
-  const [timeRemaining, setTimeRemaining] = useState<number | null>(
-    quiz.timeLimit ? quiz.timeLimit * 60 : null
-  );
+export function QuizComponent({ questions, onComplete }: QuizComponentProps) {
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
+  const [userAnswers, setUserAnswers] = useState<UserAnswer[]>([]);
+  const [showFeedback, setShowFeedback] = useState<boolean>(false);
+  const [isAnswerCorrect, setIsAnswerCorrect] = useState<boolean | null>(null);
+  const [quizCompleted, setQuizCompleted] = useState<boolean>(false);
+  const [score, setScore] = useState<number>(0);
 
-  // Восстанавливаем сохраненные ответы при монтировании
-  useEffect(() => {
-    if (savedAnswers.length > 0) {
-      setUserAnswers(savedAnswers);
-    } else {
-      // Инициализируем пустые ответы для всех вопросов
-      setUserAnswers(
-        quiz.questions.map((q) => ({
-          questionId: q.id,
-          answerIds: [],
-        }))
-      );
-    }
-  }, [quiz, savedAnswers]);
+  // Получение текущего вопроса
+  const currentQuestion = questions[currentQuestionIndex];
 
-  // Обратный отсчет времени
-  useEffect(() => {
-    if (!timeRemaining || isCompleted) return;
-
-    const timer = setInterval(() => {
-      setTimeRemaining((prev) => {
-        if (prev && prev > 0) {
-          return prev - 1;
-        } else {
-          clearInterval(timer);
-          handleSubmitQuiz();
-          return 0;
-        }
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [timeRemaining, isCompleted]);
-
-  const handleAnswerChange = (
-    questionId: number,
-    answerId: number,
-    questionType: string
-  ) => {
-    setUserAnswers((prevAnswers) => {
-      return prevAnswers.map((ua) => {
-        if (ua.questionId === questionId) {
-          if (questionType === "single-choice") {
-            return { ...ua, answerIds: [answerId] };
-          } else if (questionType === "multiple-choice") {
-            const updatedIds = ua.answerIds.includes(answerId)
-              ? ua.answerIds.filter((id) => id !== answerId)
-              : [...ua.answerIds, answerId];
-            return { ...ua, answerIds: updatedIds };
-          }
-        }
-        return ua;
-      });
-    });
-  };
-
-  const handleTextAnswerChange = (questionId: number, text: string) => {
-    setUserAnswers((prevAnswers) => {
-      return prevAnswers.map((ua) => {
-        if (ua.questionId === questionId) {
-          return { ...ua, textAnswer: text };
-        }
-        return ua;
-      });
-    });
-  };
-
-  const calculateScore = () => {
-    let totalScore = 0;
-    let totalPossibleScore = 0;
-
-    quiz.questions.forEach((question) => {
-      totalPossibleScore += question.points;
-      const userAnswer = userAnswers.find((ua) => ua.questionId === question.id);
-
-      if (!userAnswer) return;
-
-      if (question.type === "single-choice" || question.type === "multiple-choice") {
-        // Для выбора одного или нескольких вариантов
-        const correctAnswerIds = question.answers
-          .filter((a) => a.isCorrect)
-          .map((a) => a.id);
-
-        // Проверка на точное совпадение выбранных ответов
-        if (
-          userAnswer.answerIds.length === correctAnswerIds.length &&
-          userAnswer.answerIds.every((id) => correctAnswerIds.includes(id))
-        ) {
-          totalScore += question.points;
-        } else if (userAnswer.answerIds.length > 0) {
-          // Частичные баллы для multiple-choice
-          if (question.type === "multiple-choice") {
-            const correctCount = userAnswer.answerIds.filter((id) =>
-              correctAnswerIds.includes(id)
-            ).length;
-            const incorrectCount = userAnswer.answerIds.filter(
-              (id) => !correctAnswerIds.includes(id)
-            ).length;
-
-            // Формула для частичных баллов (корректные минус некорректные)
-            const partialScore = Math.max(
-              0,
-              (correctCount / correctAnswerIds.length) * question.points -
-                (incorrectCount / (question.answers.length - correctAnswerIds.length)) *
-                  question.points
-            );
-            totalScore += Math.round(partialScore);
-          }
-        }
-      } else if (question.type === "text" || question.type === "code") {
-        // Для текстовых ответов здесь может быть более сложная логика проверки
-        // В реальном приложении это может потребовать проверки на серверной стороне
-        // Здесь используем упрощенную логику как заглушку
-        if (userAnswer.textAnswer && userAnswer.textAnswer.trim().length > 0) {
-          totalScore += question.points / 2; // Половина баллов за любой непустой ответ
-        }
-      }
-    });
-
-    const percentageScore = Math.round((totalScore / totalPossibleScore) * 100);
-    return { score: totalScore, percentageScore, totalPossibleScore };
-  };
-
-  const handleSubmitQuiz = () => {
-    setIsSubmitting(true);
+  // Обработка выбора варианта для вопроса с одним ответом
+  const handleSingleChoiceSelect = (optionId: string) => {
+    const updatedUserAnswers = [...userAnswers];
     
-    // Подсчет результатов
-    const { score, percentageScore, totalPossibleScore } = calculateScore();
-    const passed = percentageScore >= quiz.passingScore;
-    
-    setScore(percentageScore);
-    setIsCompleted(true);
-    
-    if (onComplete) {
-      onComplete(percentageScore, passed, userAnswers);
-    }
-    
-    setIsSubmitting(false);
-  };
-
-  const handleNextQuestion = () => {
-    if (currentQuestionIndex < quiz.questions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-    }
-  };
-
-  const handlePrevQuestion = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(currentQuestionIndex - 1);
-    }
-  };
-
-  const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
-  };
-
-  // Рендер компонента результатов
-  const renderResults = () => {
-    const { percentageScore } = calculateScore();
-    const passed = percentageScore >= quiz.passingScore;
-
-    return (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="space-y-6 p-6 bg-space-800/50 rounded-xl border border-white/10"
-      >
-        <div className="text-center">
-          <h3 className="text-xl font-semibold mb-2">Результаты квиза</h3>
-          <p className="text-white/70">{quiz.title}</p>
-        </div>
-
-        <div className="flex justify-center">
-          <div
-            className={cn(
-              "w-32 h-32 rounded-full flex items-center justify-center border-4 font-bold text-2xl",
-              passed
-                ? "border-green-500 text-green-400"
-                : "border-red-500 text-red-400"
-            )}
-          >
-            {percentageScore}%
-          </div>
-        </div>
-
-        <div className="text-center">
-          <div
-            className={cn(
-              "inline-block px-4 py-2 rounded-full font-medium",
-              passed
-                ? "bg-green-500/20 text-green-400"
-                : "bg-red-500/20 text-red-400"
-            )}
-          >
-            {passed ? "Тест пройден" : "Тест не пройден"}
-          </div>
-          <p className="mt-2 text-white/70">
-            Проходной балл: {quiz.passingScore}%
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {quiz.questions.map((question, idx) => {
-            const userAnswer = userAnswers.find(
-              (ua) => ua.questionId === question.id
-            );
-            const isCorrect =
-              question.type === "single-choice" || question.type === "multiple-choice"
-                ? question.answers
-                    .filter((a) => a.isCorrect)
-                    .every((a) => userAnswer?.answerIds.includes(a.id)) &&
-                  userAnswer?.answerIds.length ===
-                    question.answers.filter((a) => a.isCorrect).length
-                : false;
-
-            return (
-              <div
-                key={question.id}
-                className={cn(
-                  "p-4 rounded-lg",
-                  isCorrect
-                    ? "bg-green-500/10 border border-green-500/30"
-                    : "bg-red-500/10 border border-red-500/30"
-                )}
-              >
-                <div className="flex justify-between items-start">
-                  <div className="font-medium">Вопрос {idx + 1}</div>
-                  <div
-                    className={cn(
-                      "px-2 py-0.5 rounded-full text-xs",
-                      isCorrect
-                        ? "bg-green-500/20 text-green-400"
-                        : "bg-red-500/20 text-red-400"
-                    )}
-                  >
-                    {isCorrect ? "Верно" : "Неверно"}
-                  </div>
-                </div>
-                <p className="text-sm mt-1 text-white/80">{question.prompt}</p>
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="flex justify-center pt-4">
-          <button
-            className="px-4 py-2 bg-primary hover:bg-primary/80 rounded-lg transition"
-            onClick={() => window.scrollTo(0, 0)}
-          >
-            Вернуться к содержимому курса
-          </button>
-        </div>
-      </motion.div>
+    // Находим или создаем ответ пользователя для текущего вопроса
+    const existingAnswerIndex = updatedUserAnswers.findIndex(
+      (answer) => answer.questionId === currentQuestion.id
     );
+    
+    const answer: UserAnswer = {
+      questionId: currentQuestion.id,
+      type: QuestionType.SINGLE_CHOICE,
+      selectedOptionIds: [optionId],
+    };
+    
+    if (existingAnswerIndex >= 0) {
+      updatedUserAnswers[existingAnswerIndex] = answer;
+    } else {
+      updatedUserAnswers.push(answer);
+    }
+    
+    setUserAnswers(updatedUserAnswers);
   };
 
-  // Если тест завершен, показываем результаты
-  if (isCompleted) {
-    return renderResults();
+  // Обработка выбора вариантов для вопроса с множественным выбором
+  const handleMultipleChoiceSelect = (optionId: string, isChecked: boolean) => {
+    const updatedUserAnswers = [...userAnswers];
+    
+    // Находим или создаем ответ пользователя для текущего вопроса
+    const existingAnswerIndex = updatedUserAnswers.findIndex(
+      (answer) => answer.questionId === currentQuestion.id
+    );
+    
+    let answer: UserAnswer;
+    
+    if (existingAnswerIndex >= 0) {
+      answer = updatedUserAnswers[existingAnswerIndex];
+      
+      if (!answer.selectedOptionIds) {
+        answer.selectedOptionIds = [];
+      }
+      
+      if (isChecked) {
+        answer.selectedOptionIds.push(optionId);
+      } else {
+        answer.selectedOptionIds = answer.selectedOptionIds.filter(id => id !== optionId);
+      }
+      
+      updatedUserAnswers[existingAnswerIndex] = answer;
+    } else {
+      answer = {
+        questionId: currentQuestion.id,
+        type: QuestionType.MULTIPLE_CHOICE,
+        selectedOptionIds: isChecked ? [optionId] : [],
+      };
+      
+      updatedUserAnswers.push(answer);
+    }
+    
+    setUserAnswers(updatedUserAnswers);
+  };
+
+  // Обработка ввода текста
+  const handleTextInput = (text: string) => {
+    const updatedUserAnswers = [...userAnswers];
+    
+    // Находим или создаем ответ пользователя для текущего вопроса
+    const existingAnswerIndex = updatedUserAnswers.findIndex(
+      (answer) => answer.questionId === currentQuestion.id
+    );
+    
+    const answer: UserAnswer = {
+      questionId: currentQuestion.id,
+      type: QuestionType.TEXT_INPUT,
+      textInput: text,
+    };
+    
+    if (existingAnswerIndex >= 0) {
+      updatedUserAnswers[existingAnswerIndex] = answer;
+    } else {
+      updatedUserAnswers.push(answer);
+    }
+    
+    setUserAnswers(updatedUserAnswers);
+  };
+
+  // Проверка ответа
+  const checkAnswer = () => {
+    const userAnswer = userAnswers.find(answer => answer.questionId === currentQuestion.id);
+    
+    if (!userAnswer) {
+      return;
+    }
+
+    let correct = false;
+    
+    switch (currentQuestion.type) {
+      case QuestionType.SINGLE_CHOICE:
+        if (userAnswer.selectedOptionIds && userAnswer.selectedOptionIds.length > 0) {
+          const selectedOption = currentQuestion.options?.find(option => option.id === userAnswer.selectedOptionIds?.[0]);
+          correct = !!selectedOption?.isCorrect;
+        }
+        break;
+        
+      case QuestionType.MULTIPLE_CHOICE:
+        if (userAnswer.selectedOptionIds) {
+          // Получаем все правильные варианты
+          const correctOptionIds = currentQuestion.options
+            ?.filter(option => option.isCorrect)
+            .map(option => option.id) || [];
+          
+          // Проверяем, совпадают ли выбранные варианты с правильными
+          const allCorrectSelected = correctOptionIds.every(id => userAnswer.selectedOptionIds?.includes(id));
+          const noIncorrectSelected = userAnswer.selectedOptionIds.every(id => correctOptionIds.includes(id));
+          
+          correct = allCorrectSelected && noIncorrectSelected;
+        }
+        break;
+        
+      case QuestionType.TEXT_INPUT:
+        if (userAnswer.textInput && currentQuestion.correctAnswer) {
+          // Проверка без учета регистра и лишних пробелов
+          correct = userAnswer.textInput.trim().toLowerCase() === currentQuestion.correctAnswer.trim().toLowerCase();
+        }
+        break;
+        
+      case QuestionType.TRUE_FALSE:
+        if (userAnswer.selectedOptionIds && userAnswer.selectedOptionIds.length > 0) {
+          const selectedOption = currentQuestion.options?.find(option => option.id === userAnswer.selectedOptionIds?.[0]);
+          correct = !!selectedOption?.isCorrect;
+        }
+        break;
+    }
+    
+    setIsAnswerCorrect(correct);
+    setShowFeedback(true);
+    
+    if (correct) {
+      setScore(prevScore => prevScore + 1);
+    }
+  };
+
+  // Переход к следующему вопросу
+  const goToNextQuestion = () => {
+    if (currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex(prevIndex => prevIndex + 1);
+      setShowFeedback(false);
+      setIsAnswerCorrect(null);
+    } else {
+      // Завершение квиза
+      setQuizCompleted(true);
+      if (onComplete) {
+        onComplete(score + (isAnswerCorrect ? 1 : 0), questions.length);
+      }
+    }
+  };
+
+  // Повторное прохождение квиза
+  const resetQuiz = () => {
+    setCurrentQuestionIndex(0);
+    setUserAnswers([]);
+    setShowFeedback(false);
+    setIsAnswerCorrect(null);
+    setQuizCompleted(false);
+    setScore(0);
+  };
+
+  // Если квиз завершен, показываем итоговый результат
+  if (quizCompleted) {
+    const finalScore = score;
+    const percentage = Math.round((finalScore / questions.length) * 100);
+    
+    return (
+      <Card className="shadow-lg bg-white dark:bg-zinc-800">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-xl">Результаты квиза</CardTitle>
+          <CardDescription>
+            Вы ответили правильно на {finalScore} из {questions.length} вопросов
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="pb-6">
+          <div className="flex flex-col items-center justify-center py-6">
+            <div className="relative h-36 w-36">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-3xl font-bold">{percentage}%</span>
+              </div>
+              <svg className="h-full w-full" viewBox="0 0 100 100">
+                <circle
+                  className="fill-none stroke-zinc-200 dark:stroke-zinc-700"
+                  cx="50"
+                  cy="50"
+                  r="40"
+                  strokeWidth="10"
+                />
+                <circle
+                  className={`fill-none ${
+                    percentage >= 80 ? "stroke-green-500" : 
+                    percentage >= 60 ? "stroke-yellow-500" : 
+                    "stroke-red-500"
+                  }`}
+                  cx="50"
+                  cy="50"
+                  r="40"
+                  strokeWidth="10"
+                  strokeDasharray="251.2"
+                  strokeDashoffset={251.2 - (251.2 * percentage) / 100}
+                  transform="rotate(-90 50 50)"
+                />
+              </svg>
+            </div>
+            
+            <p className="mt-4 text-center">
+              {percentage >= 80
+                ? "Отличная работа! Вы хорошо усвоили материал."
+                : percentage >= 60
+                ? "Хороший результат. Вы усвоили основную часть материала."
+                : "Вам стоит еще раз изучить материал и повторить квиз."}
+            </p>
+          </div>
+        </CardContent>
+        <CardFooter className="pt-2 flex justify-center border-t">
+          <Button onClick={resetQuiz} className="mt-2">
+            <RotateCcw className="h-4 w-4 mr-2" />
+            Пройти еще раз
+          </Button>
+        </CardFooter>
+      </Card>
+    );
   }
 
-  const currentQuestion = quiz.questions[currentQuestionIndex];
-  const currentUserAnswer = userAnswers.find(
-    (ua) => ua.questionId === currentQuestion.id
-  );
-
   return (
-    <div className={className}>
-      {/* Заголовок квиза */}
-      <div className="bg-space-800/50 rounded-xl p-4 border border-white/10 mb-6">
-        <h2 className="text-xl font-semibold">{quiz.title}</h2>
-        {quiz.description && (
-          <p className="text-white/70 mt-1">{quiz.description}</p>
-        )}
-        <div className="flex justify-between items-center mt-3">
-          <div className="text-sm text-white/60">
-            <i className="fas fa-question-circle mr-1"></i>
-            {quiz.questions.length} вопросов
-          </div>
-          <div className="text-sm text-white/60">
-            <i className="fas fa-award mr-1"></i>
-            Проходной балл: {quiz.passingScore}%
-          </div>
-          {timeRemaining !== null && (
-            <div className="text-sm text-white/60">
-              <i className="fas fa-clock mr-1"></i>
-              Осталось времени: {formatTime(timeRemaining)}
-            </div>
-          )}
+    <Card className="shadow-lg bg-white dark:bg-zinc-800">
+      <CardHeader className="pb-4">
+        <div className="flex justify-between items-center">
+          <CardTitle className="text-lg flex items-center">
+            Вопрос {currentQuestionIndex + 1} из {questions.length}
+          </CardTitle>
+          <span className="text-sm text-muted-foreground">
+            Баллы: {score}/{questions.length}
+          </span>
         </div>
-      </div>
-
-      {/* Прогресс */}
-      <div className="mb-4">
-        <div className="flex justify-between items-center mb-2">
-          <div className="text-sm text-white/60">
-            Вопрос {currentQuestionIndex + 1} из {quiz.questions.length}
-          </div>
-          <div className="text-sm text-white/60">
-            {Math.round(((currentQuestionIndex + 1) / quiz.questions.length) * 100)}%
-            завершено
-          </div>
-        </div>
-        <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-primary rounded-full"
-            style={{
-              width: `${((currentQuestionIndex + 1) / quiz.questions.length) * 100}%`,
-            }}
-          ></div>
-        </div>
-      </div>
-
-      {/* Текущий вопрос */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentQuestion.id}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -20 }}
-          transition={{ duration: 0.3 }}
-          className="bg-space-800/50 rounded-xl p-6 border border-white/10 mb-6"
-        >
-          <div className="mb-4">
-            <div className="text-sm text-primary mb-1">
-              Вопрос {currentQuestionIndex + 1}
-              {currentQuestion.points > 1 && ` · ${currentQuestion.points} баллов`}
-            </div>
-            <h3 className="text-lg font-medium">{currentQuestion.prompt}</h3>
-          </div>
-
-          {/* Варианты ответов */}
-          {(currentQuestion.type === "single-choice" ||
-            currentQuestion.type === "multiple-choice") && (
-            <div className="space-y-3">
-              {currentQuestion.answers.map((answer) => (
-                <div
-                  key={answer.id}
-                  className={cn(
-                    "flex items-center p-3 rounded-lg border border-white/10 cursor-pointer transition",
-                    currentUserAnswer?.answerIds.includes(answer.id)
-                      ? "bg-primary/20 border-primary/30"
-                      : "bg-space-700 hover:bg-space-600"
-                  )}
-                  onClick={() =>
-                    handleAnswerChange(
-                      currentQuestion.id,
-                      answer.id,
-                      currentQuestion.type
-                    )
-                  }
-                >
-                  <div
-                    className={cn(
-                      "w-5 h-5 flex items-center justify-center rounded border mr-3",
-                      currentUserAnswer?.answerIds.includes(answer.id)
-                        ? "border-primary bg-primary/20 text-primary"
-                        : "border-white/30 bg-space-800"
-                    )}
+      </CardHeader>
+      <CardContent className="pb-6">
+        <div className="space-y-4">
+          <h3 className="text-lg font-medium">{currentQuestion.question}</h3>
+          
+          {currentQuestion.type === QuestionType.SINGLE_CHOICE && (
+            <RadioGroup
+              onValueChange={handleSingleChoiceSelect}
+              value={userAnswers.find(a => a.questionId === currentQuestion.id)?.selectedOptionIds?.[0]}
+              className="space-y-2"
+              disabled={showFeedback}
+            >
+              {currentQuestion.options?.map((option) => (
+                <div key={option.id} className="flex items-center space-x-2">
+                  <RadioGroupItem value={option.id} id={option.id} />
+                  <Label
+                    htmlFor={option.id}
+                    className={`${
+                      showFeedback && option.isCorrect ? "text-green-500 font-medium" : ""
+                    }`}
                   >
-                    {currentQuestion.type === "single-choice" ? (
-                      <span
-                        className={cn(
-                          "w-3 h-3 rounded-full",
-                          currentUserAnswer?.answerIds.includes(answer.id)
-                            ? "bg-primary"
-                            : "bg-transparent"
-                        )}
-                      />
-                    ) : (
-                      currentUserAnswer?.answerIds.includes(answer.id) && (
-                        <i className="fas fa-check text-xs" />
-                      )
-                    )}
-                  </div>
-                  <span className="text-white/90">{answer.text}</span>
+                    {option.text}
+                  </Label>
+                </div>
+              ))}
+            </RadioGroup>
+          )}
+          
+          {currentQuestion.type === QuestionType.MULTIPLE_CHOICE && (
+            <div className="space-y-2">
+              {currentQuestion.options?.map((option) => (
+                <div key={option.id} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={option.id}
+                    checked={userAnswers.find(a => a.questionId === currentQuestion.id)?.selectedOptionIds?.includes(option.id)}
+                    onCheckedChange={(isChecked) => handleMultipleChoiceSelect(option.id, !!isChecked)}
+                    disabled={showFeedback}
+                  />
+                  <Label
+                    htmlFor={option.id}
+                    className={`${
+                      showFeedback && option.isCorrect ? "text-green-500 font-medium" : ""
+                    }`}
+                  >
+                    {option.text}
+                  </Label>
                 </div>
               ))}
             </div>
           )}
-
-          {/* Текстовый ответ */}
-          {(currentQuestion.type === "text" || currentQuestion.type === "code") && (
-            <div className="space-y-3">
-              <textarea
-                className="w-full p-4 bg-space-700 border border-white/10 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
-                rows={6}
-                placeholder={
-                  currentQuestion.type === "code"
-                    ? "Введите ваш код здесь..."
-                    : "Введите ваш ответ здесь..."
-                }
-                value={currentUserAnswer?.textAnswer || ""}
-                onChange={(e) =>
-                  handleTextAnswerChange(currentQuestion.id, e.target.value)
-                }
+          
+          {currentQuestion.type === QuestionType.TEXT_INPUT && (
+            <div className="space-y-2">
+              <Input
+                placeholder="Введите ответ..."
+                value={userAnswers.find(a => a.questionId === currentQuestion.id)?.textInput || ""}
+                onChange={(e) => handleTextInput(e.target.value)}
+                disabled={showFeedback}
               />
+              {showFeedback && (
+                <div className="mt-2">
+                  <Label className="text-green-500 font-medium">
+                    Правильный ответ: {currentQuestion.correctAnswer}
+                  </Label>
+                </div>
+              )}
             </div>
           )}
-        </motion.div>
-      </AnimatePresence>
-
-      {/* Навигация */}
-      <div className="flex justify-between">
-        <button
-          className="px-4 py-2 bg-space-700 text-white/80 rounded-lg hover:bg-space-600 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
-          onClick={handlePrevQuestion}
-          disabled={currentQuestionIndex === 0}
-        >
-          <i className="fas fa-arrow-left mr-2"></i>
-          Предыдущий
-        </button>
-
-        {currentQuestionIndex < quiz.questions.length - 1 ? (
-          <button
-            className="px-4 py-2 bg-primary hover:bg-primary/80 rounded-lg transition flex items-center"
-            onClick={handleNextQuestion}
-          >
-            Следующий
-            <i className="fas fa-arrow-right ml-2"></i>
-          </button>
+          
+          {currentQuestion.type === QuestionType.TRUE_FALSE && (
+            <RadioGroup
+              onValueChange={handleSingleChoiceSelect}
+              value={userAnswers.find(a => a.questionId === currentQuestion.id)?.selectedOptionIds?.[0]}
+              className="space-y-2"
+              disabled={showFeedback}
+            >
+              {currentQuestion.options?.map((option) => (
+                <div key={option.id} className="flex items-center space-x-2">
+                  <RadioGroupItem value={option.id} id={option.id} />
+                  <Label
+                    htmlFor={option.id}
+                    className={`${
+                      showFeedback && option.isCorrect ? "text-green-500 font-medium" : ""
+                    }`}
+                  >
+                    {option.text}
+                  </Label>
+                </div>
+              ))}
+            </RadioGroup>
+          )}
+          
+          {showFeedback && (
+            <div className={`mt-4 p-4 rounded-lg ${
+              isAnswerCorrect ? "bg-green-100 dark:bg-green-900/20" : "bg-red-100 dark:bg-red-900/20"
+            }`}>
+              <div className="flex items-start">
+                {isAnswerCorrect ? (
+                  <CheckCircle className="h-5 w-5 mr-2 text-green-500 flex-shrink-0" />
+                ) : (
+                  <XCircle className="h-5 w-5 mr-2 text-red-500 flex-shrink-0" />
+                )}
+                <div>
+                  <p className={`font-medium ${
+                    isAnswerCorrect ? "text-green-700 dark:text-green-300" : "text-red-700 dark:text-red-300"
+                  }`}>
+                    {isAnswerCorrect ? "Правильно!" : "Неправильно"}
+                  </p>
+                  {currentQuestion.explanation && (
+                    <p className="mt-1 text-sm">
+                      {currentQuestion.explanation}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </CardContent>
+      <CardFooter className="pt-2 border-t">
+        {!showFeedback ? (
+          <Button onClick={checkAnswer} disabled={
+            !userAnswers.find(a => a.questionId === currentQuestion.id) ||
+            (currentQuestion.type === QuestionType.MULTIPLE_CHOICE && 
+              !userAnswers.find(a => a.questionId === currentQuestion.id)?.selectedOptionIds?.length)
+          }>
+            Проверить ответ
+          </Button>
         ) : (
-          <button
-            className="px-4 py-2 bg-green-600 hover:bg-green-500 rounded-lg transition flex items-center"
-            onClick={handleSubmitQuiz}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <>
-                <svg
-                  className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-                Проверка...
-              </>
-            ) : (
-              <>
-                Завершить квиз
-                <i className="fas fa-check ml-2"></i>
-              </>
-            )}
-          </button>
+          <Button onClick={goToNextQuestion}>
+            {currentQuestionIndex < questions.length - 1 ? "Следующий вопрос" : "Завершить квиз"}
+            <ChevronRight className="h-4 w-4 ml-2" />
+          </Button>
         )}
-      </div>
-    </div>
+      </CardFooter>
+    </Card>
   );
 }
