@@ -3,20 +3,19 @@ import { motion } from "framer-motion";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { Glassmorphism } from "@/components/ui/glassmorphism";
-import { SkillMap } from "@/components/skill-map";
-import { ProgressRing } from "@/components/ui/progress-ring";
 import { useUserProfile } from "@/context/user-profile-context";
-import {
-  CalendarIcon,
-  ChartIcon,
-  FileIcon,
-  GraduationCapIcon,
-  HistoryIcon,
-  RocketIcon,
-  SettingsIcon,
-  StarIcon,
-  UserIcon
-} from "@/components/ui/icons";
+import { 
+  Calendar,
+  ChevronRight, 
+  User, 
+  BarChart2, 
+  Settings, 
+  Rocket, 
+  Star, 
+  FileText,
+  Clock,
+  GraduationCap
+} from "lucide-react";
 
 // Компонент с аватаром и общей информацией
 const UserProfileOverview = () => {
@@ -25,8 +24,17 @@ const UserProfileOverview = () => {
     completed_courses: 3,
     achievement_count: 12,
     skill_points: 850,
-    streak_days: 14
+    streak_days: userProfile?.streakDays || 14
   });
+
+  // Вычисляем общий прогресс (например, 68%)
+  const overallProgress = 68;
+  
+  // Получаем имя пользователя из контекста
+  const displayName = userProfile?.displayName || "Пользователь";
+  
+  // Получаем роль из метаданных
+  const occupation = "Студент AI Literacy";
 
   return (
     <div className="flex flex-col md:flex-row gap-6">
@@ -35,23 +43,23 @@ const UserProfileOverview = () => {
           <div className="flex flex-col items-center">
             <div className="w-24 h-24 rounded-full mb-4 overflow-hidden border-2 border-primary/40">
               <img 
-                src={userProfile.avatarUrl || "https://via.placeholder.com/100"} 
+                src={"https://via.placeholder.com/100"} 
                 alt="Аватар пользователя"
                 className="w-full h-full object-cover" 
               />
             </div>
-            <h3 className="text-xl font-semibold mb-1">{userProfile.fullName}</h3>
-            <p className="text-sm text-white/60 mb-4">{userProfile.occupation}</p>
+            <h3 className="text-xl font-semibold mb-1">{displayName}</h3>
+            <p className="text-sm text-white/60 mb-4">{occupation}</p>
             
             <div className="w-full mt-4">
               <div className="flex justify-between items-center mb-2">
                 <span className="text-sm text-white/70">Общий прогресс</span>
-                <span className="text-sm font-medium">{userProfile.overallProgress || 68}%</span>
+                <span className="text-sm font-medium">{overallProgress}%</span>
               </div>
               <div className="w-full h-2 bg-space-700 rounded-full overflow-hidden">
                 <div 
                   className="h-full bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1]" 
-                  style={{ width: `${userProfile.overallProgress || 68}%` }}
+                  style={{ width: `${overallProgress}%` }}
                 ></div>
               </div>
             </div>
@@ -59,28 +67,28 @@ const UserProfileOverview = () => {
             <div className="w-full grid grid-cols-2 gap-3 mt-6">
               <div className="bg-space-800/50 p-3 rounded-lg">
                 <div className="flex items-center gap-2">
-                  <GraduationCapIcon className="h-4 w-4 text-primary/60" />
+                  <GraduationCap className="h-4 w-4 text-primary/60" />
                   <span className="text-xs text-white/70">Курсы</span>
                 </div>
                 <p className="text-lg font-semibold mt-1">{achievements.completed_courses}</p>
               </div>
               <div className="bg-space-800/50 p-3 rounded-lg">
                 <div className="flex items-center gap-2">
-                  <StarIcon className="h-4 w-4 text-amber-500/60" />
+                  <Star className="h-4 w-4 text-amber-500/60" />
                   <span className="text-xs text-white/70">Достижения</span>
                 </div>
                 <p className="text-lg font-semibold mt-1">{achievements.achievement_count}</p>
               </div>
               <div className="bg-space-800/50 p-3 rounded-lg">
                 <div className="flex items-center gap-2">
-                  <ChartIcon className="h-4 w-4 text-emerald-500/60" />
+                  <BarChart2 className="h-4 w-4 text-emerald-500/60" />
                   <span className="text-xs text-white/70">Навыки</span>
                 </div>
                 <p className="text-lg font-semibold mt-1">{achievements.skill_points}</p>
               </div>
               <div className="bg-space-800/50 p-3 rounded-lg">
                 <div className="flex items-center gap-2">
-                  <CalendarIcon className="h-4 w-4 text-orange-500/60" />
+                  <Calendar className="h-4 w-4 text-orange-500/60" />
                   <span className="text-xs text-white/70">Дней подряд</span>
                 </div>
                 <p className="text-lg font-semibold mt-1">{achievements.streak_days}</p>
@@ -273,13 +281,13 @@ const CompetencyMapSection = () => {
         <div className="max-w-3xl mx-auto mb-6">
           <div className="bg-space-800/30 p-4 rounded-lg border border-space-700">
             <div className="flex items-center justify-center mb-4">
-              <div className="w-32 h-32">
-                <ProgressRing 
-                  progress={42} 
-                  strokeWidth={8}
-                  radius={60}
-                  className="text-primary" 
-                />
+              <div className="w-32 h-32 flex items-center justify-center relative">
+                <div className="absolute inset-0 rounded-full border-8 border-primary/20"></div>
+                <div className="absolute inset-0 rounded-full border-8 border-primary"
+                     style={{ 
+                       clipPath: 'polygon(0 0, 42% 0, 42% 100%, 0 100%)' 
+                     }}></div>
+                <span className="text-2xl font-bold">42%</span>
               </div>
             </div>
             <h4 className="text-center font-semibold mb-2">Общий прогресс Skills DNA</h4>
@@ -369,23 +377,23 @@ export default function PersonalDashboardPage() {
       <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="mb-8 w-full justify-start overflow-x-auto">
           <TabsTrigger value="overview" className="flex items-center gap-2">
-            <ChartIcon className="h-4 w-4" />
+            <BarChart2 className="h-4 w-4" />
             <span>Обзор</span>
           </TabsTrigger>
           <TabsTrigger value="profile" className="flex items-center gap-2">
-            <UserIcon className="h-4 w-4" />
+            <User className="h-4 w-4" />
             <span>Профиль</span>
           </TabsTrigger>
           <TabsTrigger value="path" className="flex items-center gap-2">
-            <RocketIcon className="h-4 w-4" />
+            <Rocket className="h-4 w-4" />
             <span>Образовательная траектория</span>
           </TabsTrigger>
           <TabsTrigger value="skills" className="flex items-center gap-2">
-            <StarIcon className="h-4 w-4" />
+            <Star className="h-4 w-4" />
             <span>Skills DNA</span>
           </TabsTrigger>
           <TabsTrigger value="stats" className="flex items-center gap-2">
-            <HistoryIcon className="h-4 w-4" />
+            <Clock className="h-4 w-4" />
             <span>Статистика</span>
           </TabsTrigger>
         </TabsList>

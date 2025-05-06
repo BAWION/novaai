@@ -38,6 +38,7 @@ import LessonPage from "@/pages/lesson-page";
 import CompetencyMapPage from "@/pages/competency-map-page";
 import TemplateDemoPage from "@/pages/template-demo-page";
 import LessonStructurePage from "@/pages/admin/lesson-structure-page";
+import PersonalDashboardPage from "@/pages/personal-dashboard";
 
 interface ProtectedRouteProps {
   component: React.ComponentType;
@@ -123,6 +124,7 @@ function Router() {
           <ProtectedRoute path="/profile" component={Profile} />
           <ProtectedRoute path="/settings" component={Settings} />
           <ProtectedRoute path="/orbital-lobby" component={OrbitalLobby} />
+          <ProtectedRoute path="/personal-dashboard" component={PersonalDashboardPage} />
           
           {/* Business AI Module Routes */}
           <ProtectedRoute path="/business" component={BusinessAIOverview} />
