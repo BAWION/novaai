@@ -1,13 +1,15 @@
 import { apiRequest } from '@/lib/queryClient';
 import { lesson5Structure } from '@/data/lesson-structure-updates/lesson-5-structure';
 import { lesson6Structure } from '@/data/lesson-structure-updates/lesson-6-structure';
+import { lesson7Structure } from '@/data/lesson-structure-updates/lesson-7-structure';
 
 /**
  * Словарь обновлений структуры уроков (key: lessonId, value: структура)
  */
 export const lessonStructureUpdates: Record<string, any> = {
   '5': lesson5Structure,
-  '6': lesson6Structure
+  '6': lesson6Structure,
+  '7': lesson7Structure
 };
 
 /**
