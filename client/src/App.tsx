@@ -39,6 +39,7 @@ import CompetencyMapPage from "@/pages/competency-map-page";
 import TemplateDemoPage from "@/pages/template-demo-page";
 import LessonStructurePage from "@/pages/admin/lesson-structure-page";
 import PersonalDashboardPage from "@/pages/personal-dashboard";
+import SimulatorDemoPage from "@/pages/simulator-demo-page";
 
 interface ProtectedRouteProps {
   component: React.ComponentType;
@@ -165,6 +166,9 @@ function Router() {
           
           {/* Демонстрация новых шаблонов */}
           <ProtectedRoute path="/template-demo" component={TemplateDemoPage} />
+          
+          {/* Демонстрация No-Code AI симулятора */}
+          <ProtectedRoute path="/simulator-demo" component={SimulatorDemoPage} />
           
           {/* Админ - управление структурой уроков (маршрут уже добавлен выше) */}
           
