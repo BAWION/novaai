@@ -14,8 +14,11 @@ import {
   Star, 
   FileText,
   Clock,
-  GraduationCap
+  GraduationCap,
+  Brain,
+  Bot
 } from "lucide-react";
+import { EducationalNavigator } from "@/components/ai-agent/educational-navigator";
 
 // Компонент с аватаром и общей информацией
 const UserProfileOverview = () => {
