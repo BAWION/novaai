@@ -37,6 +37,7 @@ import AILiteracyCoursePage from "@/pages/ai-literacy-course";
 import LessonPage from "@/pages/lesson-page";
 import CompetencyMapPage from "@/pages/competency-map-page";
 import TemplateDemoPage from "@/pages/template-demo-page";
+import LessonStructurePage from "@/pages/admin/lesson-structure-page";
 
 interface ProtectedRouteProps {
   component: React.ComponentType;
@@ -161,6 +162,9 @@ function Router() {
           
           {/* Демонстрация новых шаблонов */}
           <ProtectedRoute path="/template-demo" component={TemplateDemoPage} />
+          
+          {/* Админ - управление структурой уроков */}
+          <ProtectedRoute path="/admin/lesson-structure" component={LessonStructurePage} />
           
           {/* Обратная совместимость для старых URL */}
           <Route path="/modules/:moduleId/lessons/:lessonId">
