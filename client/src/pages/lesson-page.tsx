@@ -411,7 +411,7 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                 {/* Здесь вставляем компонент микроструктуры урока */}
                 {user ? (
                   <MicroLessonStructure 
-                    lessonId={parseInt(lessonId)}
+                    lessonId={parseInt(lessonId || "0")}
                     userId={user.id}
                     onComplete={handleLessonComplete}
                   />
