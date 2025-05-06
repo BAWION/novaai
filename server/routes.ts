@@ -24,6 +24,7 @@ import 'express';
 import moduleRouter from "./routes/modules";
 import skillsDnaRouter from "./routes/skills-dna-api";
 import lessonStructureRouter from "./routes/lesson-structure-api";
+import competencyMapRouter from "./routes/competency-map-api";
 // Временно отключаем маршруты, для которых у нас пока нет определенных типов в схеме
 // import { learningEventsRouter } from "./routes/learning-events";
 // import { lessonProgressRouter } from "./routes/lesson-progress";
@@ -849,6 +850,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Подключаем маршруты для новой структуры уроков
   app.use("/api", lessonStructureRouter);
+  
+  // Маршрутизатор для карты компетенций
+  app.use("/api/competency-map", competencyMapRouter);
   
   // Временно отключены маршруты, для которых требуются дополнительные схемы
   // // Маршруты для отслеживания событий обучения
