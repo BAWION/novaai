@@ -1,117 +1,231 @@
 import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
-import { updateLessonStructure, updateAllLessonStructures } from '@/utils/update-lesson-structures';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { Loader2, Check, XCircle, FileText, RefreshCw } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
+import { CheckCircle2, XCircle, RefreshCw, AlertTriangle, ArrowUpCircle } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
+import { useToast } from '@/hooks/use-toast';
+import { updateLessonStructure, updateAllLessonStructures, getAvailableStructureUpdates } from '@/utils/update-lesson-structures';
 
 interface UpdateResult {
-  lessonId?: number;
+  id: number;
   success: boolean;
-  action?: string;
-  error?: any;
+  error?: string;
 }
 
 /**
- * Компонент для обновления структуры уроков через админ-интерфейс
+ * Компонент для администрирования структур уроков
+ * Позволяет обновить структуру отдельных уроков или всех сразу
  */
 const LessonStructureUpdater: React.FC = () => {
   const { toast } = useToast();
-  const [updating, setUpdating] = useState(false);
-  const [results, setResults] = useState<UpdateResult[]>([]);
-
-  // Обработчик обновления всех структур уроков
+  const [loading, setLoading] = useState(false);
+  const [updateResults, setUpdateResults] = useState<UpdateResult[]>([]);
+  
+  const availableUpdates = getAvailableStructureUpdates();
+  
   const handleUpdateAll = async () => {
-    setUpdating(true);
-    setResults([]);
-    
     try {
-      const updateResults = await updateAllLessonStructures();
-      setResults(updateResults);
+      setLoading(true);
+      const results = await updateAllLessonStructures();
       
-      const successCount = updateResults.filter(r => r.success).length;
+      // Преобразуем результаты в формат UpdateResult[]
+      const successResults = results.success.map(id => ({ id, success: true }));
+      const failedResults = results.failed.map(item => ({ 
+        id: item.id, 
+        success: false, 
+        error: item.error 
+      }));
+      
+      setUpdateResults([...successResults, ...failedResults]);
       
       toast({
         title: 'Обновление структур уроков',
-        description: `Обновлено: ${successCount} из ${updateResults.length} уроков`,
-        variant: successCount === updateResults.length ? 'default' : 'destructive',
+        description: `Успешно: ${results.success.length}, Ошибок: ${results.failed.length}`,
+        variant: results.failed.length === 0 ? 'default' : 'destructive'
       });
     } catch (error) {
-      console.error('Ошибка при обновлении структур уроков:', error);
       toast({
         title: 'Ошибка обновления',
-        description: 'Произошла ошибка при обновлении структур уроков',
-        variant: 'destructive',
+        description: error instanceof Error ? error.message : 'Неизвестная ошибка',
+        variant: 'destructive'
       });
     } finally {
-      setUpdating(false);
+      setLoading(false);
     }
   };
-
+  
+  const handleUpdateSingle = async (lessonId: number) => {
+    try {
+      setLoading(true);
+      await updateLessonStructure(lessonId);
+      
+      // Обновляем состояние результатов
+      setUpdateResults(prev => {
+        const filtered = prev.filter(r => r.id !== lessonId);
+        return [...filtered, { id: lessonId, success: true }];
+      });
+      
+      toast({
+        title: 'Урок обновлен',
+        description: `Структура урока #${lessonId} успешно обновлена`,
+        variant: 'default'
+      });
+    } catch (error) {
+      setUpdateResults(prev => {
+        const filtered = prev.filter(r => r.id !== lessonId);
+        return [...filtered, { 
+          id: lessonId, 
+          success: false,
+          error: error instanceof Error ? error.message : 'Неизвестная ошибка'
+        }];
+      });
+      
+      toast({
+        title: 'Ошибка обновления',
+        description: error instanceof Error ? error.message : 'Неизвестная ошибка',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const getResultForLesson = (lessonId: number) => {
+    return updateResults.find(r => r.id === lessonId);
+  };
+  
   return (
-    <Card className="border-space-700 bg-space-800/60 backdrop-blur-lg">
+    <Card className="w-full">
       <CardHeader>
-        <CardTitle className="text-xl font-medium">Обновление структуры уроков</CardTitle>
+        <CardTitle>Управление структурой уроков</CardTitle>
         <CardDescription>
-          Обновляет структуру уроков модуля "Основы искусственного интеллекта" на новую микроструктуру с Hook, Explain, Demo, Quick Try и Reflect.
+          Обновите структуру уроков до новой микроструктуры с интерактивными элементами
         </CardDescription>
       </CardHeader>
       
       <CardContent className="space-y-4">
-        <div className="flex items-center justify-between bg-space-900/40 p-3 rounded-md">
-          <div className="flex items-center space-x-2">
-            <FileText size={18} className="text-primary" />
-            <span>Адаптация уроков модуля "Основы искусственного интеллекта"</span>
-          </div>
-          <Badge variant="outline" className="font-mono">
-            3 урока
-          </Badge>
-        </div>
+        <Alert>
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>Внимание</AlertTitle>
+          <AlertDescription>
+            Обновление структуры урока заменит существующую структуру новой версией.
+            Убедитесь, что у вас есть резервные копии данных перед выполнением операции.
+          </AlertDescription>
+        </Alert>
         
-        {results.length > 0 && (
-          <div className="space-y-2 mt-4">
-            <h3 className="text-sm font-medium text-white/70">Результаты обновления:</h3>
-            {results.map((result, index) => (
-              <div 
-                key={index} 
-                className={`flex items-center justify-between p-2 rounded-md ${
-                  result.success ? 'bg-green-900/20' : 'bg-red-900/20'
-                }`}
-              >
-                <div className="flex items-center space-x-2">
-                  {result.success ? 
-                    <Check size={16} className="text-green-400" /> : 
-                    <XCircle size={16} className="text-red-400" />
-                  }
-                  <span>Урок {index + 5}</span>
-                </div>
-                <Badge variant="outline" className={result.success ? 'border-green-700 text-green-400' : 'border-red-700 text-red-400'}>
-                  {result.success ? (result.action === 'created' ? 'Создано' : 'Обновлено') : 'Ошибка'}
-                </Badge>
+        <Accordion type="single" collapsible className="w-full">
+          <AccordionItem value="available-updates">
+            <AccordionTrigger>
+              Доступные обновления ({availableUpdates.length})
+            </AccordionTrigger>
+            <AccordionContent>
+              <div className="space-y-3">
+                {availableUpdates.map(update => {
+                  const result = getResultForLesson(update.id);
+                  
+                  return (
+                    <div 
+                      key={update.id}
+                      className="flex items-center justify-between p-3 rounded-md border bg-card"
+                    >
+                      <div>
+                        <div className="font-medium">Урок #{update.id}</div>
+                        <div className="text-sm text-muted-foreground">{update.title}</div>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        {result && (
+                          <Badge 
+                            variant={result.success ? "default" : "destructive"}
+                            className="mr-2"
+                          >
+                            {result.success ? (
+                              <CheckCircle2 className="h-3 w-3 mr-1" />
+                            ) : (
+                              <XCircle className="h-3 w-3 mr-1" />
+                            )}
+                            {result.success ? 'Успешно' : 'Ошибка'}
+                          </Badge>
+                        )}
+                        
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleUpdateSingle(update.id)}
+                          disabled={loading}
+                        >
+                          {loading ? (
+                            <RefreshCw className="h-4 w-4 mr-1 animate-spin" />
+                          ) : (
+                            <ArrowUpCircle className="h-4 w-4 mr-1" />
+                          )}
+                          Обновить
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            ))}
-          </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+        
+        {updateResults.length > 0 && (
+          <>
+            <Separator className="my-4" />
+            
+            <div className="space-y-2">
+              <h3 className="text-lg font-medium">Результаты обновления</h3>
+              
+              <div className="space-y-2">
+                {updateResults.map(result => (
+                  <div 
+                    key={result.id}
+                    className={`p-3 rounded-md text-sm ${
+                      result.success 
+                        ? 'bg-green-900/20 border border-green-700'
+                        : 'bg-red-900/20 border border-red-700'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      {result.success ? (
+                        <CheckCircle2 className="h-4 w-4 text-green-400" />
+                      ) : (
+                        <XCircle className="h-4 w-4 text-red-400" />
+                      )}
+                      <span>
+                        Урок #{result.id}: {result.success ? 'успешно обновлен' : 'ошибка обновления'}
+                      </span>
+                    </div>
+                    
+                    {!result.success && result.error && (
+                      <div className="mt-1 pl-6 text-red-300">
+                        {result.error}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
         )}
       </CardContent>
       
       <CardFooter>
         <Button 
           onClick={handleUpdateAll}
-          disabled={updating}
+          disabled={loading || availableUpdates.length === 0}
           className="w-full"
         >
-          {updating ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Обновление...
-            </>
+          {loading ? (
+            <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
           ) : (
-            <>
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Обновить структуру всех уроков
-            </>
+            <ArrowUpCircle className="h-4 w-4 mr-2" />
           )}
+          Обновить все уроки ({availableUpdates.length})
         </Button>
       </CardFooter>
     </Card>

@@ -1,66 +1,76 @@
 import { apiRequest } from '@/lib/queryClient';
 import lesson5Structure from '@/data/lesson-structure-updates/lesson-5-structure.json';
 import lesson6Structure from '@/data/lesson-structure-updates/lesson-6-structure.json';
-import lesson7Structure from '@/data/lesson-structure-updates/lesson-7-structure.json';
 
 /**
- * Функция для обновления структуры урока через API
- * @param lessonId ID урока
- * @param structure Структура урока
+ * Словарь обновлений структуры уроков (key: lessonId, value: структура)
  */
-export const updateLessonStructure = async (lessonId: number, structure: any) => {
+export const lessonStructureUpdates: Record<string, any> = {
+  '5': lesson5Structure,
+  '6': lesson6Structure
+};
+
+/**
+ * Функция для сохранения новой структуры урока в базе данных
+ */
+export const updateLessonStructure = async (lessonId: number) => {
   try {
-    const url = `/api/lessons/${lessonId}/structure`;
-    // Проверяем, существует ли уже структура для этого урока
-    const checkResponse = await apiRequest('GET', url);
-    
-    if (checkResponse.status === 404) {
-      // Структура не существует, создаем новую
-      console.log(`Создаем новую структуру для урока ${lessonId}...`);
-      const response = await apiRequest('POST', url, structure);
-      if (response.ok) {
-        console.log(`✅ Структура урока ${lessonId} успешно создана`);
-        return { success: true, action: 'created' };
-      }
-    } else {
-      // Структура существует, обновляем ее
-      const existing = await checkResponse.json();
-      console.log(`Обновляем существующую структуру для урока ${lessonId}...`);
-      
-      // Сохраняем ID из существующей структуры
-      const structureWithId = {
-        ...structure,
-        id: existing.id
-      };
-      
-      const response = await apiRequest('PUT', url, structureWithId);
-      if (response.ok) {
-        console.log(`✅ Структура урока ${lessonId} успешно обновлена`);
-        return { success: true, action: 'updated' };
-      }
+    const lessonIdStr = lessonId.toString();
+    // Проверяем, есть ли обновление для этого урока
+    if (!lessonStructureUpdates[lessonIdStr]) {
+      throw new Error(`Обновление структуры для урока ${lessonId} не найдено`);
     }
     
-    throw new Error(`Ошибка при обновлении структуры урока ${lessonId}`);
-  } catch (error) {
-    console.error(`❌ Ошибка при обновлении структуры урока ${lessonId}:`, error);
-    return { success: false, error };
+    // Отправляем запрос на сохранение новой структуры
+    const response = await apiRequest('POST', `/api/lessons/${lessonId}/update-structure`, {
+      structure: lessonStructureUpdates[lessonIdStr].structure
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Ошибка при обновлении структуры урока');
+    }
+    
+    return await response.json();
+  } catch (error: unknown) {
+    console.error('Ошибка при обновлении структуры урока:', error);
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error('Неизвестная ошибка при обновлении структуры урока');
   }
 };
 
 /**
- * Обновляет структуры всех уроков модуля "Основы искусственного интеллекта"
+ * Функция для получения всех доступных обновлений структуры
+ */
+export const getAvailableStructureUpdates = () => {
+  return Object.entries(lessonStructureUpdates).map(([id, data]) => ({
+    id: parseInt(id),
+    title: data.title
+  }));
+};
+
+/**
+ * Функция для пакетного обновления всех доступных структур уроков
  */
 export const updateAllLessonStructures = async () => {
-  const results = [];
+  const results = {
+    success: [] as number[],
+    failed: [] as { id: number; error: string }[]
+  };
   
-  // Урок 5: Что такое искусственный интеллект
-  results.push(await updateLessonStructure(5, lesson5Structure));
-  
-  // Урок 6: Основные понятия и термины
-  results.push(await updateLessonStructure(6, lesson6Structure));
-  
-  // Урок 7: Исторические предпосылки развития AI
-  results.push(await updateLessonStructure(7, lesson7Structure));
+  for (const [lessonId, _] of Object.entries(lessonStructureUpdates)) {
+    try {
+      await updateLessonStructure(parseInt(lessonId));
+      results.success.push(parseInt(lessonId));
+    } catch (error: unknown) {
+      results.failed.push({
+        id: parseInt(lessonId),
+        error: error instanceof Error ? error.message : 'Неизвестная ошибка'
+      });
+    }
+  }
   
   return results;
 };
