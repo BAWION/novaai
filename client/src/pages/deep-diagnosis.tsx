@@ -557,8 +557,8 @@ export default function DeepDiagnosisPage() {
         recommendations: recommendations
       }));
       
-      // Перенаправляем на страницу регистрации
-      setLocation("/register-after-onboarding");
+      // Перенаправляем на Капитанский Мостик (BridgePage)
+      setLocation("/bridge");
     } catch (error) {
       console.error("Ошибка при сохранении данных диагностики:", error);
       toast({
