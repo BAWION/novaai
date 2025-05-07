@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import SkillsRadarChart from "@/components/skills-radar-chart";
+import TriangleSkillsChart from "@/components/triangle-skills-chart";
 import useSkillsDna from "@/hooks/use-skills-dna";
 import { useUserProfile } from "@/context/user-profile-context";
 import { Button } from "@/components/ui/button";
@@ -136,44 +137,16 @@ export function SkillsDnaProfile({
                   </div>
                 </div>
                 <div className="opacity-20">
-                  <div className="h-[300px] w-[300px] mx-auto relative">
-                    <svg viewBox="0 0 300 300" className="w-full h-full">
-                      {/* Фоновый многоугольник */}
-                      <polygon 
-                        points="150,30 270,75 270,225 150,270 30,225 30,75" 
-                        fill="rgba(100, 100, 255, 0.1)" 
-                        stroke="rgba(150, 150, 255, 0.2)" 
-                        strokeWidth="1"
-                      />
-                      {/* Внутренние многоугольники для уровней */}
-                      <polygon 
-                        points="150,60 240,95 240,205 150,240 60,205 60,95" 
-                        fill="none" 
-                        stroke="rgba(150, 150, 255, 0.1)" 
-                        strokeWidth="1"
-                      />
-                      <polygon 
-                        points="150,90 210,115 210,185 150,210 90,185 90,115" 
-                        fill="none" 
-                        stroke="rgba(150, 150, 255, 0.1)" 
-                        strokeWidth="1"
-                      />
-                      <polygon 
-                        points="150,120 180,135 180,165 150,180 120,165 120,135" 
-                        fill="none" 
-                        stroke="rgba(150, 150, 255, 0.1)" 
-                        strokeWidth="1"
-                      />
-                      {/* Линии осей */}
-                      <line x1="150" y1="30" x2="150" y2="270" stroke="rgba(150, 150, 255, 0.2)" strokeWidth="1" />
-                      <line x1="30" y1="75" x2="270" y2="225" stroke="rgba(150, 150, 255, 0.2)" strokeWidth="1" />
-                      <line x1="30" y1="225" x2="270" y2="75" stroke="rgba(150, 150, 255, 0.2)" strokeWidth="1" />
-                      <line x1="150" y1="150" x2="270" y2="75" stroke="rgba(150, 150, 255, 0.2)" strokeWidth="1" />
-                      <line x1="150" y1="150" x2="270" y2="225" stroke="rgba(150, 150, 255, 0.2)" strokeWidth="1" />
-                      <line x1="150" y1="150" x2="30" y2="225" stroke="rgba(150, 150, 255, 0.2)" strokeWidth="1" />
-                      <line x1="150" y1="150" x2="30" y2="75" stroke="rgba(150, 150, 255, 0.2)" strokeWidth="1" />
-                    </svg>
-                  </div>
+                  <TriangleSkillsChart 
+                    skills={{
+                      skill1: { name: "Понимание основ ИИ", value: 0 },
+                      skill2: { name: "Этические аспекты использования ИИ", value: 0 },
+                      skill3: { name: "Критическое мышление в контексте ИИ", value: 0 }
+                    }}
+                    height={300}
+                    width={300}
+                    className="mx-auto"
+                  />
                 </div>
               </div>
               
@@ -255,15 +228,63 @@ export function SkillsDnaProfile({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Основной профиль навыков */}
         <div className="lg:col-span-2">
-          <SkillsRadarChart 
-            userId={currentUserId}
-            skills={skills}
-            isLoading={isLoading}
-            error={error instanceof Error ? error : null}
-            title="Карта навыков"
-            subtitle="Skills DNA"
-            onRefresh={refetch}
-          />
+          <div className="bg-space-800/70 border-blue-500/20 rounded-md p-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-medium text-white">Skills DNA</h3>
+              {!isLoading && !error && (
+                <Button variant="ghost" size="icon" onClick={refetch} title="Обновить данные" className="h-8 w-8">
+                  <RefreshCw className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+            
+            {isLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <Skeleton className="w-64 h-64 rounded-md bg-white/5" />
+              </div>
+            ) : error ? (
+              <div className="flex flex-col items-center justify-center text-center py-8">
+                <AlertTriangle className="h-10 w-10 text-red-400 mb-2" />
+                <p className="text-red-300 mb-1">Ошибка загрузки данных</p>
+                <p className="text-white/60 text-sm mb-3">
+                  {error instanceof Error ? error.message : 'Неизвестная ошибка'}
+                </p>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={refetch}
+                  className="border-white/20 hover:border-white/40"
+                >
+                  Попробовать снова
+                </Button>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center">
+                <TriangleSkillsChart 
+                  skills={{
+                    skill1: { 
+                      name: "Понимание основ ИИ", 
+                      value: skills["Понимание основ ИИ"] || skills["Основы ИИ"] || 
+                             skills["Машинное обучение"] || skills["Программирование"] || 40 
+                    },
+                    skill2: { 
+                      name: "Этические аспекты использования ИИ", 
+                      value: skills["Этические аспекты использования ИИ"] || skills["Этика и право в ИИ"] || 
+                             skills["Этика ИИ"] || skills["Применение в бизнесе"] || 25 
+                    },
+                    skill3: { 
+                      name: "Критическое мышление в контексте ИИ", 
+                      value: skills["Критическое мышление в контексте ИИ"] || skills["Аналитическое мышление"] || 
+                             skills["Решение проблем"] || skills["Анализ данных"] || 65 
+                    }
+                  }}
+                  height={350}
+                  width={350}
+                  className="mx-auto my-4"
+                />
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Сводная информация */}
