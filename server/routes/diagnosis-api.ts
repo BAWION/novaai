@@ -30,11 +30,39 @@ const diagnosisResultSchema = z.object({
  * POST /api/diagnosis/results
  * Сохранение результатов диагностики в системе Skills DNA
  */
-router.post("/results", authMiddleware, async (req: Request, res: Response) => {
+router.post("/results", async (req: Request, res: Response) => {
   try {
+    console.log("[API] POST /api/diagnosis/results - Начало обработки запроса");
+    
+    // Проверка аутентификации с исчерпывающим выводом информации
+    const user = req.session.user;
+    if (!user) {
+      console.error("[API] POST /api/diagnosis/results - Отказ: пользователь не авторизован", {
+        sessionId: req.session.id,
+        hasSession: !!req.session,
+        sessionKeys: req.session ? Object.keys(req.session) : [],
+      });
+      
+      return res.status(401).json({ 
+        message: "Необходима авторизация для сохранения результатов диагностики",
+        details: "Пожалуйста, войдите в систему и повторите попытку."
+      });
+    }
+    
+    console.log("[API] POST /api/diagnosis/results - Пользователь авторизован:", {
+      userId: user.id,
+      username: user.username
+    });
+    
+    // Валидация данных запроса
     const validationResult = diagnosisResultSchema.safeParse(req.body);
     
     if (!validationResult.success) {
+      console.error("[API] POST /api/diagnosis/results - Некорректные данные диагностики:", {
+        errors: validationResult.error.errors,
+        receivedData: JSON.stringify(req.body).substring(0, 200) + "..."
+      });
+      
       return res.status(400).json({ 
         message: "Некорректные данные диагностики", 
         errors: validationResult.error.errors 
@@ -42,26 +70,47 @@ router.post("/results", authMiddleware, async (req: Request, res: Response) => {
     }
     
     const diagnosisResult = validationResult.data;
+    console.log("[API] POST /api/diagnosis/results - Данные успешно прошли валидацию");
     
     // Если userId не передан, используем ID текущего пользователя
     if (!diagnosisResult.userId && req.session.user) {
       diagnosisResult.userId = req.session.user.id;
+      console.log(`[API] POST /api/diagnosis/results - Использован ID пользователя из сессии: ${diagnosisResult.userId}`);
     }
     
     // Проверяем, что у нас есть ID пользователя
     if (!diagnosisResult.userId) {
+      console.error("[API] POST /api/diagnosis/results - Отсутствует ID пользователя");
       return res.status(400).json({ message: "Отсутствует ID пользователя" });
     }
     
+    // Проверяем доступ: пользователь может сохранять только свои данные
+    if (user.id !== diagnosisResult.userId) {
+      console.error("[API] POST /api/diagnosis/results - Попытка сохранить данные другого пользователя", {
+        sessionUserId: user.id,
+        requestedUserId: diagnosisResult.userId
+      });
+      
+      return res.status(403).json({ 
+        message: "Нет доступа для сохранения данных другого пользователя" 
+      });
+    }
+    
+    // Сохраняем результаты
+    console.log("[API] POST /api/diagnosis/results - Передача данных в сервис диагностики");
     const result = await diagnosisService.saveResults(diagnosisResult);
     
+    console.log("[API] POST /api/diagnosis/results - Результаты успешно сохранены");
     res.status(201).json({
       message: "Результаты диагностики успешно сохранены",
       data: result
     });
   } catch (error) {
-    console.error("Ошибка при сохранении результатов диагностики:", error);
-    res.status(500).json({ message: "Ошибка сервера при обработке результатов диагностики" });
+    console.error("[API] POST /api/diagnosis/results - Ошибка при обработке:", error);
+    res.status(500).json({ 
+      message: "Ошибка сервера при обработке результатов диагностики",
+      error: error instanceof Error ? error.message : "Неизвестная ошибка"
+    });
   }
 });
 

@@ -83,6 +83,12 @@ export default function SkillsRadarChart({
 
   // Эффект для преобразования данных навыков в формат для радарной диаграммы
   useEffect(() => {
+    console.log('[SkillsRadarChart] Обработка входящих данных:', {
+      userId, 
+      skillsCount: skills ? Object.keys(skills).length : 0,
+      skills: skills ? Object.entries(skills).map(([k, v]) => `${k}: ${v}`).join(', ') : 'none'
+    });
+    
     if (skills && Object.keys(skills).length > 0) {
       // Формируем данные для диаграммы
       const formattedData = Object.entries(skills).map(([key, value]) => ({
@@ -91,11 +97,13 @@ export default function SkillsRadarChart({
         fullMark: maxValue
       }));
       
+      console.log('[SkillsRadarChart] Сформированы данные для диаграммы:', formattedData.length, 'элементов');
       setChartData(formattedData);
     } else {
+      console.log('[SkillsRadarChart] Нет данных навыков для отображения');
       setChartData([]);
     }
-  }, [skills, maxValue]);
+  }, [skills, maxValue, userId]);
 
   // Фильтрация данных по активной категории
   const filteredData = activeCategory === "all" 
