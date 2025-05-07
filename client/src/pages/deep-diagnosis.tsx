@@ -11,6 +11,7 @@ import {
   UserGoal 
 } from "@/lib/constants";
 import { diagnosisApi } from "@/api/diagnosis-api";
+import SkillsRadarChart from "@/components/skills-radar-chart";
 
 // Компоненты UI
 import {
