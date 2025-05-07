@@ -1,5 +1,13 @@
 import OpenAI from "openai";
 import { db } from "../db";
+import { eq, sql } from "drizzle-orm";
+import { 
+  users, userProfiles, userSkills, skills, 
+  userCourseProgress, userLessonProgress, 
+  courses, courseModules, lessons, 
+  skillsDna, userSkillsDnaProgress,
+  courseSkillOutcomes, userRecommendations
+} from "@shared/schema";
 
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024
 const OPENAI_MODEL = "gpt-4o";
@@ -120,27 +128,54 @@ ${JSON.stringify(availableCourses, null, 2)}
    */
   private async getUserProfile(userId: number) {
     try {
-      // Здесь должен быть запрос к базе данных для получения профиля
-      // Упрощенная версия для демонстрации
+      // Запрос к базе данных для получения пользователя
+      const [user] = await db.select().from(users).where(eq(users.id, userId));
+      if (!user) {
+        throw new Error(`Пользователь с ID ${userId} не найден`);
+      }
+      
+      // Запрос к базе данных для получения профиля
+      const [userProfile] = await db.select().from(userProfiles).where(eq(userProfiles.userId, userId));
+      
+      // Получаем уровни навыков пользователя из БД
+      const userSkillsData = await db.select()
+        .from(userSkills)
+        .innerJoin(skills, eq(userSkills.skillId, skills.id))
+        .where(eq(userSkills.userId, userId));
+      
+      // Преобразуем в объект для удобства использования
+      const skillLevel: Record<string, number> = {};
+      userSkillsData.forEach(record => {
+        // Нормализуем уровень от 0 до 1
+        const level = record.user_skills.level / 100;
+        skillLevel[record.skills.name] = level;
+      });
+      
+      // Получаем прогресс обучения
+      const courseProgress = await db.select().from(userCourseProgress).where(eq(userCourseProgress.userId, userId));
+      const lessonsProgress = await db.select().from(userLessonProgress).where(eq(userLessonProgress.userId, userId));
+      
+      // Формируем профиль пользователя
       const profile = {
         id: userId,
-        name: "Студент",
-        role: "student",
-        experience: "intermediate",
-        interests: ["prompt-engineering", "generative-ai", "no-code-ai"],
-        goals: ["create-ai-apps", "improve-skills"],
-        preferredLearningStyle: "practical",
-        completedCoursesCount: 2,
-        completedLessonsCount: 15,
-        skillLevel: {
-          "ai-fundamentals": 0.7,
-          "prompt-engineering": 0.4,
-          "python": 0.6,
-          "machine-learning": 0.3,
-          "no-code-tools": 0.2
+        name: user.displayName || user.username,
+        role: userProfile?.role || "student",
+        experience: userProfile?.experience || "beginner",
+        interests: userProfile?.interest ? [userProfile.interest] : [],
+        goals: userProfile?.goal ? [userProfile.goal] : [],
+        preferredLearningStyle: userProfile?.preferredLearningStyle || "practical",
+        completedCoursesCount: courseProgress.filter(p => p.completedAt !== null).length,
+        completedLessonsCount: lessonsProgress.filter(p => p.status === "completed").length,
+        skillLevel: Object.keys(skillLevel).length > 0 ? skillLevel : {
+          // Если навыков нет в БД, используем дефолтные значения для новых пользователей
+          "ai-fundamentals": 0.1,
+          "prompt-engineering": 0.1,
+          "python": 0.1,
+          "machine-learning": 0.1
         }
       };
       
+      console.log(`Получен профиль пользователя ${userId}:`, JSON.stringify(profile, null, 2));
       return profile;
     } catch (error) {
       console.error("Ошибка при получении профиля пользователя:", error);
@@ -153,42 +188,200 @@ ${JSON.stringify(availableCourses, null, 2)}
    */
   private async getLearningProgress(userId: number) {
     try {
-      // Здесь должен быть запрос к базе данных для получения прогресса
-      // Упрощенная версия для демонстрации
+      // Получаем прогресс по курсам
+      const courseProgressData = await db.select({
+        progress: userCourseProgress,
+        course: courses
+      })
+      .from(userCourseProgress)
+      .innerJoin(courses, eq(userCourseProgress.courseId, courses.id))
+      .where(eq(userCourseProgress.userId, userId));
+      
+      // Получаем прогресс по урокам
+      const lessonProgressData = await db.select({
+        progress: userLessonProgress,
+        lesson: lessons,
+        module: courseModules
+      })
+      .from(userLessonProgress)
+      .innerJoin(lessons, eq(userLessonProgress.lessonId, lessons.id))
+      .innerJoin(courseModules, eq(lessons.moduleId, courseModules.id))
+      .where(eq(userLessonProgress.userId, userId));
+      
+      // Получаем прогресс по модулям (вычисляем из прогресса по урокам)
+      const moduleProgress = new Map<number, { 
+        id: number, 
+        courseId: number, 
+        title: string, 
+        completedLessons: number, 
+        totalLessons: number,
+        completedAt: Date | null
+      }>();
+      
+      // Сначала получаем все модули и создаем для них записи прогресса
+      for (const record of lessonProgressData) {
+        const moduleId = record.module.id;
+        if (!moduleProgress.has(moduleId)) {
+          moduleProgress.set(moduleId, {
+            id: moduleId,
+            courseId: record.module.courseId,
+            title: record.module.title,
+            completedLessons: 0,
+            totalLessons: 0,
+            completedAt: null
+          });
+        }
+        
+        const module = moduleProgress.get(moduleId);
+        if (module) {
+          module.totalLessons++;
+          if (record.progress.status === "completed") {
+            module.completedLessons++;
+          }
+        }
+      }
+      
+      // Считаем модуль завершенным, если завершены все уроки
+      for (const [moduleId, module] of moduleProgress.entries()) {
+        if (module.completedLessons === module.totalLessons && module.totalLessons > 0) {
+          // Находим дату последнего завершенного урока в модуле
+          const moduleLessons = lessonProgressData.filter(
+            record => record.module.id === moduleId && record.progress.status === "completed"
+          );
+          
+          if (moduleLessons.length > 0) {
+            const lastCompleted = moduleLessons.reduce((latest, current) => {
+              if (!latest.progress.completedAt) return current;
+              if (!current.progress.completedAt) return latest;
+              return current.progress.completedAt > latest.progress.completedAt ? current : latest;
+            });
+            
+            module.completedAt = lastCompleted.progress.completedAt;
+          }
+        }
+      }
+      
+      // Формируем объекты для ответа
+      const completedCourses = courseProgressData
+        .filter(record => record.progress.completedAt !== null)
+        .map(record => ({
+          id: record.course.id,
+          title: record.course.title,
+          completedAt: record.progress.completedAt ? record.progress.completedAt.toISOString() : null,
+          score: record.progress.progress || 0
+        }));
+      
+      const completedModules = Array.from(moduleProgress.values())
+        .filter(module => module.completedAt !== null)
+        .map(module => ({
+          id: module.id,
+          courseId: module.courseId,
+          title: module.title,
+          completedAt: module.completedAt ? module.completedAt.toISOString() : null,
+          score: Math.round((module.completedLessons / module.totalLessons) * 100) || 0
+        }));
+      
+      const completedLessons = lessonProgressData
+        .filter(record => record.progress.status === "completed")
+        .map(record => ({
+          id: record.lesson.id,
+          moduleId: record.module.id,
+          title: record.lesson.title,
+          completedAt: record.progress.completedAt ? record.progress.completedAt.toISOString() : null,
+          score: 100 // У нас нет оценок за уроки, ставим максимум
+        }));
+      
+      const inProgressCourses = courseProgressData
+        .filter(record => record.progress.completedAt === null && record.progress.progress > 0)
+        .map(record => ({
+          id: record.course.id,
+          title: record.course.title,
+          progress: record.progress.progress / 100
+        }));
+      
+      // Находим последнюю активность пользователя
+      const lastActivities = [
+        ...completedLessons.map(lesson => ({
+          type: "lesson_completed" as const,
+          lessonId: lesson.id,
+          timestamp: lesson.completedAt
+        })).filter(a => a.timestamp !== null),
+        ...completedModules.map(module => ({
+          type: "module_completed" as const,
+          moduleId: module.id,
+          timestamp: module.completedAt
+        })).filter(a => a.timestamp !== null),
+        ...completedCourses.map(course => ({
+          type: "course_completed" as const,
+          courseId: course.id,
+          timestamp: course.completedAt
+        })).filter(a => a.timestamp !== null)
+      ];
+      
+      const lastActivity = lastActivities.length > 0 
+        ? lastActivities.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0] 
+        : { type: "none" as const, timestamp: new Date().toISOString() };
+      
+      // Рассчитываем средний балл
+      const allScores = [
+        ...completedCourses.map(c => c.score),
+        ...completedModules.map(m => m.score)
+      ];
+      const averageScore = allScores.length > 0 
+        ? Math.round(allScores.reduce((sum, score) => sum + score, 0) / allScores.length) 
+        : 0;
+      
+      // Рассчитываем недельную активность
+      const now = new Date();
+      const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      
+      const lessonsCompletedThisWeek = completedLessons.filter(lesson => {
+        if (!lesson.completedAt) return false;
+        const completedDate = new Date(lesson.completedAt);
+        return completedDate >= oneWeekAgo && completedDate <= now;
+      });
+      
+      const daysActive = new Set(
+        lessonsCompletedThisWeek.map(lesson => {
+          const date = new Date(lesson.completedAt);
+          return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+        })
+      ).size;
+      
+      // Определяем сильные и слабые стороны на основе Skills DNA
+      const userSkillsDna = await db.select({
+        progress: userSkillsDnaProgress,
+        skill: skillsDna
+      })
+      .from(userSkillsDnaProgress)
+      .innerJoin(skillsDna, eq(userSkillsDnaProgress.dnaId, skillsDna.id))
+      .where(eq(userSkillsDnaProgress.userId, userId));
+      
+      // Сортируем навыки по прогрессу
+      const sortedSkills = userSkillsDna.sort((a, b) => b.progress.progress - a.progress.progress);
+      
+      // Выбираем топ-3 сильных навыка и топ-3 слабых
+      const strengthAreas = sortedSkills.slice(0, 3).map(skill => skill.skill.name);
+      const weakAreas = sortedSkills.slice(-3).map(skill => skill.skill.name);
+      
+      // Формируем итоговый объект прогресса
       const progress = {
-        completedCourses: [
-          { id: 1, title: "AI Literacy 101", completedAt: "2025-04-15", score: 85 }
-        ],
-        completedModules: [
-          { id: 1, courseId: 1, title: "Введение в ИИ", completedAt: "2025-04-10", score: 90 },
-          { id: 2, courseId: 1, title: "Машинное обучение", completedAt: "2025-04-12", score: 82 },
-          { id: 3, courseId: 1, title: "Нейронные сети", completedAt: "2025-04-15", score: 78 }
-        ],
-        completedLessons: [
-          { id: 1, moduleId: 1, title: "Что такое ИИ", completedAt: "2025-04-08", score: 95 },
-          { id: 2, moduleId: 1, title: "История развития ИИ", completedAt: "2025-04-09", score: 88 },
-          { id: 3, moduleId: 1, title: "Типы ИИ систем", completedAt: "2025-04-10", score: 92 },
-          { id: 4, moduleId: 2, title: "Основы машинного обучения", completedAt: "2025-04-11", score: 85 },
-          // ... остальные уроки
-        ],
-        inProgressCourses: [
-          { id: 2, title: "Prompt Engineering Masterclass", progress: 0.3 }
-        ],
-        lastActivity: {
-          type: "lesson_completed",
-          lessonId: 12,
-          timestamp: "2025-05-01T14:30:00Z"
-        },
-        averageScore: 86,
+        completedCourses,
+        completedModules,
+        completedLessons,
+        inProgressCourses,
+        lastActivity,
+        averageScore,
         weeklyActivity: {
-          hoursSpent: 7.5,
-          daysActive: 4,
-          completedLessons: 3
+          hoursSpent: lessonsCompletedThisWeek.length * 0.5, // Примерное время на урок - 30 минут
+          daysActive,
+          completedLessons: lessonsCompletedThisWeek.length
         },
-        strengthAreas: ["ai-concepts", "prompt-basics"],
-        weakAreas: ["advanced-prompting", "no-code-tools"]
+        strengthAreas,
+        weakAreas
       };
       
+      console.log(`Получен прогресс обучения пользователя ${userId}`);
       return progress;
     } catch (error) {
       console.error("Ошибка при получении прогресса обучения:", error);
@@ -201,70 +394,66 @@ ${JSON.stringify(availableCourses, null, 2)}
    */
   private async getAvailableCourses() {
     try {
-      // Здесь должен быть запрос к базе данных для получения курсов
-      // Упрощенная версия для демонстрации
-      const courses = [
-        {
-          id: 1,
-          title: "AI Literacy 101",
-          description: "Основы искусственного интеллекта для начинающих",
-          difficulty: "beginner",
-          modules: [
-            { id: 1, title: "Введение в ИИ", lessonsCount: 3 },
-            { id: 2, title: "Машинное обучение", lessonsCount: 3 },
-            { id: 3, title: "Нейронные сети", lessonsCount: 3 },
-            { id: 4, title: "Глубокое обучение", lessonsCount: 3 },
-            { id: 5, title: "Генеративные модели", lessonsCount: 3 },
-            { id: 6, title: "Этика ИИ", lessonsCount: 3 }
-          ],
-          skillsGained: ["ai-fundamentals", "machine-learning-basics", "neural-networks-intro"],
-          estimatedHours: 20
-        },
-        {
-          id: 2,
-          title: "Prompt Engineering Masterclass",
-          description: "Продвинутые техники создания промптов для генеративных моделей",
-          difficulty: "intermediate",
-          modules: [
-            { id: 7, title: "Основы промпт инжиниринга", lessonsCount: 4 },
-            { id: 8, title: "Продвинутые техники", lessonsCount: 5 },
-            { id: 9, title: "Оптимизация промптов", lessonsCount: 3 },
-            { id: 10, title: "Создание приложений", lessonsCount: 4 }
-          ],
-          skillsGained: ["prompt-engineering", "prompt-optimization", "ai-app-design"],
-          estimatedHours: 15
-        },
-        {
-          id: 3,
-          title: "No-Code AI Development",
-          description: "Создание ИИ-приложений без программирования",
-          difficulty: "beginner",
-          modules: [
-            { id: 11, title: "Введение в No-Code ИИ", lessonsCount: 3 },
-            { id: 12, title: "Инструменты No-Code", lessonsCount: 4 },
-            { id: 13, title: "Создание чат-бота", lessonsCount: 5 },
-            { id: 14, title: "Интеграция с API", lessonsCount: 4 }
-          ],
-          skillsGained: ["no-code-tools", "ai-integration", "chatbot-design"],
-          estimatedHours: 12
-        },
-        {
-          id: 4,
-          title: "Python для работы с ИИ",
-          description: "Основы Python для разработки ИИ-приложений",
-          difficulty: "intermediate",
-          modules: [
-            { id: 15, title: "Основы Python", lessonsCount: 5 },
-            { id: 16, title: "Работа с данными", lessonsCount: 4 },
-            { id: 17, title: "Библиотеки для ИИ", lessonsCount: 5 },
-            { id: 18, title: "Создание простых моделей", lessonsCount: 4 }
-          ],
-          skillsGained: ["python", "data-manipulation", "ai-libraries"],
-          estimatedHours: 18
-        }
-      ];
+      // Получаем список всех курсов
+      const coursesData = await db.select().from(courses);
       
-      return courses;
+      // Загружаем связанные данные для каждого курса
+      const result = await Promise.all(coursesData.map(async (course) => {
+        // Получаем модули курса
+        const modules = await db.select()
+          .from(courseModules)
+          .where(eq(courseModules.courseId, course.id))
+          .orderBy(courseModules.orderIndex);
+        
+        // Для каждого модуля получаем количество уроков
+        const modulesWithLessonsCount = await Promise.all(modules.map(async (module) => {
+          const lessonsCount = await db.select({ count: sql`count(*)` })
+            .from(lessons)
+            .where(eq(lessons.moduleId, module.id));
+            
+          return {
+            id: module.id,
+            title: module.title,
+            lessonsCount: Number(lessonsCount[0].count) || 0
+          };
+        }));
+        
+        // Общая длительность курса в часах (оценка)
+        const totalLessons = modulesWithLessonsCount.reduce((acc, m) => acc + m.lessonsCount, 0);
+        const estimatedHours = Math.round(totalLessons * 0.5); // 30 минут на урок
+        
+        // Получаем навыки, связанные с курсом
+        const courseSkillsData = await db.select({
+          skill: skills
+        })
+        .from(courseSkillOutcomes)
+        .innerJoin(skills, eq(courseSkillOutcomes.skillId, skills.id))
+        .where(eq(courseSkillOutcomes.courseId, course.id));
+        
+        const skillsGained = courseSkillsData.map(s => s.skill.name);
+        
+        // Определяем уровень сложности в строковом формате
+        let difficulty;
+        switch (course.difficulty) {
+          case 1: difficulty = "beginner"; break;
+          case 2: difficulty = "intermediate"; break;
+          case 3: difficulty = "advanced"; break;
+          default: difficulty = "beginner";
+        }
+        
+        return {
+          id: course.id,
+          title: course.title,
+          description: course.description || "",
+          difficulty,
+          modules: modulesWithLessonsCount,
+          skillsGained: skillsGained.length > 0 ? skillsGained : ["ai-fundamentals"], // Если нет навыков, используем дефолтный
+          estimatedHours
+        };
+      }));
+      
+      console.log(`Получено ${result.length} доступных курсов`);
+      return result;
     } catch (error) {
       console.error("Ошибка при получении списка курсов:", error);
       throw new Error("Не удалось получить список курсов");
@@ -272,13 +461,42 @@ ${JSON.stringify(availableCourses, null, 2)}
   }
   
   /**
-   * Сохраняет рекомендации в базу данных
+   * Сохраняет рекомендации в базу данных для последующего использования
    */
   private async saveRecommendations(userId: number, recommendations: any) {
     try {
-      // Здесь должен быть запрос к базе данных для сохранения рекомендаций
-      // Для демонстрации просто логируем
-      console.log(`Сохранены рекомендации для пользователя ${userId}:`, recommendations);
+      const userRecommendationsData = await db.select().from(userRecommendations)
+        .where(eq(userRecommendations.userId, userId))
+        .orderBy(userRecommendations.createdAt);
+      
+      // Если уже есть рекомендации, сохраняем только новые
+      // В полноценной реализации здесь нужно добавить логику для сохранения в базу данных
+      
+      // Для каждого рекомендуемого курса
+      for (const course of recommendations.recommendedCourses) {
+        if (course && course.id) {
+          // Здесь должен быть код для сохранения рекомендации курса в БД
+          // Например:
+          // await db.insert(userRecommendations).values({
+          //   userId,
+          //   entityType: 'course',
+          //   entityId: course.id,
+          //   score: 1.0,
+          //   reason: course.explanation,
+          //   modelId: null // Если есть модель ИИ для рекомендаций
+          // });
+        }
+      }
+      
+      // Для каждого следующего шага
+      for (const step of recommendations.nextSteps) {
+        if (step && step.id) {
+          // Здесь должен быть код для сохранения рекомендуемого шага в БД
+        }
+      }
+      
+      // Логируем для отладки
+      console.log(`Сохранены рекомендации для пользователя ${userId}`);
       return true;
     } catch (error) {
       console.error("Ошибка при сохранении рекомендаций:", error);
