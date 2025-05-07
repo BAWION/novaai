@@ -481,19 +481,130 @@ export default function Dashboard() {
           </div>
         </motion.div>
         
-        {/* Content columns */}
+        {/* Main Content - Skills DNA and Recommended Courses */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* Skills DNA Card - Left side */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="w-full"
+          >
+            <Glassmorphism className="h-full rounded-xl overflow-hidden border border-purple-500/30 p-6">
+              <div className="flex items-center mb-4">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600/40 to-purple-700/20 flex items-center justify-center">
+                  <i className="fas fa-brain text-purple-300"></i>
+                </div>
+                <h2 className="font-orbitron text-xl font-semibold ml-3">
+                  Skills DNA
+                </h2>
+              </div>
+              <CompactSkillsDna showHeader={false} className="bg-transparent border-0" />
+            </Glassmorphism>
+          </motion.div>
+
+          {/* Recommended Courses - Right side */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="w-full"
+          >
+            <Glassmorphism className="h-full rounded-xl overflow-hidden border border-indigo-500/30 p-6">
+              <div className="flex items-center mb-4">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-600/40 to-indigo-700/20 flex items-center justify-center">
+                  <i className="fas fa-book text-indigo-300"></i>
+                </div>
+                <h2 className="font-orbitron text-xl font-semibold ml-3">
+                  Рекомендуемые курсы
+                </h2>
+              </div>
+              
+              <div className="space-y-4">
+                {recommendedCourses.slice(0, 2).map((course: any) => (
+                  <div 
+                    key={course.id}
+                    className="bg-space-900/50 hover:bg-space-900/70 border border-space-700 rounded-lg p-4 transition-all cursor-pointer"
+                    onClick={() => setLocation(`/courses/${course.id}`)}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className={`px-2 py-0.5 text-xs rounded-md ${
+                            course.matchPercentage && course.matchPercentage > 90 
+                              ? 'bg-green-500/20 text-green-300' 
+                              : course.matchPercentage && course.matchPercentage > 75
+                                ? 'bg-yellow-500/20 text-yellow-300'
+                                : 'bg-blue-500/20 text-blue-300'
+                          }`}>
+                            {course.matchPercentage ? `${course.matchPercentage}% совпадение` : '95% совпадение'}
+                          </span>
+                        </div>
+                        <h3 className="text-lg font-medium mt-2">{course.title}</h3>
+                        <p className="text-white/60 text-sm mt-1">{course.description || 'Описание курса'}</p>
+                        
+                        <div className="flex flex-wrap items-center gap-3 mt-3">
+                          <div className="flex items-center gap-1.5">
+                            <i className="fas fa-signal text-white/60"></i>
+                            <span className="text-white/60 text-xs">Сложность: {course.level}/5</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <i className="fas fa-clock text-white/60"></i>
+                            <span className="text-white/60 text-xs">120 мин</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <i className="fas fa-layer-group text-white/60"></i>
+                            <span className="text-white/60 text-xs">5 модулей</span>
+                          </div>
+                        </div>
+                        
+                        <div className="mt-3">
+                          <span className="text-purple-400 text-xs">Почему подходит:</span>
+                          <p className="text-white/80 text-xs mt-1">
+                            {course.id === 1 
+                              ? 'Идеально для начала обучения машинному обучению на вашем уровне' 
+                              : 'Поможет заполнить пробелы в математической подготовке'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {course.id === 1 ? (
+                        <>
+                          <span className="px-2 py-1 bg-space-800/60 text-white/80 text-xs rounded-md">Линейная алгебра</span>
+                          <span className="px-2 py-1 bg-space-800/60 text-white/80 text-xs rounded-md">Статистика</span>
+                          <span className="px-2 py-1 bg-space-800/60 text-white/80 text-xs rounded-md">Оптимизация</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="px-2 py-1 bg-space-800/60 text-white/80 text-xs rounded-md">Программирование</span>
+                          <span className="px-2 py-1 bg-space-800/60 text-white/80 text-xs rounded-md">Python</span>
+                          <span className="px-2 py-1 bg-space-800/60 text-white/80 text-xs rounded-md">Алгоритмы</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+            </Glassmorphism>
+          </motion.div>
+        </div>
+
+        {/* Additional Content Columns */}
         <div className="grid grid-cols-1 lg:grid-cols-7 gap-6">
           {/* Left column - Main orbital view (70%) */}
           <div className="lg:col-span-5 flex flex-col gap-6">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
               className="bg-space-800/50 rounded-xl p-4"
             >
               <div className="flex justify-between items-center mb-4">
                 <h2 className="font-orbitron text-xl font-semibold">
-                  Рекомендованные курсы
+                  Все курсы
                 </h2>
                 <div className="flex items-center bg-space-900/50 rounded-lg overflow-hidden">
                   <button 
@@ -1084,15 +1195,6 @@ export default function Dashboard() {
 
           {/* Right column (30%) */}
           <div className="lg:col-span-2 flex flex-col gap-6">
-            {/* Skills DNA Compact */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              <CompactSkillsDna />
-            </motion.div>
-            
             {/* AI Tutor Chat */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
