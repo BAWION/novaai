@@ -26,6 +26,30 @@ export class AIAgentController {
       });
     }
   }
+  
+  /**
+   * Тестовый метод для проверки работы ИИ-агента с конкретным пользователем
+   * ВНИМАНИЕ: Только для тестирования в разработке!
+   */
+  async testRecommendationsForUser(req: Request, res: Response) {
+    try {
+      const { userId } = req.params;
+      
+      if (!userId || isNaN(Number(userId))) {
+        return res.status(400).json({ error: "Некорректный ID пользователя" });
+      }
+      
+      const recommendations = await aiAgentService.getEducationalRecommendations(Number(userId));
+      
+      return res.status(200).json(recommendations);
+    } catch (error: any) {
+      console.error("Ошибка при тестировании рекомендаций:", error);
+      return res.status(500).json({ 
+        error: "Не удалось получить тестовые рекомендации от ИИ-агента",
+        details: error.message || "Неизвестная ошибка"
+      });
+    }
+  }
 }
 
 export const aiAgentController = new AIAgentController();

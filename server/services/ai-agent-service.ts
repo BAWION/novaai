@@ -146,8 +146,8 @@ ${JSON.stringify(availableCourses, null, 2)}
       // Преобразуем в объект для удобства использования
       const skillLevel: Record<string, number> = {};
       userSkillsData.forEach(record => {
-        // Нормализуем уровень от 0 до 1
-        const level = record.user_skills.level / 100;
+        // Нормализуем уровень от 0 до 1 (учитываем возможное null значение)
+        const level = (record.user_skills.level || 0) / 100;
         skillLevel[record.skills.name] = level;
       });
       
@@ -292,11 +292,11 @@ ${JSON.stringify(availableCourses, null, 2)}
         }));
       
       const inProgressCourses = courseProgressData
-        .filter(record => record.progress.completedAt === null && record.progress.progress > 0)
+        .filter(record => record.progress.completedAt === null && (record.progress.progress || 0) > 0)
         .map(record => ({
           id: record.course.id,
           title: record.course.title,
-          progress: record.progress.progress / 100
+          progress: (record.progress.progress || 0) / 100
         }));
       
       // Находим последнюю активность пользователя
@@ -319,7 +319,10 @@ ${JSON.stringify(availableCourses, null, 2)}
       ];
       
       const lastActivity = lastActivities.length > 0 
-        ? lastActivities.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0] 
+        ? lastActivities.sort((a, b) => {
+            if (!a.timestamp || !b.timestamp) return 0;
+            return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+          })[0] 
         : { type: "none" as const, timestamp: new Date().toISOString() };
       
       // Рассчитываем средний балл
@@ -343,9 +346,10 @@ ${JSON.stringify(availableCourses, null, 2)}
       
       const daysActive = new Set(
         lessonsCompletedThisWeek.map(lesson => {
+          if (!lesson.completedAt) return '';
           const date = new Date(lesson.completedAt);
           return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
-        })
+        }).filter(date => date !== '')
       ).size;
       
       // Определяем сильные и слабые стороны на основе Skills DNA
@@ -358,7 +362,7 @@ ${JSON.stringify(availableCourses, null, 2)}
       .where(eq(userSkillsDnaProgress.userId, userId));
       
       // Сортируем навыки по прогрессу
-      const sortedSkills = userSkillsDna.sort((a, b) => b.progress.progress - a.progress.progress);
+      const sortedSkills = userSkillsDna.sort((a, b) => (b.progress.progress || 0) - (a.progress.progress || 0));
       
       // Выбираем топ-3 сильных навыка и топ-3 слабых
       const strengthAreas = sortedSkills.slice(0, 3).map(skill => skill.skill.name);
