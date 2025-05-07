@@ -14,6 +14,7 @@ import { default as SkillProgress } from "@/components/progress/skill-progress";
 import { WelcomeModal } from "@/components/onboarding/welcome-modal";
 import { CompactSkillsDnaCard } from "@/components/skills-dna";
 import { SkillsDnaProfile } from "@/components/skills-dna-profile";
+import { LearningRoadmap } from "@/components/roadmap";
 import { 
   Dialog,
   DialogContent,
@@ -756,6 +757,16 @@ export default function Dashboard() {
                   </div>
                 </Link>
               </div>
+            </motion.div>
+            
+            {/* Learning Roadmap */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.25 }}
+              className="mb-6"
+            >
+              <LearningRoadmap isDemoMode={true} />
             </motion.div>
             
             {/* AI Analysis Section */}
