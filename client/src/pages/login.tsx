@@ -168,7 +168,14 @@ export default function Login() {
       
       // Если у нас есть сохраненные результаты диагностики и перенаправление
       if (redirectAfterAuth && hasDiagnosticResults) {
-        console.log(`Обнаружены результаты диагностики! Перенаправляем на: ${redirectAfterAuth}`);
+        // Обновляем URL с quick-diagnosis на deep-diagnosis, если требуется
+        let redirectUrl = redirectAfterAuth;
+        if (redirectUrl === "/quick-diagnosis") {
+          redirectUrl = "/deep-diagnosis";
+          console.log("Обновлен URL перенаправления с /quick-diagnosis на /deep-diagnosis");
+        }
+        
+        console.log(`Обнаружены результаты диагностики! Перенаправляем на: ${redirectUrl}`);
         
         toast({
           title: "Данные диагностики восстановлены",
@@ -180,8 +187,8 @@ export default function Login() {
         sessionStorage.removeItem("redirectAfterAuth");
         
         setTimeout(() => {
-          console.log(`Перенаправляем на ${redirectAfterAuth}`);
-          navigate(redirectAfterAuth);
+          console.log(`Перенаправляем на ${redirectUrl}`);
+          navigate(redirectUrl);
         }, 1000);
       } else {
         // Стандартное перенаправление на dashboard
