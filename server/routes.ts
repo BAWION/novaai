@@ -59,12 +59,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Setup session middleware
   const MemoryStore = memorystore(session);
 
+  // Настраиваем прокси для корректной работы сессий за фронтенд-серверами
+  app.set("trust proxy", 1);
+
   app.use(
     session({
-      cookie: { maxAge: 86400000 }, // 24 hours
+      cookie: { 
+        maxAge: 86400000, // 24 часа
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production", // false в разработке, true в продакшене
+        sameSite: "lax"
+      },
       store: new MemoryStore({
-        checkPeriod: 86400000, // prune expired entries every 24h
+        checkPeriod: 86400000, // Очищать устаревшие записи каждые 24ч
+        ttl: 86400 // Время жизни сессии в секундах (24 часа)
       }),
+      name: "nova_session", // Уникальное имя для cookie
       resave: false,
       saveUninitialized: false,
       secret: process.env.SESSION_SECRET || "nova-ai-university-secret",
@@ -228,6 +238,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
           username: "админ13",
           displayName: "Администратор"
         };
+        
+        // Принудительно сохраняем сессию перед отправкой ответа
+        await new Promise<void>((resolve, reject) => {
+          req.session.save((err) => {
+            if (err) {
+              console.error("Ошибка при сохранении сессии администратора:", err);
+              reject(err);
+            } else {
+              console.log("Административная сессия успешно сохранена");
+              resolve();
+            }
+          });
+        });
+        
         return res.json({ id: 999, username: "админ13", displayName: "Администратор" });
       }
       
@@ -250,6 +274,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
           username: user.username,
           displayName: displayName || user.displayName
         };
+        
+        // Принудительно сохраняем сессию перед отправкой ответа
+        await new Promise<void>((resolve, reject) => {
+          req.session.save((err) => {
+            if (err) {
+              console.error("Ошибка при сохранении сессии:", err);
+              reject(err);
+            } else {
+              console.log("Сессия успешно сохранена для пользователя:", user.username);
+              resolve();
+            }
+          });
+        });
         
         return res.json({ id: user.id, username: user.username, displayName: displayName || user.displayName });
       }
@@ -274,6 +311,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
           username: user.username,
           displayName: user.displayName || undefined
         };
+        
+        // Принудительно сохраняем сессию перед отправкой ответа
+        await new Promise<void>((resolve, reject) => {
+          req.session.save((err) => {
+            if (err) {
+              console.error("Ошибка при сохранении сессии:", err);
+              reject(err);
+            } else {
+              console.log("Сессия успешно сохранена для пользователя:", user.username);
+              resolve();
+            }
+          });
+        });
         
         return res.json({ id: user.id, username: user.username, displayName: user.displayName });
       }
