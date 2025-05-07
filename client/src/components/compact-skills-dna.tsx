@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useLocation } from "wouter";
 import useSkillsDna from "@/hooks/use-skills-dna";
 import { Button } from "@/components/ui/button";
+import SimpleRadarChart from "@/components/skills-radar-simple";
 
 interface CompactSkillsDnaProps {
   userId?: number;
@@ -120,59 +121,88 @@ export function CompactSkillsDna({
           )}
         </div>
       </CardHeader>
-      <CardContent className="space-y-3">
-        {/* Сильные навыки */}
-        <div>
-          <h3 className="text-white text-sm font-medium mb-1.5 flex items-center">
-            <Award className="h-3.5 w-3.5 mr-1 text-yellow-400" />
-            Сильные стороны
-          </h3>
-          <div className="flex flex-wrap gap-2">
-            {strongSkills.length > 0 ? (
-              strongSkills.map(([skill, value]) => (
-                <Badge 
-                  key={skill} 
-                  variant="outline"
-                  className="bg-yellow-500/10 border-yellow-500/30 text-yellow-300 text-xs"
-                >
-                  {skill} ({value}%)
-                </Badge>
-              ))
-            ) : (
-              <p className="text-white/60 text-xs">
-                Пока нет сильных сторон. Продолжайте обучение!
-              </p>
-            )}
-          </div>
+      <CardContent className="space-y-4">
+        {/* Радарная диаграмма навыков */}
+        <div className="pt-2">
+          <SimpleRadarChart 
+            skills={skills} 
+            height={300}
+            className="mx-auto"
+          />
+        </div>
+        
+        {/* Общая картина */}
+        <div className="bg-space-900/30 rounded-md p-3 border border-space-800">
+          <h3 className="text-white font-medium mb-2">Общая картина</h3>
+          <p className="text-white/80 text-sm">
+            {summary?.description || 
+              "Вы находитесь на начальном этапе обучения. Ваш профиль показывает хороший потенциал для роста. Рекомендуем сначала укрепить фундаментальные основы."}
+          </p>
+          
+          <button 
+            onClick={handleViewFullProfile}
+            className="mt-3 text-white bg-space-800 hover:bg-space-700 transition w-full py-3 rounded-md text-sm font-medium flex items-center justify-center"
+          >
+            <span>Подробный анализ Skills DNA</span>
+            <ChevronRight className="h-4 w-4 ml-1" />
+          </button>
         </div>
 
-        {/* Области для развития */}
-        <div>
-          <h3 className="text-white text-sm font-medium mb-1.5 flex items-center">
-            <Target className="h-3.5 w-3.5 mr-1 text-blue-400" />
-            Области для развития
-          </h3>
-          <div className="flex flex-wrap gap-2">
-            {weakSkills.length > 0 ? (
-              weakSkills.map(([skill, value]) => (
-                <Badge 
-                  key={skill} 
-                  variant="outline"
-                  className="bg-blue-500/10 border-blue-500/30 text-blue-300 text-xs"
-                >
-                  {skill} ({value}%)
-                </Badge>
-              ))
-            ) : (
-              <p className="text-white/60 text-xs">
-                Отлично! У вас нет явных слабых сторон.
-              </p>
-            )}
+        {/* Сильные навыки и области для развития (на мобильных устройствах) */}
+        <div className="md:hidden space-y-3">
+          {/* Сильные навыки */}
+          <div>
+            <h3 className="text-white text-sm font-medium mb-1.5 flex items-center">
+              <Award className="h-3.5 w-3.5 mr-1 text-yellow-400" />
+              Сильные стороны
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {strongSkills.length > 0 ? (
+                strongSkills.map(([skill, value]) => (
+                  <Badge 
+                    key={skill} 
+                    variant="outline"
+                    className="bg-yellow-500/10 border-yellow-500/30 text-yellow-300 text-xs"
+                  >
+                    {skill} ({value}%)
+                  </Badge>
+                ))
+              ) : (
+                <p className="text-white/60 text-xs">
+                  Пока нет сильных сторон. Продолжайте обучение!
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Области для развития */}
+          <div>
+            <h3 className="text-white text-sm font-medium mb-1.5 flex items-center">
+              <Target className="h-3.5 w-3.5 mr-1 text-blue-400" />
+              Области для развития
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {weakSkills.length > 0 ? (
+                weakSkills.map(([skill, value]) => (
+                  <Badge 
+                    key={skill} 
+                    variant="outline"
+                    className="bg-blue-500/10 border-blue-500/30 text-blue-300 text-xs"
+                  >
+                    {skill} ({value}%)
+                  </Badge>
+                ))
+              ) : (
+                <p className="text-white/60 text-xs">
+                  Отлично! У вас нет явных слабых сторон.
+                </p>
+              )}
+            </div>
           </div>
         </div>
 
         {/* Общий прогресс */}
-        <div>
+        <div className="md:hidden">
           <h3 className="text-white text-sm font-medium mb-1.5 flex items-center">
             <LineChart className="h-3.5 w-3.5 mr-1 text-green-400" />
             Общий прогресс
@@ -192,15 +222,6 @@ export function CompactSkillsDna({
             </div>
           </div>
         </div>
-
-        {/* Кнопка для перехода к полному профилю */}
-        <button 
-          onClick={handleViewFullProfile}
-          className="w-full mt-2 text-white/70 hover:text-white text-xs flex items-center justify-center py-1.5 rounded-md hover:bg-white/5 transition"
-        >
-          <span>Подробный профиль</span>
-          <ChevronRight className="h-3.5 w-3.5 ml-1" />
-        </button>
       </CardContent>
     </Card>
   );
