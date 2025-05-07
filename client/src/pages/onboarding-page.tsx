@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { useUserProfile } from "@/context/user-profile-context";
-import { useAuth } from "@/context/auth-context";
+import { useAuth } from "@/hooks/use-auth";
 import { ExtendedOnboardingForm } from "@/components/onboarding/extended-onboarding-form";
 import { RecommendationsDisplay } from "@/components/onboarding/recommendations-display";
 import { useToast } from "@/hooks/use-toast";

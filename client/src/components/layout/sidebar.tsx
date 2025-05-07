@@ -1,7 +1,7 @@
 import React, { useState, useEffect, createContext, useContext } from "react";
 import { Link, useLocation } from "wouter";
 import { Glassmorphism } from "@/components/ui/glassmorphism";
-import { useAuth } from "@/context/auth-context";
+import { useAuth } from "@/hooks/use-auth";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 // Создаем контекст для сайдбара

@@ -14,7 +14,7 @@ import {
   CardTitle 
 } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/context/auth-context";
+import { useAuth } from "@/hooks/use-auth";
 
 /**
  * Страница регистрации после прохождения онбординга (Путь 1)
