@@ -9,6 +9,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useUserProfile } from "@/context/user-profile-context";
+import { useAuth } from "@/context/auth-context"; // Добавляем импорт useAuth
 import { Badge } from "@/components/ui/badge";
 import { Glassmorphism } from "@/components/ui/glassmorphism";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -74,6 +75,7 @@ export default function QuickDiagnosis() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const { userProfile, updateUserProfile } = useUserProfile();
+  const { user, isAuthenticated } = useAuth(); // Добавляем использование хука useAuth
   const [step, setStep] = useState(1);
   const totalSteps = 3;
   
@@ -227,13 +229,16 @@ export default function QuickDiagnosis() {
       // Сохраняем результаты в Skills DNA через новый API
       const saveSkillsToDna = async () => {
         try {
+          // Используем ID пользователя из контекста auth, если доступен
+          const userId = user?.id || userProfile?.userId;
+          
           // Только если пользователь авторизован
-          if (userProfile?.userId) {
+          if (userId) {
             // Подготавливаем данные для отправки
-            const diagnosisResult = {
-              userId: userProfile.userId,
+            const diagnosisResult: import("@/api/diagnosis-api").DiagnosisResult = {
+              userId,
               skills: skillProfile,
-              diagnosticType: 'quick',
+              diagnosticType: 'quick', // Теперь соответствует типу DiagnosticType
               metadata: {
                 specialization: formData.specialization,
                 experience: formData.experience,
