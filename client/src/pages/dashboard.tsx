@@ -13,6 +13,7 @@ import { LearningTimeline } from "@/components/progress/learning-timeline";
 import { default as SkillProgress } from "@/components/progress/skill-progress";
 import { WelcomeModal } from "@/components/onboarding/welcome-modal";
 import { CompactSkillsDna } from "@/components/compact-skills-dna";
+import { useQuery } from "@tanstack/react-query";
 
 export default function Dashboard() {
   const { userProfile, updateUserProfile } = useUserProfile();
@@ -20,6 +21,42 @@ export default function Dashboard() {
   const [, setLocation] = useLocation();
   const [showOnboardingPrompt, setShowOnboardingPrompt] = useState(true);
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+  
+  // Получение рекомендуемых курсов
+  const { data: recommendedCourses = [] } = useQuery({
+    queryKey: ['/api/courses/recommended'],
+    queryFn: async () => {
+      try {
+        const res = await apiRequest('GET', '/api/courses/recommended');
+        if (!res.ok) {
+          throw new Error('Ошибка при загрузке рекомендуемых курсов');
+        }
+        const data = await res.json();
+        return data;
+      } catch (error) {
+        console.error('Ошибка при загрузке рекомендуемых курсов:', error);
+        // Возвращаем тестовые данные при ошибке
+        return [
+          {
+            id: 1,
+            title: "AI Literacy 101",
+            description: "Базовый курс по основам ИИ и его применению",
+            level: 1,
+            matchPercentage: 95
+          },
+          {
+            id: 2,
+            title: "Математика для ИИ",
+            description: "Основы математики, необходимые для понимания алгоритмов ИИ",
+            level: 2,
+            matchPercentage: 85
+          }
+        ];
+      }
+    },
+    // Если пользователь не авторизован, используем демо-данные
+    enabled: !!user
+  });
   
   const [message, setMessage] = useState("");
   const [AITutorChat, setAITutorChat] = useState({
