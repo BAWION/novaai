@@ -113,7 +113,24 @@ function Router() {
           <Route path="/register-after-onboarding">
             {() => <RegisterAfterOnboarding />}
           </Route>
-          <Route path="/quick-diagnosis" component={DeepDiagnosis} /> {/* Редирект со старого URL */}
+          {/* Старый URL - редирект на глубокую диагностику */}
+          <Route path="/quick-diagnosis">
+            {() => {
+              const [, navigate] = useLocation();
+              
+              // Редирект на новый формат URL
+              useEffect(() => {
+                console.log("Редирект с /quick-diagnosis на /deep-diagnosis");
+                navigate("/deep-diagnosis");
+              }, [navigate]);
+              
+              return (
+                <div className="flex items-center justify-center min-h-screen">
+                  <div className="w-12 h-12 rounded-full border-4 border-primary/30 border-t-primary animate-spin"></div>
+                </div>
+              );
+            }}
+          </Route>
           <Route path="/deep-diagnosis" component={DeepDiagnosis} />
           <Route path="/skills-dna" component={SkillsDnaPage} />
           
