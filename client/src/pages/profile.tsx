@@ -494,10 +494,23 @@ export default function Profile() {
                 </Glassmorphism>
               </motion.div>
               
+              {/* Skills DNA Profile */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
+              >
+                <SkillsDnaProfile 
+                  userId={userProfile?.userId}
+                  showHeader={true}
+                  className="mt-4" 
+                />
+              </motion.div>
+              
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
               >
                 <Glassmorphism className="p-6 rounded-xl">
                   <h3 className="font-medium mb-4">Рекомендуемые следующие шаги</h3>
