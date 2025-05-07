@@ -79,50 +79,35 @@ export function CompactSkillsDnaCard({
     return (
       <Card className={`bg-space-800/70 border-blue-500/20 ${className}`}>
         <CardHeader className="pb-2">
-          <CardTitle className="text-white flex items-center">
-            <Brain className="h-5 w-5 mr-2" />
-            Skills DNA
+          <CardTitle className="text-white flex items-center justify-between">
+            <div className="flex items-center">
+              <Brain className="h-5 w-5 mr-2" />
+              Skills DNA
+            </div>
+            <Badge 
+              variant="outline" 
+              className="bg-amber-500/20 border-amber-500/30 text-amber-300 text-xs animate-pulse"
+            >
+              Требуется диагностика
+            </Badge>
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Пустая треугольная диаграмма с разметкой */}
-          <div className="pt-2 relative">
-            <div className="absolute inset-0 flex items-center justify-center z-10">
-              <div className="rounded-full bg-space-900/80 p-4 backdrop-blur-sm border border-purple-500/30">
-                <Badge 
-                  variant="outline" 
-                  className="bg-purple-500/20 border-purple-500/30 text-purple-300 text-xs animate-pulse"
-                >
-                  Требуется диагностика
-                </Badge>
-              </div>
+        <CardContent className="pt-4">
+          <div className="flex flex-col items-center justify-center text-center">
+            <div className="bg-space-800/70 rounded-full p-4 mb-4 relative">
+              <Brain className="h-12 w-12 text-purple-400/40" />
             </div>
-            <div className="opacity-20">
-              <SkillsTriangleChart 
-                skills={{
-                  top: { name: "Понимание основ ИИ", value: 0 },
-                  bottomLeft: { name: "Этические аспекты использования ИИ", value: 0 },
-                  bottomRight: { name: "Критическое мышление в контексте ИИ", value: 0 }
-                }}
-                height={280}
-                width={280}
-                className="mx-auto"
-              />
-            </div>
-          </div>
-          
-          {/* Информационный блок */}
-          <div className="bg-space-900/30 rounded-md p-3 border border-space-800">
-            <h3 className="text-white font-medium mb-2 text-center">Карта навыков</h3>
-            <p className="text-white/80 text-sm text-center mb-4">
-              {error 
-                ? "Не удалось загрузить ваш профиль Skills DNA. Пожалуйста, пройдите диагностику, чтобы мы могли создать для вас персональную карту навыков." 
-                : "Пройдите диагностику, чтобы мы могли проанализировать ваши знания и навыки в области ИИ и составить для вас персональную карту компетенций."}
+            
+            <h3 className="text-white font-medium mb-2">
+              Необходима диагностика
+            </h3>
+            <p className="text-white/70 text-sm mb-5">
+              Пройдите единую диагностику из 15 вопросов для формирования персонального профиля Skills DNA
             </p>
             
             <Button 
               variant="default" 
-              className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600"
+              className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600"
               onClick={handleStartDiagnostics}
             >
               Пройти диагностику
