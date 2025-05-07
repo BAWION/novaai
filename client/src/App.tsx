@@ -18,6 +18,7 @@ import QuickDiagnosis from "@/pages/quick-diagnosis";
 import DeepDiagnosis from "@/pages/deep-diagnosis";
 import OrbitalLobby from "@/pages/orbital-lobby";
 import Dashboard from "@/pages/dashboard";
+import BridgePage from "@/pages/BridgePage";
 import Roadmap from "@/pages/roadmap";
 import Courses from "@/pages/courses";
 import LabHub from "@/pages/labhub";
@@ -120,6 +121,7 @@ function Router() {
           
           {/* Protected Routes */}
           <ProtectedRoute path="/dashboard" component={Dashboard} />
+          <ProtectedRoute path="/bridge" component={BridgePage} />
           <ProtectedRoute path="/roadmap" component={Roadmap} />
           <ProtectedRoute path="/courses" component={Courses} />
           <ProtectedRoute path="/labhub" component={LabHub} />
