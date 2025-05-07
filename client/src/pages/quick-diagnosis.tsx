@@ -18,6 +18,7 @@ import {
   UserInterest, 
   UserGoal
 } from "@/lib/constants";
+import { diagnosisApi } from "@/api/diagnosis-api";
 import { 
   Brain, 
   ArrowRight, 
@@ -223,6 +224,37 @@ export default function QuickDiagnosis() {
         }
       };
       
+      // Сохраняем результаты в Skills DNA через новый API
+      const saveSkillsToDna = async () => {
+        try {
+          // Только если пользователь авторизован
+          if (userProfile?.userId) {
+            // Подготавливаем данные для отправки
+            const diagnosisResult = {
+              userId: userProfile.userId,
+              skills: skillProfile,
+              diagnosticType: 'quick',
+              metadata: {
+                specialization: formData.specialization,
+                experience: formData.experience,
+                goal: formData.goal,
+                languages: formData.languages,
+                formData,
+                profileUpdate
+              }
+            };
+            
+            // Отправляем результаты в систему Skills DNA
+            const result = await diagnosisApi.saveResults(diagnosisResult);
+            console.log("Результаты диагностики сохранены в Skills DNA:", result);
+          } else {
+            console.warn("Пользователь не авторизован, результаты не будут сохранены в Skills DNA");
+          }
+        } catch (error) {
+          console.error("Ошибка при сохранении результатов в Skills DNA:", error);
+        }
+      };
+      
       setTimeout(() => {
         setAnalysisStep(1); // Анализируем интересы
         
@@ -277,6 +309,9 @@ export default function QuickDiagnosis() {
                 
                 // Сохраняем результаты в профиль пользователя
                 updateUserProfileSafely();
+                
+                // Сохраняем результаты в Skills DNA
+                saveSkillsToDna();
                 
               }, 1500);
             }, 1200);

@@ -3,19 +3,27 @@
  * API маршруты для работы с диагностикой и результатами Skills DNA
  */
 
-import { Router, Request, Response } from "express";
-import { diagnosisService } from "../services/diagnosis-service";
-import { authMiddleware } from "../middleware/auth-middleware";
+import express, { Request, Response } from "express";
 import { z } from "zod";
+import { diagnosisService } from "../services/diagnosis-service";
 
-const router = Router();
+const router = express.Router();
 
-// Схема для валидации запроса сохранения результатов диагностики
-const saveResultsSchema = z.object({
-  userId: z.number().int().positive(),
+// Middleware для проверки аутентификации
+const authMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  const user = req.session.user;
+  if (!user) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+  next();
+};
+
+// Схема валидации для результатов диагностики
+const diagnosisResultSchema = z.object({
+  userId: z.number(),
   skills: z.record(z.string(), z.number().min(0).max(100)),
-  diagnosticType: z.enum(['quick', 'deep']),
-  metadata: z.any().optional(),
+  diagnosticType: z.enum(["quick", "deep"]),
+  metadata: z.any().optional()
 });
 
 /**
@@ -24,39 +32,36 @@ const saveResultsSchema = z.object({
  */
 router.post("/results", authMiddleware, async (req: Request, res: Response) => {
   try {
-    // Проверяем валидность данных
-    const validationResult = saveResultsSchema.safeParse(req.body);
+    const validationResult = diagnosisResultSchema.safeParse(req.body);
+    
     if (!validationResult.success) {
-      return res.status(400).json({
-        success: false,
-        message: "Некорректные данные",
-        errors: validationResult.error.errors,
+      return res.status(400).json({ 
+        message: "Некорректные данные диагностики", 
+        errors: validationResult.error.errors 
       });
     }
-
-    // Проверяем, что пользователь сохраняет свои данные или является администратором
-    const userId = validationResult.data.userId;
-    if (req.user && req.user.id !== userId && req.user.id !== 999) {
-      return res.status(403).json({
-        success: false,
-        message: "У вас нет прав для изменения данных другого пользователя",
-      });
+    
+    const diagnosisResult = validationResult.data;
+    
+    // Если userId не передан, используем ID текущего пользователя
+    if (!diagnosisResult.userId && req.session.user) {
+      diagnosisResult.userId = req.session.user.id;
     }
-
-    // Сохраняем результаты диагностики
-    const result = await diagnosisService.saveResults(validationResult.data);
-
-    return res.status(200).json({
-      success: true,
+    
+    // Проверяем, что у нас есть ID пользователя
+    if (!diagnosisResult.userId) {
+      return res.status(400).json({ message: "Отсутствует ID пользователя" });
+    }
+    
+    const result = await diagnosisService.saveResults(diagnosisResult);
+    
+    res.status(201).json({
       message: "Результаты диагностики успешно сохранены",
-      data: result,
+      data: result
     });
   } catch (error) {
     console.error("Ошибка при сохранении результатов диагностики:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Внутренняя ошибка сервера при сохранении результатов диагностики",
-    });
+    res.status(500).json({ message: "Ошибка сервера при обработке результатов диагностики" });
   }
 });
 
@@ -67,35 +72,24 @@ router.post("/results", authMiddleware, async (req: Request, res: Response) => {
 router.get("/progress/:userId", authMiddleware, async (req: Request, res: Response) => {
   try {
     const userId = parseInt(req.params.userId);
-
+    
     if (isNaN(userId)) {
-      return res.status(400).json({
-        success: false,
-        message: "Некорректный ID пользователя",
-      });
+      return res.status(400).json({ message: "Некорректный ID пользователя" });
     }
-
-    // Проверяем, что пользователь запрашивает свои данные или является администратором
-    if (req.user && req.user.id !== userId && req.user.id !== 999) {
-      return res.status(403).json({
-        success: false,
-        message: "У вас нет прав для просмотра данных другого пользователя",
-      });
+    
+    // Проверяем доступ - пользователь может видеть только свой прогресс
+    if (req.session.user && req.session.user.id !== userId) {
+      return res.status(403).json({ message: "Недостаточно прав для просмотра прогресса другого пользователя" });
     }
-
-    // Получаем прогресс пользователя
-    const progressData = await diagnosisService.getUserDnaProgress(userId);
-
-    return res.status(200).json({
-      success: true,
-      data: progressData,
+    
+    const progress = await diagnosisService.getUserDnaProgress(userId);
+    
+    res.json({
+      data: progress
     });
   } catch (error) {
     console.error("Ошибка при получении прогресса пользователя:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Внутренняя ошибка сервера при получении прогресса пользователя",
-    });
+    res.status(500).json({ message: "Ошибка сервера при получении прогресса пользователя" });
   }
 });
 
@@ -106,35 +100,24 @@ router.get("/progress/:userId", authMiddleware, async (req: Request, res: Respon
 router.get("/summary/:userId", authMiddleware, async (req: Request, res: Response) => {
   try {
     const userId = parseInt(req.params.userId);
-
+    
     if (isNaN(userId)) {
-      return res.status(400).json({
-        success: false,
-        message: "Некорректный ID пользователя",
-      });
+      return res.status(400).json({ message: "Некорректный ID пользователя" });
     }
-
-    // Проверяем, что пользователь запрашивает свои данные или является администратором
-    if (req.user && req.user.id !== userId && req.user.id !== 999) {
-      return res.status(403).json({
-        success: false,
-        message: "У вас нет прав для просмотра данных другого пользователя",
-      });
+    
+    // Проверяем доступ - пользователь может видеть только свою сводку
+    if (req.session.user && req.session.user.id !== userId) {
+      return res.status(403).json({ message: "Недостаточно прав для просмотра сводки другого пользователя" });
     }
-
-    // Получаем сводную информацию
-    const summaryData = await diagnosisService.getUserDnaSummary(userId);
-
-    return res.status(200).json({
-      success: true,
-      data: summaryData,
+    
+    const summary = await diagnosisService.getUserDnaSummary(userId);
+    
+    res.json({
+      data: summary
     });
   } catch (error) {
     console.error("Ошибка при получении сводки прогресса пользователя:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Внутренняя ошибка сервера при получении сводки прогресса пользователя",
-    });
+    res.status(500).json({ message: "Ошибка сервера при получении сводки прогресса пользователя" });
   }
 });
 
