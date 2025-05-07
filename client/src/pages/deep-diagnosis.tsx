@@ -1754,33 +1754,20 @@ export default function DeepDiagnosisPage() {
                     </div>
                     
                     <div className="grid md:grid-cols-2 gap-6">
-                      {/* Профиль навыков */}
+                      {/* Профиль навыков - Skills DNA Radar Chart */}
                       <div>
                         <h4 className="text-lg font-medium mb-4 flex items-center">
-                          <User className="h-5 w-5 mr-2 text-primary" />
-                          Ваш профиль навыков
+                          <Brain className="h-5 w-5 mr-2 text-primary" />
+                          Skills DNA
                         </h4>
                         
                         <Glassmorphism className="p-4 rounded-lg">
-                          <div className="space-y-3">
-                            {Object.entries(userSkillProfile).map(([skill, level]) => (
-                              <div key={skill} className="space-y-1">
-                                <div className="flex justify-between">
-                                  <span className="text-sm">{skill}</span>
-                                  <span className="text-xs text-white/70">{level}%</span>
-                                </div>
-                                <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                                  <div
-                                    className={`h-full rounded-full ${
-                                      level > 70 ? 'bg-green-500' :
-                                      level > 50 ? 'bg-blue-500' :
-                                      level > 30 ? 'bg-yellow-500' : 'bg-red-500'
-                                    }`}
-                                    style={{ width: `${level}%` }}
-                                  ></div>
-                                </div>
-                              </div>
-                            ))}
+                          <div className="h-64">
+                            <SkillsRadarChart 
+                              skills={userSkillProfile}
+                              title=""
+                              showControls={false}
+                            />
                           </div>
                           
                           <div className="mt-6 border-t border-white/10 pt-4">
@@ -1792,6 +1779,17 @@ export default function DeepDiagnosisPage() {
                               {formData.experience === "intermediate" && "Ваш профиль показывает хороший баланс навыков. Есть крепкая база, на которой можно строить более специализированные знания."}
                               {formData.experience === "advanced" && "Ваш профиль демонстрирует продвинутый уровень по нескольким направлениям. Рекомендуем сосредоточиться на углублении специализации и изучении смежных областей."}
                             </p>
+                            <div className="mt-3">
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="w-full border-white/20 hover:border-white/30"
+                                onClick={() => window.location.href = '/skills-dna'}
+                              >
+                                Подробный анализ Skills DNA
+                                <ChevronRight className="ml-1 h-4 w-4" />
+                              </Button>
+                            </div>
                           </div>
                         </Glassmorphism>
                       </div>

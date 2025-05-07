@@ -1,6 +1,6 @@
 import React from "react";
 import { useUserProfile } from "@/context/user-profile-context";
-import Layout from "@/components/layout";
+import MainLayout from "@/components/main-layout";
 import SkillsDnaProfile from "@/components/skills-dna-profile";
 import { Button } from "@/components/ui/button";
 import { 
@@ -28,10 +28,11 @@ import {
  * Отображает профиль навыков пользователя и рекомендуемые курсы
  */
 export default function SkillsDnaPage() {
-  const { userProfile, isLoading } = useUserProfile();
+  const { userProfile } = useUserProfile();
+  const [isLoading, setIsLoading] = React.useState(false);
   
   return (
-    <Layout>
+    <MainLayout>
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-white flex items-center">
@@ -170,6 +171,6 @@ export default function SkillsDnaPage() {
           </TabsContent>
         </Tabs>
       </div>
-    </Layout>
+    </MainLayout>
   );
 }
