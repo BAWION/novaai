@@ -42,7 +42,6 @@ interface SkillsRadarChartProps {
   skills?: Record<string, number>;
   title?: string;
   showControls?: boolean;
-  showHeader?: boolean;
   className?: string;
   subtitle?: string;
   categories?: SkillCategory[];
@@ -70,7 +69,6 @@ export default function SkillsRadarChart({
   title = "Карта навыков",
   subtitle,
   showControls = true,
-  showHeader = true,
   className = "",
   categories = defaultCategories,
   isLoading = false,
@@ -192,86 +190,6 @@ export default function SkillsRadarChart({
   }
 
   // Основной рендеринг диаграммы
-  const renderRadarChart = () => (
-    <div className="w-full h-64 md:h-72">
-      <ResponsiveContainer width="100%" height="100%">
-        <RadarChart 
-          cx="50%" 
-          cy="50%" 
-          outerRadius="80%" 
-          data={filteredData}
-        >
-          <PolarGrid stroke="#ffffff20" />
-          <PolarAngleAxis 
-            dataKey="category" 
-            tick={{ fill: "#ffffffaa", fontSize: 11 }} 
-          />
-          <Radar
-            name="Уровень навыков"
-            dataKey="value"
-            stroke="#8884d8"
-            fill="#8884d8"
-            fillOpacity={0.6}
-          />
-          <Tooltip 
-            contentStyle={{ 
-              backgroundColor: "#191c29", 
-              border: "1px solid #414868",
-              borderRadius: "4px",
-              color: "#fff"
-            }} 
-            formatter={(value) => [`${value}%`, "Уровень"]}
-          />
-          <Legend />
-        </RadarChart>
-      </ResponsiveContainer>
-    </div>
-  );
-  
-  const renderSkillsList = () => (
-    <div className="space-y-2 pt-4">
-      {filteredData.map((skill, index) => (
-        <div key={index} className="flex flex-col">
-          <div className="flex justify-between items-center">
-            <span className="text-white text-sm">{skill.category}</span>
-            <span className="text-white/80 text-sm font-medium">{skill.value}%</span>
-          </div>
-          <div className="w-full h-2 bg-white/10 rounded-full mt-1">
-            <div 
-              className="h-full bg-gradient-to-r from-blue-400 to-indigo-400 rounded-full"
-              style={{ width: `${skill.value}%` }}
-            />
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-  
-  // Если заголовок не нужен, возвращаем только содержимое
-  if (!showHeader) {
-    return (
-      <div className={className}>
-        {showControls ? (
-          <Tabs defaultValue="radar" className="w-full">
-            <TabsList className="mb-4 bg-space-800/50 mx-auto">
-              <TabsTrigger value="radar">Радар</TabsTrigger>
-              <TabsTrigger value="list">Список</TabsTrigger>
-            </TabsList>
-            <TabsContent value="radar" className="mt-0">
-              {renderRadarChart()}
-            </TabsContent>
-            <TabsContent value="list" className="mt-0">
-              {renderSkillsList()}
-            </TabsContent>
-          </Tabs>
-        ) : (
-          renderRadarChart()
-        )}
-      </div>
-    );
-  }
-  
-  // Основной вид с карточкой и заголовком
   return (
     <Card className={`bg-space-800/70 border-blue-500/20 ${className}`}>
       <CardHeader className="pb-2">
@@ -315,18 +233,60 @@ export default function SkillsRadarChart({
       </CardHeader>
       
       <CardContent className="pt-2">
-        {showControls ? (
-          <>
-            <TabsContent value="radar" className="mt-0">
-              {renderRadarChart()}
-            </TabsContent>
-            <TabsContent value="list" className="mt-0">
-              {renderSkillsList()}
-            </TabsContent>
-          </>
-        ) : (
-          renderRadarChart()
-        )}
+        <TabsContent value="radar" className="mt-0">
+          <div className="w-full h-64 md:h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <RadarChart 
+                cx="50%" 
+                cy="50%" 
+                outerRadius="80%" 
+                data={filteredData}
+              >
+                <PolarGrid stroke="#ffffff20" />
+                <PolarAngleAxis 
+                  dataKey="category" 
+                  tick={{ fill: "#ffffffaa", fontSize: 11 }} 
+                />
+                <Radar
+                  name="Уровень навыков"
+                  dataKey="value"
+                  stroke="#8884d8"
+                  fill="#8884d8"
+                  fillOpacity={0.6}
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: "#191c29", 
+                    border: "1px solid #414868",
+                    borderRadius: "4px",
+                    color: "#fff"
+                  }} 
+                  formatter={(value) => [`${value}%`, "Уровень"]}
+                />
+                <Legend />
+              </RadarChart>
+            </ResponsiveContainer>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="list" className="mt-0">
+          <div className="space-y-2 pt-4">
+            {filteredData.map((skill, index) => (
+              <div key={index} className="flex flex-col">
+                <div className="flex justify-between items-center">
+                  <span className="text-white text-sm">{skill.category}</span>
+                  <span className="text-white/80 text-sm font-medium">{skill.value}%</span>
+                </div>
+                <div className="w-full h-2 bg-white/10 rounded-full mt-1">
+                  <div 
+                    className="h-full bg-gradient-to-r from-blue-400 to-indigo-400 rounded-full"
+                    style={{ width: `${skill.value}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </TabsContent>
       </CardContent>
     </Card>
   );
