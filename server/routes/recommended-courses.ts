@@ -3,7 +3,6 @@ import { db } from "../db";
 import { storage } from "../storage";
 import { eq } from "drizzle-orm";
 import { userProfiles, skillsDna, userSkillsDnaProgress, courseSkillRequirements } from "@shared/schema";
-import { diagnosisService } from "../services/diagnosis-service";
 
 const router = Router();
 
@@ -71,7 +70,10 @@ router.get("/", async (req, res) => {
           .where(eq(courseSkillRequirements.requiredLevel, 1))
           .limit(3);
         
-        const courseIds = [...new Set(basicCourses.map(item => item.courseId))];
+        // Собираем уникальные ID курсов
+        const courseIdSet = new Set<number>();
+        basicCourses.forEach(item => courseIdSet.add(item.courseId));
+        const courseIds = Array.from(courseIdSet);
         
         // Загружаем информацию о курсах
         coursesToReturn = await Promise.all(
@@ -102,67 +104,38 @@ router.get("/", async (req, res) => {
             .where(eq(userProfiles.userId, userId));
         }
       } else {
-        // Получаем сводку по компетенциям пользователя
-        const skillsSummary = await diagnosisService.getUserCategorySummary(userId);
-        
-        // Получаем курсы, соответствующие уровню навыков пользователя
+        // Получаем все курсы и выбираем топ-5 наиболее подходящих
         const allCourses = await storage.getAllCourses();
-        const coursesWithMatch = await Promise.all(
-          allCourses.map(async (course) => {
-            // Получаем требуемые навыки для курса
-            const requirements = await db
-              .select()
-              .from(courseSkillRequirements)
-              .where(eq(courseSkillRequirements.courseId, course.id));
-            
-            if (!requirements || requirements.length === 0) {
-              return { ...course, matchScore: 50 }; // Нет требований - средний приоритет
+        
+        // Предварительно сортируем курсы по сложности (ближе к уровню пользователя)
+        const userSkillsMap = userSkills.reduce((acc, skill) => {
+          acc[skill.dnaId] = skill;
+          return acc;
+        }, {} as Record<number, any>);
+        
+        // Генерируем приблизительную оценку уровня пользователя (от 1 до 3)
+        const userSkillCount = Object.keys(userSkillsMap).length;
+        const estimatedUserLevel = Math.min(3, Math.max(1, Math.ceil(userSkillCount / 3)));
+        
+        // Добавляем метаданные о соответствии к каждому курсу
+        const coursesWithMatch = allCourses.map((course) => {
+          // Генерируем соответствие курса на основе сложности
+          const diffGap = Math.abs((course.difficulty || 1) - estimatedUserLevel);
+          const matchScore = 100 - diffGap * 15; // 100% - perfect match, 85% - 1 level diff, etc
+          
+          return {
+            ...course,
+            matchScore: matchScore,
+            skillMatch: {
+              percentage: matchScore,
+              label: matchScore > 85 ? "Идеально подходит" : 
+                     matchScore > 70 ? "Хорошее соответствие" : 
+                     matchScore > 50 ? "Соответствует вашим навыкам" : 
+                     "Может быть сложно",
+              isRecommended: matchScore > 60
             }
-            
-            // Рассчитываем соответствие курса навыкам пользователя
-            let totalMatchScore = 0;
-            let maxPossibleScore = 0;
-            
-            for (const req of requirements) {
-              const userSkill = userSkills.find(s => s.skillId === req.skillId);
-              const skillImportance = req.importance || 1;
-              
-              maxPossibleScore += 100 * skillImportance;
-              
-              if (userSkill) {
-                const userLevel = userSkill.currentLevel === 'beginner' ? 1 : 
-                                  userSkill.currentLevel === 'intermediate' ? 2 : 
-                                  userSkill.currentLevel === 'advanced' ? 3 : 
-                                  userSkill.currentLevel === 'expert' ? 4 : 0;
-                
-                // Если уровень пользователя соответствует или выше требуемого
-                if (userLevel >= req.requiredLevel) {
-                  totalMatchScore += 100 * skillImportance; // Полное соответствие
-                } else {
-                  // Частичное соответствие
-                  totalMatchScore += (userLevel / req.requiredLevel) * 100 * skillImportance;
-                }
-              }
-            }
-            
-            const matchPercentage = maxPossibleScore > 0 
-              ? Math.round((totalMatchScore / maxPossibleScore) * 100) 
-              : 50;
-            
-            return { 
-              ...course, 
-              matchScore: matchPercentage,
-              skillMatch: {
-                percentage: matchPercentage,
-                label: matchPercentage > 85 ? "Идеально подходит" : 
-                       matchPercentage > 70 ? "Хорошее соответствие" : 
-                       matchPercentage > 50 ? "Соответствует вашим навыкам" : 
-                       "Может быть сложно",
-                isRecommended: matchPercentage > 60
-              }
-            };
-          })
-        );
+          };
+        });
         
         // Сортируем по соответствию и берем топ-5
         coursesWithMatch.sort((a, b) => b.matchScore - a.matchScore);
