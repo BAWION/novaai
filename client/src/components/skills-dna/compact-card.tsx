@@ -50,7 +50,7 @@ export function CompactSkillsDnaCard({
   
   // Переход к диагностике
   const handleStartDiagnostics = () => {
-    setLocation("/deep-diagnosis");
+    setLocation("/quick-diagnosis");
   };
   
   // Состояние загрузки

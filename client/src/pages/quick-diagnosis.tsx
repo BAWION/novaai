@@ -361,8 +361,8 @@ export default function QuickDiagnosis() {
             
             // Добавляем задержку перед перенаправлением, чтобы пользователь успел прочитать сообщение
             setTimeout(() => {
-              // Сохраняем URL для возврата после авторизации (используем новый путь)
-              sessionStorage.setItem("redirectAfterAuth", "/deep-diagnosis");
+              // Сохраняем текущий URL для возврата после авторизации
+              sessionStorage.setItem("redirectAfterAuth", "/quick-diagnosis");
               
               // Перенаправляем на страницу авторизации
               setLocation("/auth");

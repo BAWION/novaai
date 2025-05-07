@@ -49,7 +49,7 @@ export function CompactSkillsDna({
 
   // Переход к диагностике
   const handleStartDiagnostics = () => {
-    setLocation("/deep-diagnosis");
+    setLocation("/quick-diagnosis");
   };
 
   // Рендеринг состояния загрузки
