@@ -1,7 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { diagnosisApi } from "@/api/diagnosis-api";
 import { useUserProfile } from "@/context/user-profile-context";
-import { useAuth } from "@/hooks/use-auth";
+// Безопасный импорт хука useAuth без непосредственного вызова
+import * as AuthModule from "@/context/auth-context";
 
 /**
  * Тип возвращаемого значения хука useSkillsDna
@@ -23,15 +24,25 @@ export interface SkillsDnaData {
 export default function useSkillsDna(userId?: number): SkillsDnaData {
   const { userProfile } = useUserProfile();
   
-  // Безопасно получаем пользователя из AuthContext, если он доступен
+  // Безопасно получаем пользователя из контекста авторизации, если он доступен
   let authUser = null;
   try {
-    // Используем try-catch для проверки доступности контекста авторизации
-    const authContext = useContext(AuthContext);
-    if (authContext) {
-      authUser = authContext.user;
+    // Мы используем динамический импорт хука useAuth
+    // Это позволяет компоненту работать даже вне контекста AuthProvider
+    // Обычно работать с хуками таким образом не рекомендуется,
+    // но в данном случае это вынужденное решение проблемы совместимости
+    const useAuth: Function = (AuthModule as any).useAuth;
+    if (typeof useAuth === 'function') {
+      try {
+        const auth = useAuth();
+        authUser = auth?.user || null;
+      } catch (authError) {
+        // Здесь перехватываем ошибку из useAuth в случае 
+        // если компонент не обернут в AuthProvider
+        console.log("[useSkillsDna] Не удалось получить auth данные:", (authError as Error).message);
+      }
     }
-  } catch (error) {
+  } catch (error: any) {
     console.log("[useSkillsDna] AuthContext недоступен:", error.message);
   }
   
