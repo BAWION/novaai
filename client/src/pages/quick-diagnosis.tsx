@@ -234,11 +234,14 @@ export default function QuickDiagnosis() {
           
           // Только если пользователь авторизован
           if (userId) {
+            // Импортируем тип DiagnosticType явно
+            const diagnosticType: import("@/api/diagnosis-api").DiagnosticType = 'quick';
+            
             // Подготавливаем данные для отправки
             const diagnosisResult: import("@/api/diagnosis-api").DiagnosisResult = {
               userId,
               skills: skillProfile,
-              diagnosticType: 'quick', // Теперь соответствует типу DiagnosticType
+              diagnosticType, // Теперь используем переменную с явным типом
               metadata: {
                 specialization: formData.specialization,
                 experience: formData.experience,
