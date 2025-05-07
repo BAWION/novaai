@@ -71,7 +71,7 @@ export default function Dashboard() {
             
             if (parsedData.recommendations && parsedData.recommendations.length > 0) {
               console.log('[Dashboard] Используем рекомендации из sessionStorage:', 
-                parsedData.recommendations.map(r => r.title || 'без названия').join(', '));
+                parsedData.recommendations.map((r: any) => r.title || 'без названия').join(', '));
               return parsedData.recommendations;
             } else {
               console.warn('[Dashboard] В сохраненных данных нет рекомендаций');

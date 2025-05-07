@@ -16,7 +16,7 @@ import {
 import { useLocation } from "wouter";
 
 /**
- * Интерфейс для рекомендуемого курса
+ * Интерфейс для рекомендуемого курса (первый формат)
  */
 export interface RecommendedCourse {
   id: number;
@@ -44,19 +44,54 @@ export interface CourseRecWithMatchPercentage {
 }
 
 // Общий тип для работы с обоими форматами
-type NormalizedCourse = RecommendedCourse;
+type CourseFormat = RecommendedCourse | CourseRecWithMatchPercentage;
+
+// Тип для нормализованного формата (внутренний)
+interface NormalizedCourse {
+  id: number;
+  title: string;
+  description: string;
+  match: number;
+  difficulty: number;
+  duration?: number;
+  modules?: number;
+  skillGaps?: string[];
+  reason?: string;
+}
 
 interface RecommendedCoursesProps {
-  courses: (RecommendedCourse | CourseRecWithMatchPercentage)[];
+  courses: CourseFormat[];
   className?: string;
   limit?: number;
   compact?: boolean;
 }
 
 /**
+ * Функция для нормализации курса любого формата в стандартный внутренний формат
+ */
+const normalizeCourse = (course: CourseFormat): NormalizedCourse => {
+  if ('matchPercentage' in course) {
+    // Если это формат с matchPercentage, преобразуем его
+    return {
+      id: course.id,
+      title: course.title,
+      description: course.description,
+      match: course.matchPercentage,
+      difficulty: course.level,
+      duration: course.duration,
+      modules: course.modules,
+      skillGaps: course.skillGaps,
+      reason: course.reason
+    };
+  }
+  // Если это уже стандартный формат, просто возвращаем его
+  return course;
+};
+
+/**
  * Компонент отображения списка рекомендуемых курсов
  */
-export function RecommendedCourses({ 
+export function FixedRecommendedCourses({ 
   courses = [], 
   className = "", 
   limit = 3,
@@ -64,25 +99,8 @@ export function RecommendedCourses({
 }: RecommendedCoursesProps) {
   const [_, setLocation] = useLocation();
   
-  // Нормализуем данные из двух разных форматов в один общий
-  const normalizedCourses: NormalizedCourse[] = courses.map(course => {
-    // Если это формат с matchPercentage, преобразуем его в стандартный формат с match
-    if ('matchPercentage' in course) {
-      return {
-        id: course.id,
-        title: course.title,
-        description: course.description,
-        match: course.matchPercentage, // Используем matchPercentage как match
-        difficulty: course.level, // Используем level как difficulty
-        duration: course.duration,
-        modules: course.modules,
-        skillGaps: course.skillGaps,
-        reason: course.reason
-      };
-    }
-    // Если это уже стандартный формат, просто возвращаем его
-    return course;
-  });
+  // Нормализуем данные из разных форматов в один общий
+  const normalizedCourses: NormalizedCourse[] = courses.map(normalizeCourse);
   
   // Ограничиваем количество отображаемых курсов
   const displayCourses = limit > 0 ? normalizedCourses.slice(0, limit) : normalizedCourses;
