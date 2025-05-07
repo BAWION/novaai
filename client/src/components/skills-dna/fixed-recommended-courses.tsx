@@ -70,7 +70,10 @@ interface RecommendedCoursesProps {
  * Функция для нормализации курса любого формата в стандартный внутренний формат
  */
 const normalizeCourse = (course: CourseFormat): NormalizedCourse => {
+  console.log("[FixedRecommendedCourses] Нормализация курса:", course);
+  
   if ('matchPercentage' in course) {
+    console.log("[FixedRecommendedCourses] Обнаружен формат с matchPercentage, конвертирую в формат с match");
     // Если это формат с matchPercentage, преобразуем его
     return {
       id: course.id,
@@ -84,6 +87,8 @@ const normalizeCourse = (course: CourseFormat): NormalizedCourse => {
       reason: course.reason
     };
   }
+  
+  console.log("[FixedRecommendedCourses] Обнаружен стандартный формат с match и difficulty");
   // Если это уже стандартный формат, просто возвращаем его
   return course;
 };
