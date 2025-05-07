@@ -73,7 +73,7 @@ const authMiddleware = (req: express.Request, res: express.Response, next: expre
 // Middleware для отслеживания текущего пользователя для ML-сервиса
 const trackUserMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
   // Устанавливаем ID текущего пользователя для ML-компонентов
-  if (req.session.user) {
+  if (req.session && req.session.user) {
     setCurrentUserId(req.session.user.id);
   } else {
     setCurrentUserId(null);
@@ -82,86 +82,19 @@ const trackUserMiddleware = (req: express.Request, res: express.Response, next: 
 };
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Setup session middleware
-  // Настраиваем прокси для корректной работы сессий за фронтенд-серверами
-  app.set("trust proxy", 1);
-
-  // Создаем функцию для определения domain cookie в зависимости от окружения
-  const getCookieDomain = (req: express.Request) => {
-    // В production используем домен сайта, в development не устанавливаем
-    if (process.env.NODE_ENV === 'production') {
-      return '.replit.app'; // Общий домен для всех replit приложений
-    }
-    return undefined; // В development режиме домен не задаем
-  };
-
-  // Создаем хранилище сессий в PostgreSQL
-  const PostgreSqlStore = connectPgSimple(session);
-  
-  // Добавим проверку подключения к БД
-  try {
-    // Создадим таблицу сессий, если её нет
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS "session" (
-        "sid" varchar NOT NULL COLLATE "default",
-        "sess" json NOT NULL,
-        "expire" timestamp(6) NOT NULL,
-        CONSTRAINT "session_pkey" PRIMARY KEY ("sid")
-      )
-    `);
-    console.log("Таблица сессий в PostgreSQL проверена/создана");
-  } catch (error) {
-    console.error("Ошибка при инициализации таблицы сессий:", error);
-  }
-
-  app.use(
-    session({
-      cookie: { 
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 дней (увеличиваем время жизни)
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production", // false в разработке, true в продакшене
-        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // в production используем "none" для cross-site
-        path: "/",
-        // Динамически устанавливаем domain для cookie
-        domain: undefined // Будет установлен динамически для каждого запроса
-      },
-      store: new PostgreSqlStore({
-        pool: pool,           // Используем существующий пул соединений
-        tableName: 'session', // По умолчанию 'session'
-        createTableIfMissing: true,
-        pruneSessionInterval: 24 * 60 * 60 // Очистка устаревших сессий каждые 24 часа (в секундах)
-      }),
-      name: "nova_session", // Уникальное имя для cookie
-      resave: false,
-      saveUninitialized: false,
-      secret: process.env.SESSION_SECRET || "nova-ai-university-secret",
-      rolling: true, // Обновляет cookie при каждом запросе
-    })
-  );
-  
-  // Глобальный счетчик доступов к сессии - только для отладки
-  let sessionAccessCounter = 0;
-
-  // Middleware для отладки сессий и установки домена cookie
-  app.use((req, res, next) => {
-    sessionAccessCounter++;
-    const sessionID = req.sessionID;
-    const hasUser = req.session?.user ? true : false;
-    const userId = req.session?.user?.id;
-    const username = req.session?.user?.username;
-    
-    console.log(`[Session debug #${sessionAccessCounter}] Path: ${req.path}, SessionID: ${sessionID}, HasUser: ${hasUser}, UserID: ${userId}, Username: ${username}`);
-    
-    // Добавляем информацию о сессии в ответ для отладки
-    res.on('finish', () => {
-      console.log(`[Session response #${sessionAccessCounter}] Path: ${req.path}, Status: ${res.statusCode}`);
-    });
-    
-    if (req.session && req.session.cookie) {
-      req.session.cookie.domain = getCookieDomain(req);
-    }
-    next();
-  });
+  // Импортируем и используем маршрутизаторы для различных API
+  app.use('/api/check-secrets', checkSecrets);
+  app.use('/api/ml', mlApiRouter);
+  app.use('/api/gap-analysis', gapAnalysisRouter);
+  app.use('/api/ai-assistant', aiAssistantRouter);
+  app.use('/api/profiles', profilesRouter);
+  app.use('/api/modules', moduleRouter);
+  app.use('/api/events', eventLogsRouter);
+  app.use('/api/skills-dna', skillsDnaRouter);
+  app.use('/api/lesson-structure', lessonStructureRouter);
+  app.use('/api/competency-map', competencyMapRouter);
+  app.use('/api/ai-agent', aiAgentRouter);
+  app.use('/api/diagnosis', diagnosisRouter);
   
   // Создаем тестового пользователя Vitaliy
   (async () => {
@@ -209,7 +142,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       req.session.user = {
         id: newUser.id,
         username: newUser.username,
-        displayName: newUser.displayName
+        displayName: newUser.displayName || undefined
       };
       
       // Возвращаем данные нового пользователя
@@ -277,7 +210,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       req.session.user = {
         id: newUser.id,
         username: newUser.username,
-        displayName: newUser.displayName
+        displayName: newUser.displayName || undefined
       };
       
       // Принудительно сохраняем сессию перед отправкой ответа
@@ -446,7 +379,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
         
         // Явно очищаем cookie сессии
-        res.clearCookie("nova_session", { 
+        res.clearCookie("nova_session_v2", { 
           path: '/',
           domain: process.env.NODE_ENV === 'production' ? '.replit.app' : undefined
         });
@@ -478,7 +411,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (err) {
           console.error("Ошибка при сохранении сессии в /api/auth/me:", err);
         } else {
-          console.log(`Сессия успешно обновлена для пользователя: ${req.session.user.username}`);
+          console.log(`Сессия успешно обновлена для пользователя: ${req.session.user?.username || 'unknown'}`);
         }
       });
     }
