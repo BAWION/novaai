@@ -44,7 +44,22 @@ export default function Dashboard() {
         return data;
       } catch (error) {
         console.error('Ошибка при загрузке рекомендуемых курсов:', error);
-        // Возвращаем тестовые данные при ошибке
+        
+        // Сначала проверяем наличие данных в sessionStorage
+        try {
+          const savedData = sessionStorage.getItem('skillsDnaResults');
+          if (savedData) {
+            const parsedData = JSON.parse(savedData);
+            if (parsedData.recommendations && parsedData.recommendations.length > 0) {
+              console.log('[Dashboard] Используем рекомендации из sessionStorage:', parsedData.recommendations.length);
+              return parsedData.recommendations;
+            }
+          }
+        } catch (storageError) {
+          console.error('[Dashboard] Ошибка при чтении рекомендаций из sessionStorage:', storageError);
+        }
+        
+        // Если не нашли в sessionStorage, используем значения по умолчанию
         return [
           {
             id: 1,
