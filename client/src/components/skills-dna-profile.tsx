@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import SkillsRadarChart from "@/components/skills-radar-chart";
 import useSkillsDna from "@/hooks/use-skills-dna";
 import { useUserProfile } from "@/context/user-profile-context";
@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertTriangle, Award, Book, Brain, ChartBar, FileText, LineChart, RefreshCw, Star, Target, Zap } from "lucide-react";
 import { useLocation } from "wouter";
+import { diagnosisApi } from "@/api/diagnosis-api";
 
 interface SkillsDnaProfileProps {
   userId?: number;
@@ -50,6 +51,23 @@ export function SkillsDnaProfile({
     isDataEmpty: isEmpty,
     isDemoMode
   });
+  
+  // Если это демо-режим и данных нет, автоматически инициализируем демо-данные
+  useEffect(() => {
+    if (isDemoMode && isEmpty && !isLoading) {
+      console.log("[SkillsDnaProfile] Автоматическая инициализация демо-данных");
+      
+      (async () => {
+        try {
+          await diagnosisApi.initializeDemoData();
+          console.log("[SkillsDnaProfile] Демо-данные инициализированы, обновляем профиль");
+          refetch();
+        } catch (initError) {
+          console.error("[SkillsDnaProfile] Ошибка при инициализации демо-данных:", initError);
+        }
+      })();
+    }
+  }, [isDemoMode, isEmpty, isLoading, refetch]);
 
   if (!currentUserId) {
     return (

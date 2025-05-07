@@ -273,4 +273,30 @@ router.get("/summary/:userId", async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * POST /api/diagnosis/initialize-demo
+ * Инициализирует демо-данные для пользователя с ID 999
+ * Этот эндпоинт предназначен для администратора системы
+ */
+router.post("/initialize-demo", async (req: Request, res: Response) => {
+  try {
+    console.log(`[API] POST /api/diagnosis/initialize-demo - Начало обработки запроса`);
+    
+    // Инициализируем демо-данные
+    const result = await diagnosisService.initializeDemoData();
+    
+    console.log(`[API] POST /api/diagnosis/initialize-demo - Демо-данные успешно инициализированы`);
+    res.status(200).json({
+      message: "Демо-данные успешно инициализированы",
+      data: result
+    });
+  } catch (error) {
+    console.error(`[API] POST /api/diagnosis/initialize-demo - Ошибка при обработке:`, error);
+    res.status(500).json({ 
+      message: "Ошибка сервера при инициализации демо-данных",
+      error: error instanceof Error ? error.message : "Неизвестная ошибка"
+    });
+  }
+});
+
 export default router;
