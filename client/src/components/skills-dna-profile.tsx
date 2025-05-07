@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertTriangle, Award, Book, Brain, ChartBar, FileText, LineChart, RefreshCw, Star, Target, Zap } from "lucide-react";
+import { useLocation } from "wouter";
 
 interface SkillsDnaProfileProps {
   userId?: number;
@@ -26,13 +27,15 @@ export function SkillsDnaProfile({
 }: SkillsDnaProfileProps) {
   const { userProfile } = useUserProfile();
   const currentUserId = userId || userProfile?.userId;
-  
+  const [_, setLocation] = useLocation();
+
   const { 
     skills, 
     summary, 
     isLoading, 
     error, 
-    refetch 
+    refetch,
+    isEmpty
   } = useSkillsDna(currentUserId);
 
   if (!currentUserId) {
@@ -52,6 +55,46 @@ export function SkillsDnaProfile({
           >
             Войти в систему
           </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+  
+  // Если есть ошибка или нет данных (пустые результаты), показываем предложение пройти диагностику
+  if (!isLoading && (error || isEmpty)) {
+    return (
+      <Card className={`bg-space-800/70 border-blue-500/20 ${className}`}>
+        <CardHeader>
+          <CardTitle className="text-white flex items-center">
+            <Brain className="h-5 w-5 mr-2" />
+            Skills DNA
+          </CardTitle>
+          <CardDescription className="text-white/70">
+            Для построения профиля Skills DNA необходимо пройти диагностику
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col items-center justify-center p-6 text-center">
+          <AlertTriangle className="h-12 w-12 mb-4 text-amber-400 opacity-70" />
+          <h3 className="text-lg font-medium mb-2">Данные Skills DNA отсутствуют</h3>
+          <p className="text-white/60 mb-6">
+            {error ? 
+              "Не удалось загрузить ваш профиль Skills DNA. Пожалуйста, пройдите диагностику для построения карты ваших навыков." : 
+              "У вас пока нет профиля Skills DNA. Пройдите диагностику, чтобы мы могли составить карту ваших навыков."}
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button 
+              variant="default" 
+              onClick={() => setLocation("/quick-diagnosis")}
+            >
+              Быстрая диагностика
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => setLocation("/deep-diagnosis")}
+            >
+              Глубокая диагностика
+            </Button>
+          </div>
         </CardContent>
       </Card>
     );
@@ -233,7 +276,7 @@ export function SkillsDnaProfile({
                   <Button 
                     variant="default" 
                     size="sm" 
-                    onClick={() => window.location.href = '/quick-diagnosis'}
+                    onClick={() => setLocation("/quick-diagnosis")}
                   >
                     Пройти диагностику
                   </Button>
