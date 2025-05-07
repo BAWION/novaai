@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import SkillsRadarChart from "@/components/skills-radar-chart";
 import { SkillsTriangleChart, RecommendedCourses, RecommendedCourse } from "@/components/skills-dna";
 import useSkillsDna from "@/hooks/use-skills-dna";
@@ -124,8 +124,38 @@ export function SkillsDnaProfile({
     );
   }
   
+  // Инициализируем состояние для сохраненных данных
+  const [storedSkills, setStoredSkills] = useState<Record<string, number>>({});
+  const [hasSavedData, setHasSavedData] = useState(false);
+  
+  // Проверяем наличие сохраненных данных из диагностики в sessionStorage
+  useEffect(() => {
+    if (isEmpty && !isLoading) {
+      try {
+        const savedData = sessionStorage.getItem('skillsDnaResults');
+        if (savedData) {
+          const parsedData = JSON.parse(savedData);
+          if (parsedData.skills && Object.keys(parsedData.skills).length > 0) {
+            console.log("[SkillsDnaProfile] Найдены и применены сохраненные данные из sessionStorage:", {
+              skillsCount: Object.keys(parsedData.skills).length,
+              diagnosticType: parsedData.diagnosticType || 'unknown'
+            });
+            setStoredSkills(parsedData.skills);
+            setHasSavedData(true);
+          }
+        }
+      } catch (error) {
+        console.error("[SkillsDnaProfile] Ошибка при загрузке данных из sessionStorage:", error);
+      }
+    }
+  }, [isEmpty, isLoading]);
+  
+  // Комбинируем данные из API и из sessionStorage если нужно
+  const finalSkills = Object.keys(skills).length > 0 ? skills : storedSkills;
+  const hasAnyData = !isEmpty || hasSavedData;
+  
   // Если есть ошибка или нет данных (пустые результаты), показываем предложение пройти диагностику
-  if (!isLoading && (error || isEmpty)) {
+  if (!isLoading && (error || (!hasAnyData && Object.keys(finalSkills).length === 0))) {
     return (
       <div className={className}>
         <Card className={`bg-space-800/70 border-blue-500/20`}>
