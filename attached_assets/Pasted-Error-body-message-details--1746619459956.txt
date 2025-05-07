@@ -1,0 +1,38 @@
+Error body: {"message":"Необходима авторизация для сохранения результатов диагностики","details":"Пожалуйста, войдите в систему и повторите попытку."}
+at t.value (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
+API Request Failed: POST /api/diagnosis/results 
+Error {}
+
+at t.value (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
+[API] Исключение при сохранении результатов диагностики: 
+Error {}
+
+at t.value (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
+Ошибка при сохранении результатов в Skills DNA: 
+Error {}
+
+at t.value (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
+API Request: POST /api/events 
+Object {eventType: "page_view", data: {…}, userId: 999}
+API Request: POST /api/events 
+Object {eventType: "page_view", data: {…}, userId: 999}
+API Response: POST /api/events - Status: 201 Created
+[useSkillsDna] Источники userId: 
+Object {providedUserId: 999, authUserId: 999, profileUserId: 999, resultUserId: 999}
+[SkillsDnaProfile] Получены данные: 
+Object {currentUserId: 999, skillsCount: 0, hasError: false, isDataEmpty: true}
+API Request: POST /api/events 
+Object {eventType: "page_view", data: {…}, userId: 999}
+API Response: POST /api/events - Status: 201 Created
