@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import SkillsRadarChart from "@/components/skills-radar-chart";
-import TriangleSkillsChart from "@/components/triangle-skills-chart";
+import { SkillsTriangleChart } from "@/components/skills-dna";
 import useSkillsDna from "@/hooks/use-skills-dna";
 import { useUserProfile } from "@/context/user-profile-context";
 import { Button } from "@/components/ui/button";
@@ -137,11 +137,11 @@ export function SkillsDnaProfile({
                   </div>
                 </div>
                 <div className="opacity-20">
-                  <TriangleSkillsChart 
+                  <SkillsTriangleChart 
                     skills={{
-                      skill1: { name: "Понимание основ ИИ", value: 0 },
-                      skill2: { name: "Этические аспекты использования ИИ", value: 0 },
-                      skill3: { name: "Критическое мышление в контексте ИИ", value: 0 }
+                      top: { name: "Понимание основ ИИ", value: 0 },
+                      bottomLeft: { name: "Этические аспекты использования ИИ", value: 0 },
+                      bottomRight: { name: "Критическое мышление в контексте ИИ", value: 0 }
                     }}
                     height={300}
                     width={300}
@@ -260,19 +260,19 @@ export function SkillsDnaProfile({
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center">
-                <TriangleSkillsChart 
+                <SkillsTriangleChart 
                   skills={{
-                    skill1: { 
+                    top: { 
                       name: "Понимание основ ИИ", 
                       value: skills["Понимание основ ИИ"] || skills["Основы ИИ"] || 
                              skills["Машинное обучение"] || skills["Программирование"] || 40 
                     },
-                    skill2: { 
+                    bottomLeft: { 
                       name: "Этические аспекты использования ИИ", 
                       value: skills["Этические аспекты использования ИИ"] || skills["Этика и право в ИИ"] || 
                              skills["Этика ИИ"] || skills["Применение в бизнесе"] || 25 
                     },
-                    skill3: { 
+                    bottomRight: { 
                       name: "Критическое мышление в контексте ИИ", 
                       value: skills["Критическое мышление в контексте ИИ"] || skills["Аналитическое мышление"] || 
                              skills["Решение проблем"] || skills["Анализ данных"] || 65 
