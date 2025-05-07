@@ -5,6 +5,15 @@ import { useUserProfile } from "@/context/user-profile-context";
 import * as AuthModule from "@/context/auth-context";
 
 /**
+ * Тип данных для записи истории прогресса
+ */
+export interface ProgressHistoryEntry {
+  date: string;
+  skills: Record<string, number>;
+  overallLevel?: number;
+}
+
+/**
  * Тип возвращаемого значения хука useSkillsDna
  */
 export interface SkillsDnaData {
@@ -16,6 +25,7 @@ export interface SkillsDnaData {
   refetch: () => void;
   isDemoMode: boolean;
   userId: number | undefined;
+  progressHistory?: ProgressHistoryEntry[];
 }
 
 /**
@@ -118,6 +128,49 @@ export default function useSkillsDna(userId?: number): SkillsDnaData {
     refetchSummary();
   };
 
+  // Генерируем историю прогресса на основе текущих данных
+  // В реальном приложении это должно приходить с сервера
+  const generateProgressHistory = (): ProgressHistoryEntry[] => {
+    if (isEmpty || !skillsData || Object.keys(skillsData).length === 0) return [];
+    
+    // Для демонстрации создаем историю прогресса на основе текущих данных
+    // Создаем записи за последние 3 месяца
+    const now = new Date();
+    const history: ProgressHistoryEntry[] = [];
+    
+    // Добавляем текущие значения
+    history.push({
+      date: now.toISOString().split('T')[0],
+      skills: {...skillsData},
+      overallLevel: summaryData?.overallLevel || 0
+    });
+    
+    // Добавляем исторические значения со случайными отклонениями
+    for (let i = 1; i <= 3; i++) {
+      const pastDate = new Date();
+      pastDate.setMonth(now.getMonth() - i);
+      
+      const pastSkills: Record<string, number> = {};
+      Object.entries(skillsData).forEach(([key, value]) => {
+        // Значение в прошлом немного меньше текущего (прогресс)
+        const pastValue = Math.max(5, (value as number) - 5 * i - Math.floor(Math.random() * 10));
+        pastSkills[key] = pastValue;
+      });
+      
+      history.push({
+        date: pastDate.toISOString().split('T')[0],
+        skills: pastSkills,
+        overallLevel: (summaryData?.overallLevel || 0) - (5 * i)
+      });
+    }
+    
+    // Сортируем по дате, сначала новые
+    return history.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  };
+  
+  // Создаем историю прогресса для демонстрации
+  const progressHistory = generateProgressHistory();
+
   return {
     skills: skillsData,
     summary: summaryData,
@@ -126,6 +179,7 @@ export default function useSkillsDna(userId?: number): SkillsDnaData {
     isEmpty,
     refetch: refetchSkillsData,
     isDemoMode: demoMode,
-    userId: currentUserId
+    userId: currentUserId,
+    progressHistory
   };
 };
