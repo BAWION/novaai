@@ -26,6 +26,7 @@ import skillsDnaRouter from "./routes/skills-dna-api";
 import lessonStructureRouter from "./routes/lesson-structure-api";
 import competencyMapRouter from "./routes/competency-map-api";
 import aiAgentRouter from "./routes/ai-agent-api";
+import diagnosisRouter from "./routes/diagnosis-api";
 // Временно отключаем маршруты, для которых у нас пока нет определенных типов в схеме
 // import { learningEventsRouter } from "./routes/learning-events";
 // import { lessonProgressRouter } from "./routes/lesson-progress";
@@ -857,6 +858,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Маршрутизатор для ИИ-агента (Образовательный Навигатор)
   app.use("/api/ai-agent", aiAgentRouter);
+  
+  // Маршрутизатор для диагностики и Skills DNA
+  app.use("/api/diagnosis", diagnosisRouter);
   
   // Временно отключены маршруты, для которых требуются дополнительные схемы
   // // Маршруты для отслеживания событий обучения
