@@ -12,7 +12,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { LearningTimeline } from "@/components/progress/learning-timeline";
 import { default as SkillProgress } from "@/components/progress/skill-progress";
 import { WelcomeModal } from "@/components/onboarding/welcome-modal";
-import { CompactSkillsDna } from "@/components/compact-skills-dna";
+import { CompactSkillsDnaCard } from "@/components/skills-dna";
 import { SkillsDnaProfile } from "@/components/skills-dna-profile";
 import { 
   Dialog,
@@ -299,7 +299,7 @@ export default function Dashboard() {
 
   // Обработчик события для показа подробного анализа Skills DNA
   useEffect(() => {
-    // Добавляем слушатель для события, которое генерирует компонент CompactSkillsDna
+    // Добавляем слушатель для события, которое генерирует компонент CompactSkillsDnaCard
     const handleShowSkillsDnaDetails = (event: Event) => {
       // Приводим event к CustomEvent, чтобы получить доступ к detail
       const customEvent = event as CustomEvent;
@@ -597,7 +597,7 @@ export default function Dashboard() {
                   Skills DNA
                 </h2>
               </div>
-              <CompactSkillsDna showHeader={false} className="bg-transparent border-0" />
+              <CompactSkillsDnaCard showHeader={false} className="bg-transparent border-0" />
             </Glassmorphism>
           </motion.div>
 
