@@ -25,6 +25,45 @@ export interface DiagnosisResult {
  */
 export const diagnosisApi = {
   /**
+   * Инициализирует демо-данные для пользователя с ID 999
+   * @returns Результат инициализации
+   */
+  async initializeDemoData(): Promise<any> {
+    try {
+      console.log('[API] Отправка запроса на инициализацию демо-данных');
+      
+      const response = await apiRequest('POST', '/api/diagnosis/initialize-demo');
+      
+      if (!response.ok) {
+        let errorMessage = "Ошибка при инициализации демо-данных";
+        
+        try {
+          const errorResponse = await response.json();
+          errorMessage = errorResponse.message || errorMessage;
+          
+          console.error(`[API] Ошибка при инициализации демо-данных:`, {
+            status: response.status,
+            message: errorMessage
+          });
+        } catch (parseError) {
+          console.error(`[API] Не удалось разобрать JSON в ответе об ошибке:`, {
+            status: response.status
+          });
+        }
+        
+        throw new Error(errorMessage);
+      }
+      
+      const result = await response.json();
+      console.log('[API] Демо-данные успешно инициализированы:', result);
+      return result;
+    } catch (error) {
+      console.error('[API] Исключение при инициализации демо-данных:', error);
+      throw error;
+    }
+  },
+  
+  /**
    * Сохраняет результаты диагностики в системе Skills DNA
    * @param results Результаты диагностики
    * @returns Результат операции
