@@ -34,9 +34,16 @@ export function CompactSkillsDna({
     isDemoMode
   } = useSkillsDna(userId);
 
-  // Переход к полной странице Skills DNA
-  const handleViewFullProfile = () => {
-    setLocation("/skills-dna");
+  // Показать подробную информацию о Skills DNA на текущей странице
+  const handleViewFullProfile = (e: React.MouseEvent) => {
+    e.preventDefault();
+    // Передаем в родительский компонент информацию о том, что нужно показать модальное окно
+    // или раскрыть полную информацию внутри текущей страницы
+    if (typeof window !== 'undefined') {
+      // Диспатчим пользовательское событие, которое будет обрабатываться в родительском компоненте
+      const event = new CustomEvent('showSkillsDnaDetails', { detail: { userId } });
+      window.dispatchEvent(event);
+    }
   };
 
   // Переход к диагностике
