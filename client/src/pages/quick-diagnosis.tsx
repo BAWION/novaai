@@ -229,13 +229,27 @@ export default function QuickDiagnosis() {
       // Сохраняем результаты в Skills DNA через новый API
       const saveSkillsToDna = async () => {
         try {
+          // Выводим полную информацию о контексте пользователя для отладки
+          console.log("[SkillsDNA] Контекст пользователя:", { 
+            authUser: user, 
+            profileUser: userProfile
+          });
+          
           // Используем ID пользователя из контекста auth, если доступен
           const userId = user?.id || userProfile?.userId;
+          
+          console.log("[SkillsDNA] Определен ID пользователя:", userId);
           
           // Только если пользователь авторизован
           if (userId) {
             // Импортируем тип DiagnosticType явно
             const diagnosticType: import("@/api/diagnosis-api").DiagnosticType = 'quick';
+            
+            // Выводим информацию о навыках для отладки
+            console.log("[SkillsDNA] Сформированный профиль навыков:", { 
+              skillCount: Object.keys(skillProfile).length,
+              skills: Object.entries(skillProfile).map(([k, v]) => `${k}: ${v}`).join(', ')
+            });
             
             // Подготавливаем данные для отправки
             const diagnosisResult: import("@/api/diagnosis-api").DiagnosisResult = {
@@ -252,11 +266,13 @@ export default function QuickDiagnosis() {
               }
             };
             
+            console.log("[SkillsDNA] Отправляем результаты диагностики для пользователя:", userId);
+            
             // Отправляем результаты в систему Skills DNA
             const result = await diagnosisApi.saveResults(diagnosisResult);
-            console.log("Результаты диагностики сохранены в Skills DNA:", result);
+            console.log("[SkillsDNA] Результаты диагностики успешно сохранены:", result);
           } else {
-            console.warn("Пользователь не авторизован, результаты не будут сохранены в Skills DNA");
+            console.warn("[SkillsDNA] Пользователь не авторизован, результаты не будут сохранены");
           }
         } catch (error) {
           console.error("Ошибка при сохранении результатов в Skills DNA:", error);
