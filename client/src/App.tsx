@@ -14,7 +14,6 @@ import Onboarding from "@/pages/onboarding";
 import OnboardingPage from "@/pages/onboarding-page";
 import OnboardingIntro from "@/pages/onboarding-intro";
 import RegisterAfterOnboarding from "@/pages/register-after-onboarding";
-import QuickDiagnosis from "@/pages/quick-diagnosis";
 import DeepDiagnosis from "@/pages/deep-diagnosis";
 import OrbitalLobby from "@/pages/orbital-lobby";
 import Dashboard from "@/pages/dashboard";
@@ -92,7 +91,7 @@ function Router() {
   
   // Check if we're on public pages
   const isPublicPage = location === "/" || location === "/login" || location === "/register" || 
-    location === "/onboarding" || location === "/onboarding-page" || location === "/quick-diagnosis" ||
+    location === "/onboarding" || location === "/onboarding-page" ||
     location === "/deep-diagnosis" || location === "/onboarding-intro" || location === "/register-after-onboarding" ||
     location === "/skills-dna";
   
@@ -114,7 +113,7 @@ function Router() {
           <Route path="/register-after-onboarding">
             {() => <RegisterAfterOnboarding />}
           </Route>
-          <Route path="/quick-diagnosis" component={QuickDiagnosis} />
+          <Route path="/quick-diagnosis" component={DeepDiagnosis} /> {/* Редирект со старого URL */}
           <Route path="/deep-diagnosis" component={DeepDiagnosis} />
           <Route path="/skills-dna" component={SkillsDnaPage} />
           
