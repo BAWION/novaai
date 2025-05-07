@@ -22,15 +22,26 @@ export interface SkillsDnaData {
  */
 export default function useSkillsDna(userId?: number): SkillsDnaData {
   const { userProfile } = useUserProfile();
-  const { user } = useAuth(); // Добавляем получение данных пользователя из контекста авторизации
+  
+  // Безопасно получаем пользователя из AuthContext, если он доступен
+  let authUser = null;
+  try {
+    // Используем try-catch для проверки доступности контекста авторизации
+    const authContext = useContext(AuthContext);
+    if (authContext) {
+      authUser = authContext.user;
+    }
+  } catch (error) {
+    console.log("[useSkillsDna] AuthContext недоступен:", error.message);
+  }
   
   // Приоритет: переданный userId -> ID из контекста auth -> ID из профиля
-  const currentUserId = userId || user?.id || userProfile?.userId;
+  const currentUserId = userId || authUser?.id || userProfile?.userId;
   
   // Выводим отладочную информацию
   console.log("[useSkillsDna] Источники userId:", { 
     providedUserId: userId,
-    authUserId: user?.id,
+    authUserId: authUser?.id,
     profileUserId: userProfile?.userId,
     resultUserId: currentUserId
   });
