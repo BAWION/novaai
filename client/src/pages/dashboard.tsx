@@ -13,6 +13,15 @@ import { LearningTimeline } from "@/components/progress/learning-timeline";
 import { default as SkillProgress } from "@/components/progress/skill-progress";
 import { WelcomeModal } from "@/components/onboarding/welcome-modal";
 import { CompactSkillsDna } from "@/components/compact-skills-dna";
+import { SkillsDnaProfile } from "@/components/skills-dna-profile";
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { useQuery } from "@tanstack/react-query";
 
 export default function Dashboard() {
@@ -285,6 +294,33 @@ export default function Dashboard() {
     courseId: 2
   });
   const [viewMode, setViewMode] = useState<'orbital' | 'tracks'>('orbital');
+  const [isSkillsDnaDialogOpen, setIsSkillsDnaDialogOpen] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<number | undefined>(undefined);
+
+  // Обработчик события для показа подробного анализа Skills DNA
+  useEffect(() => {
+    // Добавляем слушатель для события, которое генерирует компонент CompactSkillsDna
+    const handleShowSkillsDnaDetails = (event: Event) => {
+      // Приводим event к CustomEvent, чтобы получить доступ к detail
+      const customEvent = event as CustomEvent;
+      
+      // Получаем идентификатор пользователя из события
+      const userId = customEvent.detail?.userId;
+      console.log("[Dashboard] Получено событие showSkillsDnaDetails, userId:", userId);
+      
+      // Устанавливаем выбранного пользователя и открываем диалоговое окно
+      setSelectedUserId(userId || userProfile?.userId);
+      setIsSkillsDnaDialogOpen(true);
+    };
+
+    // Регистрируем обработчик события
+    window.addEventListener('showSkillsDnaDetails', handleShowSkillsDnaDetails);
+
+    // Очищаем обработчик при размонтировании компонента
+    return () => {
+      window.removeEventListener('showSkillsDnaDetails', handleShowSkillsDnaDetails);
+    };
+  }, [userProfile]);
 
   // Проверка статуса пользователя и показ приветственного модального окна
   useEffect(() => {
@@ -388,6 +424,31 @@ export default function Dashboard() {
         onOpenChange={handleWelcomeModalChange} 
         userName={user?.displayName || "студент"}
       />
+      
+      {/* Модальное окно для подробного анализа Skills DNA */}
+      <Dialog open={isSkillsDnaDialogOpen} onOpenChange={setIsSkillsDnaDialogOpen}>
+        <DialogContent className="sm:max-w-4xl bg-space-900 border-space-700 text-white">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-white flex items-center">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#B28DFF] via-[#8BE0F7] to-[#B28DFF]">
+                Подробный анализ Skills DNA
+              </span>
+            </DialogTitle>
+            <DialogDescription className="text-white/70">
+              Полный анализ ваших навыков и компетенций в области искусственного интеллекта
+            </DialogDescription>
+          </DialogHeader>
+          
+          {/* Компонент полного профиля Skills DNA */}
+          <div className="py-2">
+            <SkillsDnaProfile 
+              userId={selectedUserId} 
+              showHeader={false} 
+              className="pt-2" 
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
       
       <div className="flex flex-col gap-6">
         {/* Header with breadcrumb & search */}
