@@ -47,13 +47,37 @@ export default function Dashboard() {
         
         // Сначала проверяем наличие данных в sessionStorage
         try {
+          console.log('[Dashboard] Проверяем sessionStorage для рекомендаций...');
+          
+          // Выводим все ключи в sessionStorage для отладки
+          console.log('[Dashboard] Все ключи в sessionStorage:', 
+            Object.keys(sessionStorage).join(', '));
+          
           const savedData = sessionStorage.getItem('skillsDnaResults');
           if (savedData) {
+            console.log('[Dashboard] Найдены данные в sessionStorage, длина:', savedData.length);
+            console.log('[Dashboard] Первые 200 символов данных:', savedData.substring(0, 200) + '...');
+            
             const parsedData = JSON.parse(savedData);
+            console.log('[Dashboard] Распарсенные данные:', {
+              hasRecommendations: Array.isArray(parsedData.recommendations),
+              recommendationsCount: parsedData.recommendations?.length || 0,
+              firstRecommendationTitle: parsedData.recommendations?.[0]?.title || 'нет данных',
+              hasSkills: !!parsedData.skills,
+              skillsCount: Object.keys(parsedData.skills || {}).length,
+              diagnosticType: parsedData.diagnosticType || 'unknown',
+              timestamp: parsedData.timestamp
+            });
+            
             if (parsedData.recommendations && parsedData.recommendations.length > 0) {
-              console.log('[Dashboard] Используем рекомендации из sessionStorage:', parsedData.recommendations.length);
+              console.log('[Dashboard] Используем рекомендации из sessionStorage:', 
+                parsedData.recommendations.map(r => r.title || 'без названия').join(', '));
               return parsedData.recommendations;
+            } else {
+              console.warn('[Dashboard] В сохраненных данных нет рекомендаций');
             }
+          } else {
+            console.warn('[Dashboard] Данные не найдены в sessionStorage');
           }
         } catch (storageError) {
           console.error('[Dashboard] Ошибка при чтении рекомендаций из sessionStorage:', storageError);

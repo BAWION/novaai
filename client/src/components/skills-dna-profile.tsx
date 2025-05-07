@@ -131,17 +131,43 @@ export function SkillsDnaProfile({
   // Проверяем наличие сохраненных данных из диагностики в sessionStorage
   useEffect(() => {
     try {
+      // Выводим все ключи в sessionStorage для отладки
+      console.log("[SkillsDnaProfile] Все ключи в sessionStorage:", 
+        Object.keys(sessionStorage).join(', '));
+      
       const savedData = sessionStorage.getItem('skillsDnaResults');
       if (savedData) {
+        console.log("[SkillsDnaProfile] Найдены RAW данные в sessionStorage:", savedData.substring(0, 200) + '...');
+        
         const parsedData = JSON.parse(savedData);
+        console.log("[SkillsDnaProfile] Распарсенные данные:", {
+          hasSkills: !!parsedData.skills,
+          skillsKeys: parsedData.skills ? Object.keys(parsedData.skills) : [],
+          hasRecommendations: Array.isArray(parsedData.recommendations),
+          recommendationsCount: parsedData.recommendations?.length || 0,
+          diagnosticType: parsedData.diagnosticType || 'unknown',
+          timestamp: parsedData.timestamp
+        });
+        
         if (parsedData.skills && Object.keys(parsedData.skills).length > 0) {
           console.log("[SkillsDnaProfile] Найдены и применены сохраненные данные из sessionStorage:", {
             skillsCount: Object.keys(parsedData.skills).length,
+            sampleSkills: Object.entries(parsedData.skills).slice(0, 3),
             diagnosticType: parsedData.diagnosticType || 'unknown'
           });
           setStoredSkills(parsedData.skills);
           setHasSavedData(true);
+          
+          // Попытка убедиться, что данные доступны для других компонентов
+          if (!sessionStorage.getItem('skillsDnaResultsPersisted')) {
+            sessionStorage.setItem('skillsDnaResultsPersisted', 'true');
+            sessionStorage.setItem('skillsDnaResults', JSON.stringify(parsedData));
+          }
+        } else {
+          console.warn("[SkillsDnaProfile] Данные найдены, но нет skills или они пусты");
         }
+      } else {
+        console.warn("[SkillsDnaProfile] Данные не найдены в sessionStorage");
       }
     } catch (error) {
       console.error("[SkillsDnaProfile] Ошибка при загрузке данных из sessionStorage:", error);
