@@ -5,11 +5,36 @@ import { setupVite, serveStatic, log } from "./vite";
 process.env.NODE_ENV = process.env.NODE_ENV || "development";
 
 const app = express();
-// Настраиваем заголовки для работы с кириллицей
+
+// Настраиваем CORS для работы в development среде
 app.use((req, res, next) => {
-  res.header('Content-Type', 'application/json; charset=utf-8');
+  // Определяем origin для разных сред
+  const origin = process.env.NODE_ENV === 'production' 
+    ? 'https://novaai-university.replit.app' 
+    : req.headers.origin || '*';
+
+  // Настраиваем CORS заголовки
+  res.header('Access-Control-Allow-Origin', origin);
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true'); // Важно для передачи cookie
+
+  // Обрабатываем preflight-запросы
+  if (req.method === 'OPTIONS') {
+    return res.status(200).send();
+  }
+
+  // Настраиваем заголовки для работы с кириллицей
+  if (req.path.startsWith('/api')) {
+    res.header('Content-Type', 'application/json; charset=utf-8');
+  }
+  
   next();
 });
+
+// Включаем доверие к прокси для корректной работы за реверс-прокси
+app.set('trust proxy', 1);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
