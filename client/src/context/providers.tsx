@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { AuthProvider } from './auth-context';
+import { AuthProvider } from '../hooks/use-auth';
 import { UserProfileProvider } from './user-profile-context';
 import { TrackingProvider } from './tracking-context';
 import { AppProvider } from './app-context';
