@@ -245,14 +245,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { username, password, displayName } = req.body;
       
+      // Выводим диагностическую информацию о сессии перед входом
+      console.log("[Login] Сессия до входа:", {
+        id: req.sessionID,
+        hasSession: !!req.session,
+        cookieMaxAge: req.session?.cookie.maxAge,
+      });
+      
       // Check for admin credentials
       if (username === "админ13" && password === "54321") {
+        console.log("[Login] Вход администратора");
+        
         // Create admin session
         req.session.user = {
           id: 999,
           username: "админ13",
           displayName: "Администратор"
         };
+        
+        // Установка признака аутентифицированной сессии
+        req.session.authenticated = true;
+        req.session.loginTime = new Date().toISOString();
         
         // Принудительно сохраняем сессию перед отправкой ответа
         await new Promise<void>((resolve, reject) => {
@@ -261,7 +274,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               console.error("Ошибка при сохранении сессии администратора:", err);
               reject(err);
             } else {
-              console.log("Административная сессия успешно сохранена");
+              console.log("Административная сессия успешно сохранена, sessionID:", req.sessionID);
               resolve();
             }
           });
@@ -272,11 +285,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // For telegram login (which doesn't use password)
       if (!password && username) {
+        console.log("[Login] Telegram-вход для пользователя:", username);
+        
         // Find or create user
         let user = await storage.getUserByUsername(username);
         
         if (!user) {
           // For demo purposes, create a new user if not found
+          console.log("[Login] Создание нового пользователя для Telegram:", username);
           user = await storage.createUser({ 
             username, 
             password: "placeholder-password" // In a real app, we'd use proper password hashing
@@ -290,6 +306,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           displayName: displayName || user.displayName
         };
         
+        // Установка признака аутентифицированной сессии
+        req.session.authenticated = true;
+        req.session.loginTime = new Date().toISOString();
+        req.session.loginMethod = "telegram";
+        
         // Принудительно сохраняем сессию перед отправкой ответа
         await new Promise<void>((resolve, reject) => {
           req.session.save((err) => {
@@ -297,7 +318,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               console.error("Ошибка при сохранении сессии:", err);
               reject(err);
             } else {
-              console.log("Сессия успешно сохранена для пользователя:", user.username);
+              console.log("Сессия успешно сохранена для пользователя:", user.username, "sessionID:", req.sessionID);
               resolve();
             }
           });
@@ -308,17 +329,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Regular username/password login
       if (username && password) {
+        console.log("[Login] Обычный вход с логином и паролем:", username);
+        
         let user = await storage.getUserByUsername(username);
         
         if (!user) {
+          console.warn("[Login] Пользователь не найден:", username);
           return res.status(401).json({ message: "Неверное имя пользователя или пароль" });
         }
         
         // In a real app, we would compare hashed passwords
         // For demo, we'll just check if the password matches
         if (user.password !== password) {
+          console.warn("[Login] Неверный пароль для пользователя:", username);
           return res.status(401).json({ message: "Неверное имя пользователя или пароль" });
         }
+        
+        console.log("[Login] Успешная аутентификация пользователя:", username);
         
         // Store user in session
         req.session.user = {
@@ -327,6 +354,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           displayName: user.displayName || undefined
         };
         
+        // Установка признака аутентифицированной сессии
+        req.session.authenticated = true;
+        req.session.loginTime = new Date().toISOString();
+        req.session.loginMethod = "password";
+        
         // Принудительно сохраняем сессию перед отправкой ответа
         await new Promise<void>((resolve, reject) => {
           req.session.save((err) => {
@@ -334,7 +366,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
               console.error("Ошибка при сохранении сессии:", err);
               reject(err);
             } else {
-              console.log("Сессия успешно сохранена для пользователя:", user.username);
+              console.log("Сессия успешно сохранена для пользователя:", user.username, "sessionID:", req.sessionID);
+              
+              // Дополнительная диагностика для проверки сохранения сессии
+              if (req.session.user && req.session.user.id === user.id) {
+                console.log("[Login] Проверка сессии: данные пользователя корректно сохранены");
+              } else {
+                console.warn("[Login] Проверка сессии: данные пользователя НЕ сохранены!");
+              }
+              
               resolve();
             }
           });
@@ -343,6 +383,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json({ id: user.id, username: user.username, displayName: user.displayName });
       }
       
+      console.warn("[Login] Некорректные параметры входа");
       res.status(400).json({ message: "Необходимо указать имя пользователя и пароль" });
     } catch (error) {
       console.error("Login error:", error);
@@ -401,38 +442,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   app.get("/api/auth/me", (req, res) => {
+    // Структура для расширенного логирования
+    const sessionInfo = {
+      id: req.sessionID || 'none',
+      hasSession: !!req.session,
+      authenticated: req.session?.authenticated,
+      hasUser: req.session?.user ? true : false,
+      loginTime: req.session?.loginTime,
+      lastActivity: req.session?.lastActivity,
+      method: req.session?.loginMethod,
+      cookies: req.headers.cookie?.substring(0, 50) + '...'
+    };
+    
+    // Выводим детальную информацию о запросе
+    console.log("GET /api/auth/me: Детали сессии:", sessionInfo);
+    
     // Проверяем наличие сессии
     if (!req.session) {
       console.log("GET /api/auth/me: Отсутствует объект сессии");
       return res.status(401).json({ message: "Session not found" });
     }
     
-    // Проверяем наличие пользователя в сессии
-    if (!req.session.user) {
-      console.log("GET /api/auth/me: Пользователь не аутентифицирован, sessionID:", req.sessionID);
+    // Проверяем флаг аутентификации
+    if (!req.session.authenticated) {
+      console.log("GET /api/auth/me: Сессия существует, но не аутентифицирована");
       return res.status(401).json({ message: "Not authenticated" });
     }
     
-    // Обновляем сессию при каждом запросе для продления времени жизни
-    if (req.session) {
-      req.session.touch();
-      // Явно сохраняем сессию для гарантированного обновления в PostgreSQL
+    // Проверяем наличие пользователя в сессии
+    if (!req.session.user) {
+      console.log("GET /api/auth/me: Пользователь не найден в сессии, хотя флаг authenticated=true");
+      
+      // Исправляем несоответствие
+      req.session.authenticated = false;
+      req.session.authError = "User data missing";
+      
       req.session.save((err) => {
-        if (err) {
-          console.error("Ошибка при сохранении сессии в /api/auth/me:", err);
-        } else {
-          console.log(`Сессия успешно обновлена для пользователя: ${req.session.user?.username || 'unknown'}`);
-        }
+        if (err) console.error("Ошибка при сбросе флага аутентификации:", err);
       });
+      
+      return res.status(401).json({ message: "Session inconsistency - not authenticated" });
     }
+    
+    // Обновляем сессию при каждом запросе для продления времени жизни
+    req.session.touch();
+    req.session.lastActivity = new Date().toISOString();
+    
+    // Явно сохраняем сессию для гарантированного обновления в PostgreSQL
+    req.session.save((err) => {
+      if (err) {
+        console.error("Ошибка при сохранении сессии в /api/auth/me:", err);
+      } else {
+        console.log(`Сессия успешно обновлена для пользователя: ${req.session.user?.username || 'unknown'}`);
+      }
+    });
     
     // Проверяем целостность данных пользователя
     const user = req.session.user;
     if (!user.id || !user.username) {
       console.error("GET /api/auth/me: Поврежденные данные пользователя:", JSON.stringify(user));
       
-      // Очищаем неправильные данные
+      // Очищаем неправильные данные и флаг аутентификации
       req.session.user = undefined;
+      req.session.authenticated = false;
+      req.session.authError = "Invalid user data";
       
       // Пробуем сохранить сессию
       req.session.save((err) => {
@@ -443,7 +516,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
     
     console.log("GET /api/auth/me: Пользователь аутентифицирован:", req.session.user);
-    res.json(req.session.user);
+    
+    // Возвращаем данные пользователя с дополнительной информацией
+    res.json({
+      ...req.session.user,
+      // Добавляем дополнительную информацию о сессии
+      loginTime: req.session.loginTime,
+      sessionActive: true
+    });
   });
 
   // User profile routes
