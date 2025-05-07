@@ -23,7 +23,7 @@ interface MainLayoutProps {
   children: ReactNode;
 }
 
-export default function MainLayout({ children }: MainLayoutProps) {
+export function MainLayout({ children }: MainLayoutProps) {
   const [location] = useLocation();
   const { userProfile } = useUserProfile();
   const { logEvent } = useEventLogger();

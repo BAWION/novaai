@@ -19,7 +19,7 @@ interface SkillsDnaProfileProps {
  * Компонент профиля Skills DNA пользователя
  * Отображает карту навыков, рекомендации и прогресс обучения
  */
-export default function SkillsDnaProfile({ 
+export function SkillsDnaProfile({ 
   userId, 
   showHeader = true,
   className = "" 

@@ -12,6 +12,7 @@ import {
 } from "@/lib/constants";
 import { diagnosisApi } from "@/api/diagnosis-api";
 import SkillsRadarChart from "@/components/skills-radar-chart";
+import SimpleRadarChart from "@/components/skills-radar-simple";
 
 // Компоненты UI
 import {
@@ -1763,10 +1764,9 @@ export default function DeepDiagnosisPage() {
                         
                         <Glassmorphism className="p-4 rounded-lg">
                           <div className="h-64">
-                            <SkillsRadarChart 
+                            <SimpleRadarChart 
                               skills={userSkillProfile}
-                              title=""
-                              showControls={false}
+                              height={240}
                             />
                           </div>
                           
