@@ -147,6 +147,9 @@ export default function DeepDiagnosisPage() {
   const [userSkillProfile, setUserSkillProfile] = useState<SkillProfile>({});
   const [recommendations, setRecommendations] = useState<CourseRecommendation[]>([]);
   
+  // Это компонент глубокой диагностики, по умолчанию разрешаем показывать рекомендации
+  const isDeepdDiagnosis = true;
+  
   // Формы данных
   const [formData, setFormData] = useState<DeepDiagnosisFormData>({
     // Основная информация
@@ -423,8 +426,10 @@ export default function DeepDiagnosisPage() {
         try {
           updateUserProfile(profileUpdate);
           toast({
-            title: "Диагностика завершена",
-            description: "Ваш профиль обновлен, рекомендации готовы!",
+            title: "Диагностика успешно завершена",
+            description: "Ваш профиль Skills DNA обновлен. Теперь вы можете просмотреть рекомендуемые курсы!",
+            duration: 5000,
+            variant: "default",
           });
           
           // Очищаем временные данные
@@ -1895,13 +1900,23 @@ export default function DeepDiagnosisPage() {
               ) : (
                 <div className="w-full flex justify-center">
                   {step === totalSteps && analysisComplete && (
-                    <Button 
-                      onClick={handleContinueToDashboard}
-                      className="bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:opacity-90 text-white"
-                    >
-                      Перейти к регистрации
-                      <User className="h-4 w-4 ml-2" />
-                    </Button>
+                    <div className="flex flex-col md:flex-row gap-4 justify-center items-center">
+                      <Button 
+                        onClick={() => setLocation("/courses?filter=recommended")}
+                        className="bg-gradient-to-r from-green-500 to-emerald-600 hover:opacity-90 text-white"
+                      >
+                        Рекомендуемые курсы
+                        <Target className="h-4 w-4 ml-2" />
+                      </Button>
+                      
+                      <Button 
+                        onClick={handleContinueToDashboard}
+                        className="bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:opacity-90 text-white"
+                      >
+                        Перейти к обучению
+                        <Rocket className="h-4 w-4 ml-2" />
+                      </Button>
+                    </div>
                   )}
                 </div>
               )}
