@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from "wouter";
 import { useUserProfile } from "@/context/user-profile-context";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 import { 
   UserRole, 
   AIExperience, 
@@ -48,6 +49,7 @@ import {
   Sparkles,
   Target,
   User,
+  Rocket as RocketIcon,
   Clock,
   Rocket,
   FileText,
@@ -137,6 +139,7 @@ export default function DeepDiagnosisPage() {
   const { toast } = useToast();
   const { userProfile, updateUserProfile } = useUserProfile();
   const [, setLocation] = useLocation();
+  const { user } = useAuth();
   
   // Состояния
   const [step, setStep] = useState(1);
@@ -557,8 +560,13 @@ export default function DeepDiagnosisPage() {
         recommendations: recommendations
       }));
       
-      // Перенаправляем на страницу регистрации
-      setLocation("/register-after-onboarding");
+      // Перенаправляем на Капитанский Мостик (Dashboard)
+      // Если пользователь авторизован - идём на дашборд, иначе на регистрацию
+      if (user) {
+        setLocation("/dashboard");
+      } else {
+        setLocation("/register-after-onboarding");
+      }
     } catch (error) {
       console.error("Ошибка при сохранении данных диагностики:", error);
       toast({
@@ -1790,7 +1798,7 @@ export default function DeepDiagnosisPage() {
                                 variant="outline" 
                                 size="sm" 
                                 className="w-full border-white/20 hover:border-white/30"
-                                onClick={() => window.location.href = '/dashboard'}
+                                onClick={() => setLocation('/dashboard')}
                               >
                                 Подробный анализ Skills DNA
                                 <ChevronRight className="ml-1 h-4 w-4" />
@@ -1899,8 +1907,8 @@ export default function DeepDiagnosisPage() {
                       onClick={handleContinueToDashboard}
                       className="bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:opacity-90 text-white"
                     >
-                      Перейти к регистрации
-                      <User className="h-4 w-4 ml-2" />
+                      {user ? "Перейти к дашборду" : "Перейти к регистрации"}
+                      {user ? <RocketIcon className="h-4 w-4 ml-2" /> : <User className="h-4 w-4 ml-2" />}
                     </Button>
                   )}
                 </div>
