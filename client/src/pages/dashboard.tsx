@@ -14,6 +14,7 @@ import { default as SkillProgress } from "@/components/progress/skill-progress";
 import { WelcomeModal } from "@/components/onboarding/welcome-modal";
 import { CompactSkillsDnaCard } from "@/components/skills-dna";
 import { SkillsDnaProfile } from "@/components/skills-dna-profile";
+// Импортируем компонент дорожной карты
 import { LearningRoadmap } from "@/components/roadmap";
 import { 
   Dialog,
