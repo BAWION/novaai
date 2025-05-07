@@ -166,9 +166,9 @@ export default function QuickDiagnosis() {
                     variant: "default",
                   });
                   
-                  // Перенаправляем на dashboard после успешного сохранения
+                  // Перенаправляем на Капитанский Мостик после успешного сохранения
                   setTimeout(() => {
-                    setLocation("/dashboard");
+                    setLocation("/bridge");
                   }, 1000);
                 })
                 .catch(error => {
@@ -500,10 +500,10 @@ export default function QuickDiagnosis() {
     }
   };
   
-  // Функция для перехода на Dashboard с результатами анализа
+  // Функция для перехода на Капитанский Мостик с результатами анализа
   const handleContinueToDashboard = () => {
-    // Перенаправляем на Dashboard или указанную страницу
-    const redirectUrl = formData.redirectAfterComplete || "/dashboard";
+    // Перенаправляем на Капитанский Мостик или указанную страницу
+    const redirectUrl = formData.redirectAfterComplete || "/bridge";
     setLocation(redirectUrl);
   };
   
