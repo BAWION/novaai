@@ -12,12 +12,13 @@ const router = Router();
  */
 router.get("/", async (req, res) => {
   try {
-    // Проверка авторизации
-    if (!req.isAuthenticated() || !req.user) {
+    // Проверка авторизации - используем сессию для получения пользователя
+    if (!req.session || !req.session.user) {
+      console.log("Неавторизованный доступ к /api/courses/recommended");
       return res.status(401).json({ error: "Требуется авторизация" });
     }
     
-    const userId = req.user.id;
+    const userId = req.session.user.id;
     
     // Получаем профиль пользователя
     const [userProfile] = await db
