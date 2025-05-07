@@ -33,7 +33,8 @@ import diagnosisRouter from "./routes/diagnosis-api";
 // Временно отключаем маршруты, для которых у нас пока нет определенных типов в схеме
 // import { learningEventsRouter } from "./routes/learning-events";
 // import { lessonProgressRouter } from "./routes/lesson-progress";
-// import recommendedCoursesRouter from "./routes/recommended-courses";
+import recommendedCoursesRouter from "./routes/recommended-courses";
+import userCoursesRouter from "./routes/user-courses";
 // import skillsRouter from "./routes/skills";
 
 // Add any middleware needed
@@ -95,6 +96,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/competency-map', competencyMapRouter);
   app.use('/api/ai-agent', aiAgentRouter);
   app.use('/api/diagnosis', diagnosisRouter);
+  app.use('/api/courses/recommended', recommendedCoursesRouter);
+  app.use('/api/courses/user', userCoursesRouter);
   
   // Создаем тестового пользователя Vitaliy
   (async () => {
