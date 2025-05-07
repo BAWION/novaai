@@ -21,7 +21,8 @@ export function useSkillsDna(userId?: number) {
     queryKey: ['skillsDna', 'progress', currentUserId],
     queryFn: () => diagnosisApi.getUserProgress(currentUserId as number),
     enabled: !!currentUserId,
-    staleTime: 1000 * 60 * 5 // 5 минут
+    staleTime: 1000 * 60 * 5, // 5 минут
+    retry: 1 // Уменьшаем количество повторных попыток при ошибке
   });
 
   // Запрос на получение сводной информации о прогрессе пользователя
@@ -34,7 +35,8 @@ export function useSkillsDna(userId?: number) {
     queryKey: ['skillsDna', 'summary', currentUserId],
     queryFn: () => diagnosisApi.getUserSummary(currentUserId as number),
     enabled: !!currentUserId,
-    staleTime: 1000 * 60 * 5 // 5 минут
+    staleTime: 1000 * 60 * 5, // 5 минут
+    retry: 1 // Уменьшаем количество повторных попыток при ошибке
   });
 
   // Преобразуем данные прогресса в формат для радарной диаграммы
@@ -44,6 +46,9 @@ export function useSkillsDna(userId?: number) {
     }
     return acc;
   }, {}) || {};
+
+  // Проверяем, есть ли какие-либо данные навыков
+  const isEmpty = !progressError && !isProgressLoading && Object.keys(skillsData).length === 0;
 
   // Функция для обновления данных
   const refetchSkillsData = () => {
@@ -56,6 +61,7 @@ export function useSkillsDna(userId?: number) {
     summary: summaryData,
     isLoading: isProgressLoading || isSummaryLoading,
     error: progressError || summaryError,
+    isEmpty, // Новое свойство, указывающее на отсутствие данных
     refetch: refetchSkillsData
   };
 }

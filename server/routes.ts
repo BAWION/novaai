@@ -18,6 +18,9 @@ import aiAssistantRouter from "./routes/ai-assistant-api";
 import profilesRouter from "./routes/profiles-api";
 import eventLogsRouter from "./routes/event-logs-api";
 import { setCurrentUserId } from "./storage-integration";
+// Для хранения сессий в PostgreSQL
+import connectPgSimple from "connect-pg-simple";
+import { pool } from "./db";
 // Добавляем кириллическую поддержку
 import 'express';
 // Импортируем маршрутизаторы
@@ -76,8 +79,6 @@ const trackUserMiddleware = (req: express.Request, res: express.Response, next: 
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup session middleware
-  const MemoryStore = memorystore(session);
-
   // Настраиваем прокси для корректной работы сессий за фронтенд-серверами
   app.set("trust proxy", 1);
 
@@ -90,10 +91,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     return undefined; // В development режиме домен не задаем
   };
 
+  // Создаем хранилище сессий в PostgreSQL
+  const PostgreSqlStore = connectPgSimple(session);
+  
+  // Добавим проверку подключения к БД
+  try {
+    // Создадим таблицу сессий, если её нет
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS "session" (
+        "sid" varchar NOT NULL COLLATE "default",
+        "sess" json NOT NULL,
+        "expire" timestamp(6) NOT NULL,
+        CONSTRAINT "session_pkey" PRIMARY KEY ("sid")
+      )
+    `);
+    console.log("Таблица сессий в PostgreSQL проверена/создана");
+  } catch (error) {
+    console.error("Ошибка при инициализации таблицы сессий:", error);
+  }
+
   app.use(
     session({
       cookie: { 
-        maxAge: 86400000, // 24 часа
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 дней (увеличиваем время жизни)
         httpOnly: true,
         secure: process.env.NODE_ENV === "production", // false в разработке, true в продакшене
         sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // в production используем "none" для cross-site
@@ -101,9 +121,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Динамически устанавливаем domain для cookie
         domain: undefined // Будет установлен динамически для каждого запроса
       },
-      store: new MemoryStore({
-        checkPeriod: 86400000, // Очищать устаревшие записи каждые 24ч
-        ttl: 86400 // Время жизни сессии в секундах (24 часа)
+      store: new PostgreSqlStore({
+        pool: pool,           // Используем существующий пул соединений
+        tableName: 'session', // По умолчанию 'session'
+        createTableIfMissing: true,
+        pruneSessionInterval: 24 * 60 * 60 // Очистка устаревших сессий каждые 24 часа (в секундах)
       }),
       name: "nova_session", // Уникальное имя для cookie
       resave: false,
