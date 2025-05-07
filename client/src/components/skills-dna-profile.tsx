@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import SkillsRadarChart from "@/components/skills-radar-chart";
-import { SkillsTriangleChart, RecommendedCourses, RecommendedCourse } from "@/components/skills-dna";
+import { SkillsTriangleChart } from "@/components/skills-dna";
 import useSkillsDna from "@/hooks/use-skills-dna";
 import { useUserProfile } from "@/context/user-profile-context";
 import { Button } from "@/components/ui/button";
@@ -55,36 +55,22 @@ export function SkillsDnaProfile({
     isDemoMode
   });
   
-  // Проверяем наличие данных в sessionStorage, которые могли быть сохранены при выполнении диагностики
+  // Если это демо-режим и данных нет, автоматически инициализируем демо-данные
   useEffect(() => {
-    try {
-      const savedData = sessionStorage.getItem('skillsDnaResults');
+    if (isDemoMode && isEmpty && !isLoading) {
+      console.log("[SkillsDnaProfile] Автоматическая инициализация демо-данных");
       
-      // Если у нас нет данных с API, но есть сохраненные данные в sessionStorage,
-      // и к тому же запрошен режим глубокой диагностики, попробуем использовать их
-      if (isEmpty && !isLoading && savedData && isDeepdDiagnosis) {
-        console.log("[SkillsDnaProfile] Найдены сохраненные данные диагностики в sessionStorage");
-        // Обновляем данные через API, чтобы они стали доступны через хук useSkillsDna
-        refetch();
-      }
-      // Если это демо-режим и данных нет, автоматически инициализируем демо-данные
-      else if (isDemoMode && isEmpty && !isLoading) {
-        console.log("[SkillsDnaProfile] Автоматическая инициализация демо-данных");
-        
-        (async () => {
-          try {
-            await diagnosisApi.initializeDemoData();
-            console.log("[SkillsDnaProfile] Демо-данные инициализированы, обновляем профиль");
-            refetch();
-          } catch (initError) {
-            console.error("[SkillsDnaProfile] Ошибка при инициализации демо-данных:", initError);
-          }
-        })();
-      }
-    } catch (error) {
-      console.error("[SkillsDnaProfile] Ошибка при проверке данных в sessionStorage:", error);
+      (async () => {
+        try {
+          await diagnosisApi.initializeDemoData();
+          console.log("[SkillsDnaProfile] Демо-данные инициализированы, обновляем профиль");
+          refetch();
+        } catch (initError) {
+          console.error("[SkillsDnaProfile] Ошибка при инициализации демо-данных:", initError);
+        }
+      })();
     }
-  }, [isDemoMode, isEmpty, isLoading, refetch, isDeepdDiagnosis]);
+  }, [isDemoMode, isEmpty, isLoading, refetch]);
 
   if (!currentUserId) {
     return (
@@ -124,38 +110,8 @@ export function SkillsDnaProfile({
     );
   }
   
-  // Инициализируем состояние для сохраненных данных
-  const [storedSkills, setStoredSkills] = useState<Record<string, number>>({});
-  const [hasSavedData, setHasSavedData] = useState(false);
-  
-  // Проверяем наличие сохраненных данных из диагностики в sessionStorage
-  useEffect(() => {
-    if (isEmpty && !isLoading) {
-      try {
-        const savedData = sessionStorage.getItem('skillsDnaResults');
-        if (savedData) {
-          const parsedData = JSON.parse(savedData);
-          if (parsedData.skills && Object.keys(parsedData.skills).length > 0) {
-            console.log("[SkillsDnaProfile] Найдены и применены сохраненные данные из sessionStorage:", {
-              skillsCount: Object.keys(parsedData.skills).length,
-              diagnosticType: parsedData.diagnosticType || 'unknown'
-            });
-            setStoredSkills(parsedData.skills);
-            setHasSavedData(true);
-          }
-        }
-      } catch (error) {
-        console.error("[SkillsDnaProfile] Ошибка при загрузке данных из sessionStorage:", error);
-      }
-    }
-  }, [isEmpty, isLoading]);
-  
-  // Комбинируем данные из API и из sessionStorage если нужно
-  const finalSkills = Object.keys(skills).length > 0 ? skills : storedSkills;
-  const hasAnyData = !isEmpty || hasSavedData;
-  
   // Если есть ошибка или нет данных (пустые результаты), показываем предложение пройти диагностику
-  if (!isLoading && (error || (!hasAnyData && Object.keys(finalSkills).length === 0))) {
+  if (!isLoading && (error || isEmpty)) {
     return (
       <div className={className}>
         <Card className={`bg-space-800/70 border-blue-500/20`}>
@@ -341,7 +297,7 @@ export function SkillsDnaProfile({
                     Попробовать снова
                   </Button>
                 </div>
-              ) : Object.keys(finalSkills).length > 0 ? (
+              ) : Object.keys(skills).length > 0 ? (
                 <div className="space-y-4">
                   {/* Сильные навыки */}
                   <div>
@@ -350,7 +306,7 @@ export function SkillsDnaProfile({
                       Сильные стороны
                     </h3>
                     <div className="flex flex-wrap gap-2">
-                      {Object.entries(finalSkills)
+                      {Object.entries(skills)
                         .filter(([_, value]) => value >= 70)
                         .sort(([_, a], [__, b]) => b - a)
                         .slice(0, 3)
@@ -363,7 +319,7 @@ export function SkillsDnaProfile({
                             {skill} ({value}%)
                           </Badge>
                         ))}
-                      {Object.entries(finalSkills).filter(([_, value]) => value >= 70).length === 0 && (
+                      {Object.entries(skills).filter(([_, value]) => value >= 70).length === 0 && (
                         <p className="text-white/60 text-sm">
                           Пока нет сильных сторон. Продолжайте обучение!
                         </p>
@@ -378,7 +334,7 @@ export function SkillsDnaProfile({
                       Области для развития
                     </h3>
                     <div className="flex flex-wrap gap-2">
-                      {Object.entries(finalSkills)
+                      {Object.entries(skills)
                         .filter(([_, value]) => value < 50)
                         .sort(([_, a], [__, b]) => a - b)
                         .slice(0, 3)
@@ -391,7 +347,7 @@ export function SkillsDnaProfile({
                             {skill} ({value}%)
                           </Badge>
                         ))}
-                      {Object.entries(finalSkills).filter(([_, value]) => value < 50).length === 0 && (
+                      {Object.entries(skills).filter(([_, value]) => value < 50).length === 0 && (
                         <p className="text-white/60 text-sm">
                           Отлично! У вас нет явных слабых сторон.
                         </p>
@@ -461,51 +417,29 @@ export function SkillsDnaProfile({
             </CardContent>
           </Card>
         </div>
-        {/* Блок с рекомендуемыми курсами (только после глубокой диагностики) */}
+        {/* Кнопка для рекомендуемых курсов (только после глубокой диагностики) */}
         {isDeepdDiagnosis && !isEmpty && !isLoading && !error && (
           <div className="col-span-1 lg:col-span-3 mt-4">
-            {summary?.recommendedCourses && summary.recommendedCourses.length > 0 ? (
-              <Card className="bg-gradient-to-r from-emerald-900/20 to-green-900/20 border-emerald-500/20">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg font-medium text-white flex items-center">
-                    <Target className="h-5 w-5 text-emerald-400 mr-2" />
-                    Персональные рекомендации курсов
-                  </CardTitle>
-                  <CardDescription className="text-white/70">
-                    На основе вашего Skills DNA профиля мы подготовили персонализированные рекомендации курсов,
-                    которые помогут вам развить необходимые навыки
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <RecommendedCourses 
-                    courses={summary.recommendedCourses} 
-                    compact={true}
-                    limit={3}
-                  />
-                </CardContent>
-              </Card>
-            ) : (
-              <Card className="bg-gradient-to-r from-emerald-900/30 to-green-900/30 border-emerald-500/20">
-                <CardContent className="flex flex-col items-center justify-center py-5">
-                  <div className="flex items-center mb-3">
-                    <Target className="h-5 w-5 text-emerald-400 mr-2" />
-                    <h3 className="text-lg font-medium text-white">Персональные рекомендации</h3>
-                  </div>
-                  <p className="text-white/70 mb-4 text-center max-w-lg">
-                    На основе вашего Skills DNA профиля мы подготовили персонализированные рекомендации курсов, 
-                    которые помогут вам развить необходимые навыки.
-                  </p>
-                  <Button 
-                    variant="default" 
-                    className="bg-gradient-to-r from-green-500 to-emerald-600 hover:opacity-90 text-white"
-                    onClick={() => setLocation("/courses?filter=recommended")}
-                  >
-                    Посмотреть рекомендуемые курсы
-                    <Target className="h-4 w-4 ml-2" />
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
+            <Card className="bg-gradient-to-r from-emerald-900/30 to-green-900/30 border-emerald-500/20">
+              <CardContent className="flex flex-col items-center justify-center py-5">
+                <div className="flex items-center mb-3">
+                  <Target className="h-5 w-5 text-emerald-400 mr-2" />
+                  <h3 className="text-lg font-medium text-white">Персональные рекомендации</h3>
+                </div>
+                <p className="text-white/70 mb-4 text-center max-w-lg">
+                  На основе вашего Skills DNA профиля мы подготовили персонализированные рекомендации курсов, 
+                  которые помогут вам развить необходимые навыки.
+                </p>
+                <Button 
+                  variant="default" 
+                  className="bg-gradient-to-r from-green-500 to-emerald-600 hover:opacity-90 text-white"
+                  onClick={() => setLocation("/courses?filter=recommended")}
+                >
+                  Посмотреть рекомендуемые курсы
+                  <Target className="h-4 w-4 ml-2" />
+                </Button>
+              </CardContent>
+            </Card>
           </div>
         )}
       </div>
