@@ -64,11 +64,11 @@ function makeRequest(method, path, data, cookies = '') {
 // Основная функция для тестирования
 async function testAiAssistant() {
   try {
-    // 1. Логин
-    console.log('1. Логин пользователя...');
+    // 1. Логин через Telegram (используется вход без пароля)
+    console.log('1. Логин пользователя через Telegram...');
     const loginResponse = await makeRequest('POST', '/api/auth/login', {
       username: 'telegram_user',
-      password: 'novaai2025'  // Предполагаемый тестовый пароль
+      displayName: 'Пользователь Telegram'
     });
     
     console.log(`Статус: ${loginResponse.statusCode}`);
@@ -106,16 +106,17 @@ async function testAiAssistant() {
       console.error('Ошибка при запросе подсказки:', hintResponse.data);
     }
     
-    // 4. Тест /api/ai-assistant/explain
+    // 4. Тест /api/ai-assistant/explain (с меньшей сложностью запроса)
     console.log('\n4. Тестирование API /api/ai-assistant/explain...');
     const explainResponse = await makeRequest('POST', '/api/ai-assistant/explain', {
-      topicId: 'python-basics',
-      difficulty: 'medium'
+      topicId: 'python-basics', // базовая тема для быстрого ответа
+      difficulty: 'easy'    // простое объяснение для быстроты
     }, cookies);
     
     console.log(`Статус: ${explainResponse.statusCode}`);
     if (explainResponse.statusCode === 200) {
-      console.log('Объяснение:', explainResponse.data?.explanation?.substring(0, 100) + '...');
+      // Полное отображение ответа для анализа сокращенного промпта
+      console.log('Объяснение:', explainResponse.data?.explanation);
     } else {
       console.error('Ошибка при запросе объяснения:', explainResponse.data);
     }
