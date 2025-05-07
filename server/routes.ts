@@ -62,13 +62,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Настраиваем прокси для корректной работы сессий за фронтенд-серверами
   app.set("trust proxy", 1);
 
+  // Создаем функцию для определения domain cookie в зависимости от окружения
+  const getCookieDomain = (req: express.Request) => {
+    // В production используем домен сайта, в development не устанавливаем
+    if (process.env.NODE_ENV === 'production') {
+      return '.replit.app'; // Общий домен для всех replit приложений
+    }
+    return undefined; // В development режиме домен не задаем
+  };
+
   app.use(
     session({
       cookie: { 
         maxAge: 86400000, // 24 часа
         httpOnly: true,
         secure: process.env.NODE_ENV === "production", // false в разработке, true в продакшене
-        sameSite: "lax"
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // в production используем "none" для cross-site
+        path: "/",
+        // Динамически устанавливаем domain для cookie
+        domain: undefined // Будет установлен динамически для каждого запроса
       },
       store: new MemoryStore({
         checkPeriod: 86400000, // Очищать устаревшие записи каждые 24ч
@@ -78,8 +90,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       resave: false,
       saveUninitialized: false,
       secret: process.env.SESSION_SECRET || "nova-ai-university-secret",
+      rolling: true, // Обновляет cookie при каждом запросе
     })
   );
+  
+  // Middleware для установки домена cookie в зависимости от запроса
+  app.use((req, res, next) => {
+    if (req.session && req.session.cookie) {
+      req.session.cookie.domain = getCookieDomain(req);
+    }
+    next();
+  });
   
   // Создаем тестового пользователя Vitaliy
   (async () => {
