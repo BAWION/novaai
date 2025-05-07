@@ -1,7 +1,7 @@
 import React from "react";
 import { useUserProfile } from "@/context/user-profile-context";
-import MainLayout from "@/components/main-layout";
-import SkillsDnaProfile from "@/components/skills-dna-profile";
+import { MainLayout } from "@/components/main-layout";
+import { SkillsDnaProfile } from "@/components/skills-dna-profile";
 import { Button } from "@/components/ui/button";
 import { 
   Card, 
