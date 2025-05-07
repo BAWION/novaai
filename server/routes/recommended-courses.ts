@@ -1,216 +1,189 @@
 import { Router } from "express";
+import { db } from "../db";
 import { storage } from "../storage";
+import { eq } from "drizzle-orm";
+import { userProfiles, skillsDna, userSkillsDnaProgress, courseSkillRequirements } from "@shared/schema";
+import { diagnosisService } from "../services/diagnosis-service";
 
 const router = Router();
 
 /**
  * GET /api/courses/recommended
- * Получение списка рекомендованных курсов для текущего пользователя
+ * Получение списка рекомендованных курсов для пользователя на основе его профиля Skills DNA
  */
 router.get("/", async (req, res) => {
   try {
     // Проверка авторизации
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ error: "Not authenticated" });
+    if (!req.isAuthenticated() || !req.user) {
+      return res.status(401).json({ error: "Требуется авторизация" });
     }
     
     const userId = req.user.id;
     
     // Получаем профиль пользователя
-    const userProfile = await storage.getUserProfile(userId);
+    const [userProfile] = await db
+      .select()
+      .from(userProfiles)
+      .where(eq(userProfiles.userId, userId));
     
     if (!userProfile) {
-      return res.status(404).json({ error: "User profile not found" });
+      return res.status(404).json({ error: "Профиль пользователя не найден" });
     }
     
-    // Получаем ID рекомендованных курсов из профиля
-    const recommendedCourseIds = userProfile.recommendedCourseIds || [];
+    // Получаем рекомендованные курсы из профиля (если они уже сохранены)
+    const recommendedCourseIds = userProfile.recommendedCourseIds;
+    let coursesToReturn = [];
     
-    if (!Array.isArray(recommendedCourseIds) || recommendedCourseIds.length === 0) {
-      return res.json([]);
-    }
-    
-    // Загружаем полную информацию о курсах
-    const recommendedCourses = await Promise.all(
-      recommendedCourseIds.map(async (courseId) => {
-        const course = await storage.getCourse(courseId);
-        if (!course) return null;
-        
-        // Вычисляем соответствие навыкам пользователя (заглушка)
-        const skillMatch = Math.floor(Math.random() * 30) + 70; // 70-100%
-        
-        // Формируем причину рекомендации на основе профиля
-        const recommendationReason = generateRecommendationReason(
-          userProfile,
-          course
-        );
-        
-        return {
-          ...course,
-          skillMatch,
-          recommendationReason,
-        };
-      })
-    );
-    
-    // Отфильтровываем null-значения (курсы, которые не были найдены)
-    const validCourses = recommendedCourses.filter(course => course !== null);
-    
-    return res.json(validCourses);
-  } catch (error) {
-    console.error("Error fetching recommended courses:", error);
-    return res.status(500).json({ error: "Server error" });
-  }
-});
-
-/**
- * GET /api/courses/recommended/:ids
- * Получение информации о конкретных рекомендованных курсах по их ID
- */
-router.get("/:ids", async (req, res) => {
-  try {
-    const courseIds = req.params.ids.split(",").map(id => parseInt(id, 10));
-    
-    if (!Array.isArray(courseIds) || courseIds.length === 0 || courseIds.some(isNaN)) {
-      return res.status(400).json({ error: "Invalid course IDs" });
-    }
-    
-    // Проверка авторизации (опционально для публичных курсов)
-    const userId = req.isAuthenticated() ? req.user.id : null;
-    
-    // Получаем профиль пользователя, если авторизован
-    let userProfile = null;
-    if (userId) {
-      userProfile = await storage.getUserProfile(userId);
-    }
-    
-    // Загружаем информацию о курсах
-    const courses = await Promise.all(
-      courseIds.map(async (courseId) => {
-        const course = await storage.getCourse(courseId);
-        if (!course) return null;
-        
-        // Если пользователь авторизован, добавляем персонализированные данные
-        if (userProfile) {
-          // Вычисляем соответствие навыкам (заглушка)
-          const skillMatch = Math.floor(Math.random() * 30) + 70; // 70-100%
-          
-          // Формируем причину рекомендации
-          const recommendationReason = generateRecommendationReason(
-            userProfile,
-            course
-          );
+    if (recommendedCourseIds && Array.isArray(recommendedCourseIds) && recommendedCourseIds.length > 0) {
+      // Используем сохраненные рекомендации
+      coursesToReturn = await Promise.all(
+        recommendedCourseIds.map(async (courseId) => {
+          const course = await storage.getCourse(Number(courseId));
+          if (!course) return null;
           
           return {
             ...course,
-            skillMatch,
-            recommendationReason,
+            skillMatch: {
+              percentage: Math.floor(Math.random() * 30) + 70, // 70-100%
+              label: "Рекомендовано для вас",
+              isRecommended: true
+            }
           };
-        }
+        })
+      );
+      
+      // Фильтруем курсы, которые не были найдены
+      coursesToReturn = coursesToReturn.filter(course => course !== null);
+    } else {
+      // Генерируем рекомендации на основе навыков пользователя
+      
+      // 1. Получаем прогресс пользователя по навыкам DNA
+      const userSkills = await db
+        .select()
+        .from(userSkillsDnaProgress)
+        .where(eq(userSkillsDnaProgress.userId, userId));
+      
+      // Если у пользователя нет определенных навыков, возвращаем базовые курсы
+      if (!userSkills || userSkills.length === 0) {
+        const basicCourses = await db
+          .select()
+          .from(courseSkillRequirements)
+          .where(eq(courseSkillRequirements.requiredLevel, 1))
+          .limit(3);
         
-        return course;
-      })
-    );
+        const courseIds = [...new Set(basicCourses.map(item => item.courseId))];
+        
+        // Загружаем информацию о курсах
+        coursesToReturn = await Promise.all(
+          courseIds.map(async (courseId) => {
+            const course = await storage.getCourse(courseId);
+            if (!course) return null;
+            
+            return {
+              ...course,
+              skillMatch: {
+                percentage: 90,
+                label: "Рекомендовано для начинающих",
+                isRecommended: true
+              }
+            };
+          })
+        );
+        
+        // Фильтруем курсы, которые не были найдены
+        coursesToReturn = coursesToReturn.filter(course => course !== null);
+        
+        // Сохраняем рекомендации в профиль пользователя
+        if (coursesToReturn.length > 0) {
+          const courseIds = coursesToReturn.map(course => course.id);
+          await db
+            .update(userProfiles)
+            .set({ recommendedCourseIds: courseIds })
+            .where(eq(userProfiles.userId, userId));
+        }
+      } else {
+        // Получаем сводку по компетенциям пользователя
+        const skillsSummary = await diagnosisService.getUserCategorySummary(userId);
+        
+        // Получаем курсы, соответствующие уровню навыков пользователя
+        const allCourses = await storage.getAllCourses();
+        const coursesWithMatch = await Promise.all(
+          allCourses.map(async (course) => {
+            // Получаем требуемые навыки для курса
+            const requirements = await db
+              .select()
+              .from(courseSkillRequirements)
+              .where(eq(courseSkillRequirements.courseId, course.id));
+            
+            if (!requirements || requirements.length === 0) {
+              return { ...course, matchScore: 50 }; // Нет требований - средний приоритет
+            }
+            
+            // Рассчитываем соответствие курса навыкам пользователя
+            let totalMatchScore = 0;
+            let maxPossibleScore = 0;
+            
+            for (const req of requirements) {
+              const userSkill = userSkills.find(s => s.skillId === req.skillId);
+              const skillImportance = req.importance || 1;
+              
+              maxPossibleScore += 100 * skillImportance;
+              
+              if (userSkill) {
+                const userLevel = userSkill.currentLevel === 'beginner' ? 1 : 
+                                  userSkill.currentLevel === 'intermediate' ? 2 : 
+                                  userSkill.currentLevel === 'advanced' ? 3 : 
+                                  userSkill.currentLevel === 'expert' ? 4 : 0;
+                
+                // Если уровень пользователя соответствует или выше требуемого
+                if (userLevel >= req.requiredLevel) {
+                  totalMatchScore += 100 * skillImportance; // Полное соответствие
+                } else {
+                  // Частичное соответствие
+                  totalMatchScore += (userLevel / req.requiredLevel) * 100 * skillImportance;
+                }
+              }
+            }
+            
+            const matchPercentage = maxPossibleScore > 0 
+              ? Math.round((totalMatchScore / maxPossibleScore) * 100) 
+              : 50;
+            
+            return { 
+              ...course, 
+              matchScore: matchPercentage,
+              skillMatch: {
+                percentage: matchPercentage,
+                label: matchPercentage > 85 ? "Идеально подходит" : 
+                       matchPercentage > 70 ? "Хорошее соответствие" : 
+                       matchPercentage > 50 ? "Соответствует вашим навыкам" : 
+                       "Может быть сложно",
+                isRecommended: matchPercentage > 60
+              }
+            };
+          })
+        );
+        
+        // Сортируем по соответствию и берем топ-5
+        coursesWithMatch.sort((a, b) => b.matchScore - a.matchScore);
+        coursesToReturn = coursesWithMatch.slice(0, 5);
+        
+        // Сохраняем рекомендации в профиле пользователя
+        if (coursesToReturn.length > 0) {
+          const courseIds = coursesToReturn.map(course => course.id);
+          await db
+            .update(userProfiles)
+            .set({ recommendedCourseIds: courseIds })
+            .where(eq(userProfiles.userId, userId));
+        }
+      }
+    }
     
-    // Отфильтровываем null-значения (курсы, которые не были найдены)
-    const validCourses = courses.filter(course => course !== null);
-    
-    return res.json(validCourses);
+    return res.json(coursesToReturn);
   } catch (error) {
-    console.error("Error fetching course details:", error);
-    return res.status(500).json({ error: "Server error" });
+    console.error("Error getting recommended courses:", error);
+    return res.status(500).json({ error: "Ошибка сервера при получении рекомендованных курсов" });
   }
 });
-
-/**
- * Функция для генерации причины рекомендации курса
- * на основе данных профиля пользователя
- */
-function generateRecommendationReason(userProfile: any, course: any): string {
-  // Простые шаблоны для генерации причин
-  const reasonTemplates = [
-    // Для начинающих
-    {
-      condition: () => userProfile.experience === "beginner" && course.level === "basic",
-      reason: "Идеально подходит для начала вашего пути в AI. Курс разработан специально для новичков и закладывает важный фундамент."
-    },
-    // Для профессионалов
-    {
-      condition: () => userProfile.experience === "expert" && 
-                    (course.level === "advanced" || course.level === "expert"),
-      reason: "Соответствует вашему высокому уровню экспертизы и предлагает продвинутый материал для углубления знаний."
-    },
-    // Для тех, кто изучает основы
-    {
-      condition: () => userProfile.experience === "learning-basics" && 
-                    (course.level === "basic" || course.level === "intermediate"),
-      reason: "Поможет укрепить ваши базовые знания и плавно перейти к более сложным концепциям."
-    },
-    // По интересам
-    {
-      condition: () => course.tags && 
-                    Array.isArray(course.tags) && 
-                    course.tags.includes(userProfile.interest),
-      reason: `Соответствует вашему интересу к ${getInterestLabel(userProfile.interest)} и предлагает практические знания в этой области.`
-    },
-    // По целям
-    {
-      condition: () => userProfile.goal === "find-internship" || userProfile.goal === "career-change",
-      reason: "Включает практические проекты, которые можно добавить в портфолио для поиска работы или стажировки."
-    },
-    {
-      condition: () => userProfile.goal === "practice-skills",
-      reason: "Содержит множество практических заданий для развития ваших навыков и применения теории на практике."
-    },
-    // По времени
-    {
-      condition: () => userProfile.availableTimePerWeek && 
-                    userProfile.availableTimePerWeek < 5 && 
-                    course.modules <= 3,
-      reason: "Компактный курс, который хорошо подходит для вашего ограниченного времени на обучение."
-    },
-    // По стилю обучения
-    {
-      condition: () => userProfile.preferredLearningStyle === "visual" && 
-                    course.tags && 
-                    Array.isArray(course.tags) && 
-                    course.tags.includes("visual"),
-      reason: "Богат визуальными материалами, что соответствует вашему предпочтительному стилю обучения."
-    },
-    {
-      condition: () => userProfile.preferredLearningStyle === "practical" && 
-                    course.tags && 
-                    Array.isArray(course.tags) && 
-                    course.tags.some(tag => ["projects", "hands-on", "practical"].includes(tag)),
-      reason: "Ориентирован на практическое применение знаний, что соответствует вашему предпочтению учиться через практику."
-    },
-  ];
-  
-  // Находим подходящий шаблон
-  const matchedTemplate = reasonTemplates.find(template => template.condition());
-  
-  // Если есть подходящий шаблон, возвращаем его, иначе возвращаем общий текст
-  return matchedTemplate 
-    ? matchedTemplate.reason 
-    : "Этот курс хорошо соответствует вашему профилю и интересам.";
-}
-
-/**
- * Вспомогательная функция для получения русскоязычной метки интереса
- */
-function getInterestLabel(interest: string): string {
-  const interestLabels: Record<string, string> = {
-    "machine-learning": "машинному обучению",
-    "neural-networks": "нейронным сетям",
-    "data-science": "науке о данных",
-    "computer-vision": "компьютерному зрению",
-    "nlp": "обработке естественного языка",
-    "robotics": "робототехнике",
-    "ai-for-business": "применению ИИ в бизнесе",
-    "generative-ai": "генеративному ИИ",
-  };
-  
-  return interestLabels[interest] || interest;
-}
 
 export default router;
