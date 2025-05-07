@@ -379,7 +379,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
         
         // Явно очищаем cookie сессии
+        res.clearCookie("nova_session_v3", { 
+          path: '/',
+          domain: process.env.NODE_ENV === 'production' ? '.replit.app' : undefined
+        });
+        
+        // Для обратной совместимости, также очищаем старые версии cookie
         res.clearCookie("nova_session_v2", { 
+          path: '/',
+          domain: process.env.NODE_ENV === 'production' ? '.replit.app' : undefined
+        });
+        res.clearCookie("nova_session", { 
           path: '/',
           domain: process.env.NODE_ENV === 'production' ? '.replit.app' : undefined
         });
