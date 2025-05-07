@@ -248,6 +248,10 @@ export default function QuickDiagnosis() {
   const [recommendations, setRecommendations] = useState<any[]>([]);
   const [userSkillProfile, setUserSkillProfile] = useState<{[key: string]: number}>({});
   
+  // Определяем, является ли это глубокой диагностикой
+  // В быстрой диагностике нельзя получить рекомендуемые курсы
+  const isDeepdDiagnosis = false; // Это компонент быстрой диагностики
+  
   const handleComplete = async () => {
     try {
       // Функция для преобразования уровня опыта в SkillLevel
@@ -909,9 +913,11 @@ export default function QuickDiagnosis() {
                       <Button 
                         onClick={() => setLocation("/courses?filter=recommended")}
                         className="bg-gradient-to-r from-green-500 to-emerald-600 hover:opacity-90 text-white"
+                        disabled={!isDeepdDiagnosis} // Отключаем для быстрой диагностики
                       >
                         Рекомендуемые курсы
                         <Target className="h-4 w-4 ml-2" />
+                        {!isDeepdDiagnosis && <span className="text-xs ml-1">(Требуется глубокая диагностика)</span>}
                       </Button>
                       
                       <Button 
