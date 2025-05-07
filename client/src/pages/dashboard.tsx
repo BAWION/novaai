@@ -1084,6 +1084,15 @@ export default function Dashboard() {
 
           {/* Right column (30%) */}
           <div className="lg:col-span-2 flex flex-col gap-6">
+            {/* Skills DNA Compact */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <CompactSkillsDna />
+            </motion.div>
+            
             {/* AI Tutor Chat */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
