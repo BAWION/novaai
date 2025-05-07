@@ -300,7 +300,7 @@ export function SkillsDnaProfile({
             
             {isLoading ? (
               <div className="flex items-center justify-center py-12">
-                <Skeleton className="w-64 h-64 rounded-md bg-white/5" />
+                <Skeleton className="w-full h-64 rounded-md bg-white/5" />
               </div>
             ) : error ? (
               <div className="flex flex-col items-center justify-center text-center py-8">
@@ -319,43 +319,23 @@ export function SkillsDnaProfile({
                 </Button>
               </div>
             ) : (
-              <div className="space-y-6">
-                {/* Треугольник навыков */}
-                <div className="flex flex-col items-center justify-center">
-                  <SkillsTriangleChart 
-                    skills={{
-                      top: { 
-                        name: "Понимание основ ИИ", 
-                        value: finalSkills["Понимание основ ИИ"] || finalSkills["Основы ИИ"] || 
-                               finalSkills["Машинное обучение"] || finalSkills["Программирование"] || 40 
-                      },
-                      bottomLeft: { 
-                        name: "Этические аспекты использования ИИ", 
-                        value: finalSkills["Этические аспекты использования ИИ"] || finalSkills["Этика и право в ИИ"] || 
-                               finalSkills["Этика ИИ"] || finalSkills["Применение в бизнесе"] || 25 
-                      },
-                      bottomRight: { 
-                        name: "Критическое мышление в контексте ИИ", 
-                        value: finalSkills["Критическое мышление в контексте ИИ"] || finalSkills["Аналитическое мышление"] || 
-                               finalSkills["Решение проблем"] || finalSkills["Анализ данных"] || 65 
-                      }
-                    }}
-                    height={280}
-                    width={280}
-                    className="mx-auto my-4"
-                  />
-                </div>
+              <div>
+                {/* Только радар навыков */}
+                <SkillsRadarChart 
+                  skills={finalSkills}
+                  title="Skills DNA"
+                  showControls={true}
+                  maxValue={100}
+                  className="w-full"
+                />
                 
-                {/* Радар навыков */}
-                <div className="pt-4">
-                  <SkillsRadarChart 
-                    skills={finalSkills}
-                    title="Детализация навыков"
-                    subtitle="Показаны все навыки в форме радара"
-                    showControls={true}
-                    maxValue={100}
-                    className="w-full"
-                  />
+                {/* Общая картина */}
+                <div className="mt-6 p-4 bg-space-800/70 border border-blue-500/20 rounded-md">
+                  <h3 className="text-white font-medium mb-2">Общая картина</h3>
+                  <p className="text-white/80 text-sm">
+                    Вы находитесь на начальном этапе обучения. Ваш профиль показывает хороший потенциал для роста. 
+                    Рекомендуем сначала укрепить фундаментальные основы.
+                  </p>
                 </div>
               </div>
             )}
