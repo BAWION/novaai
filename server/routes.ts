@@ -241,154 +241,158 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  app.post("/api/auth/login", async (req, res) => {
-    try {
-      const { username, password, displayName } = req.body;
-      
-      // Выводим диагностическую информацию о сессии перед входом
-      console.log("[Login] Сессия до входа:", {
-        id: req.sessionID,
-        hasSession: !!req.session,
-        cookieMaxAge: req.session?.cookie.maxAge,
+  app.post("/api/auth/login", (req, res) => {
+    const { username, password, displayName } = req.body;
+    
+    // Выводим диагностическую информацию о сессии перед входом
+    console.log("[Login] Сессия до входа:", {
+      id: req.sessionID,
+      hasSession: !!req.session,
+      cookieMaxAge: req.session?.cookie.maxAge,
+    });
+    
+    // Промисификация функций сессии для более чистого кода
+    const regenerateSession = () => {
+      return new Promise<void>((resolve, reject) => {
+        req.session.regenerate((err) => {
+          if (err) {
+            console.error("[Login] Ошибка при регенерации сессии:", err);
+            reject(err);
+          } else {
+            resolve();
+          }
+        });
       });
-      
-      // Check for admin credentials
-      if (username === "админ13" && password === "54321") {
+    };
+    
+    const saveSession = () => {
+      return new Promise<void>((resolve, reject) => {
+        req.session.save((err) => {
+          if (err) {
+            console.error("[Login] Ошибка при сохранении сессии:", err);
+            reject(err);
+          } else {
+            resolve();
+          }
+        });
+      });
+    };
+    
+    // Функция для входа администратора
+    const loginAsAdmin = async () => {
+      try {
         console.log("[Login] Вход администратора");
         
-        // Create admin session
+        // Регенерируем сессию для безопасности
+        await regenerateSession();
+        
+        // Устанавливаем данные в сессию
         req.session.user = {
           id: 999,
           username: "админ13",
           displayName: "Администратор"
         };
-        
-        // Установка признака аутентифицированной сессии
         req.session.authenticated = true;
         req.session.loginTime = new Date().toISOString();
         
-        // Принудительно сохраняем сессию перед отправкой ответа
-        await new Promise<void>((resolve, reject) => {
-          req.session.save((err) => {
-            if (err) {
-              console.error("Ошибка при сохранении сессии администратора:", err);
-              reject(err);
-            } else {
-              console.log("Административная сессия успешно сохранена, sessionID:", req.sessionID);
-              resolve();
-            }
-          });
-        });
+        // Сохраняем сессию
+        await saveSession();
         
-        return res.json({ id: 999, username: "админ13", displayName: "Администратор" });
+        console.log("[Login] Администратор успешно вошел, sessionID:", req.sessionID);
+        res.json({ id: 999, username: "админ13", displayName: "Администратор" });
+      } catch (error) {
+        console.error("[Login] Ошибка входа администратора:", error);
+        res.status(500).json({ message: "Session error" });
       }
-      
-      // For telegram login (which doesn't use password)
-      if (!password && username) {
-        console.log("[Login] Telegram-вход для пользователя:", username);
+    };
+    
+    // Функция для входа обычного пользователя
+    const loginAsUser = async (user: any, method: string) => {
+      try {
+        console.log(`[Login] Вход пользователя ${user.username} методом ${method}`);
         
-        // Find or create user
-        let user = await storage.getUserByUsername(username);
+        // Регенерируем сессию для безопасности
+        await regenerateSession();
         
-        if (!user) {
-          // For demo purposes, create a new user if not found
-          console.log("[Login] Создание нового пользователя для Telegram:", username);
-          user = await storage.createUser({ 
-            username, 
-            password: "placeholder-password" // In a real app, we'd use proper password hashing
-          });
-        }
-        
-        // Store user in session
+        // Устанавливаем данные в сессию
         req.session.user = {
           id: user.id,
           username: user.username,
-          displayName: displayName || user.displayName
+          displayName: user.displayName || displayName || undefined
         };
-        
-        // Установка признака аутентифицированной сессии
         req.session.authenticated = true;
         req.session.loginTime = new Date().toISOString();
-        req.session.loginMethod = "telegram";
+        req.session.loginMethod = method;
         
-        // Принудительно сохраняем сессию перед отправкой ответа
-        await new Promise<void>((resolve, reject) => {
-          req.session.save((err) => {
-            if (err) {
-              console.error("Ошибка при сохранении сессии:", err);
-              reject(err);
-            } else {
-              console.log("Сессия успешно сохранена для пользователя:", user.username, "sessionID:", req.sessionID);
-              resolve();
-            }
-          });
-        });
+        // Сохраняем сессию
+        await saveSession();
         
-        return res.json({ id: user.id, username: user.username, displayName: displayName || user.displayName });
-      }
-      
-      // Regular username/password login
-      if (username && password) {
-        console.log("[Login] Обычный вход с логином и паролем:", username);
-        
-        let user = await storage.getUserByUsername(username);
-        
-        if (!user) {
-          console.warn("[Login] Пользователь не найден:", username);
-          return res.status(401).json({ message: "Неверное имя пользователя или пароль" });
-        }
-        
-        // In a real app, we would compare hashed passwords
-        // For demo, we'll just check if the password matches
-        if (user.password !== password) {
-          console.warn("[Login] Неверный пароль для пользователя:", username);
-          return res.status(401).json({ message: "Неверное имя пользователя или пароль" });
-        }
-        
-        console.log("[Login] Успешная аутентификация пользователя:", username);
-        
-        // Store user in session
-        req.session.user = {
+        console.log(`[Login] Пользователь ${user.username} успешно вошел, sessionID:`, req.sessionID);
+        res.json({
           id: user.id,
           username: user.username,
-          displayName: user.displayName || undefined
-        };
-        
-        // Установка признака аутентифицированной сессии
-        req.session.authenticated = true;
-        req.session.loginTime = new Date().toISOString();
-        req.session.loginMethod = "password";
-        
-        // Принудительно сохраняем сессию перед отправкой ответа
-        await new Promise<void>((resolve, reject) => {
-          req.session.save((err) => {
-            if (err) {
-              console.error("Ошибка при сохранении сессии:", err);
-              reject(err);
-            } else {
-              console.log("Сессия успешно сохранена для пользователя:", user.username, "sessionID:", req.sessionID);
-              
-              // Дополнительная диагностика для проверки сохранения сессии
-              if (req.session.user && req.session.user.id === user.id) {
-                console.log("[Login] Проверка сессии: данные пользователя корректно сохранены");
-              } else {
-                console.warn("[Login] Проверка сессии: данные пользователя НЕ сохранены!");
-              }
-              
-              resolve();
-            }
-          });
+          displayName: user.displayName || displayName
         });
-        
-        return res.json({ id: user.id, username: user.username, displayName: user.displayName });
+      } catch (error) {
+        console.error(`[Login] Ошибка входа пользователя ${user.username}:`, error);
+        res.status(500).json({ message: "Session error" });
       }
-      
-      console.warn("[Login] Некорректные параметры входа");
-      res.status(400).json({ message: "Необходимо указать имя пользователя и пароль" });
-    } catch (error) {
-      console.error("Login error:", error);
-      res.status(500).json({ message: "Login failed" });
-    }
+    };
+    
+    // Главная логика обработки запроса
+    const processLogin = async () => {
+      try {
+        // Проверка учетных данных администратора
+        if (username === "админ13" && password === "54321") {
+          return await loginAsAdmin();
+        }
+        
+        // Telegram-вход (без пароля)
+        if (!password && username) {
+          // Находим или создаем пользователя
+          let user = await storage.getUserByUsername(username);
+          
+          if (!user) {
+            console.log("[Login] Создание нового пользователя:", username);
+            user = await storage.createUser({
+              username,
+              password: "placeholder-password"
+            });
+          }
+          
+          return await loginAsUser(user, "telegram");
+        }
+        
+        // Обычный вход с логином и паролем
+        if (username && password) {
+          // Находим пользователя по имени
+          const user = await storage.getUserByUsername(username);
+          
+          if (!user) {
+            console.warn("[Login] Пользователь не найден:", username);
+            return res.status(401).json({ message: "Неверное имя пользователя или пароль" });
+          }
+          
+          // Проверяем пароль (в реальном приложении здесь был бы хэш)
+          if (user.password !== password) {
+            console.warn("[Login] Неверный пароль для пользователя:", username);
+            return res.status(401).json({ message: "Неверное имя пользователя или пароль" });
+          }
+          
+          return await loginAsUser(user, "password");
+        }
+        
+        // Неверные параметры запроса
+        console.warn("[Login] Некорректные параметры входа");
+        res.status(400).json({ message: "Необходимо указать имя пользователя и пароль" });
+      } catch (error) {
+        console.error("[Login] Ошибка:", error);
+        res.status(500).json({ message: "Login failed" });
+      }
+    };
+    
+    // Запускаем обработку
+    processLogin();
   });
   
   app.post("/api/auth/logout", (req, res) => {
