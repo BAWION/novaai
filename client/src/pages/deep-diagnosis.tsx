@@ -1823,13 +1823,12 @@ export default function DeepDiagnosisPage() {
                         </h4>
                         
                         <Glassmorphism className="p-4 rounded-lg">
-                          <SkillsRadarChart 
-                            skills={userSkillProfile}
-                            title="Skills DNA"
-                            showControls={true}
-                            maxValue={100}
-                            className="w-full"
-                          />
+                          <div className="h-64">
+                            <SimpleRadarChart 
+                              skills={userSkillProfile}
+                              height={240}
+                            />
+                          </div>
                           
                           <div className="mt-6 border-t border-white/10 pt-4">
                             <h5 className="text-sm font-medium mb-2">
