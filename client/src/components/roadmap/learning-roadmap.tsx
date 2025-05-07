@@ -1,5 +1,5 @@
-import React from 'react';
-import { ChevronRight, Globe, MapPin, Star, Clock, Lightbulb, Target, Sparkles } from 'lucide-react';
+import React, { useState } from 'react';
+import { ChevronRight, Globe, MapPin, Star, Clock, Lightbulb, Target, Sparkles, ZoomIn, ZoomOut } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -31,6 +31,19 @@ export function LearningRoadmap({
   milestones: propMilestones,
   isDemoMode = true
 }: LearningRoadmapProps) {
+  // Состояние для управления масштабом
+  const [zoomLevel, setZoomLevel] = useState(1);
+  
+  // Увеличить масштаб
+  const zoomIn = () => {
+    setZoomLevel(prev => Math.min(prev + 0.2, 1.8));
+  };
+  
+  // Уменьшить масштаб
+  const zoomOut = () => {
+    setZoomLevel(prev => Math.max(prev - 0.2, 0.6));
+  };
+
   // Демо-данные, если не были переданы
   const defaultMilestones: LearningMilestone[] = [
     {
@@ -101,371 +114,368 @@ export function LearningRoadmap({
 
   const milestones = propMilestones || defaultMilestones;
 
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case 'course':
-        return <Lightbulb className="h-4 w-4" />;
-      case 'project':
-        return <Star className="h-4 w-4" />;
-      case 'assessment':
-        return <Target className="h-4 w-4" />;
-      case 'achievement':
-        return <Sparkles className="h-4 w-4" />;
-      default:
-        return <Lightbulb className="h-4 w-4" />;
-    }
-  };
-
-  const getPlanetColor = (status: string, type: string) => {
-    // Базовый класс для всех планет
-    let baseClass = "flex items-center justify-center rounded-full border-2 shadow-glow z-20 transition-all duration-300";
-    
-    // Цвета в зависимости от статуса и типа
-    if (status === 'completed') {
-      baseClass += " bg-green-900/40 border-green-400 shadow-green-500/30";
-    } else if (status === 'current') {
-      baseClass += " bg-blue-900/40 border-blue-400 shadow-blue-500/30 animate-pulse";
-    } else {
-      baseClass += " bg-space-800/60 border-space-600/40 shadow-space-700/20";
-    }
-    
-    // Размер планеты в зависимости от типа
-    if (type === 'course') {
-      baseClass += " w-14 h-14";
-    } else if (type === 'project') {
-      baseClass += " w-12 h-12";
-    } else if (type === 'assessment') {
-      baseClass += " w-16 h-16";
-    } else { // achievement
-      baseClass += " w-10 h-10";
-    }
-    
-    return baseClass;
-  };
-
-  const getIconColor = (status: string) => {
+  // Получение цвета планеты в зависимости от статуса
+  const getPlanetColor = (status: string) => {
     switch (status) {
       case 'completed':
-        return "text-green-200";
+        return 'bg-green-400';
       case 'current':
-        return "text-blue-200";
-      case 'upcoming':
-        return "text-gray-400";
+        return 'bg-blue-400';
       default:
-        return "text-gray-400";
+        return 'bg-gray-700/40';
     }
   };
-
-  const getStatusColor = (status: string) => {
+  
+  // Получение цвета свечения в зависимости от статуса
+  const getGlowColor = (status: string) => {
     switch (status) {
       case 'completed':
-        return 'bg-green-500/20 border-green-500/30 text-green-300';
+        return 'shadow-green-500/30';
       case 'current':
-        return 'bg-blue-500/20 border-blue-500/30 text-blue-300';
-      case 'upcoming':
-        return 'bg-gray-500/20 border-gray-500/30 text-gray-300';
+        return 'shadow-blue-500/30';
       default:
-        return 'bg-gray-500/20 border-gray-500/30 text-gray-300';
+        return 'shadow-gray-500/10';
     }
   };
-
-  const getImportanceColor = (importance: string) => {
-    switch (importance) {
-      case 'high':
-        return 'bg-red-500/20 border-red-500/30 text-red-300';
-      case 'medium':
-        return 'bg-orange-500/20 border-orange-500/30 text-orange-300';
-      case 'low':
-        return 'bg-yellow-500/20 border-yellow-500/30 text-yellow-300';
-      default:
-        return 'bg-yellow-500/20 border-yellow-500/30 text-yellow-300';
-    }
+  
+  // Получение анимации для планеты
+  const getAnimation = (status: string) => {
+    return status === 'current' ? 'animate-pulse' : '';
   };
 
-  // Группируем вехи по их позиции (основные и ответвления)
-  const mainPath = milestones.filter(m => !m.position || m.position === 'main');
-  const branchPaths = milestones.filter(m => m.position === 'branch');
+  // Получение текущей вехи
+  const currentMilestone = milestones.find(m => m.status === 'current');
 
   return (
-    <Card className={cn("bg-space-900/80 border-blue-500/20 overflow-hidden", className)}>
+    <Card className={cn("bg-space-950/95 border-blue-500/20 overflow-hidden", className)}>
       <CardHeader className="pb-2">
         <div className="flex justify-between items-center">
-          <CardTitle className="text-white flex items-center">
-            <Globe className="h-5 w-5 mr-2" />
-            Галактическая карта обучения
-          </CardTitle>
-          {isDemoMode && (
-            <Badge variant="outline" className="bg-amber-500/10 border-amber-500/30 text-amber-300 text-xs">
-              Demo
-            </Badge>
-          )}
+          <div className="flex items-center">
+            <Globe className="h-5 w-5 mr-2 text-white/80" />
+            <CardTitle className="text-white">
+              Галактическая карта обучения
+            </CardTitle>
+          </div>
+          <div className="flex items-center gap-2">
+            {isDemoMode && (
+              <Badge variant="outline" className="bg-amber-500/10 border-amber-500/30 text-amber-300 text-xs">
+                Demo
+              </Badge>
+            )}
+            <div className="flex gap-1">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-7 w-7 rounded-full bg-space-800/50 text-white/70 hover:text-white hover:bg-space-800"
+                onClick={zoomOut}
+              >
+                <ZoomOut className="h-4 w-4" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-7 w-7 rounded-full bg-space-800/50 text-white/70 hover:text-white hover:bg-space-800"
+                onClick={zoomIn}
+              >
+                <ZoomIn className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
         </div>
       </CardHeader>
-      <CardContent className="pt-2 relative">
-        {/* Космический фон с звездами */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-space-800 to-space-950 opacity-80">
-          <div className="stars-bg absolute inset-0 opacity-50"></div>
+      <CardContent className="p-0 relative overflow-hidden">
+        {/* Космический фон со звездами */}
+        <div className="absolute inset-0 bg-space-950">
+          <div className="stars-bg absolute inset-0"></div>
+        </div>
+
+        {/* Масштабируемая галактическая карта */}
+        <div 
+          className="relative galaxy-map min-h-[400px] transition-transform duration-300 overflow-hidden"
+          style={{ 
+            transform: `scale(${zoomLevel})`,
+            transformOrigin: 'center center',
+            height: '400px'
+          }}
+        >
+          {/* Соединительные линии между планетами (маршруты) */}
+          <svg className="absolute inset-0 w-full h-full z-10" viewBox="0 0 1000 400" preserveAspectRatio="none">
+            {/* Основной маршрут */}
+            <path 
+              d="M100,200 L900,200" 
+              stroke="rgba(59, 130, 246, 0.3)" 
+              strokeWidth="2"
+              fill="none"
+            />
+            
+            {/* Соединение с Проектом */}
+            <path 
+              d="M475,200 L475,325 L475,325" 
+              stroke="rgba(147, 51, 234, 0.25)" 
+              strokeWidth="1.5"
+              fill="none"
+            />
+            
+            {/* Соединение со Стабильной диффузией */}
+            <path 
+              d="M150,200 L150,325 L150,325" 
+              stroke="rgba(147, 51, 234, 0.25)" 
+              strokeWidth="1.5"
+              fill="none"
+            />
+          </svg>
+
+          {/* Планеты (курсы) */}
+          {/* Основы ИИ */}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div 
+                  className={cn(
+                    "absolute transform -translate-x-1/2 -translate-y-1/2 rounded-full shadow-glow border-4 transition-all",
+                    getPlanetColor('completed'),
+                    getGlowColor('completed'),
+                    getAnimation('completed'),
+                    "w-20 h-20 border-green-400/70"
+                  )}
+                  style={{ left: '150px', top: '200px' }}
+                >
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="bg-space-800/95 border-space-700 text-white max-w-xs">
+                <div>
+                  <div className="font-medium mb-1">Основы ИИ и машинного обучения</div>
+                  <div className="text-xs text-white/75 mb-2">Фундаментальные понятия и принципы искусственного интеллекта</div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="bg-green-500/20 border-green-500/30 text-green-300">
+                      Завершено
+                    </Badge>
+                    <div className="text-xs flex items-center text-white/75">
+                      <Clock className="h-3 w-3 mr-1" />
+                      10 часов
+                    </div>
+                  </div>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <div className="absolute whitespace-nowrap" style={{ left: '150px', top: '235px', transform: 'translateX(-50%)' }}>
+            <span className="text-xs font-medium text-green-300">
+              Основы ИИ и машинного обучения
+            </span>
+          </div>
+
+          {/* Практика использования Chat-GPT */}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div 
+                  className={cn(
+                    "absolute transform -translate-x-1/2 -translate-y-1/2 rounded-full shadow-glow border-4 transition-all",
+                    getPlanetColor('current'),
+                    getGlowColor('current'),
+                    getAnimation('current'),
+                    "w-20 h-20 border-blue-400/70"
+                  )}
+                  style={{ left: '475px', top: '200px' }}
+                >
+                  <div 
+                    className="absolute inset-0 rounded-full"
+                    style={{
+                      background: `conic-gradient(rgb(96, 165, 250) 65%, transparent 0)`,
+                      transform: 'rotate(-90deg)'
+                    }}
+                  ></div>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="bg-space-800/95 border-space-700 text-white max-w-xs">
+                <div>
+                  <div className="font-medium mb-1">Практика использования Chat-GPT</div>
+                  <div className="text-xs text-white/75 mb-2">Эффективное формулирование запросов и работа с нейросетями</div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="bg-blue-500/20 border-blue-500/30 text-blue-300">
+                      Текущее
+                    </Badge>
+                    <div className="text-xs flex items-center text-white/75">
+                      <Clock className="h-3 w-3 mr-1" />
+                      6 часов
+                    </div>
+                  </div>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <div className="absolute whitespace-nowrap" style={{ left: '475px', top: '235px', transform: 'translateX(-50%)' }}>
+            <span className="text-xs font-medium text-blue-300">
+              Практика использования Chat-GPT
+            </span>
+          </div>
+
+          {/* Сертификационное тестирование */}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div 
+                  className={cn(
+                    "absolute transform -translate-x-1/2 -translate-y-1/2 rounded-full shadow-glow border-2 transition-all",
+                    getPlanetColor('upcoming'),
+                    getGlowColor('upcoming'),
+                    getAnimation('upcoming'),
+                    "w-24 h-24 border-gray-500/30"
+                  )}
+                  style={{ left: '800px', top: '200px' }}
+                >
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Target className="w-6 h-6 text-gray-400/60" />
+                  </div>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="bg-space-800/95 border-space-700 text-white max-w-xs">
+                <div>
+                  <div className="font-medium mb-1">Сертификационное тестирование</div>
+                  <div className="text-xs text-white/75 mb-2">Итоговое тестирование для получения сертификата по базовому курсу ИИ</div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="bg-gray-500/20 border-gray-500/30 text-gray-300">
+                      Предстоит
+                    </Badge>
+                    <div className="text-xs flex items-center text-white/75">
+                      <Clock className="h-3 w-3 mr-1" />
+                      2 часа
+                    </div>
+                  </div>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <div className="absolute whitespace-nowrap" style={{ left: '800px', top: '235px', transform: 'translateX(-50%)' }}>
+            <span className="text-xs font-medium text-gray-400">
+              Сертификационное тестирование
+            </span>
+          </div>
+
+          {/* Проект: Создание персонального ассистента */}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div 
+                  className={cn(
+                    "absolute transform -translate-x-1/2 -translate-y-1/2 rounded-full shadow-glow border-2 transition-all",
+                    getPlanetColor('upcoming'),
+                    getGlowColor('upcoming'),
+                    getAnimation('upcoming'),
+                    "w-16 h-16 border-gray-500/30"
+                  )}
+                  style={{ left: '475px', top: '325px' }}
+                >
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Star className="w-5 h-5 text-gray-400/60" />
+                  </div>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="bg-space-800/95 border-space-700 text-white max-w-xs">
+                <div>
+                  <div className="font-medium mb-1">Проект: Создание персонального ассистента</div>
+                  <div className="text-xs text-white/75 mb-2">Применение знаний для создания собственного ассистента на базе API</div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="bg-gray-500/20 border-gray-500/30 text-gray-300">
+                      Предстоит
+                    </Badge>
+                    <div className="text-xs flex items-center text-white/75">
+                      <Clock className="h-3 w-3 mr-1" />
+                      8 часов
+                    </div>
+                  </div>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <div className="absolute whitespace-nowrap" style={{ left: '475px', top: '355px', transform: 'translateX(-50%)' }}>
+            <span className="text-xs font-medium text-gray-400">
+              Проект: Создание персонального ассистента
+            </span>
+          </div>
+
+          {/* Стабильная диффузия */}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div 
+                  className={cn(
+                    "absolute transform -translate-x-1/2 -translate-y-1/2 rounded-full shadow-glow border-2 transition-all",
+                    getPlanetColor('upcoming'),
+                    getGlowColor('upcoming'),
+                    getAnimation('upcoming'),
+                    "w-16 h-16 border-gray-500/30"
+                  )}
+                  style={{ left: '150px', top: '325px' }}
+                >
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Lightbulb className="w-5 h-5 text-gray-400/60" />
+                  </div>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="bg-space-800/95 border-space-700 text-white max-w-xs">
+                <div>
+                  <div className="font-medium mb-1">Стабильная диффузия и генерация изображений</div>
+                  <div className="text-xs text-white/75 mb-2">Основы генерации и редактирования изображений с помощью нейросетей</div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="bg-gray-500/20 border-gray-500/30 text-gray-300">
+                      Предстоит
+                    </Badge>
+                    <div className="text-xs flex items-center text-white/75">
+                      <Clock className="h-3 w-3 mr-1" />
+                      12 часов
+                    </div>
+                  </div>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <div className="absolute whitespace-nowrap" style={{ left: '150px', top: '355px', transform: 'translateX(-50%)' }}>
+            <span className="text-xs font-medium text-gray-400">
+              Стабильная диффузия
+            </span>
+          </div>
         </div>
         
-        {/* Орбитальные пути */}
-        <div className="relative galaxy-map min-h-[400px] p-4">
-          {/* Основной путь - орбитальная линия */}
-          <div className="absolute left-[10%] right-[10%] top-1/2 h-1 bg-gradient-to-r from-blue-500/0 via-blue-500/40 to-blue-500/0 rounded-full"></div>
-          
-          {/* Ответвления - дополнительные орбитальные линии */}
-          <div className="absolute left-1/4 w-1/2 top-[70%] h-0.5 bg-gradient-to-r from-purple-500/0 via-purple-500/30 to-purple-500/0 rounded-full"></div>
-          <div className="absolute left-1/3 w-1/3 top-[30%] h-0.5 bg-gradient-to-r from-cyan-500/0 via-cyan-500/30 to-cyan-500/0 rounded-full"></div>
-
-          {/* Планеты основного пути */}
-          <div className="flex justify-between relative z-10 h-full">
-            {mainPath.map((milestone, index) => {
-              // Позиционируем планеты равномерно по орбите
-              const leftPosition = `${10 + (index * (80 / (mainPath.length - 1)))}%`;
-              
-              return (
-                <div 
-                  key={milestone.id}
-                  className="absolute transform -translate-y-1/2 milestone-planet"
-                  style={{ 
-                    left: leftPosition,
-                    top: '50%'
-                  }}
-                >
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className={getPlanetColor(milestone.status, milestone.type)}>
-                          <div className={cn("planet-icon", getIconColor(milestone.status))}>
-                            {getTypeIcon(milestone.type)}
-                          </div>
-                        </div>
-                      </TooltipTrigger>
-                      <TooltipContent side="top" className="bg-space-800/95 border-space-700 text-white max-w-xs">
-                        <div>
-                          <div className="font-medium mb-1">{milestone.title}</div>
-                          <div className="text-xs text-white/75 mb-2">{milestone.description}</div>
-                          
-                          <div className="flex flex-wrap gap-1.5">
-                            <Badge variant="outline" className={getStatusColor(milestone.status)}>
-                              {milestone.status === 'completed' ? 'Завершено' : 
-                              milestone.status === 'current' ? 'Текущее' : 'Предстоит'}
-                            </Badge>
-                            {milestone.estimatedTime && (
-                              <div className="text-xs flex items-center text-white/75">
-                                <Clock className="h-3 w-3 mr-1" />
-                                {milestone.estimatedTime}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                  
-                  {/* Название планеты под ней */}
-                  <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
-                    <span className={cn(
-                      "text-xs font-medium", 
-                      milestone.status === 'completed' ? "text-green-300" : 
-                      milestone.status === 'current' ? "text-blue-300" : 
-                      "text-white/60"
-                    )}>
-                      {milestone.title}
-                    </span>
-                  </div>
-                  
-                  {/* Прогресс-кольцо вокруг планеты */}
-                  {milestone.progress !== undefined && milestone.progress > 0 && (
-                    <div 
-                      className="absolute inset-0 rounded-full"
-                      style={{
-                        background: `conic-gradient(${
-                          milestone.status === 'completed' ? 'rgb(74, 222, 128)' : 'rgb(96, 165, 250)'
-                        } ${milestone.progress}%, transparent 0)`,
-                        transform: 'rotate(-90deg)'
-                      }}
-                    ></div>
-                  )}
-                  
-                  {/* Соединительные линии с зависимостями */}
-                  {milestone.dependencies?.map(depId => {
-                    const depIndex = mainPath.findIndex(m => m.id === depId);
-                    if (depIndex !== -1 && depIndex < index) {
-                      return (
-                        <div 
-                          key={`conn-${milestone.id}-${depId}`}
-                          className="absolute w-full h-0.5 bg-gradient-to-r from-blue-500/30 to-blue-500/10 origin-left"
-                          style={{
-                            left: '-100%',
-                            top: '50%',
-                            width: `${100 * (index - depIndex)}%`,
-                          }}
-                        ></div>
-                      );
-                    }
-                    return null;
-                  })}
-                </div>
-              );
-            })}
-          </div>
-          
-          {/* Планеты на ответвлениях */}
-          {branchPaths.map((milestone, index) => {
-            // Находим от каких основных вех зависит данная ветвь
-            const dependencies = milestone.dependencies || [];
-            const mainDeps = dependencies.filter(id => mainPath.some(m => m.id === id));
-            let mainDepIndex = -1;
-            
-            if (mainDeps.length > 0) {
-              mainDepIndex = mainPath.findIndex(m => m.id === mainDeps[0]);
-            }
-            
-            // Позиция по X относительно зависимой вехи основного пути
-            const leftPosition = mainDepIndex !== -1 
-              ? `${10 + (mainDepIndex * (80 / (mainPath.length - 1)))}%`
-              : `${30 + (index * 20)}%`;
-              
-            // Определяем, верхняя или нижняя ветвь
-            const isUpperBranch = index % 2 === 0;
-            const topPosition = isUpperBranch ? '30%' : '70%';
-            
-            return (
-              <div 
-                key={milestone.id}
-                className="absolute transform -translate-y-1/2 milestone-planet"
-                style={{ 
-                  left: leftPosition,
-                  top: topPosition
-                }}
-              >
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div className={getPlanetColor(milestone.status, milestone.type)}>
-                        <div className={cn("planet-icon", getIconColor(milestone.status))}>
-                          {getTypeIcon(milestone.type)}
-                        </div>
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent side={isUpperBranch ? "top" : "bottom"} className="bg-space-800/95 border-space-700 text-white max-w-xs">
-                      <div>
-                        <div className="font-medium mb-1">{milestone.title}</div>
-                        <div className="text-xs text-white/75 mb-2">{milestone.description}</div>
-                        
-                        <div className="flex flex-wrap gap-1.5">
-                          <Badge variant="outline" className={getStatusColor(milestone.status)}>
-                            {milestone.status === 'completed' ? 'Завершено' : 
-                            milestone.status === 'current' ? 'Текущее' : 'Предстоит'}
-                          </Badge>
-                          {milestone.estimatedTime && (
-                            <div className="text-xs flex items-center text-white/75">
-                              <Clock className="h-3 w-3 mr-1" />
-                              {milestone.estimatedTime}
-                            </div>
-                          )}
-                        </div>
-                        
-                        {/* Навыки в подсказке */}
-                        {milestone.skills && milestone.skills.length > 0 && (
-                          <div className="mt-2 flex flex-wrap gap-1">
-                            {milestone.skills.map((skill, idx) => (
-                              <span 
-                                key={idx} 
-                                className="bg-space-700/80 text-xs px-1.5 py-0.5 rounded-full text-white/60"
-                              >
-                                {skill}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-                
-                {/* Название планеты рядом с ней */}
-                <div className={cn(
-                  "absolute whitespace-nowrap",
-                  isUpperBranch ? "-bottom-6 left-1/2 transform -translate-x-1/2" : "-top-6 left-1/2 transform -translate-x-1/2"
-                )}>
-                  <span className={cn(
-                    "text-xs font-medium", 
-                    milestone.status === 'completed' ? "text-green-300" : 
-                    milestone.status === 'current' ? "text-blue-300" : 
-                    "text-white/60"
-                  )}>
-                    {milestone.title}
-                  </span>
-                </div>
-                
-                {/* Соединительные линии с зависимостями на основном пути */}
-                {mainDeps.map(depId => {
-                  const depIndex = mainPath.findIndex(m => m.id === depId);
-                  if (depIndex !== -1) {
-                    return (
-                      <div 
-                        key={`conn-${milestone.id}-${depId}`}
-                        className="absolute bg-gradient-to-b from-purple-500/20 to-blue-500/20"
-                        style={{
-                          left: '50%',
-                          top: isUpperBranch ? '100%' : '0',
-                          width: '1px',
-                          height: isUpperBranch ? `${20}%` : `${20}%`,
-                          transform: isUpperBranch ? 'translateY(0)' : 'translateY(-100%)'
-                        }}
-                      ></div>
-                    );
-                  }
-                  return null;
-                })}
+        {/* Информация о текущем этапе */}
+        {currentMilestone && (
+          <div className="relative px-4 pt-2 pb-4 z-20">
+            <div className="bg-space-800/80 border border-blue-500/20 rounded-lg p-3 max-w-3xl mx-auto">
+              <div className="flex items-center gap-2 mb-1">
+                <MapPin className="h-5 w-5 text-blue-400" />
+                <h3 className="font-medium text-white text-lg">
+                  Ваш текущий этап: {currentMilestone.title}
+                </h3>
               </div>
-            );
-          })}
-          
-          {/* Панель информации о текущем этапе */}
-          {milestones.filter(m => m.status === 'current').map(milestone => (
-            <div 
-              key={`info-${milestone.id}`}
-              className="absolute left-1/2 transform -translate-x-1/2 bottom-2 bg-space-800/80 border border-blue-500/20 rounded-lg p-3 max-w-md w-full"
-            >
-              <h3 className="font-medium text-white flex items-center">
-                <MapPin className="h-4 w-4 mr-1" />
-                Ваш текущий этап: {milestone.title}
-              </h3>
               
-              {milestone.progress !== undefined && (
-                <div className="relative pt-2 pb-1">
+              {currentMilestone.progress !== undefined && (
+                <div className="relative pt-1 pb-2">
                   <div className="flex items-center justify-between mb-1">
-                    <div className="text-xs text-white/70">{milestone.progress}% выполнено</div>
+                    <div className="text-sm text-white/70">{currentMilestone.progress}% выполнено</div>
                   </div>
-                  <div className="w-full bg-space-700 rounded-full h-1.5">
+                  <div className="w-full bg-space-700 rounded-full h-2">
                     <div 
-                      className="h-1.5 rounded-full bg-blue-400"
-                      style={{ width: `${milestone.progress}%` }}
+                      className="h-2 rounded-full bg-blue-400"
+                      style={{ width: `${currentMilestone.progress}%` }}
                     ></div>
                   </div>
                 </div>
               )}
               
               <Button
-                variant="outline"
-                className="mt-2 bg-blue-500/20 border-blue-500/30 text-blue-300 hover:bg-blue-500/30 hover:text-blue-200 text-xs w-full"
+                className="mt-1 bg-blue-600 hover:bg-blue-700 text-white border-none w-full"
               >
-                Продолжить обучение <ChevronRight className="h-3 w-3 ml-1"/>
+                Продолжить обучение <ChevronRight className="h-4 w-4 ml-1"/>
               </Button>
             </div>
-          ))}
-        </div>
+          </div>
+        )}
       </CardContent>
-      
-      <style jsx global>{`
+
+      <style dangerouslySetInnerHTML={{ __html: `
         .shadow-glow {
-          box-shadow: 0 0 15px currentColor;
-        }
-        
-        .planet-icon {
-          font-size: 18px;
+          box-shadow: 0 0 20px currentColor;
         }
         
         .stars-bg {
@@ -475,9 +485,24 @@ export function LearningRoadmap({
             radial-gradient(1px 1px at 125px 20px, white, rgba(255, 255, 255, 0)),
             radial-gradient(1.5px 1.5px at 50px 75px, white, rgba(255, 255, 255, 0)),
             radial-gradient(2px 2px at 15px 125px, white, rgba(255, 255, 255, 0)),
-            radial-gradient(2.5px 2.5px at 110px 80px, white, rgba(255, 255, 255, 0));
-          background-size: 200px 200px;
-          animation: starsAnimation 200s linear infinite;
+            radial-gradient(2.5px 2.5px at 110px 80px, white, rgba(255, 255, 255, 0)),
+            radial-gradient(1px 1px at 210px 155px, white, rgba(255, 255, 255, 0)),
+            radial-gradient(1.5px 1.5px at 260px 280px, white, rgba(255, 255, 255, 0)),
+            radial-gradient(1px 1px at 300px 350px, white, rgba(255, 255, 255, 0)),
+            radial-gradient(1px 1px at 350px 280px, white, rgba(255, 255, 255, 0)),
+            radial-gradient(2px 2px at 400px 100px, white, rgba(255, 255, 255, 0)),
+            radial-gradient(1px 1px at 450px 380px, white, rgba(255, 255, 255, 0)),
+            radial-gradient(1.5px 1.5px at 500px 230px, white, rgba(255, 255, 255, 0)),
+            radial-gradient(1px 1px at 550px 320px, white, rgba(255, 255, 255, 0)),
+            radial-gradient(2px 2px at 600px 180px, white, rgba(255, 255, 255, 0)),
+            radial-gradient(1px 1px at 650px 150px, white, rgba(255, 255, 255, 0)),
+            radial-gradient(1.5px 1.5px at 700px 350px, white, rgba(255, 255, 255, 0)),
+            radial-gradient(1px 1px at 750px 260px, white, rgba(255, 255, 255, 0)),
+            radial-gradient(2px 2px at 800px 120px, white, rgba(255, 255, 255, 0)),
+            radial-gradient(1px 1px at 850px 280px, white, rgba(255, 255, 255, 0));
+          background-size: 900px 400px;
+          animation: starsAnimation 240s linear infinite;
+          opacity: 0.7;
         }
         
         @keyframes starsAnimation {
@@ -485,10 +510,10 @@ export function LearningRoadmap({
             background-position: 0 0;
           }
           100% {
-            background-position: 200px 200px;
+            background-position: 900px 400px;
           }
         }
-      `}</style>
+      `}} />
     </Card>
   );
 }
