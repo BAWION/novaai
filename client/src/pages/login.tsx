@@ -5,7 +5,6 @@ import { Glassmorphism } from "@/components/ui/glassmorphism";
 import { ParticlesBackground } from "@/components/particles-background";
 import { useAuth } from "@/context/auth-context";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
 
 export default function Login() {
   const [location, navigate] = useLocation();
@@ -40,7 +39,12 @@ export default function Login() {
       };
       
       // Сначала пытаемся получить сессию от сервера
-      const response = await apiRequest("POST", "/api/auth/login", telegramUser);
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(telegramUser),
+        credentials: "include"
+      });
       
       if (!response.ok) {
         const errorData = await response.json();
@@ -60,7 +64,7 @@ export default function Login() {
       // Делаем небольшую задержку перед переходом
       setTimeout(() => {
         navigate("/dashboard");
-      }, 100);
+      }, 1000);
     } catch (error) {
       console.error("Telegram login error:", error);
       setError(error instanceof Error ? error.message : "Произошла ошибка при входе через Telegram");
