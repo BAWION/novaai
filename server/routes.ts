@@ -46,7 +46,11 @@ const authMiddleware = (req: express.Request, res: express.Response, next: expre
   
   // Проверяем наличие объекта пользователя в сессии
   const user = req.session.user;
-  const sessionId = req.sessionID;
+  const sessionId = req.sessionID ? req.sessionID.substring(0, 8) + '...' : 'unknown';
+  
+  // Добавляем подробное логирование для отладки сессии
+  console.log(`[Auth] Сессия ${sessionId} для запроса ${req.method} ${req.path}`);
+  console.log(`[Auth] Пользователь в сессии: ${user ? user.username : 'undefined'}`);
   
   console.log(`[Auth] Сессия ${sessionId ? sessionId.substring(0, 8) + '...' : 'undefined'} для запроса ${req.method} ${req.path}`);
   console.log(`[Auth] Пользователь в сессии:`, user ? JSON.stringify(user) : 'undefined');
@@ -135,8 +139,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     })
   );
   
-  // Middleware для установки домена cookie в зависимости от запроса
+  // Глобальный счетчик доступов к сессии - только для отладки
+  let sessionAccessCounter = 0;
+
+  // Middleware для отладки сессий и установки домена cookie
   app.use((req, res, next) => {
+    sessionAccessCounter++;
+    const sessionID = req.sessionID;
+    const hasUser = req.session?.user ? true : false;
+    const userId = req.session?.user?.id;
+    const username = req.session?.user?.username;
+    
+    console.log(`[Session debug #${sessionAccessCounter}] Path: ${req.path}, SessionID: ${sessionID}, HasUser: ${hasUser}, UserID: ${userId}, Username: ${username}`);
+    
+    // Добавляем информацию о сессии в ответ для отладки
+    res.on('finish', () => {
+      console.log(`[Session response #${sessionAccessCounter}] Path: ${req.path}, Status: ${res.statusCode}`);
+    });
+    
     if (req.session && req.session.cookie) {
       req.session.cookie.domain = getCookieDomain(req);
     }
@@ -448,6 +468,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (!req.session.user) {
       console.log("GET /api/auth/me: Пользователь не аутентифицирован, sessionID:", req.sessionID);
       return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    // Обновляем сессию при каждом запросе для продления времени жизни
+    if (req.session) {
+      req.session.touch();
+      // Явно сохраняем сессию для гарантированного обновления в PostgreSQL
+      req.session.save((err) => {
+        if (err) {
+          console.error("Ошибка при сохранении сессии в /api/auth/me:", err);
+        } else {
+          console.log(`Сессия успешно обновлена для пользователя: ${req.session.user.username}`);
+        }
+      });
     }
     
     // Проверяем целостность данных пользователя
