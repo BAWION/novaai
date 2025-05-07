@@ -143,7 +143,6 @@ export function Sidebar() {
 
   const navigationItems = [
     { icon: "fa-tachometer-alt", label: "Панель управления", to: "/dashboard" },
-    { icon: "fa-compass", label: "Капитанский Мостик", to: "/bridge" },
     { icon: "fa-route", label: "Дорожная карта", to: "/roadmap" },
     { icon: "fa-flask", label: "Лаборатория", to: "/labhub" },
     { icon: "fa-book", label: "Курсы", to: "/courses" },

@@ -56,7 +56,7 @@ export default function OnboardingPage() {
       
       // Перенаправляем на страницу регистрации
       setTimeout(() => {
-        setLocation("/bridge");
+        setLocation("/register-after-onboarding");
       }, 1500);
     }
   };
