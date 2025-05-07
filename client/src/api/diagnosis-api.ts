@@ -31,10 +31,26 @@ export const diagnosisApi = {
    */
   async saveResults(results: DiagnosisResult): Promise<any> {
     try {
+      console.log('[API] Отправка запроса на сохранение результатов диагностики:', {
+        endpoint: '/api/diagnosis/results',
+        userId: results.userId,
+        skillsCount: Object.keys(results.skills).length,
+        diagnosticType: results.diagnosticType
+      });
+      
       const response = await apiRequest('POST', '/api/diagnosis/results', results);
-      return await response.json();
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`[API] Ошибка при сохранении диагностики: ${response.status} ${response.statusText}`, errorText);
+        throw new Error(`Ошибка сервера: ${response.status} ${response.statusText}. ${errorText}`);
+      }
+      
+      const data = await response.json();
+      console.log('[API] Успешный ответ от сервера:', data);
+      return data;
     } catch (error) {
-      console.error('Ошибка при сохранении результатов диагностики:', error);
+      console.error('[API] Исключение при сохранении результатов диагностики:', error);
       throw error;
     }
   },
@@ -46,11 +62,26 @@ export const diagnosisApi = {
    */
   async getUserProgress(userId: number): Promise<any[]> {
     try {
+      console.log(`[API] Запрос прогресса пользователя Skills DNA, userId: ${userId}`);
+      
+      if (!userId || isNaN(userId)) {
+        console.error('[API] Невозможно получить прогресс: некорректный ID пользователя', userId);
+        return [];
+      }
+      
       const response = await apiRequest('GET', `/api/diagnosis/progress/${userId}`);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`[API] Ошибка при получении прогресса: ${response.status}`, errorText);
+        return [];
+      }
+      
       const result = await response.json();
+      console.log(`[API] Получен прогресс пользователя: ${result.data ? result.data.length : 0} записей`);
       return result.data || [];
     } catch (error) {
-      console.error('Ошибка при получении прогресса пользователя:', error);
+      console.error('[API] Исключение при получении прогресса пользователя:', error);
       return [];
     }
   },
@@ -62,11 +93,27 @@ export const diagnosisApi = {
    */
   async getUserSummary(userId: number): Promise<any> {
     try {
+      console.log(`[API] Запрос сводки Skills DNA, userId: ${userId}`);
+      
+      if (!userId || isNaN(userId)) {
+        console.error('[API] Невозможно получить сводку: некорректный ID пользователя', userId);
+        return {};
+      }
+      
       const response = await apiRequest('GET', `/api/diagnosis/summary/${userId}`);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`[API] Ошибка при получении сводки: ${response.status}`, errorText);
+        return {};
+      }
+      
       const result = await response.json();
+      console.log('[API] Получена сводка прогресса пользователя:', 
+        Object.keys(result.data || {}).length, 'категорий');
       return result.data || {};
     } catch (error) {
-      console.error('Ошибка при получении сводки прогресса пользователя:', error);
+      console.error('[API] Исключение при получении сводки пользователя:', error);
       return {};
     }
   }
