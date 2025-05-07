@@ -109,6 +109,104 @@ export default function QuickDiagnosis() {
     }
   }, []);
   
+  // Проверяем, нужно ли восстановить результаты диагностики после входа в систему
+  useEffect(() => {
+    const checkForSavedDiagnosticResults = () => {
+      // Проверяем, авторизован ли пользователь и есть ли сохраненные результаты
+      if (user && sessionStorage.getItem("diagnosticResults")) {
+        try {
+          console.log("[SkillsDNA] Обнаружены сохраненные результаты диагностики");
+          
+          // Получаем сохраненные данные
+          const savedData = JSON.parse(sessionStorage.getItem("diagnosticResults") || "{}");
+          
+          // Проверяем, что данные содержат необходимые поля
+          if (savedData.formData && savedData.skillProfile) {
+            console.log("[SkillsDNA] Восстанавливаем данные диагностики:", {
+              formData: savedData.formData,
+              skillCount: Object.keys(savedData.skillProfile).length
+            });
+            
+            // Показываем уведомление пользователю
+            toast({
+              title: "Восстановлены данные диагностики",
+              description: "Ваши предыдущие ответы были сохранены. Продолжаем обработку результатов.",
+              duration: 6000,
+            });
+            
+            // Устанавливаем данные формы
+            setFormData(savedData.formData);
+            
+            // Запускаем процесс сохранения результатов
+            setTimeout(() => {
+              // Имитируем отправку данных диагностики напрямую
+              const diagnosisResult = {
+                userId: user.id,
+                skills: savedData.skillProfile,
+                diagnosticType: 'quick' as import("@/api/diagnosis-api").DiagnosticType,
+                metadata: {
+                  ...savedData.formData,
+                  profileUpdate: savedData.profileUpdate
+                }
+              };
+              
+              console.log("[SkillsDNA] Отправляем восстановленные результаты:", diagnosisResult);
+              
+              // Отправляем результаты в систему Skills DNA
+              diagnosisApi.saveResults(diagnosisResult)
+                .then(result => {
+                  console.log("[SkillsDNA] Восстановленные результаты успешно сохранены:", result);
+                  
+                  // Очищаем временные данные
+                  sessionStorage.removeItem("diagnosticResults");
+                  
+                  toast({
+                    title: "Данные успешно сохранены",
+                    description: "Результаты диагностики добавлены в ваш профиль Skills DNA",
+                    variant: "default",
+                  });
+                  
+                  // Перенаправляем на dashboard после успешного сохранения
+                  setTimeout(() => {
+                    setLocation("/dashboard");
+                  }, 1000);
+                })
+                .catch(error => {
+                  console.error("[SkillsDNA] Ошибка при сохранении восстановленных результатов:", error);
+                  
+                  toast({
+                    title: "Ошибка сохранения",
+                    description: "Не удалось сохранить результаты. Попробуйте пройти диагностику заново.",
+                    variant: "destructive",
+                  });
+                });
+            }, 1500);
+            
+            return true;
+          }
+        } catch (error) {
+          console.error("[SkillsDNA] Ошибка при обработке сохраненных результатов:", error);
+          
+          // Очищаем поврежденные данные
+          sessionStorage.removeItem("diagnosticResults");
+          
+          toast({
+            title: "Ошибка восстановления данных",
+            description: "Не удалось восстановить предыдущие результаты диагностики.",
+            variant: "destructive",
+          });
+        }
+      }
+      
+      return false;
+    };
+    
+    // Запускаем проверку при изменении статуса пользователя
+    if (user) {
+      checkForSavedDiagnosticResults();
+    }
+  }, [user, toast, setLocation]);
+  
   const handleNext = () => {
     // Проверка заполнения текущего шага
     if (step === 1 && !formData.specialization) {
