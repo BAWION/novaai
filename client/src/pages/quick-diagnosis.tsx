@@ -903,15 +903,25 @@ export default function QuickDiagnosis() {
                   </Button>
                 </>
               ) : (
-                <div className="w-full flex justify-center">
+                <div className="w-full flex flex-col md:flex-row gap-4 justify-center items-center">
                   {analysisComplete && (
-                    <Button 
-                      onClick={handleContinueToDashboard}
-                      className="bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:opacity-90 text-white"
-                    >
-                      Перейти к обучению
-                      <Rocket className="h-4 w-4 ml-2" />
-                    </Button>
+                    <>
+                      <Button 
+                        onClick={() => setLocation("/courses?filter=recommended")}
+                        className="bg-gradient-to-r from-green-500 to-emerald-600 hover:opacity-90 text-white"
+                      >
+                        Рекомендуемые курсы
+                        <Target className="h-4 w-4 ml-2" />
+                      </Button>
+                      
+                      <Button 
+                        onClick={handleContinueToDashboard}
+                        className="bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:opacity-90 text-white"
+                      >
+                        Перейти к обучению
+                        <Rocket className="h-4 w-4 ml-2" />
+                      </Button>
+                    </>
                   )}
                 </div>
               )}
