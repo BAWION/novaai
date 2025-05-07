@@ -157,12 +157,40 @@ export default function Login() {
         description: `Добро пожаловать, ${userData.displayName || userData.username}!`,
       });
       
-      // Перенаправляем на dashboard с небольшой задержкой для обновления контекста авторизации
-      console.log("Планируем перенаправление на /dashboard");
-      setTimeout(() => {
-        console.log("Перенаправляем на /dashboard");
-        navigate("/dashboard");
-      }, 1000); // Увеличиваем задержку до 1000мс
+      // Проверяем, есть ли сохраненный URL для перенаправления после авторизации
+      const redirectAfterAuth = sessionStorage.getItem("redirectAfterAuth");
+      const hasDiagnosticResults = sessionStorage.getItem("diagnosticResults");
+      
+      console.log("Проверяем перенаправление после авторизации:", { 
+        redirectAfterAuth, 
+        hasDiagnosticResults: !!hasDiagnosticResults 
+      });
+      
+      // Если у нас есть сохраненные результаты диагностики и перенаправление
+      if (redirectAfterAuth && hasDiagnosticResults) {
+        console.log(`Обнаружены результаты диагностики! Перенаправляем на: ${redirectAfterAuth}`);
+        
+        toast({
+          title: "Данные диагностики восстановлены",
+          description: "Ваш прогресс с предыдущего шага сохранен. Вы можете продолжить с того же места.",
+          duration: 5000,
+        });
+        
+        // Удаляем запись о перенаправлении, но оставляем данные диагностики
+        sessionStorage.removeItem("redirectAfterAuth");
+        
+        setTimeout(() => {
+          console.log(`Перенаправляем на ${redirectAfterAuth}`);
+          navigate(redirectAfterAuth);
+        }, 1000);
+      } else {
+        // Стандартное перенаправление на dashboard
+        console.log("Планируем стандартное перенаправление на /dashboard");
+        setTimeout(() => {
+          console.log("Перенаправляем на /dashboard");
+          navigate("/dashboard");
+        }, 1000);
+      }
     } catch (error) {
       console.error("Login error:", error);
       setError(error instanceof Error ? error.message : "Произошла ошибка при входе");
