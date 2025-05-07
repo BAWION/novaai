@@ -55,22 +55,36 @@ export function SkillsDnaProfile({
     isDemoMode
   });
   
-  // Если это демо-режим и данных нет, автоматически инициализируем демо-данные
+  // Проверяем наличие данных в sessionStorage, которые могли быть сохранены при выполнении диагностики
   useEffect(() => {
-    if (isDemoMode && isEmpty && !isLoading) {
-      console.log("[SkillsDnaProfile] Автоматическая инициализация демо-данных");
+    try {
+      const savedData = sessionStorage.getItem('skillsDnaResults');
       
-      (async () => {
-        try {
-          await diagnosisApi.initializeDemoData();
-          console.log("[SkillsDnaProfile] Демо-данные инициализированы, обновляем профиль");
-          refetch();
-        } catch (initError) {
-          console.error("[SkillsDnaProfile] Ошибка при инициализации демо-данных:", initError);
-        }
-      })();
+      // Если у нас нет данных с API, но есть сохраненные данные в sessionStorage,
+      // и к тому же запрошен режим глубокой диагностики, попробуем использовать их
+      if (isEmpty && !isLoading && savedData && isDeepdDiagnosis) {
+        console.log("[SkillsDnaProfile] Найдены сохраненные данные диагностики в sessionStorage");
+        // Обновляем данные через API, чтобы они стали доступны через хук useSkillsDna
+        refetch();
+      }
+      // Если это демо-режим и данных нет, автоматически инициализируем демо-данные
+      else if (isDemoMode && isEmpty && !isLoading) {
+        console.log("[SkillsDnaProfile] Автоматическая инициализация демо-данных");
+        
+        (async () => {
+          try {
+            await diagnosisApi.initializeDemoData();
+            console.log("[SkillsDnaProfile] Демо-данные инициализированы, обновляем профиль");
+            refetch();
+          } catch (initError) {
+            console.error("[SkillsDnaProfile] Ошибка при инициализации демо-данных:", initError);
+          }
+        })();
+      }
+    } catch (error) {
+      console.error("[SkillsDnaProfile] Ошибка при проверке данных в sessionStorage:", error);
     }
-  }, [isDemoMode, isEmpty, isLoading, refetch]);
+  }, [isDemoMode, isEmpty, isLoading, refetch, isDeepdDiagnosis]);
 
   if (!currentUserId) {
     return (
