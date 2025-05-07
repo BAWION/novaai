@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { diagnosisApi } from "@/api/diagnosis-api";
 import { useUserProfile } from "@/context/user-profile-context";
@@ -36,6 +37,28 @@ export interface SkillsDnaData {
 export default function useSkillsDna(userId?: number): SkillsDnaData {
   const { userProfile } = useUserProfile();
   
+  // Проверяем наличие сохраненных результатов диагностики в sessionStorage
+  const [savedSkillsData, setSavedSkillsData] = useState<any>(null);
+  
+  // Загружаем сохраненные данные диагностики при инициализации компонента
+  useEffect(() => {
+    try {
+      const savedData = sessionStorage.getItem('skillsDnaResults');
+      if (savedData) {
+        const parsedData = JSON.parse(savedData);
+        console.log("[useSkillsDna] Найдены сохраненные результаты диагностики:", {
+          skillsCount: Object.keys(parsedData.skills || {}).length,
+          recommendationsCount: parsedData.recommendations?.length || 0,
+          timestamp: parsedData.timestamp,
+          diagnosticType: parsedData.diagnosticType
+        });
+        setSavedSkillsData(parsedData);
+      }
+    } catch (error) {
+      console.error("[useSkillsDna] Ошибка при загрузке сохраненных результатов:", error);
+    }
+  }, []);
+  
   // Безопасно получаем пользователя из контекста авторизации, если он доступен
   let authUser = null;
   try {
@@ -73,7 +96,8 @@ export default function useSkillsDna(userId?: number): SkillsDnaData {
     authUserId: authUser?.id,
     profileUserId: userProfile?.userId,
     resultUserId: currentUserId,
-    demoMode
+    demoMode,
+    hasSavedData: !!savedSkillsData
   });
 
   // Запрос на получение прогресса пользователя по Skills DNA
@@ -171,12 +195,39 @@ export default function useSkillsDna(userId?: number): SkillsDnaData {
   // Создаем историю прогресса для демонстрации
   const progressHistory = generateProgressHistory();
 
+  // Используем сохраненные данные из sessionStorage, если они есть
+  // Это позволит отображать результаты диагностики даже если API не возвращает данные
+  const finalSkills = savedSkillsData?.skills && Object.keys(savedSkillsData.skills).length > 0
+    ? savedSkillsData.skills
+    : skillsData;
+    
+  const finalSummary = summaryData || {
+    overallLevel: 0,
+    description: "Результаты диагностики: создан профиль навыков на основе ваших ответов."
+  };
+  
+  // Если есть рекомендуемые курсы в сохраненных данных, добавим их в результат
+  if (savedSkillsData?.recommendations) {
+    finalSummary.recommendedCourses = savedSkillsData.recommendations;
+  }
+  
+  // Проверка, пусты ли фактические данные (с учетом сохраненных данных)
+  const isTrulyEmpty = isEmpty && (!savedSkillsData?.skills || Object.keys(savedSkillsData.skills).length === 0);
+  
+  console.log("[useSkillsDna] Финальные данные:", {
+    usingApiData: Object.keys(skillsData).length > 0,
+    usingSavedData: savedSkillsData?.skills && Object.keys(savedSkillsData.skills).length > 0,
+    finalSkillsCount: Object.keys(finalSkills).length,
+    hasRecommendations: !!finalSummary.recommendedCourses,
+    isTrulyEmpty
+  });
+
   return {
-    skills: skillsData,
-    summary: summaryData,
+    skills: finalSkills,
+    summary: finalSummary, 
     isLoading: isProgressLoading || isSummaryLoading,
     error: progressError || summaryError,
-    isEmpty,
+    isEmpty: isTrulyEmpty,
     refetch: refetchSkillsData,
     isDemoMode: demoMode,
     userId: currentUserId,

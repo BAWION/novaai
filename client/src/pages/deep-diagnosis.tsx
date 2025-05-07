@@ -542,6 +542,29 @@ export default function DeepDiagnosisPage() {
   
   // Функция для перехода к профилю Skills DNA с результатами глубокой диагностики
   const handleViewSkillsDna = () => {
+    // Сохраняем результаты диагностики в sessionStorage для их отображения на странице мостика
+    try {
+      // Создаем объект результатов диагностики
+      const skillsData = userSkillProfile || {};
+      const recommendationsData = recommendations || [];
+      
+      // Сохраняем диагностические данные и результаты
+      sessionStorage.setItem("skillsDnaResults", JSON.stringify({
+        skills: skillsData,
+        diagnosticType: 'deep',
+        recommendations: recommendationsData,
+        timestamp: new Date().toISOString()
+      }));
+      
+      console.log("[DiagnosticPage] Сохранены результаты диагностики в sessionStorage для Skills DNA:", {
+        skillsCount: Object.keys(skillsData).length,
+        recommendationsCount: recommendationsData.length
+      });
+    } catch (error) {
+      console.error("[DiagnosticPage] Ошибка при сохранении результатов диагностики:", error);
+    }
+    
+    // Переходим на страницу профиля с указанием просмотра Skills DNA и глубокой диагностики
     setLocation("/profile?section=skills-dna&deep=true");
   };
   
