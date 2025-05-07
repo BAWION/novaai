@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from "wouter";
 import { useUserProfile } from "@/context/user-profile-context";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 import { 
   UserRole, 
   AIExperience, 
