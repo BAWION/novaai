@@ -478,6 +478,10 @@ export function LearningRoadmap({
           box-shadow: 0 0 20px currentColor;
         }
         
+        .planet-icon {
+          font-size: 18px;
+        }
+        
         .stars-bg {
           background-image: 
             radial-gradient(1px 1px at 25px 5px, white, rgba(255, 255, 255, 0)),
