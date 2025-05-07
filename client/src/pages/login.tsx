@@ -86,46 +86,71 @@ export default function Login() {
     setError("");
   };
 
-  const handleLoginSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLoginSubmit = async (e: React.FormEvent | React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+    }
+    
+    // Проверяем, заполнены ли логин и пароль
+    if (!credentials.username || !credentials.password) {
+      setError("Пожалуйста, введите имя пользователя и пароль");
+      toast({
+        variant: "destructive",
+        title: "Ошибка входа",
+        description: "Пожалуйста, введите имя пользователя и пароль",
+      });
+      return;
+    }
+    
     console.log("Начинаем процесс входа с данными:", { username: credentials.username, hasPassword: !!credentials.password });
     setIsLoggingIn(true);
     setError("");
 
     try {
-      // 1. Получаем данные с сервера
+      // ИСПРАВЛЕННЫЙ ПОДХОД: Используем прямой fetch вместо apiRequest
       console.log("Отправляем запрос на /api/auth/login");
-      const response = await apiRequest("POST", "/api/auth/login", credentials);
+      
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(credentials),
+        credentials: "include" // Важно для сессии
+      });
+      
       console.log("Получен ответ:", response.status, response.statusText);
       
-      // 2. Проверяем ответ
+      // Проверяем ответ
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Ошибка входа. Ответ сервера:", errorData);
-        throw new Error(errorData.message || "Ошибка входа");
+        let errorMessage = "Ошибка входа";
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch (e) {
+          console.error("Не удалось прочитать тело ошибки");
+        }
+        throw new Error(errorMessage);
       }
       
-      // 3. Парсим данные пользователя
+      // Парсим данные пользователя
       const userData = await response.json();
       console.log("Получены данные пользователя:", userData);
       
-      // 4. Обновляем состояние авторизации
+      // Обновляем состояние авторизации
       console.log("Обновляем состояние авторизации");
       login(userData);
       
-      // 5. Показываем сообщение об успешном входе
+      // Показываем сообщение об успешном входе
       toast({
         title: "Успешный вход",
         description: `Добро пожаловать, ${userData.displayName || userData.username}!`,
       });
       
-      // 6. Перенаправляем на dashboard с небольшой задержкой,
-      // чтобы состояние Auth Context успело обновиться
+      // Перенаправляем на dashboard с небольшой задержкой для обновления контекста авторизации
       console.log("Планируем перенаправление на /dashboard");
       setTimeout(() => {
         console.log("Перенаправляем на /dashboard");
         navigate("/dashboard");
-      }, 500); // Увеличиваем задержку до 500мс
+      }, 1000); // Увеличиваем задержку до 1000мс
     } catch (error) {
       console.error("Login error:", error);
       setError(error instanceof Error ? error.message : "Произошла ошибка при входе");
@@ -219,7 +244,7 @@ export default function Login() {
                 </div>
               </>
             ) : (
-              <form onSubmit={handleLoginSubmit} className="space-y-4">
+              <div className="space-y-4">
                 <div>
                   <label htmlFor="username" className="block text-white/80 text-sm font-medium mb-1">
                     Имя пользователя
@@ -232,7 +257,6 @@ export default function Login() {
                     onChange={handleInputChange}
                     className="w-full bg-white/10 border border-white/20 rounded-lg py-2 px-3 text-white placeholder:text-white/50 focus:ring-2 focus:ring-[#6E3AFF]/50 focus:border-[#6E3AFF] transition-all"
                     placeholder="Введите имя пользователя"
-                    required
                   />
                 </div>
                 
@@ -257,7 +281,6 @@ export default function Login() {
                     value={credentials.password}
                     onChange={handleInputChange}
                     className="w-full bg-white/10 border-2 border-purple-500 rounded-lg py-2 px-3 text-white focus:ring-2 focus:ring-[#6E3AFF]/50 focus:border-[#6E3AFF] transition-all colorful-password-login"
-                    required
                   />
                 </div>
 
@@ -277,11 +300,10 @@ export default function Login() {
                     Назад
                   </button>
                   <button
-                    type="submit"
+                    type="button"
                     onClick={(e) => {
-                      console.log("Кнопка входа нажата");
-                      // Дополнительный обработчик, который вызывается при нажатии на кнопку
-                      // Стандартный обработчик формы onSubmit также будет вызван
+                      console.log("Кнопка входа нажата напрямую");
+                      handleLoginSubmit(e as any);
                     }}
                     className="flex-1 bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:from-[#4922B2] hover:to-[#1682A1] text-white py-2 px-4 rounded-lg font-medium transition duration-300 flex items-center justify-center tap-highlight-none btn-mobile"
                     disabled={isLoggingIn}
@@ -303,7 +325,7 @@ export default function Login() {
                 <div className="text-center text-white/50 text-xs">
                   Подсказка: Логин - админ13, Пароль - 54321
                 </div>
-              </form>
+              </div>
             )}
 
             <div className="mt-6 text-center text-white/50 text-sm">
