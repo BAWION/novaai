@@ -55,6 +55,25 @@ export function SkillsDnaProfile({
     isDemoMode
   });
   
+  // Подробный лог состояния summary и рекомендуемых курсов
+  useEffect(() => {
+    if (summary) {
+      console.log("[SkillsDnaProfile] Полученный объект summary:", summary);
+      if (summary.recommendedCourses && summary.recommendedCourses.length > 0) {
+        console.log("[SkillsDnaProfile] Детали recommendedCourses:", {
+          count: summary.recommendedCourses.length,
+          firstCourse: summary.recommendedCourses[0],
+          hasMatchPercentage: summary.recommendedCourses[0]?.matchPercentage !== undefined,
+          hasMatch: summary.recommendedCourses[0]?.match !== undefined,
+          hasLevel: summary.recommendedCourses[0]?.level !== undefined,
+          hasDifficulty: summary.recommendedCourses[0]?.difficulty !== undefined
+        });
+      } else {
+        console.log("[SkillsDnaProfile] Нет рекомендуемых курсов в summary");
+      }
+    }
+  }, [summary]);
+  
   // Проверяем наличие данных в sessionStorage, которые могли быть сохранены при выполнении диагностики
   useEffect(() => {
     try {
@@ -501,8 +520,6 @@ export function SkillsDnaProfile({
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {/* Добавляем логи для отладки */}
-                  {console.log("[SkillsDnaProfile] Передаваемые курсы в RecommendedCourses:", summary.recommendedCourses)}
                   <RecommendedCourses 
                     courses={summary.recommendedCourses} 
                     compact={true}
