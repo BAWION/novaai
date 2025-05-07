@@ -7,6 +7,7 @@ import { useLocation } from "wouter";
 import useSkillsDna from "@/hooks/use-skills-dna";
 import { Button } from "@/components/ui/button";
 import SimpleRadarChart from "@/components/skills-radar-simple";
+import TriangleSkillsChart from "@/components/triangle-skills-chart";
 
 interface CompactSkillsDnaProps {
   userId?: number;
@@ -96,22 +97,14 @@ export function CompactSkillsDna({
               </div>
             </div>
             <div className="opacity-20">
-              <SimpleRadarChart 
+              <TriangleSkillsChart 
                 skills={{
-                  "Программирование": 0,
-                  "Машинное обучение": 0,
-                  "Анализ данных": 0,
-                  "Глубокое обучение": 0,
-                  "Обработка данных": 0,
-                  "Аналитическое мышление": 0,
-                  "Решение проблем": 0,
-                  "Внимание к деталям": 0,
-                  "Применение в бизнесе": 0,
-                  "Исследовательские навыки": 0,
-                  "Этика и право в ИИ": 0,
-                  "Математика и статистика": 0,
-                }} 
+                  skill1: { name: "Понимание основ ИИ", value: 0 },
+                  skill2: { name: "Этические аспекты использования ИИ", value: 0 },
+                  skill3: { name: "Критическое мышление в контексте ИИ", value: 0 }
+                }}
                 height={300}
+                width={300}
                 className="mx-auto"
               />
             </div>
@@ -168,13 +161,38 @@ export function CompactSkillsDna({
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Радарная диаграмма навыков */}
+        {/* Треугольная диаграмма навыков */}
         <div className="pt-2">
-          <SimpleRadarChart 
-            skills={skills} 
-            height={300}
-            className="mx-auto"
-          />
+          {Object.keys(skills).length >= 3 ? (
+            <TriangleSkillsChart 
+              skills={{
+                skill1: { 
+                  name: "Понимание основ ИИ", 
+                  value: skills["Понимание основ ИИ"] || skills["Основы ИИ"] || 
+                         skills["Машинное обучение"] || skills["Программирование"] || 40 
+                },
+                skill2: { 
+                  name: "Этические аспекты использования ИИ", 
+                  value: skills["Этические аспекты использования ИИ"] || skills["Этика и право в ИИ"] || 
+                         skills["Этика ИИ"] || skills["Применение в бизнесе"] || 25 
+                },
+                skill3: { 
+                  name: "Критическое мышление в контексте ИИ", 
+                  value: skills["Критическое мышление в контексте ИИ"] || skills["Аналитическое мышление"] || 
+                         skills["Решение проблем"] || skills["Анализ данных"] || 65 
+                }
+              }}
+              height={300}
+              width={300}
+              className="mx-auto"
+            />
+          ) : (
+            <SimpleRadarChart 
+              skills={skills} 
+              height={300}
+              className="mx-auto"
+            />
+          )}
         </div>
         
         {/* Общая картина */}
