@@ -540,6 +540,11 @@ export default function DeepDiagnosisPage() {
     }
   };
   
+  // Функция для перехода к профилю Skills DNA с результатами глубокой диагностики
+  const handleViewSkillsDna = () => {
+    setLocation("/profile?section=skills-dna&deep=true");
+  };
+  
   // Функция для перехода к регистрации после завершения диагностики
   const handleContinueToDashboard = () => {
     // Сохраняем результаты диагностики и рекомендации в sessionStorage
@@ -1907,6 +1912,14 @@ export default function DeepDiagnosisPage() {
                       >
                         Рекомендуемые курсы
                         <Target className="h-4 w-4 ml-2" />
+                      </Button>
+                      
+                      <Button 
+                        onClick={handleViewSkillsDna}
+                        className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-90 text-white"
+                      >
+                        Посмотреть Skills DNA
+                        <FileText className="h-4 w-4 ml-2" />
                       </Button>
                       
                       <Button 
