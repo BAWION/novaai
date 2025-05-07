@@ -51,18 +51,12 @@ class AIAssistantService {
         messages: [
           { 
             role: "system", 
-            content: `Ты AI-ассистент образовательной платформы NovaAI University. 
-            Твоя задача - помогать пользователям в обучении, давать подсказки и объяснять сложные темы.
-            Ты должен быть дружелюбным, полезным и давать точные ответы.
-            Всегда отвечай на русском языке.
-            
-            Вот контекст о пользователе, который тебе нужно учитывать:
-            ${prompt.systemContext}`
+            content: `Ты AI-ассистент образовательной платформы NovaAI University. Помогай в обучении, объясняй темы. Будь кратким, дружелюбным и точным. Отвечай на русском. Контекст пользователя: ${prompt.systemContext}`
           },
           { role: "user", content: prompt.userMessage }
         ],
         temperature: 0.7,
-        max_tokens: 1000,
+        max_tokens: 800,
       });
       
       // Возвращаем ответ от модели
@@ -87,30 +81,23 @@ class AIAssistantService {
       }
       
       // Формируем запрос к OpenAI для проактивной подсказки
-      const prompt = `На основе анализа навыков пользователя были выявлены следующие пробелы:
-      ${JSON.stringify(context.skillGaps)}
+      const prompt = `Пробелы в навыках: ${JSON.stringify(context.skillGaps)}
+      Текущие курсы: ${JSON.stringify(context.currentCourses)}
       
-      А также пользователь изучает следующие курсы:
-      ${JSON.stringify(context.currentCourses)}
-      
-      Сформулируй проактивную подсказку, которая поможет пользователю заполнить самый приоритетный пробел в знаниях.
-      Подсказка должна быть конкретной, мотивирующей и содержать практический совет. 
-      Начни с фразы "Я заметил, что...". Не упоминай технические детали и ID навыков.`;
+      Дай короткую мотивирующую подсказку для заполнения самого приоритетного пробела.
+      Начни с "Я заметил, что...". Без ID и технических деталей.`;
       
       const response = await this.openai.chat.completions.create({
         model: "gpt-4o", // используем самую новую модель gpt-4o
         messages: [
           { 
             role: "system", 
-            content: `Ты AI-ассистент образовательной платформы NovaAI University.
-            Твоя задача - предоставлять проактивные подсказки пользователям на основе анализа их навыков.
-            Будь дружелюбным, мотивирующим и давай практические советы.
-            Всегда отвечай на русском языке, кратко и по делу.`
+            content: `Ты AI-ассистент NovaAI University. Давай короткие, мотивирующие подсказки на русском языке.`
           },
           { role: "user", content: prompt }
         ],
         temperature: 0.7,
-        max_tokens: 300,
+        max_tokens: 250,
       });
       
       return response.choices[0].message.content || "Я заметил, что вы сделали большой прогресс в обучении. Продолжайте в том же духе!";
@@ -132,34 +119,27 @@ class AIAssistantService {
       const topic = await this.getTopicInfo(topicId);
       
       // Формируем запрос к OpenAI
-      const prompt = `Объясни тему "${topic.title}" с учетом уровня пользователя.
+      const prompt = `Объясни тему "${topic.title}". 
+      Тема: ${JSON.stringify(topic)}
       
-      Информация о теме:
-      ${JSON.stringify(topic)}
+      Уровень: ${context.profile?.pythonLevel || "начинающий"}
+      Опыт: ${context.profile?.experience || "learning-basics"}
+      Стиль: ${context.profile?.preferredLearningStyle || "visual"}
+      Сложность: ${difficulty}
       
-      Информация о пользователе:
-      - Уровень пользователя: ${context.profile?.pythonLevel || "начинающий"}
-      - Опыт: ${context.profile?.experience || "learning-basics"}
-      - Предпочитаемый стиль обучения: ${context.profile?.preferredLearningStyle || "visual"}
-      
-      Объяснение должно быть на уровне сложности: ${difficulty} (easy, medium, hard).
-      Используй примеры и аналогии, которые будут понятны пользователю с его опытом.
-      Если пользователь предпочитает визуальное обучение, используй больше метафор и описаний визуализаций.`;
+      Используй примеры и аналогии.`;
       
       const response = await this.openai.chat.completions.create({
         model: "gpt-4o", // используем самую новую модель gpt-4o
         messages: [
           { 
             role: "system", 
-            content: `Ты AI-ассистент образовательной платформы NovaAI University.
-            Твоя задача - объяснять сложные темы пользователям с учетом их уровня, опыта и предпочтений.
-            Будь понятным, приводи примеры и используй аналогии.
-            Всегда отвечай на русском языке.`
+            content: `Ты AI-ассистент NovaAI University. Объясняй сложные темы, учитывая уровень пользователя. Используй примеры и аналогии. Отвечай на русском языке.`
           },
           { role: "user", content: prompt }
         ],
         temperature: 0.7,
-        max_tokens: 1500,
+        max_tokens: 1200,
       });
       
       return response.choices[0].message.content || "Извините, не удалось получить объяснение. Пожалуйста, попробуйте позже.";
@@ -178,26 +158,20 @@ class AIAssistantService {
       const context = await this.buildUserContext(userId);
       
       // Формируем запрос к OpenAI для общей подсказки
-      const prompt = `Сформулируй полезную подсказку для пользователя, учитывая его профиль:
-      ${JSON.stringify(context.profile)}
-      
-      Подсказка должна быть мотивирующей и содержать общий совет по обучению.
-      Начни с фразы "Я заметил, что...".`;
+      const prompt = `Профиль: ${JSON.stringify(context.profile)}
+      Дай мотивирующий совет по обучению, начни с "Я заметил, что..."`;
       
       const response = await this.openai.chat.completions.create({
         model: "gpt-4o", // используем самую новую модель gpt-4o
         messages: [
           { 
             role: "system", 
-            content: `Ты AI-ассистент образовательной платформы NovaAI University.
-            Твоя задача - предоставлять полезные подсказки пользователям.
-            Будь дружелюбным, мотивирующим и давай практические советы.
-            Всегда отвечай на русском языке, кратко и по делу.`
+            content: `Ты AI-ассистент NovaAI University. Давай краткие, мотивирующие советы по обучению на русском языке.`
           },
           { role: "user", content: prompt }
         ],
         temperature: 0.7,
-        max_tokens: 200,
+        max_tokens: 150,
       });
       
       return response.choices[0].message.content || "Я заметил, что регулярная практика помогает быстрее осваивать новые навыки. Рекомендую ежедневно уделять хотя бы 30 минут обучению.";
@@ -329,56 +303,39 @@ class AIAssistantService {
    * Строит промпт для OpenAI на основе вопроса пользователя и его контекста
    */
   private buildPrompt(question: string, context: any) {
-    // Собираем контекст для системного сообщения
+    // Собираем сокращенный контекст для системного сообщения
     let systemContext = "";
     
     if (context.user) {
-      systemContext += `Имя пользователя: ${context.user.displayName || context.user.username}\n`;
+      systemContext += `Пользователь: ${context.user.displayName || context.user.username}\n`;
     }
     
     if (context.profile) {
-      systemContext += `Профиль пользователя:
-      - Роль: ${context.profile.role}
-      - Уровень Python: ${context.profile.pythonLevel}
-      - Опыт: ${context.profile.experience}
-      - Интересы: ${context.profile.interest}
-      - Цель обучения: ${context.profile.goal}
-      - Рекомендуемый трек: ${context.profile.recommendedTrack}
-      - Предпочитаемый стиль обучения: ${context.profile.preferredLearningStyle}\n`;
+      systemContext += `Профиль: Python=${context.profile.pythonLevel}, опыт=${context.profile.experience}, стиль=${context.profile.preferredLearningStyle}\n`;
     }
     
     if (context.userSkills && context.userSkills.length > 0) {
-      systemContext += `Текущие навыки пользователя:\n`;
-      context.userSkills.forEach((skill: any) => {
-        systemContext += `- ${skill.skillName}: уровень ${skill.level}/100\n`;
-      });
+      const topSkills = context.userSkills
+        .sort((a: any, b: any) => b.level - a.level)
+        .slice(0, 3);
+      
+      systemContext += `Топ-навыки: ${topSkills.map((s: any) => `${s.skillName}=${s.level}`).join(', ')}\n`;
     }
     
     if (context.skillGaps && context.skillGaps.length > 0) {
-      systemContext += `Пробелы в знаниях:\n`;
-      context.skillGaps.forEach((gap: any) => {
-        systemContext += `- ${gap.skillName}: текущий уровень ${gap.currentLevel}, желаемый уровень ${gap.desiredLevel}, приоритет ${gap.priority}/10\n`;
-      });
+      const topGaps = context.skillGaps
+        .sort((a: any, b: any) => b.priority - a.priority)
+        .slice(0, 2);
+      
+      systemContext += `Пробелы: ${topGaps.map((g: any) => g.skillName).join(', ')}\n`;
     }
     
     if (context.currentCourses && context.currentCourses.length > 0) {
-      systemContext += `Текущие курсы:\n`;
-      context.currentCourses.forEach((course: any) => {
-        systemContext += `- ${course.title}: прогресс ${course.progress}%, завершено модулей ${course.completedModules}\n`;
-      });
-    }
-    
-    if (context.completedCourses && context.completedCourses.length > 0) {
-      systemContext += `Завершенные курсы:\n`;
-      context.completedCourses.forEach((course: any) => {
-        systemContext += `- ${course.title}\n`;
-      });
+      systemContext += `Текущие курсы: ${context.currentCourses.map((c: any) => c.title).join(', ')}\n`;
     }
     
     // Строим пользовательское сообщение
-    const userMessage = `${question}
-    
-    Дай мне подробный и персонализированный ответ, учитывая мои навыки, пробелы в знаниях и прогресс по курсам.`;
+    const userMessage = `${question}`;
     
     return {
       systemContext,
