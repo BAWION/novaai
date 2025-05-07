@@ -341,7 +341,7 @@ export function SkillsDnaProfile({
                     Попробовать снова
                   </Button>
                 </div>
-              ) : Object.keys(skills).length > 0 ? (
+              ) : Object.keys(finalSkills).length > 0 ? (
                 <div className="space-y-4">
                   {/* Сильные навыки */}
                   <div>
@@ -350,7 +350,7 @@ export function SkillsDnaProfile({
                       Сильные стороны
                     </h3>
                     <div className="flex flex-wrap gap-2">
-                      {Object.entries(skills)
+                      {Object.entries(finalSkills)
                         .filter(([_, value]) => value >= 70)
                         .sort(([_, a], [__, b]) => b - a)
                         .slice(0, 3)
@@ -363,7 +363,7 @@ export function SkillsDnaProfile({
                             {skill} ({value}%)
                           </Badge>
                         ))}
-                      {Object.entries(skills).filter(([_, value]) => value >= 70).length === 0 && (
+                      {Object.entries(finalSkills).filter(([_, value]) => value >= 70).length === 0 && (
                         <p className="text-white/60 text-sm">
                           Пока нет сильных сторон. Продолжайте обучение!
                         </p>
@@ -378,7 +378,7 @@ export function SkillsDnaProfile({
                       Области для развития
                     </h3>
                     <div className="flex flex-wrap gap-2">
-                      {Object.entries(skills)
+                      {Object.entries(finalSkills)
                         .filter(([_, value]) => value < 50)
                         .sort(([_, a], [__, b]) => a - b)
                         .slice(0, 3)
@@ -391,7 +391,7 @@ export function SkillsDnaProfile({
                             {skill} ({value}%)
                           </Badge>
                         ))}
-                      {Object.entries(skills).filter(([_, value]) => value < 50).length === 0 && (
+                      {Object.entries(finalSkills).filter(([_, value]) => value < 50).length === 0 && (
                         <p className="text-white/60 text-sm">
                           Отлично! У вас нет явных слабых сторон.
                         </p>

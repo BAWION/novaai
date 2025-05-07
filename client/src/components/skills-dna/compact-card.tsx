@@ -34,18 +34,27 @@ export function CompactSkillsDnaCard({
     error,
     isEmpty,
     isDemoMode,
-    userId: resolvedUserId
+    userId: resolvedUserId,
+    refetch
   } = useSkillsDna(userId);
   
   // Проверяем наличие данных в sessionStorage
   const [hasSavedData, setHasSavedData] = useState(false);
+  const [storedSkills, setStoredSkills] = useState<Record<string, number>>({});
   
   useEffect(() => {
     try {
       const savedData = sessionStorage.getItem('skillsDnaResults');
       if (savedData) {
         const parsedData = JSON.parse(savedData);
-        setHasSavedData(Object.keys(parsedData.skills || {}).length > 0);
+        const hasSkills = Object.keys(parsedData.skills || {}).length > 0;
+        setHasSavedData(hasSkills);
+        
+        // Сохраняем навыки из сессии для последующего использования
+        if (hasSkills) {
+          setStoredSkills(parsedData.skills);
+        }
+        
         console.log("[CompactSkillsDnaCard] Найдены сохраненные данные:", {
           skillsCount: Object.keys(parsedData.skills || {}).length,
           recommendationsCount: parsedData.recommendations?.length || 0,
@@ -58,9 +67,25 @@ export function CompactSkillsDnaCard({
     }
   }, [isEmpty, isLoading]);
   
+  // Проверка и загрузка сохраненных данных из sessionStorage при необходимости
+  useEffect(() => {
+    if (isEmpty && !isLoading && hasSavedData) {
+      console.log("[CompactSkillsDnaCard] Обнаружены сохраненные данные, перезапускаем загрузку");
+      refetch();
+    }
+  }, [isEmpty, isLoading, hasSavedData, refetch]);
+
   // Обработчик для открытия модального окна
   const handleViewFullProfile = (e: React.MouseEvent) => {
     e.preventDefault();
+    
+    // Если есть сохраненные данные в sessionStorage, но API не вернуло данные,
+    // пробуем принудительно перезагрузить данные
+    if (isEmpty && hasSavedData) {
+      console.log("[CompactSkillsDnaCard] Принудительная перезагрузка данных перед показом деталей");
+      refetch();
+    }
+    
     setShowModal(true);
     
     // Также отправляем событие для родительских компонентов
@@ -204,8 +229,19 @@ export function CompactSkillsDnaCard({
     );
   }
 
+  // Определяем финальный набор навыков для отображения
+  // Если есть навыки из API, используем их, иначе - данные из sessionStorage
+  const finalSkills = Object.keys(skills).length > 0 ? skills : 
+    (hasSavedData && storedSkills && Object.keys(storedSkills).length > 0) ? storedSkills : skills;
+  
   // Извлекаем три ключевых навыка или используем значения по умолчанию
-  const skillEntries = Object.entries(skills);
+  const skillEntries = Object.entries(finalSkills);
+  console.log("[CompactSkillsDnaCard] Используемые навыки:", {
+    count: skillEntries.length,
+    usingFromAPI: Object.keys(skills).length > 0,
+    usingFromStorage: Object.keys(skills).length === 0 && hasSavedData
+  });
+  
   // Возьмем первые три навыка или дополним пустыми, если навыков меньше 3
   let mainSkills: [string, number][] = skillEntries
     .slice(0, 3)
