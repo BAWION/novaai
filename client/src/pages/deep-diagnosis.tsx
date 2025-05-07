@@ -1790,7 +1790,7 @@ export default function DeepDiagnosisPage() {
                                 variant="outline" 
                                 size="sm" 
                                 className="w-full border-white/20 hover:border-white/30"
-                                onClick={() => window.location.href = '/skills-dna'}
+                                onClick={() => window.location.href = '/dashboard'}
                               >
                                 Подробный анализ Skills DNA
                                 <ChevronRight className="ml-1 h-4 w-4" />
