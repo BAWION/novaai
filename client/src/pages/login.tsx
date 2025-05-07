@@ -132,6 +132,14 @@ export default function Login() {
         } catch (e) {
           console.error("Не удалось прочитать тело ошибки");
         }
+        
+        if (response.status === 401) {
+          errorMessage = "Неверное имя пользователя или пароль";
+        } else if (response.status === 500) {
+          errorMessage = "Ошибка сервера. Пожалуйста, попробуйте позже";
+          console.error("Серверная ошибка при входе:", errorMessage);
+        }
+        
         throw new Error(errorMessage);
       }
       

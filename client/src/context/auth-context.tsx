@@ -29,11 +29,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Check if user is already logged in
     const checkAuth = async () => {
       try {
-        const response = await apiRequest("GET", "/api/auth/me");
-        const userData = await response.json();
-        setUser(userData);
+        console.log("AuthProvider: проверка статуса аутентификации...");
+        const response = await fetch("/api/auth/me", {
+          method: "GET",
+          credentials: "include", // Важно для работы с сессией
+          headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+          }
+        });
+        
+        // Проверяем ответ на успешность
+        if (response.ok) {
+          const userData = await response.json();
+          console.log("AuthProvider: пользователь авторизован:", userData);
+          setUser(userData);
+        } else {
+          console.log("AuthProvider: пользователь не авторизован, статус:", response.status);
+          setUser(null);
+        }
       } catch (error) {
-        // Not authenticated or error occurred
+        // Ошибка сервера или сети
+        console.error("AuthProvider: ошибка при проверке авторизации:", error);
         setUser(null);
       } finally {
         setIsLoading(false);
@@ -54,10 +71,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     try {
-      await apiRequest("POST", "/api/auth/logout");
+      console.log("AuthProvider: выполняем выход из системы...");
+      const response = await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include", // Важно для работы с сессией
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        }
+      });
+      
+      if (response.ok) {
+        console.log("AuthProvider: успешный выход из системы");
+      } else {
+        console.error("AuthProvider: ошибка при выходе из системы:", response.status);
+      }
     } catch (error) {
-      console.error("Failed to logout from server", error);
+      console.error("AuthProvider: ошибка при выходе из системы:", error);
     }
+    
+    // В любом случае, очищаем локальное состояние пользователя
     setUser(null);
   };
 
