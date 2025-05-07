@@ -143,7 +143,7 @@ export default function QuickDiagnosis() {
               const diagnosisResult = {
                 userId: user.id,
                 skills: savedData.skillProfile,
-                diagnosticType: 'quick' as import("@/api/diagnosis-api").DiagnosticType,
+                diagnosticType: 'deep' as import("@/api/diagnosis-api").DiagnosticType,
                 metadata: {
                   ...savedData.formData,
                   profileUpdate: savedData.profileUpdate
@@ -362,7 +362,7 @@ export default function QuickDiagnosis() {
             // Добавляем задержку перед перенаправлением, чтобы пользователь успел прочитать сообщение
             setTimeout(() => {
               // Сохраняем текущий URL для возврата после авторизации
-              sessionStorage.setItem("redirectAfterAuth", "/quick-diagnosis");
+              sessionStorage.setItem("redirectAfterAuth", "/deep-diagnosis");
               
               // Перенаправляем на страницу авторизации
               setLocation("/auth");
@@ -373,7 +373,7 @@ export default function QuickDiagnosis() {
           
           // Только если пользователь авторизован
           // Импортируем тип DiagnosticType явно
-          const diagnosticType: import("@/api/diagnosis-api").DiagnosticType = 'quick';
+          const diagnosticType: import("@/api/diagnosis-api").DiagnosticType = 'deep';
           
           // Выводим информацию о навыках для отладки
           console.log("[SkillsDNA] Сформированный профиль навыков:", { 
