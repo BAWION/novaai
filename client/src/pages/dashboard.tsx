@@ -343,7 +343,7 @@ export default function Dashboard() {
   };
 
   return (
-    <DashboardLayout title="" subtitle="">
+    <DashboardLayout title="Мостик" subtitle="Управление обучением и персональная траектория">
       {/* Приветственное модальное окно для новых пользователей */}
       <WelcomeModal 
         isOpen={showWelcomeModal} 
