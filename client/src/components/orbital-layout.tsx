@@ -9,9 +9,19 @@ import { courses, Course } from "@/lib/constants";
 
 interface OrbitalLayoutProps {
   onCourseSelect?: (course: Course) => void;
+  level?: number;
+  progress?: number;
+  skills?: { name: string; level: number; change: number }[];
+  emphasis?: string[];
 }
 
-export function OrbitalLayout({ onCourseSelect }: OrbitalLayoutProps) {
+export function OrbitalLayout({ 
+  onCourseSelect,
+  level = 1,
+  progress = 0,
+  skills = [],
+  emphasis = [] 
+}: OrbitalLayoutProps) {
   const [hoveredCourse, setHoveredCourse] = useState<string | null>(null);
   const [orbitRadius, setOrbitRadius] = useState(180);
 
