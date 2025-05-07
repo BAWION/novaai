@@ -82,19 +82,58 @@ export function CompactSkillsDna({
             Skills DNA
           </CardTitle>
         </CardHeader>
-        <CardContent className="text-center">
-          <p className="text-white/70 mb-3 text-sm">
-            {error 
-              ? "Не удалось загрузить ваш профиль Skills DNA" 
-              : "Пройдите диагностику, чтобы мы построили карту ваших навыков"}
-          </p>
-          <Button 
-            variant="default" 
-            size="sm"
-            onClick={handleStartDiagnostics}
-          >
-            Пройти диагностику
-          </Button>
+        <CardContent className="space-y-4">
+          {/* Пустая радарная диаграмма с разметкой */}
+          <div className="pt-2 relative">
+            <div className="absolute inset-0 flex items-center justify-center z-10">
+              <div className="rounded-full bg-space-900/80 p-4 backdrop-blur-sm border border-purple-500/30">
+                <Badge 
+                  variant="outline" 
+                  className="bg-purple-500/20 border-purple-500/30 text-purple-300 text-xs animate-pulse"
+                >
+                  Требуется диагностика
+                </Badge>
+              </div>
+            </div>
+            <div className="opacity-20">
+              <SimpleRadarChart 
+                skills={{
+                  "Программирование": 0,
+                  "Машинное обучение": 0,
+                  "Анализ данных": 0,
+                  "Глубокое обучение": 0,
+                  "Обработка данных": 0,
+                  "Аналитическое мышление": 0,
+                  "Решение проблем": 0,
+                  "Внимание к деталям": 0,
+                  "Применение в бизнесе": 0,
+                  "Исследовательские навыки": 0,
+                  "Этика и право в ИИ": 0,
+                  "Математика и статистика": 0,
+                }} 
+                height={300}
+                className="mx-auto"
+              />
+            </div>
+          </div>
+          
+          {/* Информационный блок */}
+          <div className="bg-space-900/30 rounded-md p-3 border border-space-800">
+            <h3 className="text-white font-medium mb-2 text-center">Карта навыков</h3>
+            <p className="text-white/80 text-sm text-center mb-4">
+              {error 
+                ? "Не удалось загрузить ваш профиль Skills DNA. Пожалуйста, пройдите диагностику, чтобы мы могли создать для вас персональную карту навыков." 
+                : "Пройдите диагностику, чтобы мы могли проанализировать ваши знания и навыки в области ИИ и составить для вас персональную карту компетенций."}
+            </p>
+            
+            <Button 
+              variant="default" 
+              className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600"
+              onClick={handleStartDiagnostics}
+            >
+              Пройти диагностику
+            </Button>
+          </div>
         </CardContent>
       </Card>
     );

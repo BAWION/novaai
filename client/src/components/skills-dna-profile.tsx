@@ -71,63 +71,160 @@ export function SkillsDnaProfile({
 
   if (!currentUserId) {
     return (
-      <Card className="bg-space-800/70 border-blue-500/20">
-        <CardHeader>
-          <CardTitle className="text-white">Skills DNA</CardTitle>
-          <CardDescription className="text-white/70">
-            Необходимо войти в систему для просмотра вашего профиля Skills DNA
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col items-center justify-center p-6 text-center">
-          <p className="text-white/60 mb-4">Зарегистрируйтесь или войдите в систему, чтобы получить доступ к персонализированным данным о ваших навыках</p>
-          <Button 
-            variant="default" 
-            onClick={() => window.location.href = '/auth'}
-          >
-            Войти в систему
-          </Button>
-        </CardContent>
-      </Card>
+      <div className={className}>
+        <Card className="bg-space-800/70 border-blue-500/20">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <Brain className="h-5 w-5 mr-2" />
+              Skills DNA
+            </CardTitle>
+            <CardDescription className="text-white/70">
+              Полный анализ ваших навыков и компетенций в области искусственного интеллекта
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Заголовок */}
+            <div className="text-center">
+              <h2 className="text-xl font-bold mb-2">Необходимо войти в систему</h2>
+              <p className="text-white/70 mb-4">
+                Зарегистрируйтесь или войдите в систему, чтобы получить доступ к персонализированным данным о ваших навыках
+              </p>
+            </div>
+            
+            {/* Центрированная кнопка входа */}
+            <div className="flex justify-center">
+              <Button 
+                variant="default" 
+                className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 px-6 py-2"
+                onClick={() => window.location.href = '/auth'}
+              >
+                Войти в систему
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
   
   // Если есть ошибка или нет данных (пустые результаты), показываем предложение пройти диагностику
   if (!isLoading && (error || isEmpty)) {
     return (
-      <Card className={`bg-space-800/70 border-blue-500/20 ${className}`}>
-        <CardHeader>
-          <CardTitle className="text-white flex items-center">
-            <Brain className="h-5 w-5 mr-2" />
-            Skills DNA
-          </CardTitle>
-          <CardDescription className="text-white/70">
-            Для построения профиля Skills DNA необходимо пройти диагностику
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col items-center justify-center p-6 text-center">
-          <AlertTriangle className="h-12 w-12 mb-4 text-amber-400 opacity-70" />
-          <h3 className="text-lg font-medium mb-2">Данные Skills DNA отсутствуют</h3>
-          <p className="text-white/60 mb-6">
-            {error ? 
-              "Не удалось загрузить ваш профиль Skills DNA. Пожалуйста, пройдите диагностику для построения карты ваших навыков." : 
-              "У вас пока нет профиля Skills DNA. Пройдите диагностику, чтобы мы могли составить карту ваших навыков."}
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Button 
-              variant="default" 
-              onClick={() => setLocation("/quick-diagnosis")}
-            >
-              Быстрая диагностика
-            </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => setLocation("/deep-diagnosis")}
-            >
-              Глубокая диагностика
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <div className={className}>
+        <Card className={`bg-space-800/70 border-blue-500/20`}>
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <Brain className="h-5 w-5 mr-2" />
+              Skills DNA
+            </CardTitle>
+            <CardDescription className="text-white/70">
+              Для построения профиля Skills DNA необходимо пройти диагностику
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Пустая радарная диаграмма с разметкой */}
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center justify-center z-10">
+                  <div className="rounded-full bg-space-900/80 p-5 backdrop-blur-sm border border-purple-500/30">
+                    <Badge 
+                      variant="outline" 
+                      className="bg-purple-500/20 border-purple-500/30 text-purple-300 text-sm animate-pulse"
+                    >
+                      Требуется диагностика
+                    </Badge>
+                  </div>
+                </div>
+                <div className="opacity-20">
+                  <div className="h-[300px] w-[300px] mx-auto relative">
+                    <svg viewBox="0 0 300 300" className="w-full h-full">
+                      {/* Фоновый многоугольник */}
+                      <polygon 
+                        points="150,30 270,75 270,225 150,270 30,225 30,75" 
+                        fill="rgba(100, 100, 255, 0.1)" 
+                        stroke="rgba(150, 150, 255, 0.2)" 
+                        strokeWidth="1"
+                      />
+                      {/* Внутренние многоугольники для уровней */}
+                      <polygon 
+                        points="150,60 240,95 240,205 150,240 60,205 60,95" 
+                        fill="none" 
+                        stroke="rgba(150, 150, 255, 0.1)" 
+                        strokeWidth="1"
+                      />
+                      <polygon 
+                        points="150,90 210,115 210,185 150,210 90,185 90,115" 
+                        fill="none" 
+                        stroke="rgba(150, 150, 255, 0.1)" 
+                        strokeWidth="1"
+                      />
+                      <polygon 
+                        points="150,120 180,135 180,165 150,180 120,165 120,135" 
+                        fill="none" 
+                        stroke="rgba(150, 150, 255, 0.1)" 
+                        strokeWidth="1"
+                      />
+                      {/* Линии осей */}
+                      <line x1="150" y1="30" x2="150" y2="270" stroke="rgba(150, 150, 255, 0.2)" strokeWidth="1" />
+                      <line x1="30" y1="75" x2="270" y2="225" stroke="rgba(150, 150, 255, 0.2)" strokeWidth="1" />
+                      <line x1="30" y1="225" x2="270" y2="75" stroke="rgba(150, 150, 255, 0.2)" strokeWidth="1" />
+                      <line x1="150" y1="150" x2="270" y2="75" stroke="rgba(150, 150, 255, 0.2)" strokeWidth="1" />
+                      <line x1="150" y1="150" x2="270" y2="225" stroke="rgba(150, 150, 255, 0.2)" strokeWidth="1" />
+                      <line x1="150" y1="150" x2="30" y2="225" stroke="rgba(150, 150, 255, 0.2)" strokeWidth="1" />
+                      <line x1="150" y1="150" x2="30" y2="75" stroke="rgba(150, 150, 255, 0.2)" strokeWidth="1" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Информационный блок */}
+              <div className="flex flex-col justify-center">
+                <div className="mb-6">
+                  <h3 className="text-xl font-medium mb-3 text-white">
+                    {error ? "Не удалось загрузить данные" : "Данные Skills DNA отсутствуют"}
+                  </h3>
+                  <p className="text-white/80 mb-6">
+                    {error 
+                      ? "Произошла ошибка при загрузке вашего профиля Skills DNA. Пожалуйста, пройдите диагностику, чтобы мы могли создать для вас персональную карту навыков." 
+                      : "У вас пока нет профиля Skills DNA. Пройдите диагностику, чтобы мы могли проанализировать ваши знания и навыки в области ИИ и составить для вас персональную карту компетенций."}
+                  </p>
+                </div>
+                
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Button 
+                    variant="default" 
+                    className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600"
+                    onClick={() => setLocation("/quick-diagnosis")}
+                  >
+                    Быстрая диагностика
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="border-purple-500/30 text-purple-300 hover:bg-purple-500/10"
+                    onClick={() => setLocation("/deep-diagnosis")}
+                  >
+                    Глубокая диагностика
+                  </Button>
+                </div>
+              </div>
+            </div>
+            
+            {/* Дополнительная информация о диагностике */}
+            <div className="bg-space-900/30 rounded-md p-4 border border-space-800 text-sm">
+              <h4 className="text-white font-medium mb-2 flex items-center">
+                <Book className="h-4 w-4 mr-1 text-blue-400" />
+                Что дает Skills DNA?
+              </h4>
+              <ul className="list-disc list-inside space-y-1 text-white/70">
+                <li>Персонализированные рекомендации по обучению</li>
+                <li>Анализ сильных и слабых сторон в области ИИ</li>
+                <li>Сравнение ваших навыков с требованиями работодателей</li>
+                <li>Отслеживание прогресса обучения в реальном времени</li>
+              </ul>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
