@@ -552,11 +552,24 @@ export default function DeepDiagnosisPage() {
       sessionStorage.removeItem("skillsDnaResults");
       sessionStorage.removeItem("skillsDnaResultsPersisted");
       
+      // Преобразуем рекомендации в формат, совместимый с Dashboard и компонентом RecommendedCourses
+      const formattedRecommendations = recommendationsData.map(rec => ({
+        id: rec.id,
+        title: rec.title,
+        description: rec.description,
+        matchPercentage: rec.match, // Преобразуем match в matchPercentage
+        level: rec.difficulty, // Преобразуем difficulty в level
+        duration: rec.duration,
+        modules: rec.modules,
+        skillGaps: rec.skillGaps,
+        reason: rec.reason
+      }));
+      
       // Сохраняем диагностические данные и результаты
       const dataToSave = {
         skills: skillsData,
         diagnosticType: 'deep',
-        recommendations: recommendationsData,
+        recommendations: formattedRecommendations, // Сохраняем преобразованные данные
         timestamp: new Date().toISOString()
       };
       
@@ -565,7 +578,8 @@ export default function DeepDiagnosisPage() {
       
       console.log("[DiagnosticPage] Сохранены результаты диагностики в sessionStorage для Skills DNA:", {
         skillsCount: Object.keys(skillsData).length,
-        recommendationsCount: recommendationsData.length
+        recommendationsCount: formattedRecommendations.length,
+        sample: formattedRecommendations.slice(0, 2) // Вывод примера для отладки
       });
     } catch (error) {
       console.error("[DiagnosticPage] Ошибка при сохранении результатов диагностики:", error);
