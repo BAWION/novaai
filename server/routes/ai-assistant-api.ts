@@ -35,11 +35,8 @@ router.post('/ask', authMiddleware, async (req: Request, res: Response) => {
     }
     
     const { question } = validationResult.data;
-    const userId = req.user?.id;
-    
-    if (!userId) {
-      return res.status(401).json({ error: 'Пользователь не авторизован' });
-    }
+    // Пользователь уже проверен в authMiddleware, поэтому здесь req.user гарантированно существует
+    const userId = req.user!.id;
     
     // Получаем ответ от ассистента
     const response = await aiAssistantService.getAssistantResponse(userId, question);
@@ -58,11 +55,8 @@ router.post('/ask', authMiddleware, async (req: Request, res: Response) => {
  */
 router.get('/hint', authMiddleware, async (req: Request, res: Response) => {
   try {
-    const userId = req.user?.id;
-    
-    if (!userId) {
-      return res.status(401).json({ error: 'Пользователь не авторизован' });
-    }
+    // Пользователь уже проверен в authMiddleware, поэтому здесь req.user гарантированно существует
+    const userId = req.user!.id;
     
     // Получаем подсказку
     const hint = await aiAssistantService.getProactiveHint(userId);
@@ -91,11 +85,8 @@ router.post('/explain', authMiddleware, async (req: Request, res: Response) => {
     }
     
     const { topicId, difficulty = 'medium' } = validationResult.data;
-    const userId = req.user?.id;
-    
-    if (!userId) {
-      return res.status(401).json({ error: 'Пользователь не авторизован' });
-    }
+    // Пользователь уже проверен в authMiddleware, поэтому здесь req.user гарантированно существует
+    const userId = req.user!.id;
     
     // Получаем объяснение
     const explanation = await aiAssistantService.getPersonalizedExplanation(
