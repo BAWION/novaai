@@ -10,6 +10,7 @@ import {
   UserInterest, 
   UserGoal 
 } from "@/lib/constants";
+import { diagnosisApi } from "@/api/diagnosis-api";
 
 // Компоненты UI
 import {
@@ -453,12 +454,66 @@ export default function DeepDiagnosisPage() {
                 const mockRecommendations = generateRecommendations();
                 setRecommendations(mockRecommendations);
                 
+                // Сохраняем результаты в Skills DNA
+                const saveSkillsToDna = async () => {
+                  try {
+                    // Только если пользователь авторизован
+                    if (userProfile?.userId) {
+                      // Подготавливаем данные для отправки
+                      const diagnosisResult = {
+                        userId: userProfile.userId,
+                        skills: skillProfile,
+                        diagnosticType: 'deep' as 'deep', // явное приведение типа для TypeScript
+                        metadata: {
+                          profileData: {
+                            role: formData.role,
+                            experience: formData.experience,
+                            pythonLevel: formData.pythonLevel,
+                            interest: formData.interest,
+                            goal: formData.goal
+                          },
+                          demographic: {
+                            ageGroup: formData.ageGroup,
+                            education: formData.education
+                          },
+                          technicalBackground: {
+                            programmingLanguages: formData.programmingLanguages,
+                            dataAnalysisLevel: formData.dataAnalysisLevel,
+                            mathBackground: formData.mathBackground
+                          },
+                          cognitiveProfile: {
+                            analyticalThinking: formData.analyticalThinking,
+                            creativeProblemSolving: formData.creativeProblemSolving,
+                            attentionToDetail: formData.attentionToDetail
+                          },
+                          interests: {
+                            primary: formData.interest,
+                            subdomains: formData.subdomains
+                          },
+                          formData // полные данные формы
+                        }
+                      };
+                      
+                      // Отправляем результаты в систему Skills DNA
+                      const result = await diagnosisApi.saveResults(diagnosisResult);
+                      console.log("Результаты глубокой диагностики сохранены в Skills DNA:", result);
+                    } else {
+                      console.warn("Пользователь не авторизован, результаты не будут сохранены в Skills DNA");
+                    }
+                  } catch (error) {
+                    console.error("Ошибка при сохранении результатов в Skills DNA:", error);
+                  }
+                };
+                
                 setTimeout(() => {
                   // Завершаем анализ и сохраняем профиль
                   setAnalysisComplete(true);
                   
                   // Сохраняем результаты в профиль пользователя
                   updateUserProfileSafely();
+                  
+                  // Сохраняем результаты в Skills DNA
+                  saveSkillsToDna();
                   
                 }, 1500);
               }, 1200);

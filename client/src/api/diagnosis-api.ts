@@ -6,12 +6,17 @@
 import { apiRequest } from "@/lib/queryClient";
 
 /**
+ * Тип диагностики: быстрая или глубокая
+ */
+export type DiagnosticType = 'quick' | 'deep';
+
+/**
  * Интерфейс для отправки результатов диагностики
  */
 export interface DiagnosisResult {
   userId: number;
   skills: Record<string, number>; // Название навыка: значение от 0 до 100
-  diagnosticType: 'quick' | 'deep';
+  diagnosticType: DiagnosticType;
   metadata?: any;
 }
 
