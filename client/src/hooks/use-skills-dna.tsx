@@ -212,11 +212,23 @@ export default function useSkillsDna(userId?: number): SkillsDnaData {
   }
   
   // Проверка, пусты ли фактические данные (с учетом сохраненных данных)
-  const isTrulyEmpty = isEmpty && (!savedSkillsData?.skills || Object.keys(savedSkillsData.skills).length === 0);
+  const hasSavedSkills = savedSkillsData?.skills && Object.keys(savedSkillsData.skills).length > 0;
+  const isTrulyEmpty = isEmpty && !hasSavedSkills;
+  
+  // Если пользователь не авторизован и переходит из диагностики, 
+  // сохраненные данные могут быть утеряны при обновлении страницы,
+  // поэтому также проверяем наличие данных в sessionStorage
+  useEffect(() => {
+    if (hasSavedSkills && !sessionStorage.getItem('skillsDnaResultsPersisted')) {
+      console.log("[useSkillsDna] Пересохраняем данные в sessionStorage для большей надежности");
+      sessionStorage.setItem('skillsDnaResultsPersisted', 'true');
+      sessionStorage.setItem('skillsDnaResults', JSON.stringify(savedSkillsData));
+    }
+  }, [hasSavedSkills, savedSkillsData]);
   
   console.log("[useSkillsDna] Финальные данные:", {
     usingApiData: Object.keys(skillsData).length > 0,
-    usingSavedData: savedSkillsData?.skills && Object.keys(savedSkillsData.skills).length > 0,
+    usingSavedData: hasSavedSkills,
     finalSkillsCount: Object.keys(finalSkills).length,
     hasRecommendations: !!finalSummary.recommendedCourses,
     isTrulyEmpty

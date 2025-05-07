@@ -548,13 +548,20 @@ export default function DeepDiagnosisPage() {
       const skillsData = userSkillProfile || {};
       const recommendationsData = recommendations || [];
       
+      // Очищаем существующие данные перед сохранением новых
+      sessionStorage.removeItem("skillsDnaResults");
+      sessionStorage.removeItem("skillsDnaResultsPersisted");
+      
       // Сохраняем диагностические данные и результаты
-      sessionStorage.setItem("skillsDnaResults", JSON.stringify({
+      const dataToSave = {
         skills: skillsData,
         diagnosticType: 'deep',
         recommendations: recommendationsData,
         timestamp: new Date().toISOString()
-      }));
+      };
+      
+      sessionStorage.setItem("skillsDnaResults", JSON.stringify(dataToSave));
+      sessionStorage.setItem("skillsDnaResultsPersisted", "true");
       
       console.log("[DiagnosticPage] Сохранены результаты диагностики в sessionStorage для Skills DNA:", {
         skillsCount: Object.keys(skillsData).length,
