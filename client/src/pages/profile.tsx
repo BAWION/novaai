@@ -6,6 +6,7 @@ import { ProgressRing } from "@/components/ui/progress-ring";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useUserProfile } from "@/context/user-profile-context";
 import { UserRole, UserInterest } from "@/lib/constants";
+import { SkillsDnaProfile } from "@/components/skills-dna-profile";
 
 // Вспомогательные функции для получения русских названий ролей и интересов
 function getRoleTitle(role: UserRole): string {
