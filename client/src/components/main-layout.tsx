@@ -25,7 +25,7 @@ interface MainLayoutProps {
 
 export default function MainLayout({ children }: MainLayoutProps) {
   const [location] = useLocation();
-  const { userProfile, logout } = useUserProfile();
+  const { userProfile } = useUserProfile();
   const { logEvent } = useEventLogger();
   const [menuOpen, setMenuOpen] = React.useState(false);
 
@@ -62,7 +62,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
   // Обработчик выхода из системы
   const handleLogout = () => {
-    logout();
+    // Заглушка для выхода из системы
     logEvent("user_logout");
     window.location.href = "/";
   };
@@ -131,7 +131,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
                   <Link href="/profile">
                     <a className="flex items-center space-x-2 px-3 py-2 rounded-md bg-space-800/40 hover:bg-space-800 transition-colors">
                       <User className="h-4 w-4" />
-                      <span className="text-sm">{userProfile.displayName || userProfile.username}</span>
+                      <span className="text-sm">{userProfile.displayName || "Пользователь"}</span>
                     </a>
                   </Link>
                   <Button 
@@ -221,7 +221,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
                   <Link href="/profile">
                     <a className="flex items-center space-x-3 px-3 py-2.5 rounded-md transition-colors text-white/70 hover:text-white hover:bg-space-700/40">
                       <User className="h-5 w-5" />
-                      <span>{userProfile.displayName || userProfile.username}</span>
+                      <span>{userProfile.displayName || "Пользователь"}</span>
                     </a>
                   </Link>
                   
