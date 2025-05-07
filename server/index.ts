@@ -1,10 +1,16 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import session from "express-session";
+import { createSessionStore, createSessionOptions, createSessionDebugMiddleware } from "./session-store";
+import { authMiddleware, optionalAuthMiddleware } from "./auth-middleware";
 // Устанавливаем кодировку для корректного отображения кириллицы
 process.env.NODE_ENV = process.env.NODE_ENV || "development";
 
 const app = express();
+
+// Включаем доверие к прокси для корректной работы за реверс-прокси
+app.set('trust proxy', 1);
 
 // Настраиваем CORS для работы в development среде
 app.use((req, res, next) => {
@@ -32,11 +38,26 @@ app.use((req, res, next) => {
   next();
 });
 
-// Включаем доверие к прокси для корректной работы за реверс-прокси
-app.set('trust proxy', 1);
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Инициализируем систему сессий
+(async () => {
+  try {
+    // Создаем хранилище сессий в PostgreSQL
+    const sessionStore = await createSessionStore();
+    
+    // Настраиваем middleware для сессий
+    app.use(session(createSessionOptions(sessionStore)));
+    
+    // Добавляем middleware для отладки сессий
+    app.use(createSessionDebugMiddleware());
+    
+    console.log('[Server] Система сессий успешно инициализирована');
+  } catch (error) {
+    console.error('[Server] Ошибка при инициализации системы сессий:', error);
+  }
+})();
 
 app.use((req, res, next) => {
   const start = Date.now();
