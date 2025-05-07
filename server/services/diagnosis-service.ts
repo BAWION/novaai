@@ -359,6 +359,129 @@ class DiagnosisService {
       throw error;
     }
   }
+
+  /**
+   * Инициализирует демо-данные для пользователя с ID 999
+   * @returns Результат инициализации
+   */
+  async initializeDemoData(): Promise<any> {
+    try {
+      console.log(`[DiagnosisService] Инициализация демо-данных для пользователя 999`);
+      
+      // Проверяем существует ли уже запись для пользователя 999
+      const existingEntries = await db.select()
+        .from(userSkillsDnaProgress)
+        .where(eq(userSkillsDnaProgress.userId, 999));
+      
+      // Если данные уже существуют, возвращаем их
+      if (existingEntries.length > 0) {
+        console.log(`[DiagnosisService] Демо-данные уже существуют для пользователя 999, найдено ${existingEntries.length} записей`);
+        return {
+          success: true,
+          message: "Демо-данные уже существуют",
+          entries: existingEntries
+        };
+      }
+      
+      // Получаем все компетенции (Skills DNA)
+      const allSkillsDna = await db.select().from(skillsDna);
+      if (!allSkillsDna.length) {
+        throw new Error("Не найдены компетенции Skills DNA в системе");
+      }
+      
+      // Демо-данные навыков для разных категорий
+      const demoSkills = {
+        "AI Foundations": {
+          "Machine Learning Basics": 85,
+          "Neural Networks": 75,
+          "Data Science": 90,
+          "Computer Vision": 65,
+          "Natural Language Processing": 80
+        },
+        "Tools & Platforms": {
+          "OpenAI API": 95,
+          "TensorFlow": 60,
+          "PyTorch": 55,
+          "Hugging Face": 70,
+          "AI Development Environments": 85
+        },
+        "Prompt Engineering": {
+          "Zero-shot Prompting": 90,
+          "Few-shot Prompting": 85,
+          "Chain of Thought": 80,
+          "ReAct Pattern": 75,
+          "Prompt Optimization": 95
+        },
+        "Business Applications": {
+          "AI Project Management": 80,
+          "AI Business Strategy": 85,
+          "ROI Assessment": 75,
+          "AI Ethics": 90,
+          "AI Risk Management": 65
+        }
+      };
+      
+      // Создаем записи прогресса для демо-пользователя
+      const savedEntries = [];
+      
+      for (const dna of allSkillsDna) {
+        // Находим подходящую категорию и навык
+        let progress = 0;
+        let skillLevel = "awareness" as typeof skillsDnaLevelEnum.enumValues[number];
+        
+        // Пытаемся найти соответствие в наших демо-данных
+        for (const [category, skills] of Object.entries(demoSkills)) {
+          if (dna.category === category || dna.category.includes(category) || category.includes(dna.category)) {
+            for (const [skillName, skillValue] of Object.entries(skills)) {
+              if (dna.name.includes(skillName) || skillName.includes(dna.name)) {
+                progress = skillValue;
+                skillLevel = this.calculateSkillLevel(progress) as typeof skillsDnaLevelEnum.enumValues[number];
+                break;
+              }
+            }
+          }
+        }
+        
+        // Если не нашли точное соответствие, установим случайное значение
+        if (progress === 0) {
+          // Используем консистентные значения на основе dnaId для воспроизводимости
+          progress = 20 + ((dna.id * 17) % 70); // 20-90%
+          skillLevel = this.calculateSkillLevel(progress) as typeof skillsDnaLevelEnum.enumValues[number];
+        }
+        
+        // Создаем новую запись прогресса
+        const newProgress: InsertUserSkillsDnaProgress = {
+          userId: 999,
+          dnaId: dna.id,
+          currentLevel: skillLevel,
+          progress,
+          assessmentHistory: [{
+            date: new Date().toISOString(),
+            level: skillLevel,
+            progress,
+            source: 'demo-initialization'
+          }]
+        };
+        
+        const [insertedEntry] = await db.insert(userSkillsDnaProgress)
+          .values(newProgress)
+          .returning();
+        
+        savedEntries.push(insertedEntry);
+      }
+      
+      console.log(`[DiagnosisService] Успешно созданы демо-данные для пользователя 999, создано ${savedEntries.length} записей`);
+      
+      return {
+        success: true,
+        message: "Демо-данные успешно инициализированы",
+        entries: savedEntries
+      };
+    } catch (error) {
+      console.error("[DiagnosisService] Ошибка при инициализации демо-данных:", error);
+      throw error;
+    }
+  }
 }
 
 export const diagnosisService = new DiagnosisService();
