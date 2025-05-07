@@ -1312,6 +1312,12 @@ export default function DeepDiagnosisPage() {
                                 {subdomain === "predictive-maintenance" && "Предиктивное обслуживание"}
                                 {subdomain === "healthcare-ai" && "ИИ в здравоохранении"}
                                 {subdomain === "fintech-ai" && "ИИ в финтехе"}
+                                {subdomain === "bias-fairness" && "Предвзятость и справедливость"}
+                                {subdomain === "transparency" && "Прозрачность AI-систем"}
+                                {subdomain === "privacy" && "Приватность данных"}
+                                {subdomain === "accountability" && "Ответственность за AI-решения"}
+                                {subdomain === "social-impact" && "Социальные последствия AI"}
+                                {subdomain === "governance" && "Управление AI-системами"}
                               </Label>
                             </div>
                           ))}
