@@ -88,23 +88,29 @@ export default function Login() {
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Начинаем процесс входа с данными:", { username: credentials.username, hasPassword: !!credentials.password });
     setIsLoggingIn(true);
     setError("");
 
     try {
       // 1. Получаем данные с сервера
+      console.log("Отправляем запрос на /api/auth/login");
       const response = await apiRequest("POST", "/api/auth/login", credentials);
+      console.log("Получен ответ:", response.status, response.statusText);
       
       // 2. Проверяем ответ
       if (!response.ok) {
         const errorData = await response.json();
+        console.error("Ошибка входа. Ответ сервера:", errorData);
         throw new Error(errorData.message || "Ошибка входа");
       }
       
       // 3. Парсим данные пользователя
       const userData = await response.json();
+      console.log("Получены данные пользователя:", userData);
       
       // 4. Обновляем состояние авторизации
+      console.log("Обновляем состояние авторизации");
       login(userData);
       
       // 5. Показываем сообщение об успешном входе
@@ -115,9 +121,11 @@ export default function Login() {
       
       // 6. Перенаправляем на dashboard с небольшой задержкой,
       // чтобы состояние Auth Context успело обновиться
+      console.log("Планируем перенаправление на /dashboard");
       setTimeout(() => {
+        console.log("Перенаправляем на /dashboard");
         navigate("/dashboard");
-      }, 100);
+      }, 500); // Увеличиваем задержку до 500мс
     } catch (error) {
       console.error("Login error:", error);
       setError(error instanceof Error ? error.message : "Произошла ошибка при входе");
@@ -270,6 +278,11 @@ export default function Login() {
                   </button>
                   <button
                     type="submit"
+                    onClick={(e) => {
+                      console.log("Кнопка входа нажата");
+                      // Дополнительный обработчик, который вызывается при нажатии на кнопку
+                      // Стандартный обработчик формы onSubmit также будет вызван
+                    }}
                     className="flex-1 bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:from-[#4922B2] hover:to-[#1682A1] text-white py-2 px-4 rounded-lg font-medium transition duration-300 flex items-center justify-center tap-highlight-none btn-mobile"
                     disabled={isLoggingIn}
                   >
