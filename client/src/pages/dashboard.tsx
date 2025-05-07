@@ -7,14 +7,11 @@ import { Glassmorphism } from "@/components/ui/glassmorphism";
 import { useUserProfile } from "@/context/user-profile-context";
 import { useAuth } from "@/context/auth-context";
 import { apiRequest } from "@/lib/queryClient";
-import { Link, useLocation, useRoute } from "wouter";
+import { Link, useLocation } from "wouter";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { LearningTimeline } from "@/components/progress/learning-timeline";
 import { default as SkillProgress } from "@/components/progress/skill-progress";
 import { WelcomeModal } from "@/components/onboarding/welcome-modal";
-import { SkillsDnaProfile } from "@/components/skills-dna-profile";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Brain, Route, Rocket, Dna, Zap, User, LayoutDashboard } from "lucide-react";
 
 export default function Dashboard() {
   const { userProfile, updateUserProfile } = useUserProfile();
@@ -250,11 +247,6 @@ export default function Dashboard() {
     courseId: 2
   });
   const [viewMode, setViewMode] = useState<'orbital' | 'tracks'>('orbital');
-  const [activeTab, setActiveTab] = useState('overview');
-  
-  // Состояние для Roadmap компонента (перенесено из roadmap.tsx)
-  const [roadmapData, setRoadmapData] = useState<any>({});
-  const [selectedNode, setSelectedNode] = useState<string | null>(null);
 
   // Проверка статуса пользователя и показ приветственного модального окна
   useEffect(() => {
@@ -348,142 +340,6 @@ export default function Dashboard() {
       day: '2-digit',
       month: '2-digit'
     }).format(dueDate);
-  };
-
-  // Effect для генерации данных дорожной карты
-  useEffect(() => {
-    if (userProfile) {
-      const track = userProfile?.recommendedTrack || 'zero-to-hero';
-      
-      // Генерируем данные дорожной карты
-      const generateRoadmapData = () => {
-        const data: any = {};
-        
-        // Root node
-        data['root'] = {
-          id: 'root',
-          title: 'Начало пути',
-          description: 'Добро пожаловать в NovaAI University! Это начало вашего путешествия в мир искусственного интеллекта.',
-          progress: 100,
-          status: 'completed',
-          children: ['python-basics', 'math-foundations']
-        };
-        
-        // Basic track nodes
-        data['python-basics'] = {
-          id: 'python-basics',
-          title: 'Основы Python',
-          description: 'Изучение основ программирования на Python: переменные, типы данных, условия, циклы, функции.',
-          progress: 85,
-          status: 'in-progress',
-          children: ['data-structures']
-        };
-        
-        data['math-foundations'] = {
-          id: 'math-foundations',
-          title: 'Математические основы',
-          description: 'Линейная алгебра, статистика и исчисление для машинного обучения.',
-          progress: 40,
-          status: 'in-progress',
-          children: ['ml-intro']
-        };
-        
-        data['data-structures'] = {
-          id: 'data-structures',
-          title: 'Структуры данных',
-          description: 'Изучение списков, словарей, множеств и других структур данных в Python.',
-          progress: 0,
-          status: 'available',
-          children: ['numpy-pandas']
-        };
-        
-        data['numpy-pandas'] = {
-          id: 'numpy-pandas',
-          title: 'NumPy и Pandas',
-          description: 'Работа с массивами, матрицами и таблицами данных с использованием NumPy и Pandas.',
-          progress: 0,
-          status: 'locked',
-          children: ['data-visualization']
-        };
-        
-        data['data-visualization'] = {
-          id: 'data-visualization',
-          title: 'Визуализация данных',
-          description: 'Использование Matplotlib, Seaborn и Plotly для визуализации данных.',
-          progress: 0,
-          status: 'locked',
-          children: ['deep-learning']
-        };
-        
-        data['ml-intro'] = {
-          id: 'ml-intro',
-          title: 'Введение в ML',
-          description: 'Основные концепции и алгоритмы машинного обучения: регрессия, классификация, кластеризация.',
-          progress: 0,
-          status: 'locked',
-          children: ['deep-learning']
-        };
-        
-        data['deep-learning'] = {
-          id: 'deep-learning',
-          title: 'Глубокое обучение',
-          description: 'Нейронные сети, функции активации, оптимизаторы. Работа с TensorFlow и PyTorch.',
-          progress: 0,
-          status: 'locked',
-          children: []
-        };
-        
-        return data;
-      };
-      
-      const data = generateRoadmapData();
-      setRoadmapData(data);
-      setSelectedNode('root');
-    }
-  }, [userProfile]);
-  
-  // Получение цвета статуса для дорожной карты
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return 'bg-gradient-to-r from-green-500 to-emerald-500';
-      case 'in-progress':
-        return 'bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1]';
-      case 'available':
-        return 'bg-gradient-to-r from-amber-500 to-orange-500';
-      case 'locked':
-      default:
-        return 'bg-[#333333]';
-    }
-  };
-
-  // Получение иконки статуса для дорожной карты
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return 'fa-check';
-      case 'in-progress':
-        return 'fa-circle-notch fa-spin';
-      case 'available':
-        return 'fa-play';
-      case 'locked':
-      default:
-        return 'fa-lock';
-    }
-  };
-  
-  // Установка цвета полосы прогресса на основе статуса
-  const getProgressBarColor = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return 'from-green-500 to-emerald-500';
-      case 'in-progress': 
-        return 'from-[#6E3AFF] to-[#2EBAE1]';
-      case 'available':
-        return 'from-amber-500 to-orange-500';
-      default:
-        return 'from-gray-600 to-gray-500';
-    }
   };
 
   return (
@@ -626,7 +482,7 @@ export default function Dashboard() {
         
         {/* Content columns */}
         <div className="grid grid-cols-1 lg:grid-cols-7 gap-6">
-          {/* Left column - Main command deck view (70%) */}
+          {/* Left column - Main orbital view (70%) */}
           <div className="lg:col-span-5 flex flex-col gap-6">
             <motion.div
               initial={{ opacity: 0 }}
@@ -634,245 +490,36 @@ export default function Dashboard() {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="bg-space-800/50 rounded-xl p-4"
             >
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="bg-space-900/60 border border-white/10 mb-4">
-                  <TabsTrigger value="overview" className="data-[state=active]:bg-primary/30">
-                    <LayoutDashboard className="h-4 w-4 mr-2" />
-                    Обзор
-                  </TabsTrigger>
-                  <TabsTrigger value="skills-dna" className="data-[state=active]:bg-primary/30">
-                    <Dna className="h-4 w-4 mr-2" />
-                    Skills DNA
-                  </TabsTrigger>
-                  <TabsTrigger value="roadmap" className="data-[state=active]:bg-primary/30">
-                    <Route className="h-4 w-4 mr-2" />
-                    Дорожная карта
-                  </TabsTrigger>
-                  <TabsTrigger value="recommendations" className="data-[state=active]:bg-primary/30">
-                    <Rocket className="h-4 w-4 mr-2" />
-                    Рекомендации
-                  </TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="overview" className="mt-0">
-                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="font-orbitron text-xl font-semibold">
-                      Орбитальная карта развития
-                    </h2>
-                    <div className="flex items-center bg-space-900/50 rounded-lg overflow-hidden">
-                      <button 
-                        onClick={() => setViewMode('orbital')}
-                        className={`px-3 py-1.5 text-sm ${viewMode === 'orbital' ? 'bg-primary/30 text-white' : 'text-white/60'}`}
-                      >
-                        <i className="fas fa-globe-americas mr-1"></i>
-                        Орбиты
-                      </button>
-                      <button 
-                        onClick={() => setViewMode('tracks')}
-                        className={`px-3 py-1.5 text-sm ${viewMode === 'tracks' ? 'bg-primary/30 text-white' : 'text-white/60'}`}
-                      >
-                        <i className="fas fa-road mr-1"></i>
-                        По навыкам
-                      </button>
-                    </div>
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="font-orbitron text-xl font-semibold">
+                  Рекомендованные курсы
+                </h2>
+                <div className="flex items-center bg-space-900/50 rounded-lg overflow-hidden">
+                  <button 
+                    onClick={() => setViewMode('orbital')}
+                    className={`px-3 py-1.5 text-sm ${viewMode === 'orbital' ? 'bg-primary/30 text-white' : 'text-white/60'}`}
+                  >
+                    <i className="fas fa-globe-americas mr-1"></i>
+                    Орбиты
+                  </button>
+                  <button 
+                    onClick={() => setViewMode('tracks')}
+                    className={`px-3 py-1.5 text-sm ${viewMode === 'tracks' ? 'bg-primary/30 text-white' : 'text-white/60'}`}
+                  >
+                    <i className="fas fa-road mr-1"></i>
+                    По навыкам
+                  </button>
+                </div>
+              </div>
+              <OrbitalLayout />
+              <div className="flex justify-end mt-2">
+                <Link href="/courses">
+                  <div className="text-sm text-white/70 hover:text-white transition inline-flex items-center">
+                    Смотреть все курсы
+                    <i className="fas fa-chevron-right ml-1.5 text-xs"></i>
                   </div>
-                  
-                  <div className="relative h-[320px] md:h-[450px]">
-                    <OrbitalLayout
-                      level={xpLevel.level}
-                      progress={xpLevel.currentXP / xpLevel.levelXP}
-                      skills={adaptiveAIData.currentTrajectory.skills}
-                      emphasis={adaptiveAIData.currentTrajectory.emphasis}
-                    />
-                  </div>
-                  
-                  <div className="flex justify-end mt-2">
-                    <Link href="/courses">
-                      <div className="text-sm text-white/70 hover:text-white transition inline-flex items-center">
-                        Смотреть все курсы
-                        <i className="fas fa-chevron-right ml-1.5 text-xs"></i>
-                      </div>
-                    </Link>
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="skills-dna" className="mt-0">
-                  <div className="bg-space-700/30 rounded-lg p-3">
-                    <SkillsDnaProfile showHeader={false} />
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="roadmap" className="mt-0">
-                  <div className="bg-space-700/30 rounded-lg p-3">
-                    <div className="min-h-[450px] overflow-auto">
-                      <h2 className="font-orbitron text-xl font-semibold mb-4 text-white">
-                        Ваш персональный путь обучения
-                      </h2>
-                      
-                      {Object.keys(roadmapData).length > 0 && (
-                        <div className="w-full overflow-x-auto pb-4">
-                          <div className="min-w-[800px] h-[600px] relative">
-                            {/* Level 1: Root node */}
-                            <div className="absolute top-[50px] left-1/2 transform -translate-x-1/2 z-10">
-                              <motion.div 
-                                className={`cursor-pointer ${selectedNode === 'root' ? 'scale-110' : ''}`}
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={() => setSelectedNode('root')}
-                              >
-                                <div className={`w-16 h-16 rounded-full ${getStatusColor(roadmapData['root'].status)} flex items-center justify-center text-white shadow-lg`}>
-                                  <i className={`fas ${getStatusIcon(roadmapData['root'].status)} text-xl`}></i>
-                                </div>
-                                <div className="mt-2 text-center">
-                                  <p className="font-medium text-sm whitespace-nowrap">{roadmapData['root'].title}</p>
-                                  <div className="w-16 h-1.5 bg-white/10 rounded-full mt-1">
-                                    <div 
-                                      className={`h-full rounded-full bg-gradient-to-r ${getProgressBarColor(roadmapData['root'].status)}`} 
-                                      style={{ width: `${roadmapData['root'].progress}%` }}
-                                    ></div>
-                                  </div>
-                                </div>
-                              </motion.div>
-                            </div>
-
-                            {/* Vertical lines from root */}
-                            <div className="absolute top-[130px] left-[40%] w-0.5 h-[100px] bg-gradient-to-b from-green-500 to-emerald-500"></div>
-                            <div className="absolute top-[130px] left-[60%] w-0.5 h-[100px] bg-gradient-to-b from-green-500 to-emerald-500"></div>
-
-                            {/* Level 2: First branching */}
-                            <div className="absolute top-[230px] left-[30%] z-10">
-                              <motion.div 
-                                className={`cursor-pointer ${selectedNode === 'python-basics' ? 'scale-110' : ''}`}
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={() => setSelectedNode('python-basics')}
-                              >
-                                <div className={`w-16 h-16 rounded-full ${getStatusColor(roadmapData['python-basics'].status)} flex items-center justify-center text-white shadow-lg`}>
-                                  <i className={`fas ${getStatusIcon(roadmapData['python-basics'].status)} text-xl`}></i>
-                                </div>
-                                <div className="mt-2 text-center">
-                                  <p className="font-medium text-sm whitespace-nowrap">{roadmapData['python-basics'].title}</p>
-                                  <div className="w-16 h-1.5 bg-white/10 rounded-full mt-1">
-                                    <div 
-                                      className={`h-full rounded-full bg-gradient-to-r ${getProgressBarColor(roadmapData['python-basics'].status)}`} 
-                                      style={{ width: `${roadmapData['python-basics'].progress}%` }}
-                                    ></div>
-                                  </div>
-                                </div>
-                              </motion.div>
-                            </div>
-
-                            <div className="absolute top-[230px] left-[70%] z-10">
-                              <motion.div 
-                                className={`cursor-pointer ${selectedNode === 'math-foundations' ? 'scale-110' : ''}`}
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={() => setSelectedNode('math-foundations')}
-                              >
-                                <div className={`w-16 h-16 rounded-full ${getStatusColor(roadmapData['math-foundations'].status)} flex items-center justify-center text-white shadow-lg`}>
-                                  <i className={`fas ${getStatusIcon(roadmapData['math-foundations'].status)} text-xl`}></i>
-                                </div>
-                                <div className="mt-2 text-center">
-                                  <p className="font-medium text-sm whitespace-nowrap">{roadmapData['math-foundations'].title}</p>
-                                  <div className="w-16 h-1.5 bg-white/10 rounded-full mt-1">
-                                    <div 
-                                      className={`h-full rounded-full bg-gradient-to-r ${getProgressBarColor(roadmapData['math-foundations'].status)}`} 
-                                      style={{ width: `${roadmapData['math-foundations'].progress}%` }}
-                                    ></div>
-                                  </div>
-                                </div>
-                              </motion.div>
-                            </div>
-                            
-                            {/* Описание выбранного узла */}
-                            {selectedNode && (
-                              <div className="absolute right-4 top-[80px] w-64 bg-space-800/90 p-4 rounded-lg border border-white/10 shadow-xl">
-                                <h3 className="text-md font-semibold mb-2">{roadmapData[selectedNode].title}</h3>
-                                <p className="text-sm text-white/70 mb-3">{roadmapData[selectedNode].description}</p>
-                                <div className="flex justify-between text-xs text-white/50 mb-1">
-                                  <span>Прогресс</span>
-                                  <span>{roadmapData[selectedNode].progress}%</span>
-                                </div>
-                                <div className="w-full h-2 bg-white/10 rounded-full">
-                                  <div 
-                                    className={`h-full rounded-full bg-gradient-to-r ${getProgressBarColor(roadmapData[selectedNode].status)}`}
-                                    style={{ width: `${roadmapData[selectedNode].progress}%` }}
-                                  ></div>
-                                </div>
-                                {roadmapData[selectedNode].status === 'available' && (
-                                  <button 
-                                    className="mt-3 w-full py-1.5 px-3 rounded bg-primary hover:bg-primary/80 text-white text-sm font-medium"
-                                    onClick={() => {
-                                      console.log(`Начинаем модуль: ${roadmapData[selectedNode].title}`);
-                                      alert(`Начинаем модуль: ${roadmapData[selectedNode].title}`);
-                                    }}
-                                  >
-                                    Начать обучение
-                                  </button>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="recommendations" className="mt-0">
-                  <div className="bg-space-700/30 rounded-lg p-3">
-                    <div className="min-h-[450px]">
-                      <h2 className="font-orbitron text-xl font-semibold mb-4 text-white">
-                        Рекомендованные курсы
-                      </h2>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* Рекомендованный курс 1 */}
-                        <div className="bg-space-800/70 rounded-lg border border-white/10 p-4 hover:border-primary/50 transition-all cursor-pointer">
-                          <div className="flex items-center justify-between mb-3">
-                            <div className="bg-gradient-to-r from-[#6E3AFF]/20 to-[#2EBAE1]/20 rounded-full p-2">
-                              <Rocket className="h-5 w-5 text-primary" />
-                            </div>
-                            <div className="bg-primary/20 rounded-full px-2 py-1 text-xs font-medium text-primary">98% совпадение</div>
-                          </div>
-                          <h3 className="text-lg font-medium mb-1">Python для анализа данных</h3>
-                          <p className="text-white/70 text-sm mb-3">Изучите основы анализа данных с использованием Python, pandas и matplotlib</p>
-                          <div className="flex flex-wrap gap-1 mb-3">
-                            <span className="bg-white/10 rounded-full px-2 py-0.5 text-xs text-white/80">Python</span>
-                            <span className="bg-white/10 rounded-full px-2 py-0.5 text-xs text-white/80">Pandas</span>
-                            <span className="bg-white/10 rounded-full px-2 py-0.5 text-xs text-white/80">Data Science</span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <div className="text-xs text-white/50">8 модулей • 24 часа</div>
-                            <button className="text-xs text-primary hover:text-primary/80">Подробнее →</button>
-                          </div>
-                        </div>
-                        
-                        {/* Рекомендованный курс 2 */}
-                        <div className="bg-space-800/70 rounded-lg border border-white/10 p-4 hover:border-primary/50 transition-all cursor-pointer">
-                          <div className="flex items-center justify-between mb-3">
-                            <div className="bg-gradient-to-r from-[#6E3AFF]/20 to-[#2EBAE1]/20 rounded-full p-2">
-                              <Brain className="h-5 w-5 text-primary" />
-                            </div>
-                            <div className="bg-primary/20 rounded-full px-2 py-1 text-xs font-medium text-primary">92% совпадение</div>
-                          </div>
-                          <h3 className="text-lg font-medium mb-1">Основы машинного обучения</h3>
-                          <p className="text-white/70 text-sm mb-3">Введение в алгоритмы машинного обучения и их применение в реальных проектах</p>
-                          <div className="flex flex-wrap gap-1 mb-3">
-                            <span className="bg-white/10 rounded-full px-2 py-0.5 text-xs text-white/80">ML</span>
-                            <span className="bg-white/10 rounded-full px-2 py-0.5 text-xs text-white/80">Scikit-learn</span>
-                            <span className="bg-white/10 rounded-full px-2 py-0.5 text-xs text-white/80">Python</span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <div className="text-xs text-white/50">10 модулей • 32 часа</div>
-                            <button className="text-xs text-primary hover:text-primary/80">Подробнее →</button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </TabsContent>
-              </Tabs>
+                </Link>
+              </div>
             </motion.div>
             
             {/* AI Analysis Section */}
