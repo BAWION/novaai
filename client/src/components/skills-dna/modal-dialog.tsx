@@ -2,7 +2,7 @@ import React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Brain, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { SkillsDnaProfile } from "@/components/skills-dna-profile";
+import { DetailedSkillsDnaProfile } from "./detailed-profile";
 
 interface SkillsDnaModalProps {
   open: boolean;
@@ -20,7 +20,7 @@ export function SkillsDnaModal({
 }: SkillsDnaModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-space-900/95 backdrop-blur-md text-white border-space-700 sm:max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="bg-space-900/95 backdrop-blur-md text-white border-space-700 sm:max-w-[90%] md:max-w-5xl max-h-[90vh] overflow-y-auto">
         <DialogHeader className="pb-2 relative">
           <Button
             variant="ghost"
@@ -39,7 +39,7 @@ export function SkillsDnaModal({
         </DialogHeader>
         
         <div className="mt-2">
-          <SkillsDnaProfile 
+          <DetailedSkillsDnaProfile 
             userId={userId} 
             showHeader={false}
             className="w-full"
