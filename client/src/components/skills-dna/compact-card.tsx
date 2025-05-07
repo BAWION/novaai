@@ -269,13 +269,13 @@ export function CompactSkillsDnaCard({
   
   // Выделяем сильные и слабые навыки
   const strongSkills = skillEntries
-    .filter(([_, value]) => value >= 70)
-    .sort(([_, a], [__, b]) => b - a)
+    .filter(([_, value]) => (value as number) >= 70)
+    .sort(([_, a], [__, b]) => (b as number) - (a as number))
     .slice(0, 2);
   
   const weakSkills = skillEntries
-    .filter(([_, value]) => value < 50)
-    .sort(([_, a], [__, b]) => a - b)
+    .filter(([_, value]) => (value as number) < 50)
+    .sort(([_, a], [__, b]) => (a as number) - (b as number))
     .slice(0, 2);
   
   const overallLevel = summary?.overallLevel || 0;
