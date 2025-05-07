@@ -319,29 +319,44 @@ export function SkillsDnaProfile({
                 </Button>
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center">
-                <SkillsTriangleChart 
-                  skills={{
-                    top: { 
-                      name: "Понимание основ ИИ", 
-                      value: finalSkills["Понимание основ ИИ"] || finalSkills["Основы ИИ"] || 
-                             finalSkills["Машинное обучение"] || finalSkills["Программирование"] || 40 
-                    },
-                    bottomLeft: { 
-                      name: "Этические аспекты использования ИИ", 
-                      value: finalSkills["Этические аспекты использования ИИ"] || finalSkills["Этика и право в ИИ"] || 
-                             finalSkills["Этика ИИ"] || finalSkills["Применение в бизнесе"] || 25 
-                    },
-                    bottomRight: { 
-                      name: "Критическое мышление в контексте ИИ", 
-                      value: finalSkills["Критическое мышление в контексте ИИ"] || finalSkills["Аналитическое мышление"] || 
-                             finalSkills["Решение проблем"] || finalSkills["Анализ данных"] || 65 
-                    }
-                  }}
-                  height={350}
-                  width={350}
-                  className="mx-auto my-4"
-                />
+              <div className="space-y-6">
+                {/* Треугольник навыков */}
+                <div className="flex flex-col items-center justify-center">
+                  <SkillsTriangleChart 
+                    skills={{
+                      top: { 
+                        name: "Понимание основ ИИ", 
+                        value: finalSkills["Понимание основ ИИ"] || finalSkills["Основы ИИ"] || 
+                               finalSkills["Машинное обучение"] || finalSkills["Программирование"] || 40 
+                      },
+                      bottomLeft: { 
+                        name: "Этические аспекты использования ИИ", 
+                        value: finalSkills["Этические аспекты использования ИИ"] || finalSkills["Этика и право в ИИ"] || 
+                               finalSkills["Этика ИИ"] || finalSkills["Применение в бизнесе"] || 25 
+                      },
+                      bottomRight: { 
+                        name: "Критическое мышление в контексте ИИ", 
+                        value: finalSkills["Критическое мышление в контексте ИИ"] || finalSkills["Аналитическое мышление"] || 
+                               finalSkills["Решение проблем"] || finalSkills["Анализ данных"] || 65 
+                      }
+                    }}
+                    height={280}
+                    width={280}
+                    className="mx-auto my-4"
+                  />
+                </div>
+                
+                {/* Радар навыков */}
+                <div className="pt-4">
+                  <SkillsRadarChart 
+                    skills={finalSkills}
+                    title="Детализация навыков"
+                    subtitle="Показаны все навыки в форме радара"
+                    showControls={true}
+                    maxValue={100}
+                    className="w-full"
+                  />
+                </div>
               </div>
             )}
           </div>
