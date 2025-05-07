@@ -76,42 +76,9 @@ export function RegisterForm() {
         description: "Вы успешно зарегистрировались. Добро пожаловать!",
       });
       
-      // Проверяем, есть ли сохраненный URL для перенаправления после авторизации
-      const redirectAfterAuth = sessionStorage.getItem("redirectAfterAuth");
-      const hasDiagnosticResults = sessionStorage.getItem("diagnosticResults");
-      
-      console.log("После регистрации проверяем перенаправление:", { 
-        redirectAfterAuth, 
-        hasDiagnosticResults: !!hasDiagnosticResults 
-      });
-      
-      // Если у нас есть сохраненные результаты диагностики и перенаправление
-      if (redirectAfterAuth && hasDiagnosticResults) {
-        // Обновляем URL с quick-diagnosis на deep-diagnosis, если требуется
-        let redirectUrl = redirectAfterAuth;
-        if (redirectUrl === "/quick-diagnosis") {
-          redirectUrl = "/deep-diagnosis";
-          console.log("Обновлен URL перенаправления с /quick-diagnosis на /deep-diagnosis");
-        }
-        
-        console.log(`Обнаружены результаты диагностики! Перенаправляем на: ${redirectUrl}`);
-        
-        toast({
-          title: "Данные диагностики восстановлены",
-          description: "Ваш прогресс с предыдущего шага сохранен. Вы можете продолжить с того же места.",
-          duration: 5000,
-        });
-        
-        // Удаляем запись о перенаправлении, но оставляем данные диагностики
-        sessionStorage.removeItem("redirectAfterAuth");
-        
-        // Перенаправляем пользователя
-        setLocation(redirectUrl);
-      } else {
-        // Перенаправление на главную панель (dashboard)
-        // Модальное окно приветствия будет показано автоматически на dashboard
-        setLocation("/dashboard");
-      }
+      // Перенаправление на главную панель (dashboard)
+      // Модальное окно приветствия будет показано автоматически на dashboard
+      setLocation("/dashboard");
     } catch (error) {
       console.error("Ошибка регистрации:", error);
       toast({

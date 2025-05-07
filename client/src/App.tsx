@@ -14,6 +14,7 @@ import Onboarding from "@/pages/onboarding";
 import OnboardingPage from "@/pages/onboarding-page";
 import OnboardingIntro from "@/pages/onboarding-intro";
 import RegisterAfterOnboarding from "@/pages/register-after-onboarding";
+import QuickDiagnosis from "@/pages/quick-diagnosis";
 import DeepDiagnosis from "@/pages/deep-diagnosis";
 import OrbitalLobby from "@/pages/orbital-lobby";
 import Dashboard from "@/pages/dashboard";
@@ -91,7 +92,7 @@ function Router() {
   
   // Check if we're on public pages
   const isPublicPage = location === "/" || location === "/login" || location === "/register" || 
-    location === "/onboarding" || location === "/onboarding-page" ||
+    location === "/onboarding" || location === "/onboarding-page" || location === "/quick-diagnosis" ||
     location === "/deep-diagnosis" || location === "/onboarding-intro" || location === "/register-after-onboarding" ||
     location === "/skills-dna";
   
@@ -113,24 +114,7 @@ function Router() {
           <Route path="/register-after-onboarding">
             {() => <RegisterAfterOnboarding />}
           </Route>
-          {/* Старый URL - редирект на глубокую диагностику */}
-          <Route path="/quick-diagnosis">
-            {() => {
-              const [, navigate] = useLocation();
-              
-              // Редирект на новый формат URL
-              useEffect(() => {
-                console.log("Редирект с /quick-diagnosis на /deep-diagnosis");
-                navigate("/deep-diagnosis");
-              }, [navigate]);
-              
-              return (
-                <div className="flex items-center justify-center min-h-screen">
-                  <div className="w-12 h-12 rounded-full border-4 border-primary/30 border-t-primary animate-spin"></div>
-                </div>
-              );
-            }}
-          </Route>
+          <Route path="/quick-diagnosis" component={QuickDiagnosis} />
           <Route path="/deep-diagnosis" component={DeepDiagnosis} />
           <Route path="/skills-dna" component={SkillsDnaPage} />
           

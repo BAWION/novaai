@@ -145,7 +145,7 @@ export function SkillsDnaProfile({
               <Button 
                 variant="default" 
                 className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600"
-                onClick={() => setLocation("/deep-diagnosis")}
+                onClick={() => setLocation("/quick-diagnosis")}
               >
                 Пройти диагностику
               </Button>
@@ -406,7 +406,7 @@ export function SkillsDnaProfile({
                   <Button 
                     variant="default" 
                     size="sm" 
-                    onClick={() => setLocation("/deep-diagnosis")}
+                    onClick={() => setLocation("/quick-diagnosis")}
                   >
                     Пройти диагностику
                   </Button>
