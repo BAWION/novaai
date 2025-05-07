@@ -78,8 +78,9 @@ export default function Dashboard() {
         ];
       }
     },
-    // Если пользователь не авторизован, используем демо-данные
-    enabled: !!user
+    // Всегда выполняем запрос, независимо от авторизации,
+    // так как мы можем отобразить сохраненные данные из sessionStorage
+    enabled: true
   });
   
   const [message, setMessage] = useState("");

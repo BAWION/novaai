@@ -130,25 +130,23 @@ export function SkillsDnaProfile({
   
   // Проверяем наличие сохраненных данных из диагностики в sessionStorage
   useEffect(() => {
-    if (isEmpty && !isLoading) {
-      try {
-        const savedData = sessionStorage.getItem('skillsDnaResults');
-        if (savedData) {
-          const parsedData = JSON.parse(savedData);
-          if (parsedData.skills && Object.keys(parsedData.skills).length > 0) {
-            console.log("[SkillsDnaProfile] Найдены и применены сохраненные данные из sessionStorage:", {
-              skillsCount: Object.keys(parsedData.skills).length,
-              diagnosticType: parsedData.diagnosticType || 'unknown'
-            });
-            setStoredSkills(parsedData.skills);
-            setHasSavedData(true);
-          }
+    try {
+      const savedData = sessionStorage.getItem('skillsDnaResults');
+      if (savedData) {
+        const parsedData = JSON.parse(savedData);
+        if (parsedData.skills && Object.keys(parsedData.skills).length > 0) {
+          console.log("[SkillsDnaProfile] Найдены и применены сохраненные данные из sessionStorage:", {
+            skillsCount: Object.keys(parsedData.skills).length,
+            diagnosticType: parsedData.diagnosticType || 'unknown'
+          });
+          setStoredSkills(parsedData.skills);
+          setHasSavedData(true);
         }
-      } catch (error) {
-        console.error("[SkillsDnaProfile] Ошибка при загрузке данных из sessionStorage:", error);
       }
+    } catch (error) {
+      console.error("[SkillsDnaProfile] Ошибка при загрузке данных из sessionStorage:", error);
     }
-  }, [isEmpty, isLoading]);
+  }, []);
   
   // Комбинируем данные из API и из sessionStorage если нужно
   const finalSkills = Object.keys(skills).length > 0 ? skills : storedSkills;
@@ -281,18 +279,18 @@ export function SkillsDnaProfile({
                   skills={{
                     top: { 
                       name: "Понимание основ ИИ", 
-                      value: skills["Понимание основ ИИ"] || skills["Основы ИИ"] || 
-                             skills["Машинное обучение"] || skills["Программирование"] || 40 
+                      value: finalSkills["Понимание основ ИИ"] || finalSkills["Основы ИИ"] || 
+                             finalSkills["Машинное обучение"] || finalSkills["Программирование"] || 40 
                     },
                     bottomLeft: { 
                       name: "Этические аспекты использования ИИ", 
-                      value: skills["Этические аспекты использования ИИ"] || skills["Этика и право в ИИ"] || 
-                             skills["Этика ИИ"] || skills["Применение в бизнесе"] || 25 
+                      value: finalSkills["Этические аспекты использования ИИ"] || finalSkills["Этика и право в ИИ"] || 
+                             finalSkills["Этика ИИ"] || finalSkills["Применение в бизнесе"] || 25 
                     },
                     bottomRight: { 
                       name: "Критическое мышление в контексте ИИ", 
-                      value: skills["Критическое мышление в контексте ИИ"] || skills["Аналитическое мышление"] || 
-                             skills["Решение проблем"] || skills["Анализ данных"] || 65 
+                      value: finalSkills["Критическое мышление в контексте ИИ"] || finalSkills["Аналитическое мышление"] || 
+                             finalSkills["Решение проблем"] || finalSkills["Анализ данных"] || 65 
                     }
                   }}
                   height={350}
