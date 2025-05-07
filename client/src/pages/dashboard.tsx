@@ -12,6 +12,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { LearningTimeline } from "@/components/progress/learning-timeline";
 import { default as SkillProgress } from "@/components/progress/skill-progress";
 import { WelcomeModal } from "@/components/onboarding/welcome-modal";
+import { CompactSkillsDna } from "@/components/compact-skills-dna";
 
 export default function Dashboard() {
   const { userProfile, updateUserProfile } = useUserProfile();
