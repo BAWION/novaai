@@ -5,7 +5,7 @@ import { OrbitalLayout } from "@/components/orbital-layout";
 import { ProgressRing } from "@/components/ui/progress-ring";
 import { Glassmorphism } from "@/components/ui/glassmorphism";
 import { useUserProfile } from "@/context/user-profile-context";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/context/auth-context";
 import { apiRequest } from "@/lib/queryClient";
 import { Link, useLocation } from "wouter";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";

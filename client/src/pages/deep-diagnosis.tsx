@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from "wouter";
 import { useUserProfile } from "@/context/user-profile-context";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/use-auth";
 import { 
   UserRole, 
   AIExperience, 
@@ -137,7 +136,6 @@ interface CourseRecommendation {
 export default function DeepDiagnosisPage() {
   const { toast } = useToast();
   const { userProfile, updateUserProfile } = useUserProfile();
-  const { isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
   
   // Состояния
@@ -537,46 +535,37 @@ export default function DeepDiagnosisPage() {
     }
   };
   
-  // Функция для перехода к личному кабинету или регистрации после завершения диагностики
+  // Функция для перехода к регистрации после завершения диагностики
   const handleContinueToDashboard = () => {
-    console.log("Планируем перенаправление на /dashboard");
-    
-    // Проверяем, авторизован ли пользователь
-    if (isAuthenticated) {
-      console.log("Пользователь уже авторизован, перенаправление на dashboard");
-      // Если пользователь уже авторизован, перенаправляем на дашборд
-      setLocation("/dashboard");
-    } else {
-      // Если пользователь не авторизован, сохраняем данные диагностики и перенаправляем на регистрацию
-      try {
-        // Сохраняем данные диагностики для использования на странице регистрации
-        sessionStorage.setItem("onboardingData", JSON.stringify({
-          // Основная информация
-          role: formData.role,
-          experience: formData.experience,
-          pythonLevel: formData.pythonLevel,
-          interest: formData.interest,
-          goal: formData.goal,
-          // Дополнительные данные
-          learningPreferences: {
-            style: formData.preferredLearningStyle,
-            timeCommitment: formData.timeCommitment
-          },
-          // Сохраняем результаты анализа
-          skillProfile: userSkillProfile,
-          recommendations: recommendations
-        }));
-        
-        // Перенаправляем на страницу регистрации
-        setLocation("/register-after-onboarding");
-      } catch (error) {
-        console.error("Ошибка при сохранении данных диагностики:", error);
-        toast({
-          title: "Ошибка",
-          description: "Не удалось сохранить результаты диагностики. Попробуйте еще раз.",
-          variant: "destructive"
-        });
-      }
+    // Сохраняем результаты диагностики и рекомендации в sessionStorage
+    try {
+      // Сохраняем данные диагностики для использования на странице регистрации
+      sessionStorage.setItem("onboardingData", JSON.stringify({
+        // Основная информация
+        role: formData.role,
+        experience: formData.experience,
+        pythonLevel: formData.pythonLevel,
+        interest: formData.interest,
+        goal: formData.goal,
+        // Дополнительные данные
+        learningPreferences: {
+          style: formData.preferredLearningStyle,
+          timeCommitment: formData.timeCommitment
+        },
+        // Сохраняем результаты анализа
+        skillProfile: userSkillProfile,
+        recommendations: recommendations
+      }));
+      
+      // Перенаправляем на страницу регистрации
+      setLocation("/register-after-onboarding");
+    } catch (error) {
+      console.error("Ошибка при сохранении данных диагностики:", error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось сохранить результаты диагностики. Попробуйте еще раз.",
+        variant: "destructive"
+      });
     }
   };
   
@@ -1904,7 +1893,7 @@ export default function DeepDiagnosisPage() {
                       onClick={handleContinueToDashboard}
                       className="bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:opacity-90 text-white"
                     >
-                      {isAuthenticated ? "Перейти в личный кабинет" : "Перейти к регистрации"}
+                      Перейти к регистрации
                       <User className="h-4 w-4 ml-2" />
                     </Button>
                   )}

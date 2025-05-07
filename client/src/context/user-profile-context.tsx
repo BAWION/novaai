@@ -8,7 +8,7 @@ import {
   UserInterest,
   UserGoal
 } from "@/lib/constants";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/context/auth-context";
 
 interface UserProfileData {
   role: UserRole;
