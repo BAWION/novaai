@@ -14,6 +14,8 @@ export interface SkillsDnaData {
   error: Error | null;
   isEmpty: boolean;
   refetch: () => void;
+  isDemoMode: boolean;
+  userId: number | undefined;
 }
 
 /**
@@ -46,15 +48,22 @@ export default function useSkillsDna(userId?: number): SkillsDnaData {
     console.log("[useSkillsDna] AuthContext недоступен:", error.message);
   }
   
-  // Приоритет: переданный userId -> ID из контекста auth -> ID из профиля
-  const currentUserId = userId || authUser?.id || userProfile?.userId;
+  // Приоритет: переданный userId -> ID из контекста auth -> ID из профиля -> демо-пользователь (999)
+  let currentUserId = userId || authUser?.id || userProfile?.userId;
+  
+  // Если пользователь не определен, включаем демо-режим с userId = 999
+  const demoMode = !currentUserId;
+  if (demoMode) {
+    currentUserId = 999; // ID для демо-пользователя/администратора
+  }
   
   // Выводим отладочную информацию
   console.log("[useSkillsDna] Источники userId:", { 
     providedUserId: userId,
     authUserId: authUser?.id,
     profileUserId: userProfile?.userId,
-    resultUserId: currentUserId
+    resultUserId: currentUserId,
+    demoMode
   });
 
   // Запрос на получение прогресса пользователя по Skills DNA
@@ -115,6 +124,8 @@ export default function useSkillsDna(userId?: number): SkillsDnaData {
     isLoading: isProgressLoading || isSummaryLoading,
     error: progressError || summaryError,
     isEmpty,
-    refetch: refetchSkillsData
+    refetch: refetchSkillsData,
+    isDemoMode: demoMode,
+    userId: currentUserId
   };
 };

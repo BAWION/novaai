@@ -36,15 +36,19 @@ export function SkillsDnaProfile({
     isLoading, 
     error, 
     refetch,
-    isEmpty
+    isEmpty,
+    isDemoMode,
+    userId: resolvedUserId
   } = useSkillsDna(currentUserId);
   
   // Выводим отладочную информацию о полученных данных
   console.log("[SkillsDnaProfile] Получены данные:", { 
-    currentUserId, 
+    requestedUserId: currentUserId,
+    resolvedUserId, 
     skillsCount: Object.keys(skills).length,
     hasError: !!error,
-    isDataEmpty: isEmpty
+    isDataEmpty: isEmpty,
+    isDemoMode
   });
 
   if (!currentUserId) {
@@ -113,12 +117,22 @@ export function SkillsDnaProfile({
     <div className={className}>
       {showHeader && (
         <div className="mb-6">
-          <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#B28DFF] via-[#8BE0F7] to-[#B28DFF] flex items-center">
-            <Brain className="h-6 w-6 mr-2 text-current opacity-80" />
-            Skills DNA
-          </h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#B28DFF] via-[#8BE0F7] to-[#B28DFF] flex items-center">
+              <Brain className="h-6 w-6 mr-2 text-current opacity-80" />
+              Skills DNA
+            </h2>
+            {isDemoMode && (
+              <Badge variant="outline" className="bg-amber-500/10 border-amber-500/30 text-amber-300">
+                Демо-режим
+              </Badge>
+            )}
+          </div>
           <p className="text-white/70 mt-1">
-            Ваш персональный профиль навыков и компетенций в области искусственного интеллекта
+            {isDemoMode 
+              ? "Демонстрационный профиль навыков и компетенций в области искусственного интеллекта"
+              : "Ваш персональный профиль навыков и компетенций в области искусственного интеллекта"
+            }
           </p>
         </div>
       )}
