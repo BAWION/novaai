@@ -40,6 +40,7 @@ import TemplateDemoPage from "@/pages/template-demo-page";
 import LessonStructurePage from "@/pages/admin/lesson-structure-page";
 import PersonalDashboardPage from "@/pages/personal-dashboard";
 import SimulatorDemoPage from "@/pages/simulator-demo-page";
+import SkillsDnaPage from "@/pages/skills-dna";
 
 interface ProtectedRouteProps {
   component: React.ComponentType;
