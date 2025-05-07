@@ -13,6 +13,7 @@ import {
 import { diagnosisApi } from "@/api/diagnosis-api";
 import SkillsRadarChart from "@/components/skills-radar-chart";
 import SimpleRadarChart from "@/components/skills-radar-simple";
+import { SkillsDnaWidget } from "@/components/skills-dna";
 
 // Компоненты UI
 import {
@@ -1947,32 +1948,54 @@ export default function DeepDiagnosisPage() {
                   </Button>
                 </>
               ) : (
-                <div className="w-full flex justify-center">
+                <div className="w-full">
                   {step === totalSteps && analysisComplete && (
-                    <div className="flex flex-col md:flex-row gap-4 justify-center items-center">
-                      <Button 
-                        onClick={() => setLocation("/courses?filter=recommended")}
-                        className="bg-gradient-to-r from-green-500 to-emerald-600 hover:opacity-90 text-white"
-                      >
-                        Рекомендуемые курсы
-                        <Target className="h-4 w-4 ml-2" />
-                      </Button>
+                    <div className="flex flex-col gap-8 items-center">
+                      {/* Виджет Skills DNA */}
+                      <div className="w-full max-w-3xl mb-4">
+                        <div className="mb-6">
+                          <h3 className="text-xl font-bold text-white mb-2 text-center">Ваш профиль навыков Skills DNA</h3>
+                          <p className="text-white/70 text-center">
+                            На основе вашей диагностики мы создали персональный профиль навыков
+                          </p>
+                        </div>
+                        
+                        <div className="bg-space-900/50 rounded-lg p-6 border border-white/10">
+                          <SkillsDnaWidget 
+                            skills={userSkillProfile} 
+                            showHeader={false}
+                            showBoth={true}
+                            className="mb-4"
+                          />
+                        </div>
+                      </div>
                       
-                      <Button 
-                        onClick={handleViewSkillsDna}
-                        className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-90 text-white"
-                      >
-                        Посмотреть Skills DNA
-                        <FileText className="h-4 w-4 ml-2" />
-                      </Button>
-                      
-                      <Button 
-                        onClick={handleContinueToDashboard}
-                        className="bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:opacity-90 text-white"
-                      >
-                        Перейти к обучению
-                        <Rocket className="h-4 w-4 ml-2" />
-                      </Button>
+                      {/* Кнопки навигации */}
+                      <div className="flex flex-col md:flex-row gap-4 justify-center items-center">
+                        <Button 
+                          onClick={() => setLocation("/courses?filter=recommended")}
+                          className="bg-gradient-to-r from-green-500 to-emerald-600 hover:opacity-90 text-white"
+                        >
+                          Рекомендуемые курсы
+                          <Target className="h-4 w-4 ml-2" />
+                        </Button>
+                        
+                        <Button 
+                          onClick={handleViewSkillsDna}
+                          className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-90 text-white"
+                        >
+                          Подробный Skills DNA
+                          <FileText className="h-4 w-4 ml-2" />
+                        </Button>
+                        
+                        <Button 
+                          onClick={handleContinueToDashboard}
+                          className="bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:opacity-90 text-white"
+                        >
+                          Перейти к обучению
+                          <Rocket className="h-4 w-4 ml-2" />
+                        </Button>
+                      </div>
                     </div>
                   )}
                 </div>
