@@ -145,7 +145,7 @@ export function SkillsDnaProfile({
               <Button 
                 variant="default" 
                 className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600"
-                onClick={() => setLocation("/quick-diagnosis")}
+                onClick={() => setLocation("/deep-diagnosis")}
               >
                 Пройти диагностику
               </Button>
