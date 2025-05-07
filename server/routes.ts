@@ -35,12 +35,31 @@ import diagnosisRouter from "./routes/diagnosis-api";
 
 // Add any middleware needed
 const authMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
-  // Simple auth check - in a real app, this would verify JWT tokens or session cookies
-  const user = req.session.user;
-  console.log(`[Auth] Session user:`, JSON.stringify(user));
-  if (!user) {
-    return res.status(401).json({ message: "Unauthorized" });
+  // Проверяем наличие сессии и объекта пользователя
+  if (!req.session) {
+    console.error(`[Auth] Сессия отсутствует для запроса ${req.method} ${req.path}`);
+    return res.status(401).json({ message: "Unauthorized - No session" });
   }
+  
+  // Проверяем наличие объекта пользователя в сессии
+  const user = req.session.user;
+  const sessionId = req.sessionID;
+  
+  console.log(`[Auth] Сессия ${sessionId ? sessionId.substring(0, 8) + '...' : 'undefined'} для запроса ${req.method} ${req.path}`);
+  console.log(`[Auth] Пользователь в сессии:`, user ? JSON.stringify(user) : 'undefined');
+  
+  if (!user) {
+    console.log(`[Auth] Пользователь не найден в сессии для запроса ${req.method} ${req.path}`);
+    return res.status(401).json({ message: "Unauthorized - Not authenticated" });
+  }
+  
+  // Проверяем обязательные поля пользователя
+  if (!user.id || !user.username) {
+    console.error(`[Auth] Некорректные данные пользователя в сессии:`, JSON.stringify(user));
+    return res.status(401).json({ message: "Unauthorized - Invalid user data" });
+  }
+  
+  // Все проверки пройдены, продолжаем
   next();
 };
 
@@ -357,19 +376,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   app.post("/api/auth/logout", (req, res) => {
-    req.session.destroy((err) => {
-      if (err) {
-        return res.status(500).json({ message: "Logout failed" });
+    // Проверяем наличие сессии перед ее уничтожением
+    if (!req.session) {
+      console.log("Logout: сессия уже отсутствует");
+      return res.json({ message: "Logged out successfully" });
+    }
+    
+    // Сохраняем информацию о пользователе для логирования
+    const username = req.session.user ? req.session.user.username : 'unknown';
+    const sessionId = req.sessionID ? req.sessionID.substring(0, 8) + '...' : 'unknown';
+    console.log(`Logout: пользователь ${username}, сессия ${sessionId}`);
+    
+    // Явно очищаем объект пользователя в сессии перед ее уничтожением
+    req.session.user = undefined;
+    
+    // Сохраняем изменения в сессии
+    req.session.save((saveErr) => {
+      if (saveErr) {
+        console.error("Ошибка при сохранении сессии перед выходом:", saveErr);
       }
-      res.json({ message: "Logged out successfully" });
+      
+      // Уничтожаем сессию полностью
+      req.session.destroy((err) => {
+        if (err) {
+          console.error("Ошибка при уничтожении сессии:", err);
+          return res.status(500).json({ message: "Logout failed" });
+        }
+        
+        // Явно очищаем cookie сессии
+        res.clearCookie("nova_session", { 
+          path: '/',
+          domain: process.env.NODE_ENV === 'production' ? '.replit.app' : undefined
+        });
+        
+        console.log(`Logout: успешный выход пользователя ${username}`);
+        return res.json({ message: "Logged out successfully" });
+      });
     });
   });
   
   app.get("/api/auth/me", (req, res) => {
+    // Проверяем наличие сессии
+    if (!req.session) {
+      console.log("GET /api/auth/me: Отсутствует объект сессии");
+      return res.status(401).json({ message: "Session not found" });
+    }
+    
+    // Проверяем наличие пользователя в сессии
     if (!req.session.user) {
-      console.log("GET /api/auth/me: Пользователь не аутентифицирован");
+      console.log("GET /api/auth/me: Пользователь не аутентифицирован, sessionID:", req.sessionID);
       return res.status(401).json({ message: "Not authenticated" });
     }
+    
+    // Проверяем целостность данных пользователя
+    const user = req.session.user;
+    if (!user.id || !user.username) {
+      console.error("GET /api/auth/me: Поврежденные данные пользователя:", JSON.stringify(user));
+      
+      // Очищаем неправильные данные
+      req.session.user = undefined;
+      
+      // Пробуем сохранить сессию
+      req.session.save((err) => {
+        if (err) console.error("Ошибка при сохранении сессии:", err);
+      });
+      
+      return res.status(401).json({ message: "Invalid user data" });
+    }
+    
     console.log("GET /api/auth/me: Пользователь аутентифицирован:", req.session.user);
     res.json(req.session.user);
   });
