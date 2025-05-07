@@ -16,6 +16,7 @@ interface SkillsDnaProfileProps {
   userId?: number;
   showHeader?: boolean;
   className?: string;
+  isDeepdDiagnosis?: boolean;
 }
 
 /**
@@ -25,7 +26,8 @@ interface SkillsDnaProfileProps {
 export function SkillsDnaProfile({ 
   userId, 
   showHeader = true,
-  className = "" 
+  className = "",
+  isDeepdDiagnosis = false
 }: SkillsDnaProfileProps) {
   const { userProfile } = useUserProfile();
   const currentUserId = userId || userProfile?.userId;
@@ -406,15 +408,40 @@ export function SkillsDnaProfile({
                   <Button 
                     variant="default" 
                     size="sm" 
-                    onClick={() => setLocation("/quick-diagnosis")}
+                    onClick={() => setLocation("/deep-diagnosis")}
                   >
-                    Пройти диагностику
+                    Пройти глубокую диагностику
                   </Button>
                 </div>
               )}
             </CardContent>
           </Card>
         </div>
+        {/* Кнопка для рекомендуемых курсов (только после глубокой диагностики) */}
+        {isDeepdDiagnosis && !isEmpty && !isLoading && !error && (
+          <div className="col-span-1 lg:col-span-3 mt-4">
+            <Card className="bg-gradient-to-r from-emerald-900/30 to-green-900/30 border-emerald-500/20">
+              <CardContent className="flex flex-col items-center justify-center py-5">
+                <div className="flex items-center mb-3">
+                  <Target className="h-5 w-5 text-emerald-400 mr-2" />
+                  <h3 className="text-lg font-medium text-white">Персональные рекомендации</h3>
+                </div>
+                <p className="text-white/70 mb-4 text-center max-w-lg">
+                  На основе вашего Skills DNA профиля мы подготовили персонализированные рекомендации курсов, 
+                  которые помогут вам развить необходимые навыки.
+                </p>
+                <Button 
+                  variant="default" 
+                  className="bg-gradient-to-r from-green-500 to-emerald-600 hover:opacity-90 text-white"
+                  onClick={() => setLocation("/courses?filter=recommended")}
+                >
+                  Посмотреть рекомендуемые курсы
+                  <Target className="h-4 w-4 ml-2" />
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
     </div>
   );
