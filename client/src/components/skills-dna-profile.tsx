@@ -29,6 +29,7 @@ export function SkillsDnaProfile({
   const currentUserId = userId || userProfile?.userId;
   const [_, setLocation] = useLocation();
 
+  // Получаем данные Skills DNA для пользователя с улучшенной обработкой ошибок
   const { 
     skills, 
     summary, 
@@ -37,6 +38,14 @@ export function SkillsDnaProfile({
     refetch,
     isEmpty
   } = useSkillsDna(currentUserId);
+  
+  // Выводим отладочную информацию о полученных данных
+  console.log("[SkillsDnaProfile] Получены данные:", { 
+    currentUserId, 
+    skillsCount: Object.keys(skills).length,
+    hasError: !!error,
+    isDataEmpty: isEmpty
+  });
 
   if (!currentUserId) {
     return (

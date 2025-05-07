@@ -35,11 +35,20 @@ class DiagnosisService {
     try {
       const { userId, skills, diagnosticType } = diagnosisResult;
       
+      console.log(`[DiagnosisService] Начинаем сохранение результатов диагностики для пользователя ${userId}:`, {
+        skillsCount: Object.keys(skills).length,
+        diagnosticType
+      });
+      
       // 1. Проверяем, существует ли пользователь
       const userExists = await this.userExists(userId);
       if (!userExists) {
+        console.error(`[DiagnosisService] Пользователь с ID ${userId} не найден в базе данных`);
         throw new Error(`Пользователь с ID ${userId} не найден`);
       }
+      
+      console.log(`[DiagnosisService] Пользователь ${userId} найден в базе данных`);
+      
 
       // 2. Получаем все компетенции (Skills DNA)
       const allSkillsDna = await db.select().from(skillsDna);
@@ -238,12 +247,20 @@ class DiagnosisService {
    */
   async getUserDnaProgress(userId: number): Promise<any[]> {
     try {
+      console.log(`[DiagnosisService] Запрос прогресса Skills DNA для пользователя ${userId}`);
+      
       // Получаем все записи прогресса пользователя
       const progressEntries = await db.select()
         .from(userSkillsDnaProgress)
         .where(eq(userSkillsDnaProgress.userId, userId));
       
+      console.log(`[DiagnosisService] Получены записи прогресса:`, {
+        userId,
+        entriesCount: progressEntries.length,
+      });
+      
       if (!progressEntries.length) {
+        console.log(`[DiagnosisService] Для пользователя ${userId} не найдены записи прогресса Skills DNA`);
         return [];
       }
 
@@ -280,7 +297,15 @@ class DiagnosisService {
     maxLevel: string;
   }>> {
     try {
+      console.log(`[DiagnosisService] Запрос сводки Skills DNA для пользователя ${userId}`);
+      
       const progressWithDetails = await this.getUserDnaProgress(userId);
+      
+      console.log(`[DiagnosisService] Получены детали прогресса для сводки:`, {
+        userId,
+        entriesCount: progressWithDetails.length,
+        items: progressWithDetails.map(p => `${p.name}: ${p.progress}%`).join(', ')
+      });
       
       // Группировка по категориям
       const categorySummary: Record<string, { 
