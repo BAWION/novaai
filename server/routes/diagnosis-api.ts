@@ -118,27 +118,59 @@ router.post("/results", async (req: Request, res: Response) => {
  * GET /api/diagnosis/progress/:userId
  * Получение прогресса пользователя по компетенциям
  */
-router.get("/progress/:userId", authMiddleware, async (req: Request, res: Response) => {
+router.get("/progress/:userId", async (req: Request, res: Response) => {
   try {
+    console.log(`[API] GET /api/diagnosis/progress/:userId - Начало обработки запроса`);
+    
+    // Проверка аутентификации
+    const user = req.session.user;
+    if (!user) {
+      console.error("[API] GET /api/diagnosis/progress/:userId - Отказ: пользователь не авторизован", {
+        sessionId: req.session.id,
+        hasSession: !!req.session,
+      });
+      
+      return res.status(401).json({ 
+        message: "Необходима авторизация для просмотра прогресса",
+        details: "Пожалуйста, войдите в систему и повторите попытку."
+      });
+    }
+    
+    // Преобразуем параметр в число
     const userId = parseInt(req.params.userId);
     
+    console.log(`[API] GET /api/diagnosis/progress/:userId - Запрошен прогресс для пользователя ${userId}`, {
+      requestingUser: user.id,
+    });
+    
     if (isNaN(userId)) {
+      console.error(`[API] GET /api/diagnosis/progress/:userId - Некорректный ID пользователя: ${req.params.userId}`);
       return res.status(400).json({ message: "Некорректный ID пользователя" });
     }
     
     // Проверяем доступ - пользователь может видеть только свой прогресс
-    if (req.session.user && req.session.user.id !== userId) {
+    if (user.id !== userId) {
+      console.error(`[API] GET /api/diagnosis/progress/:userId - Отказ в доступе: попытка просмотра чужого прогресса`, {
+        requestingUser: user.id,
+        requestedUserId: userId
+      });
+      
       return res.status(403).json({ message: "Недостаточно прав для просмотра прогресса другого пользователя" });
     }
     
+    console.log(`[API] GET /api/diagnosis/progress/:userId - Передача запроса в сервис`);
     const progress = await diagnosisService.getUserDnaProgress(userId);
     
+    console.log(`[API] GET /api/diagnosis/progress/:userId - Получены данные прогресса, найдено ${progress.length} записей`);
     res.json({
       data: progress
     });
   } catch (error) {
-    console.error("Ошибка при получении прогресса пользователя:", error);
-    res.status(500).json({ message: "Ошибка сервера при получении прогресса пользователя" });
+    console.error(`[API] GET /api/diagnosis/progress/:userId - Ошибка при обработке:`, error);
+    res.status(500).json({ 
+      message: "Ошибка сервера при получении прогресса пользователя",
+      error: error instanceof Error ? error.message : "Неизвестная ошибка"
+    });
   }
 });
 
@@ -146,27 +178,63 @@ router.get("/progress/:userId", authMiddleware, async (req: Request, res: Respon
  * GET /api/diagnosis/summary/:userId
  * Получение сводной информации о прогрессе пользователя
  */
-router.get("/summary/:userId", authMiddleware, async (req: Request, res: Response) => {
+router.get("/summary/:userId", async (req: Request, res: Response) => {
   try {
+    console.log(`[API] GET /api/diagnosis/summary/:userId - Начало обработки запроса`);
+    
+    // Проверка аутентификации
+    const user = req.session.user;
+    if (!user) {
+      console.error("[API] GET /api/diagnosis/summary/:userId - Отказ: пользователь не авторизован", {
+        sessionId: req.session.id,
+        hasSession: !!req.session,
+      });
+      
+      return res.status(401).json({ 
+        message: "Необходима авторизация для просмотра сводки",
+        details: "Пожалуйста, войдите в систему и повторите попытку."
+      });
+    }
+    
+    // Преобразуем параметр в число
     const userId = parseInt(req.params.userId);
     
+    console.log(`[API] GET /api/diagnosis/summary/:userId - Запрошена сводка для пользователя ${userId}`, {
+      requestingUser: user.id,
+    });
+    
     if (isNaN(userId)) {
+      console.error(`[API] GET /api/diagnosis/summary/:userId - Некорректный ID пользователя: ${req.params.userId}`);
       return res.status(400).json({ message: "Некорректный ID пользователя" });
     }
     
     // Проверяем доступ - пользователь может видеть только свою сводку
-    if (req.session.user && req.session.user.id !== userId) {
+    if (user.id !== userId) {
+      console.error(`[API] GET /api/diagnosis/summary/:userId - Отказ в доступе: попытка просмотра чужой сводки`, {
+        requestingUser: user.id,
+        requestedUserId: userId
+      });
+      
       return res.status(403).json({ message: "Недостаточно прав для просмотра сводки другого пользователя" });
     }
     
+    console.log(`[API] GET /api/diagnosis/summary/:userId - Передача запроса в сервис`);
     const summary = await diagnosisService.getUserDnaSummary(userId);
+    
+    console.log(`[API] GET /api/diagnosis/summary/:userId - Получены данные сводки:`, {
+      categoryCount: Object.keys(summary).length,
+      categories: Object.keys(summary).join(', ')
+    });
     
     res.json({
       data: summary
     });
   } catch (error) {
-    console.error("Ошибка при получении сводки прогресса пользователя:", error);
-    res.status(500).json({ message: "Ошибка сервера при получении сводки прогресса пользователя" });
+    console.error(`[API] GET /api/diagnosis/summary/:userId - Ошибка при обработке:`, error);
+    res.status(500).json({ 
+      message: "Ошибка сервера при получении сводки прогресса пользователя",
+      error: error instanceof Error ? error.message : "Неизвестная ошибка"
+    });
   }
 });
 

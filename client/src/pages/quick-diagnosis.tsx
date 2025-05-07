@@ -240,39 +240,87 @@ export default function QuickDiagnosis() {
           
           console.log("[SkillsDNA] Определен ID пользователя:", userId);
           
-          // Только если пользователь авторизован
-          if (userId) {
-            // Импортируем тип DiagnosticType явно
-            const diagnosticType: import("@/api/diagnosis-api").DiagnosticType = 'quick';
+          // Сохраняем данные диагностики в sessionStorage для возможного восстановления после авторизации
+          const diagnosticData = {
+            formData,
+            skillProfile,
+            profileUpdate,
+            timestamp: new Date().toISOString()
+          };
+          
+          sessionStorage.setItem("diagnosticResults", JSON.stringify(diagnosticData));
+          console.log("[SkillsDNA] Временно сохранены результаты диагностики в sessionStorage");
+          
+          // Проверяем авторизацию
+          if (!userId) {
+            console.warn("[SkillsDNA] Пользователь не авторизован, предлагаем войти в систему");
             
-            // Выводим информацию о навыках для отладки
-            console.log("[SkillsDNA] Сформированный профиль навыков:", { 
-              skillCount: Object.keys(skillProfile).length,
-              skills: Object.entries(skillProfile).map(([k, v]) => `${k}: ${v}`).join(', ')
+            toast({
+              title: "Требуется авторизация",
+              description: "Пожалуйста, войдите в систему, чтобы сохранить результаты диагностики и получить персонализированные рекомендации.",
+              duration: 6000,
             });
             
-            // Подготавливаем данные для отправки
-            const diagnosisResult: import("@/api/diagnosis-api").DiagnosisResult = {
-              userId,
-              skills: skillProfile,
-              diagnosticType, // Теперь используем переменную с явным типом
-              metadata: {
-                specialization: formData.specialization,
-                experience: formData.experience,
-                goal: formData.goal,
-                languages: formData.languages,
-                formData,
-                profileUpdate
-              }
-            };
+            // Добавляем задержку перед перенаправлением, чтобы пользователь успел прочитать сообщение
+            setTimeout(() => {
+              // Сохраняем текущий URL для возврата после авторизации
+              sessionStorage.setItem("redirectAfterAuth", "/quick-diagnosis");
+              
+              // Перенаправляем на страницу авторизации
+              setLocation("/auth");
+            }, 2000);
             
-            console.log("[SkillsDNA] Отправляем результаты диагностики для пользователя:", userId);
-            
+            return;
+          }
+          
+          // Только если пользователь авторизован
+          // Импортируем тип DiagnosticType явно
+          const diagnosticType: import("@/api/diagnosis-api").DiagnosticType = 'quick';
+          
+          // Выводим информацию о навыках для отладки
+          console.log("[SkillsDNA] Сформированный профиль навыков:", { 
+            skillCount: Object.keys(skillProfile).length,
+            skills: Object.entries(skillProfile).map(([k, v]) => `${k}: ${v}`).join(', ')
+          });
+          
+          // Подготавливаем данные для отправки
+          const diagnosisResult: import("@/api/diagnosis-api").DiagnosisResult = {
+            userId,
+            skills: skillProfile,
+            diagnosticType, // Теперь используем переменную с явным типом
+            metadata: {
+              specialization: formData.specialization,
+              experience: formData.experience,
+              goal: formData.goal,
+              languages: formData.languages,
+              formData,
+              profileUpdate
+            }
+          };
+          
+          console.log("[SkillsDNA] Отправляем результаты диагностики для пользователя:", userId);
+          
+          try {
             // Отправляем результаты в систему Skills DNA
             const result = await diagnosisApi.saveResults(diagnosisResult);
             console.log("[SkillsDNA] Результаты диагностики успешно сохранены:", result);
-          } else {
-            console.warn("[SkillsDNA] Пользователь не авторизован, результаты не будут сохранены");
+            
+            // Очищаем временные данные после успешного сохранения
+            sessionStorage.removeItem("diagnosticResults");
+            
+            toast({
+              title: "Данные сохранены",
+              description: "Результаты диагностики успешно сохранены в вашем профиле Skills DNA",
+              variant: "default",
+            });
+          } catch (error) {
+            console.error("[SkillsDNA] Ошибка при сохранении результатов:", error);
+            
+            toast({
+              title: "Ошибка сохранения",
+              description: error instanceof Error ? error.message : "Не удалось сохранить результаты диагностики. Пожалуйста, попробуйте снова.",
+              variant: "destructive",
+            });
           }
         } catch (error) {
           console.error("Ошибка при сохранении результатов в Skills DNA:", error);
