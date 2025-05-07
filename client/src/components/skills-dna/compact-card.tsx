@@ -33,8 +33,30 @@ export function CompactSkillsDnaCard({
     isLoading,
     error,
     isEmpty,
-    isDemoMode
+    isDemoMode,
+    userId: resolvedUserId
   } = useSkillsDna(userId);
+  
+  // Проверяем наличие данных в sessionStorage
+  const [hasSavedData, setHasSavedData] = useState(false);
+  
+  useEffect(() => {
+    try {
+      const savedData = sessionStorage.getItem('skillsDnaResults');
+      if (savedData) {
+        const parsedData = JSON.parse(savedData);
+        setHasSavedData(Object.keys(parsedData.skills || {}).length > 0);
+        console.log("[CompactSkillsDnaCard] Найдены сохраненные данные:", {
+          skillsCount: Object.keys(parsedData.skills || {}).length,
+          recommendationsCount: parsedData.recommendations?.length || 0,
+          isEmpty,
+          isLoading
+        });
+      }
+    } catch (error) {
+      console.error("[CompactSkillsDnaCard] Ошибка при чтении данных из sessionStorage:", error);
+    }
+  }, [isEmpty, isLoading]);
   
   // Обработчик для открытия модального окна
   const handleViewFullProfile = (e: React.MouseEvent) => {
@@ -75,7 +97,71 @@ export function CompactSkillsDnaCard({
   }
   
   // Если нет данных или есть ошибка
-  if (error || isEmpty) {
+  if (error || (isEmpty && !hasSavedData)) {
+    // Проверяем наличие сохраненных данных в sessionStorage
+    // Пытаемся найти и применить их, если API не вернул данных
+    try {
+      const savedData = sessionStorage.getItem('skillsDnaResults');
+      if (savedData && isEmpty) {
+        const parsedData = JSON.parse(savedData);
+        // Если есть сохраненные данные с навыками, используем их
+        if (parsedData.skills && Object.keys(parsedData.skills).length > 0) {
+          console.log("[CompactSkillsDnaCard] Применяем сохраненные данные:", {
+            skillsCount: Object.keys(parsedData.skills).length,
+            source: "sessionStorage"
+          });
+
+          // Данные найдены, обновляем пользовательский интерфейс
+          // Продолжим выполнение, не возвращая раннее состояние
+          // Код ниже проанализирует эти данные и выведет нужный UI
+          // Логика обработки навыков поддерживает как API данные, так и сохраненные
+          return (
+            <Card className={`bg-space-800/70 border-blue-500/20 ${className}`}>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-white flex items-center justify-between">
+                  <div className="flex items-center">
+                    <Brain className="h-5 w-5 mr-2" />
+                    Skills DNA
+                  </div>
+                  <Badge 
+                    variant="outline" 
+                    className="bg-amber-500/20 border-amber-500/30 text-amber-300 text-xs"
+                  >
+                    Локальные данные
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-col items-center justify-center text-center">
+                  <div className="bg-space-800/70 rounded-full p-4 mb-4 relative">
+                    <Brain className="h-12 w-12 text-purple-400/70" />
+                  </div>
+                  
+                  <h3 className="text-white font-medium mb-2">
+                    Найдены данные диагностики
+                  </h3>
+                  <p className="text-white/70 text-sm mb-5">
+                    Обнаружены результаты предыдущей диагностики, загружаем профиль...
+                  </p>
+                  
+                  <Button 
+                    variant="default" 
+                    className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600"
+                    onClick={handleViewFullProfile}
+                  >
+                    Показать профиль
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        }
+      }
+    } catch (error) {
+      console.error("[CompactSkillsDnaCard] Ошибка при чтении данных из sessionStorage:", error);
+    }
+    
+    // Если нет сохраненных данных или произошла ошибка при их чтении, показываем стандартный UI
     return (
       <Card className={`bg-space-800/70 border-blue-500/20 ${className}`}>
         <CardHeader className="pb-2">

@@ -108,7 +108,37 @@ export default function useSkillsDna(userId?: number): SkillsDnaData {
     refetch: refetchProgress
   } = useQuery({
     queryKey: ['skillsDna', 'progress', currentUserId],
-    queryFn: () => diagnosisApi.getUserProgress(currentUserId as number),
+    queryFn: async () => {
+      // Сначала пробуем получить данные через API
+      try {
+        const apiData = await diagnosisApi.getUserProgress(currentUserId as number);
+        return apiData;
+      } catch (error) {
+        console.log("[useSkillsDna] Ошибка API для прогресса, проверяем sessionStorage", error);
+        
+        // Если API не вернул данные, проверяем sessionStorage
+        const savedData = sessionStorage.getItem('skillsDnaResults');
+        if (savedData) {
+          try {
+            const parsed = JSON.parse(savedData);
+            if (parsed && parsed.skills) {
+              // Создаем минимальную историю прогресса на основе сохраненных данных
+              return [{
+                date: parsed.timestamp || new Date().toISOString(),
+                skills: parsed.skills,
+                overallLevel: Object.values(parsed.skills).reduce((sum: number, val: any) => sum + Number(val), 0) 
+                  / Object.keys(parsed.skills).length
+              }];
+            }
+          } catch (parseError) {
+            console.error("[useSkillsDna] Ошибка при разборе данных из sessionStorage:", parseError);
+          }
+        }
+        
+        // Если не нашли данные в sessionStorage, пробрасываем исходную ошибку
+        throw error;
+      }
+    },
     enabled: !!currentUserId,
     staleTime: 1000 * 60 * 5, // 5 минут
     retry: 1 // Уменьшаем количество повторных попыток при ошибке
@@ -122,7 +152,44 @@ export default function useSkillsDna(userId?: number): SkillsDnaData {
     refetch: refetchSummary
   } = useQuery({
     queryKey: ['skillsDna', 'summary', currentUserId],
-    queryFn: () => diagnosisApi.getUserSummary(currentUserId as number),
+    queryFn: async () => {
+      // Сначала пробуем получить данные через API
+      try {
+        const apiData = await diagnosisApi.getUserSummary(currentUserId as number);
+        return apiData;
+      } catch (error) {
+        console.log("[useSkillsDna] Ошибка API для сводки, проверяем sessionStorage", error);
+        
+        // Если API не вернул данные, проверяем sessionStorage
+        const savedData = sessionStorage.getItem('skillsDnaResults');
+        if (savedData) {
+          try {
+            const parsed = JSON.parse(savedData);
+            if (parsed) {
+              // Создаем минимальную сводку на основе сохраненных данных
+              const skills = parsed.skills || {};
+              const skillValues = Object.values(skills).map(v => Number(v));
+              const overallLevel = skillValues.length > 0 
+                ? skillValues.reduce((sum: number, val: any) => sum + Number(val), 0) / skillValues.length 
+                : 0;
+              
+              return {
+                overallLevel,
+                description: parsed.diagnosticType === 'deep' 
+                  ? "Результаты глубокой диагностики: создан детальный профиль навыков на основе ваших ответов."
+                  : "Результаты диагностики: создан профиль навыков на основе ваших ответов.",
+                recommendedCourses: parsed.recommendations || []
+              };
+            }
+          } catch (parseError) {
+            console.error("[useSkillsDna] Ошибка при разборе данных из sessionStorage:", parseError);
+          }
+        }
+        
+        // Если не нашли данные в sessionStorage, пробрасываем исходную ошибку
+        throw error;
+      }
+    },
     enabled: !!currentUserId,
     staleTime: 1000 * 60 * 5, // 5 минут
     retry: 1 // Уменьшаем количество повторных попыток при ошибке
