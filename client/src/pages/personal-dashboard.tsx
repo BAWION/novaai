@@ -375,7 +375,7 @@ export default function PersonalDashboardPage() {
 
   return (
     <DashboardLayout
-      title="Личный кабинет"
+      title="Мостик пилота"
       subtitle="Управление обучением, прогресс и персональная траектория"
     >
       <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full">
