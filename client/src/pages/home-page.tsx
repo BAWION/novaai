@@ -4,7 +4,7 @@ import { Glassmorphism } from "@/components/ui/glassmorphism";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { ParticlesBackground } from "@/components/particles-background";
-import { AppIntegrationTest } from "@/components/app-integration-test";
+// Removed AppIntegrationTest import
 import { screenshots } from "../screenshots";
 
 export default function HomePage() {
@@ -222,24 +222,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* App Integration Test */}
-        <section className="py-12 px-6">
-          <div className="container mx-auto">
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7 }}
-            >
-              <div className="text-center mb-12">
-                <h2 className="text-2xl md:text-3xl font-bold mb-2">Статус интеграции NovaAI</h2>
-                <p className="text-white/70 max-w-lg mx-auto">
-                  Единая точка входа для данных приложения
-                </p>
-              </div>
-              <AppIntegrationTest />
-            </motion.div>
-          </div>
-        </section>
+        {/* Раздел с тестом интеграции удален */}
         
         {/* Platform Demo */}
         <section className="py-12 px-6 bg-black/30">
