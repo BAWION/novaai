@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import SkillsRadarChart from "@/components/skills-radar-chart";
-import { SkillsTriangleChart } from "@/components/skills-dna";
+import { SkillsTriangleChart, RecommendedCourses, RecommendedCourse } from "@/components/skills-dna";
 import useSkillsDna from "@/hooks/use-skills-dna";
 import { useUserProfile } from "@/context/user-profile-context";
 import { Button } from "@/components/ui/button";
@@ -417,29 +417,51 @@ export function SkillsDnaProfile({
             </CardContent>
           </Card>
         </div>
-        {/* Кнопка для рекомендуемых курсов (только после глубокой диагностики) */}
+        {/* Блок с рекомендуемыми курсами (только после глубокой диагностики) */}
         {isDeepdDiagnosis && !isEmpty && !isLoading && !error && (
           <div className="col-span-1 lg:col-span-3 mt-4">
-            <Card className="bg-gradient-to-r from-emerald-900/30 to-green-900/30 border-emerald-500/20">
-              <CardContent className="flex flex-col items-center justify-center py-5">
-                <div className="flex items-center mb-3">
-                  <Target className="h-5 w-5 text-emerald-400 mr-2" />
-                  <h3 className="text-lg font-medium text-white">Персональные рекомендации</h3>
-                </div>
-                <p className="text-white/70 mb-4 text-center max-w-lg">
-                  На основе вашего Skills DNA профиля мы подготовили персонализированные рекомендации курсов, 
-                  которые помогут вам развить необходимые навыки.
-                </p>
-                <Button 
-                  variant="default" 
-                  className="bg-gradient-to-r from-green-500 to-emerald-600 hover:opacity-90 text-white"
-                  onClick={() => setLocation("/courses?filter=recommended")}
-                >
-                  Посмотреть рекомендуемые курсы
-                  <Target className="h-4 w-4 ml-2" />
-                </Button>
-              </CardContent>
-            </Card>
+            {summary?.recommendedCourses && summary.recommendedCourses.length > 0 ? (
+              <Card className="bg-gradient-to-r from-emerald-900/20 to-green-900/20 border-emerald-500/20">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg font-medium text-white flex items-center">
+                    <Target className="h-5 w-5 text-emerald-400 mr-2" />
+                    Персональные рекомендации курсов
+                  </CardTitle>
+                  <CardDescription className="text-white/70">
+                    На основе вашего Skills DNA профиля мы подготовили персонализированные рекомендации курсов,
+                    которые помогут вам развить необходимые навыки
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <RecommendedCourses 
+                    courses={summary.recommendedCourses} 
+                    compact={true}
+                    limit={3}
+                  />
+                </CardContent>
+              </Card>
+            ) : (
+              <Card className="bg-gradient-to-r from-emerald-900/30 to-green-900/30 border-emerald-500/20">
+                <CardContent className="flex flex-col items-center justify-center py-5">
+                  <div className="flex items-center mb-3">
+                    <Target className="h-5 w-5 text-emerald-400 mr-2" />
+                    <h3 className="text-lg font-medium text-white">Персональные рекомендации</h3>
+                  </div>
+                  <p className="text-white/70 mb-4 text-center max-w-lg">
+                    На основе вашего Skills DNA профиля мы подготовили персонализированные рекомендации курсов, 
+                    которые помогут вам развить необходимые навыки.
+                  </p>
+                  <Button 
+                    variant="default" 
+                    className="bg-gradient-to-r from-green-500 to-emerald-600 hover:opacity-90 text-white"
+                    onClick={() => setLocation("/courses?filter=recommended")}
+                  >
+                    Посмотреть рекомендуемые курсы
+                    <Target className="h-4 w-4 ml-2" />
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
           </div>
         )}
       </div>
