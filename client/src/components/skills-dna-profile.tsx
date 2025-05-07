@@ -501,6 +501,8 @@ export function SkillsDnaProfile({
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
+                  {/* Добавляем логи для отладки */}
+                  {console.log("[SkillsDnaProfile] Передаваемые курсы в RecommendedCourses:", summary.recommendedCourses)}
                   <RecommendedCourses 
                     courses={summary.recommendedCourses} 
                     compact={true}
