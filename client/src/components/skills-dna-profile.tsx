@@ -123,77 +123,48 @@ export function SkillsDnaProfile({
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Пустая радарная диаграмма с разметкой */}
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center justify-center z-10">
-                  <div className="rounded-full bg-space-900/80 p-5 backdrop-blur-sm border border-purple-500/30">
-                    <Badge 
-                      variant="outline" 
-                      className="bg-purple-500/20 border-purple-500/30 text-purple-300 text-sm animate-pulse"
-                    >
-                      Требуется диагностика
-                    </Badge>
-                  </div>
-                </div>
-                <div className="opacity-20">
-                  <SkillsTriangleChart 
-                    skills={{
-                      top: { name: "Понимание основ ИИ", value: 0 },
-                      bottomLeft: { name: "Этические аспекты использования ИИ", value: 0 },
-                      bottomRight: { name: "Критическое мышление в контексте ИИ", value: 0 }
-                    }}
-                    height={300}
-                    width={300}
-                    className="mx-auto"
-                  />
-                </div>
+            <div className="flex flex-col items-center justify-center text-center py-6">
+              <div className="bg-space-800/70 rounded-full p-5 mb-4 relative">
+                <Brain className="h-16 w-16 text-purple-400/50" />
+                <Badge 
+                  variant="outline" 
+                  className="absolute top-0 right-0 bg-amber-500/20 border-amber-500/30 text-amber-300 animate-pulse"
+                >
+                  Требуется диагностика
+                </Badge>
               </div>
               
-              {/* Информационный блок */}
-              <div className="flex flex-col justify-center">
-                <div className="mb-6">
-                  <h3 className="text-xl font-medium mb-3 text-white">
-                    {error ? "Не удалось загрузить данные" : "Данные Skills DNA отсутствуют"}
-                  </h3>
-                  <p className="text-white/80 mb-6">
-                    {error 
-                      ? "Произошла ошибка при загрузке вашего профиля Skills DNA. Пожалуйста, пройдите диагностику, чтобы мы могли создать для вас персональную карту навыков." 
-                      : "У вас пока нет профиля Skills DNA. Пройдите диагностику, чтобы мы могли проанализировать ваши знания и навыки в области ИИ и составить для вас персональную карту компетенций."}
-                  </p>
-                </div>
-                
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <Button 
-                    variant="default" 
-                    className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600"
-                    onClick={() => setLocation("/quick-diagnosis")}
-                  >
-                    Быстрая диагностика
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    className="border-purple-500/30 text-purple-300 hover:bg-purple-500/10"
-                    onClick={() => setLocation("/deep-diagnosis")}
-                  >
-                    Глубокая диагностика
-                  </Button>
-                </div>
-              </div>
+              <h3 className="text-xl font-medium mb-3 text-white">
+                Для доступа к Skills DNA необходимо пройти диагностику
+              </h3>
+              <p className="text-white/70 max-w-md mb-6">
+                Пройдите единую диагностику из 15 вопросов, чтобы мы могли проанализировать ваш уровень знаний 
+                и навыков в области ИИ, а также предоставить вам персонализированные рекомендации по обучению.
+              </p>
+              
+              <Button 
+                variant="default" 
+                className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600"
+                onClick={() => setLocation("/quick-diagnosis")}
+              >
+                Пройти диагностику
+              </Button>
             </div>
             
             {/* Дополнительная информация о диагностике */}
             <div className="bg-space-900/30 rounded-md p-4 border border-space-800 text-sm">
               <h4 className="text-white font-medium mb-2 flex items-center">
                 <Book className="h-4 w-4 mr-1 text-blue-400" />
-                Что дает Skills DNA?
+                Что такое диагностика Skills DNA?
               </h4>
-              <ul className="list-disc list-inside space-y-1 text-white/70">
-                <li>Персонализированные рекомендации по обучению</li>
-                <li>Анализ сильных и слабых сторон в области ИИ</li>
-                <li>Сравнение ваших навыков с требованиями работодателей</li>
-                <li>Отслеживание прогресса обучения в реальном времени</li>
-              </ul>
+              <p className="text-white/70 text-sm mb-3">
+                Диагностика Skills DNA — это единый тест из 15 вопросов, который помогает определить ваш текущий уровень 
+                знаний и навыков в области искусственного интеллекта. На основе результатов диагностики формируется ваш 
+                персональный профиль компетенций и предлагаются индивидуальные рекомендации по обучению.
+              </p>
+              <p className="text-white/70 text-sm">
+                После прохождения диагностики вы получите доступ ко всем расширенным возможностям Skills DNA.
+              </p>
             </div>
           </CardContent>
         </Card>

@@ -155,14 +155,22 @@ export function DetailedSkillsDnaProfile({
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="flex flex-col items-center justify-center text-center py-12">
-              <AlertTriangle className="h-12 w-12 text-red-400 mb-4" />
+              <div className="bg-space-800/70 rounded-full p-5 mb-4">
+                <Brain className="h-16 w-16 text-purple-400/50" />
+                <Badge 
+                  variant="outline" 
+                  className="absolute top-0 right-0 bg-amber-500/20 border-amber-500/30 text-amber-300 animate-pulse"
+                >
+                  Требуется диагностика
+                </Badge>
+              </div>
+              
               <h3 className="text-xl font-medium mb-3 text-white">
-                {error ? "Не удалось загрузить данные" : "Данные Skills DNA отсутствуют"}
+                Для доступа к Skills DNA необходимо пройти диагностику
               </h3>
               <p className="text-white/70 max-w-md mb-6">
-                {error 
-                  ? "Произошла ошибка при загрузке вашего профиля Skills DNA. Пожалуйста, пройдите диагностику, чтобы мы могли создать для вас персональную карту навыков." 
-                  : "У вас пока нет профиля Skills DNA. Пройдите диагностику, чтобы мы могли проанализировать ваши знания и навыки в области ИИ и составить для вас персональную карту компетенций."}
+                Пройдите единую диагностику из 15 вопросов, чтобы мы могли проанализировать ваш уровень знаний 
+                и навыков в области ИИ, а также предоставить вам персонализированные рекомендации по обучению.
               </p>
               
               <div className="flex flex-wrap gap-3 justify-center">
@@ -171,16 +179,25 @@ export function DetailedSkillsDnaProfile({
                   className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600"
                   onClick={() => window.location.href = "/quick-diagnosis"}
                 >
-                  Быстрая диагностика
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="border-purple-500/30 text-purple-300 hover:bg-purple-500/10"
-                  onClick={() => window.location.href = "/deep-diagnosis"}
-                >
-                  Глубокая диагностика
+                  Пройти диагностику
                 </Button>
               </div>
+            </div>
+            
+            {/* Дополнительная информация о диагностике */}
+            <div className="bg-space-900/30 rounded-md p-4 border border-space-800">
+              <h4 className="text-white font-medium mb-2 flex items-center">
+                <Info className="h-4 w-4 mr-2 text-blue-400" />
+                Что такое диагностика Skills DNA?
+              </h4>
+              <p className="text-white/70 text-sm mb-3">
+                Диагностика Skills DNA — это единый тест из 15 вопросов, который помогает определить ваш текущий уровень 
+                знаний и навыков в области искусственного интеллекта. На основе результатов диагностики формируется ваш 
+                персональный профиль компетенций и предлагаются индивидуальные рекомендации по обучению.
+              </p>
+              <p className="text-white/70 text-sm">
+                После прохождения диагностики вы получите доступ ко всем расширенным возможностям Skills DNA.
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -349,6 +366,25 @@ export function DetailedSkillsDnaProfile({
               </TabsList>
               
               <div className="flex gap-2">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button 
+                        variant="default" 
+                        size="sm" 
+                        className="h-8 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600"
+                        onClick={() => window.location.href = "/courses?filter=recommended"}
+                      >
+                        <Target className="h-3.5 w-3.5 mr-1" />
+                        Рекомендуемые курсы
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Перейти к рекомендуемым курсам</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
