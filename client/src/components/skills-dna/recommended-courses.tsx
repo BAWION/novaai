@@ -30,24 +30,8 @@ export interface RecommendedCourse {
   reason?: string;
 }
 
-// Альтернативный формат, который может прийти из API или из диагностики
-export interface CourseRecWithMatchPercentage {
-  id: number;
-  title: string;
-  description: string;
-  matchPercentage: number; // вместо match
-  level: number; // вместо difficulty
-  duration?: number;
-  modules?: number;
-  skillGaps?: string[];
-  reason?: string;
-}
-
-// Общий тип для работы с обоими форматами
-type NormalizedCourse = RecommendedCourse;
-
 interface RecommendedCoursesProps {
-  courses: (RecommendedCourse | CourseRecWithMatchPercentage)[];
+  courses: RecommendedCourse[];
   className?: string;
   limit?: number;
   compact?: boolean;
@@ -64,28 +48,8 @@ export function RecommendedCourses({
 }: RecommendedCoursesProps) {
   const [_, setLocation] = useLocation();
   
-  // Нормализуем данные из двух разных форматов в один общий
-  const normalizedCourses: NormalizedCourse[] = courses.map(course => {
-    // Если это формат с matchPercentage, преобразуем его в стандартный формат с match
-    if ('matchPercentage' in course) {
-      return {
-        id: course.id,
-        title: course.title,
-        description: course.description,
-        match: course.matchPercentage, // Используем matchPercentage как match
-        difficulty: course.level, // Используем level как difficulty
-        duration: course.duration,
-        modules: course.modules,
-        skillGaps: course.skillGaps,
-        reason: course.reason
-      };
-    }
-    // Если это уже стандартный формат, просто возвращаем его
-    return course;
-  });
-  
   // Ограничиваем количество отображаемых курсов
-  const displayCourses = limit > 0 ? normalizedCourses.slice(0, limit) : normalizedCourses;
+  const displayCourses = limit > 0 ? courses.slice(0, limit) : courses;
   
   // Если нет рекомендаций, показываем соответствующее сообщение
   if (courses.length === 0) {

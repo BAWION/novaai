@@ -291,21 +291,7 @@ export default function useSkillsDna(userId?: number): SkillsDnaData {
       sessionStorage.setItem('skillsDnaResultsPersisted', 'true');
       sessionStorage.setItem('skillsDnaResults', JSON.stringify(savedSkillsData));
     }
-    
-    // Если API не вернул данные и запрос завершен, но пользователь не пустой
-    // (то есть произошла ошибка авторизации), попробуем загрузить данные из сессии
-    if (isEmpty && !isProgressLoading && currentUserId) {
-      try {
-        const savedData = sessionStorage.getItem('skillsDnaResults');
-        if (savedData && !savedSkillsData) {
-          console.log("[useSkillsDna] API вернул пустой результат, загружаем из сессии");
-          setSavedSkillsData(JSON.parse(savedData));
-        }
-      } catch (error) {
-        console.error("[useSkillsDna] Ошибка при загрузке из сессии:", error);
-      }
-    }
-  }, [hasSavedSkills, savedSkillsData, isEmpty, isProgressLoading, currentUserId]);
+  }, [hasSavedSkills, savedSkillsData]);
   
   console.log("[useSkillsDna] Финальные данные:", {
     usingApiData: Object.keys(skillsData).length > 0,

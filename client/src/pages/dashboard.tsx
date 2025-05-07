@@ -44,46 +44,7 @@ export default function Dashboard() {
         return data;
       } catch (error) {
         console.error('Ошибка при загрузке рекомендуемых курсов:', error);
-        
-        // Сначала проверяем наличие данных в sessionStorage
-        try {
-          console.log('[Dashboard] Проверяем sessionStorage для рекомендаций...');
-          
-          // Выводим все ключи в sessionStorage для отладки
-          console.log('[Dashboard] Все ключи в sessionStorage:', 
-            Object.keys(sessionStorage).join(', '));
-          
-          const savedData = sessionStorage.getItem('skillsDnaResults');
-          if (savedData) {
-            console.log('[Dashboard] Найдены данные в sessionStorage, длина:', savedData.length);
-            console.log('[Dashboard] Первые 200 символов данных:', savedData.substring(0, 200) + '...');
-            
-            const parsedData = JSON.parse(savedData);
-            console.log('[Dashboard] Распарсенные данные:', {
-              hasRecommendations: Array.isArray(parsedData.recommendations),
-              recommendationsCount: parsedData.recommendations?.length || 0,
-              firstRecommendationTitle: parsedData.recommendations?.[0]?.title || 'нет данных',
-              hasSkills: !!parsedData.skills,
-              skillsCount: Object.keys(parsedData.skills || {}).length,
-              diagnosticType: parsedData.diagnosticType || 'unknown',
-              timestamp: parsedData.timestamp
-            });
-            
-            if (parsedData.recommendations && parsedData.recommendations.length > 0) {
-              console.log('[Dashboard] Используем рекомендации из sessionStorage:', 
-                parsedData.recommendations.map((r: any) => r.title || 'без названия').join(', '));
-              return parsedData.recommendations;
-            } else {
-              console.warn('[Dashboard] В сохраненных данных нет рекомендаций');
-            }
-          } else {
-            console.warn('[Dashboard] Данные не найдены в sessionStorage');
-          }
-        } catch (storageError) {
-          console.error('[Dashboard] Ошибка при чтении рекомендаций из sessionStorage:', storageError);
-        }
-        
-        // Если не нашли в sessionStorage, используем значения по умолчанию
+        // Возвращаем тестовые данные при ошибке
         return [
           {
             id: 1,
@@ -102,9 +63,8 @@ export default function Dashboard() {
         ];
       }
     },
-    // Всегда выполняем запрос, независимо от авторизации,
-    // так как мы можем отобразить сохраненные данные из sessionStorage
-    enabled: true
+    // Если пользователь не авторизован, используем демо-данные
+    enabled: !!user
   });
   
   const [message, setMessage] = useState("");
