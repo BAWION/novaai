@@ -147,7 +147,7 @@ class DiagnosisService {
 
         if (existingEntry) {
           // Обновляем существующую запись, если новый прогресс выше
-          if (progress > existingEntry.progress) {
+          if (progress > (existingEntry.progress || 0)) {
             const [updatedEntry] = await db.update(userSkillsDnaProgress)
               .set({
                 currentLevel: skillLevel,
