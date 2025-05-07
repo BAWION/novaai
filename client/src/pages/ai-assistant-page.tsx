@@ -1,4 +1,4 @@
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/context/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import { AIAssistantWidget } from "@/components/ai-assistant/ai-assistant-widget";
 import { PersonalizedExplanation } from "@/components/ai-assistant/personalized-explanation";
