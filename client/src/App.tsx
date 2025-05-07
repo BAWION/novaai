@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Switch, Route, useLocation } from "wouter";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { useAuth } from "@/context/auth-context";
+import { useAuth } from "@/hooks/use-auth";
 import { ParticlesBackground } from "@/components/particles-background";
 import { SidebarProvider } from "@/components/layout/sidebar";
 import { PWAInstallPrompt, MobilePWAInstallButton } from "@/components/pwa/install-prompt";
