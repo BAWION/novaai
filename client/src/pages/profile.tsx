@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { motion } from "framer-motion";
 import { Glassmorphism } from "@/components/ui/glassmorphism";
@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useUserProfile } from "@/context/user-profile-context";
 import { UserRole, UserInterest } from "@/lib/constants";
 import { SkillsDnaProfile } from "@/components/skills-dna-profile";
+import { useLocation } from "wouter";
 
 // Вспомогательные функции для получения русских названий ролей и интересов
 function getRoleTitle(role: UserRole): string {
@@ -114,8 +115,27 @@ const SAMPLE_COURSES: CourseCompletion[] = [
 
 export default function Profile() {
   const { userProfile } = useUserProfile();
+  const [location] = useLocation();
   const [activeTab, setActiveTab] = useState("overview");
+  const [isDeepdDiagnosis, setIsDeepdDiagnosis] = useState(false);
   const [editMode, setEditMode] = useState(false);
+  
+  // Обработка URL-параметров для переключения на вкладку Skills DNA
+  useEffect(() => {
+    // Парсим URL-параметры
+    const params = new URLSearchParams(window.location.search);
+    const section = params.get('section');
+    const isDeep = params.get('deep') === 'true';
+    
+    // Если указан параметр section=skills-dna, переключаемся на эту вкладку
+    if (section === 'skills-dna') {
+      setActiveTab('overview'); // Вкладка обзора содержит Skills DNA
+      setIsDeepdDiagnosis(isDeep); // Устанавливаем флаг глубокой диагностики
+      
+      console.log('[ProfilePage] Переключение на Skills DNA, глубокая диагностика:', isDeep);
+    }
+  }, [location]);
+  
   const [profileData, setProfileData] = useState({
     displayName: userProfile?.displayName || "Пользователь",
     bio: userProfile?.metadata?.demographic ? 
@@ -503,7 +523,8 @@ export default function Profile() {
                 <SkillsDnaProfile 
                   userId={userProfile?.userId}
                   showHeader={true}
-                  className="mt-4" 
+                  className="mt-4"
+                  isDeepdDiagnosis={isDeepdDiagnosis}
                 />
               </motion.div>
               
