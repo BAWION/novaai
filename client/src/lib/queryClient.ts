@@ -12,15 +12,36 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
-  const res = await fetch(url, {
-    method,
-    headers: data ? { "Content-Type": "application/json" } : {},
-    body: data ? JSON.stringify(data) : undefined,
-    credentials: "include",
-  });
+  console.log(`API Request: ${method} ${url}`, data || '');
+  
+  try {
+    const res = await fetch(url, {
+      method,
+      headers: data ? { "Content-Type": "application/json" } : {},
+      body: data ? JSON.stringify(data) : undefined,
+      credentials: "include",
+    });
 
-  await throwIfResNotOk(res);
-  return res;
+    console.log(`API Response: ${method} ${url} - Status: ${res.status} ${res.statusText}`);
+    
+    if (!res.ok) {
+      console.error(`API Error: ${method} ${url} - Status: ${res.status} ${res.statusText}`);
+      // Клонируем ответ, чтобы можно было прочитать тело для логирования, но оставить для обработки ошибки
+      const clonedRes = res.clone();
+      try {
+        const errorBody = await clonedRes.text();
+        console.error('Error body:', errorBody);
+      } catch (e) {
+        console.error('Could not read error body');
+      }
+    }
+
+    await throwIfResNotOk(res);
+    return res;
+  } catch (error) {
+    console.error(`API Request Failed: ${method} ${url}`, error);
+    throw error;
+  }
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";
