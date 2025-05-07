@@ -520,14 +520,6 @@ export default function Profile() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
               >
-                {/* Выводим информацию о статусе глубокой диагностики в консоль */}
-                <>{console.log("[Profile] Отображение Skills DNA профиля:", {
-                  isDeepdDiagnosis,
-                  userId: userProfile?.userId,
-                  hasStoredResults: sessionStorage.getItem('skillsDnaResults') !== null
-                })}</>
-                
-                
                 <SkillsDnaProfile 
                   userId={userProfile?.userId}
                   showHeader={true}

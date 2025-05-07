@@ -14,8 +14,6 @@ import { default as SkillProgress } from "@/components/progress/skill-progress";
 import { WelcomeModal } from "@/components/onboarding/welcome-modal";
 import { CompactSkillsDnaCard } from "@/components/skills-dna";
 import { SkillsDnaProfile } from "@/components/skills-dna-profile";
-// Импортируем компонент дорожной карты
-import { LearningRoadmap } from "@/components/roadmap";
 import { 
   Dialog,
   DialogContent,
@@ -299,28 +297,6 @@ export default function Dashboard() {
   const [isSkillsDnaDialogOpen, setIsSkillsDnaDialogOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<number | undefined>(undefined);
 
-  // Проверка наличия данных диагностики в sessionStorage и применение их при необходимости
-  useEffect(() => {
-    try {
-      const savedData = sessionStorage.getItem('skillsDnaResults');
-      if (savedData) {
-        const parsedData = JSON.parse(savedData);
-        console.log("[Dashboard] Найдены сохраненные данные диагностики:", {
-          skillsCount: Object.keys(parsedData.skills || {}).length,
-          diagnosticType: parsedData.diagnosticType,
-          hasRecommendations: Array.isArray(parsedData.recommendations) && parsedData.recommendations.length > 0
-        });
-        
-        // Убедимся, что данные в sessionStorage актуальны
-        if (!sessionStorage.getItem('skillsDnaResultsPersisted')) {
-          sessionStorage.setItem('skillsDnaResultsPersisted', 'true');
-        }
-      }
-    } catch (error) {
-      console.error("[Dashboard] Ошибка при проверке данных диагностики в sessionStorage:", error);
-    }
-  }, []);
-
   // Обработчик события для показа подробного анализа Skills DNA
   useEffect(() => {
     // Добавляем слушатель для события, которое генерирует компонент CompactSkillsDnaCard
@@ -333,7 +309,7 @@ export default function Dashboard() {
       console.log("[Dashboard] Получено событие showSkillsDnaDetails, userId:", userId);
       
       // Устанавливаем выбранного пользователя и открываем диалоговое окно
-      setSelectedUserId(userId || userProfile?.userId || user?.id);
+      setSelectedUserId(userId || userProfile?.userId);
       setIsSkillsDnaDialogOpen(true);
     };
 
@@ -344,7 +320,7 @@ export default function Dashboard() {
     return () => {
       window.removeEventListener('showSkillsDnaDetails', handleShowSkillsDnaDetails);
     };
-  }, [userProfile, user]);
+  }, [userProfile]);
 
   // Проверка статуса пользователя и показ приветственного модального окна
   useEffect(() => {
@@ -621,11 +597,7 @@ export default function Dashboard() {
                   Skills DNA
                 </h2>
               </div>
-              <CompactSkillsDnaCard 
-                userId={userProfile?.userId || user?.id} 
-                showHeader={false} 
-                className="bg-transparent border-0" 
-              />
+              <CompactSkillsDnaCard showHeader={false} className="bg-transparent border-0" />
             </Glassmorphism>
           </motion.div>
 
@@ -758,16 +730,6 @@ export default function Dashboard() {
                   </div>
                 </Link>
               </div>
-            </motion.div>
-            
-            {/* Learning Roadmap */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.25 }}
-              className="mb-6"
-            >
-              <LearningRoadmap isDemoMode={true} />
             </motion.div>
             
             {/* AI Analysis Section */}

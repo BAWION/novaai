@@ -1,4 +1,3 @@
-import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { diagnosisApi } from "@/api/diagnosis-api";
 import { useUserProfile } from "@/context/user-profile-context";
@@ -37,28 +36,6 @@ export interface SkillsDnaData {
 export default function useSkillsDna(userId?: number): SkillsDnaData {
   const { userProfile } = useUserProfile();
   
-  // Проверяем наличие сохраненных результатов диагностики в sessionStorage
-  const [savedSkillsData, setSavedSkillsData] = useState<any>(null);
-  
-  // Загружаем сохраненные данные диагностики при инициализации компонента
-  useEffect(() => {
-    try {
-      const savedData = sessionStorage.getItem('skillsDnaResults');
-      if (savedData) {
-        const parsedData = JSON.parse(savedData);
-        console.log("[useSkillsDna] Найдены сохраненные результаты диагностики:", {
-          skillsCount: Object.keys(parsedData.skills || {}).length,
-          recommendationsCount: parsedData.recommendations?.length || 0,
-          timestamp: parsedData.timestamp,
-          diagnosticType: parsedData.diagnosticType
-        });
-        setSavedSkillsData(parsedData);
-      }
-    } catch (error) {
-      console.error("[useSkillsDna] Ошибка при загрузке сохраненных результатов:", error);
-    }
-  }, []);
-  
   // Безопасно получаем пользователя из контекста авторизации, если он доступен
   let authUser = null;
   try {
@@ -96,8 +73,7 @@ export default function useSkillsDna(userId?: number): SkillsDnaData {
     authUserId: authUser?.id,
     profileUserId: userProfile?.userId,
     resultUserId: currentUserId,
-    demoMode,
-    hasSavedData: !!savedSkillsData
+    demoMode
   });
 
   // Запрос на получение прогресса пользователя по Skills DNA
@@ -108,37 +84,7 @@ export default function useSkillsDna(userId?: number): SkillsDnaData {
     refetch: refetchProgress
   } = useQuery({
     queryKey: ['skillsDna', 'progress', currentUserId],
-    queryFn: async () => {
-      // Сначала пробуем получить данные через API
-      try {
-        const apiData = await diagnosisApi.getUserProgress(currentUserId as number);
-        return apiData;
-      } catch (error) {
-        console.log("[useSkillsDna] Ошибка API для прогресса, проверяем sessionStorage", error);
-        
-        // Если API не вернул данные, проверяем sessionStorage
-        const savedData = sessionStorage.getItem('skillsDnaResults');
-        if (savedData) {
-          try {
-            const parsed = JSON.parse(savedData);
-            if (parsed && parsed.skills) {
-              // Создаем минимальную историю прогресса на основе сохраненных данных
-              return [{
-                date: parsed.timestamp || new Date().toISOString(),
-                skills: parsed.skills,
-                overallLevel: Object.values(parsed.skills).reduce((sum: number, val: any) => sum + Number(val), 0) 
-                  / Object.keys(parsed.skills).length
-              }];
-            }
-          } catch (parseError) {
-            console.error("[useSkillsDna] Ошибка при разборе данных из sessionStorage:", parseError);
-          }
-        }
-        
-        // Если не нашли данные в sessionStorage, пробрасываем исходную ошибку
-        throw error;
-      }
-    },
+    queryFn: () => diagnosisApi.getUserProgress(currentUserId as number),
     enabled: !!currentUserId,
     staleTime: 1000 * 60 * 5, // 5 минут
     retry: 1 // Уменьшаем количество повторных попыток при ошибке
@@ -152,44 +98,7 @@ export default function useSkillsDna(userId?: number): SkillsDnaData {
     refetch: refetchSummary
   } = useQuery({
     queryKey: ['skillsDna', 'summary', currentUserId],
-    queryFn: async () => {
-      // Сначала пробуем получить данные через API
-      try {
-        const apiData = await diagnosisApi.getUserSummary(currentUserId as number);
-        return apiData;
-      } catch (error) {
-        console.log("[useSkillsDna] Ошибка API для сводки, проверяем sessionStorage", error);
-        
-        // Если API не вернул данные, проверяем sessionStorage
-        const savedData = sessionStorage.getItem('skillsDnaResults');
-        if (savedData) {
-          try {
-            const parsed = JSON.parse(savedData);
-            if (parsed) {
-              // Создаем минимальную сводку на основе сохраненных данных
-              const skills = parsed.skills || {};
-              const skillValues = Object.values(skills).map(v => Number(v));
-              const overallLevel = skillValues.length > 0 
-                ? skillValues.reduce((sum: number, val: any) => sum + Number(val), 0) / skillValues.length 
-                : 0;
-              
-              return {
-                overallLevel,
-                description: parsed.diagnosticType === 'deep' 
-                  ? "Результаты глубокой диагностики: создан детальный профиль навыков на основе ваших ответов."
-                  : "Результаты диагностики: создан профиль навыков на основе ваших ответов.",
-                recommendedCourses: parsed.recommendations || []
-              };
-            }
-          } catch (parseError) {
-            console.error("[useSkillsDna] Ошибка при разборе данных из sessionStorage:", parseError);
-          }
-        }
-        
-        // Если не нашли данные в sessionStorage, пробрасываем исходную ошибку
-        throw error;
-      }
-    },
+    queryFn: () => diagnosisApi.getUserSummary(currentUserId as number),
     enabled: !!currentUserId,
     staleTime: 1000 * 60 * 5, // 5 минут
     retry: 1 // Уменьшаем количество повторных попыток при ошибке
@@ -262,51 +171,12 @@ export default function useSkillsDna(userId?: number): SkillsDnaData {
   // Создаем историю прогресса для демонстрации
   const progressHistory = generateProgressHistory();
 
-  // Используем сохраненные данные из sessionStorage, если они есть
-  // Это позволит отображать результаты диагностики даже если API не возвращает данные
-  const finalSkills = savedSkillsData?.skills && Object.keys(savedSkillsData.skills).length > 0
-    ? savedSkillsData.skills
-    : skillsData;
-    
-  const finalSummary = summaryData || {
-    overallLevel: 0,
-    description: "Результаты диагностики: создан профиль навыков на основе ваших ответов."
-  };
-  
-  // Если есть рекомендуемые курсы в сохраненных данных, добавим их в результат
-  if (savedSkillsData?.recommendations) {
-    finalSummary.recommendedCourses = savedSkillsData.recommendations;
-  }
-  
-  // Проверка, пусты ли фактические данные (с учетом сохраненных данных)
-  const hasSavedSkills = savedSkillsData?.skills && Object.keys(savedSkillsData.skills).length > 0;
-  const isTrulyEmpty = isEmpty && !hasSavedSkills;
-  
-  // Если пользователь не авторизован и переходит из диагностики, 
-  // сохраненные данные могут быть утеряны при обновлении страницы,
-  // поэтому также проверяем наличие данных в sessionStorage
-  useEffect(() => {
-    if (hasSavedSkills && !sessionStorage.getItem('skillsDnaResultsPersisted')) {
-      console.log("[useSkillsDna] Пересохраняем данные в sessionStorage для большей надежности");
-      sessionStorage.setItem('skillsDnaResultsPersisted', 'true');
-      sessionStorage.setItem('skillsDnaResults', JSON.stringify(savedSkillsData));
-    }
-  }, [hasSavedSkills, savedSkillsData]);
-  
-  console.log("[useSkillsDna] Финальные данные:", {
-    usingApiData: Object.keys(skillsData).length > 0,
-    usingSavedData: hasSavedSkills,
-    finalSkillsCount: Object.keys(finalSkills).length,
-    hasRecommendations: !!finalSummary.recommendedCourses,
-    isTrulyEmpty
-  });
-
   return {
-    skills: finalSkills,
-    summary: finalSummary, 
+    skills: skillsData,
+    summary: summaryData,
     isLoading: isProgressLoading || isSummaryLoading,
     error: progressError || summaryError,
-    isEmpty: isTrulyEmpty,
+    isEmpty,
     refetch: refetchSkillsData,
     isDemoMode: demoMode,
     userId: currentUserId,
