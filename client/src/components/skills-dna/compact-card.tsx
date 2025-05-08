@@ -138,12 +138,13 @@ export function CompactSkillsDnaCard({
     }
   }
   
-  // Формируем объект с тремя основными навыками
-  const triangleSkills = {
-    top: { name: mainSkills[0][0], value: mainSkills[0][1] as number },
-    bottomLeft: { name: mainSkills[1][0], value: mainSkills[1][1] as number },
-    bottomRight: { name: mainSkills[2][0], value: mainSkills[2][1] as number }
-  };
+  // Формируем данные для радарной диаграммы
+  // Старый код треугольной диаграммы больше не нужен
+  // const triangleSkills = {
+  //   top: { name: mainSkills[0][0], value: mainSkills[0][1] as number },
+  //   bottomLeft: { name: mainSkills[1][0], value: mainSkills[1][1] as number },
+  //   bottomRight: { name: mainSkills[2][0], value: mainSkills[2][1] as number }
+  // };
   
   // Выделяем сильные и слабые навыки
   const strongSkills = skillEntries
