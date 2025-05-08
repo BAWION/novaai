@@ -1,0 +1,44 @@
+API Request Failed: POST /api/diagnosis/results 
+Error {}
+
+at t.value (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
+[API] Исключение при сохранении результатов диагностики: 
+Error {}
+
+at t.value (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
+Ошибка при сохранении результатов в Skills DNA: 
+Error {}
+
+at t.value (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
+[useSkillsDna] Источники userId: 
+Object {providedUserId: undefined, authUserId: 25, profileUserId: 25, resultUserId: 25, demoMode: false}
+API Request: POST /api/events 
+Object {eventType: "page_view", data: {…}, userId: 25}
+API Request: POST /api/events 
+Object {eventType: "page_view", data: {…}, userId: 25}
+[useSkillsDna] Источники userId: 
+Object {providedUserId: undefined, authUserId: 25, profileUserId: 25, resultUserId: 25, demoMode: false}
+API Response: POST /api/events - Status: 201 Created
+[useSkillsDna] Источники userId: 
+Object {providedUserId: 25, authUserId: 25, profileUserId: 25, resultUserId: 25, demoMode: false}
+[SkillsDnaProfile] Получены данные: 
+Object {requestedUserId: 25, resolvedUserId: 25, skillsCount: 0, hasError: false, isDataEmpty: true, …}
+API Request: POST /api/events 
+Object {eventType: "page_view", data: {…}, userId: 25}
+API Response: POST /api/events - Status: 201 Created
+[useSkillsDna] Источники userId: 
+Object {providedUserId: undefined, authUserId: 25, profileUserId: 25, resultUserId: 25, demoMode: false}
+API Request: POST /api/events 
+Object {eventType: "page_view", data: {…}, userId: 25}
+[useSkillsDna] Источники userId: 
+Object {providedUserId: undefined, authUserId: 25, profileUserId: 25, resultUserId: 25, demoMode: false}
+API Response: POST /api/events - Status: 201 Created
