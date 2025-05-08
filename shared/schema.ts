@@ -647,6 +647,86 @@ export type InsertCourseSkillRequirement = z.infer<typeof insertCourseSkillRequi
 export type InsertCourseSkillOutcome = z.infer<typeof insertCourseSkillOutcomeSchema>;
 export type InsertUserSkillGap = z.infer<typeof insertUserSkillGapSchema>;
 
+// Определение таблиц для S2 SKILL-PROBE (5-мин тесты)
+export const skillProbeEnum = pgEnum('skill_probe_type', ['multiple_choice', 'coding', 'fill_blanks', 'matching', 'practical']);
+export const skillProbeDifficultyEnum = pgEnum('skill_probe_difficulty', ['basic', 'intermediate', 'advanced', 'expert']);
+
+// Таблица тестов Skill Probe
+export const skillProbes = pgTable("skill_probes", {
+  id: serial("id").primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  skillId: integer("skill_id").references(() => skills.id), // Связь с таблицей навыков
+  dnaId: integer("dna_id").references(() => skillsDna.id), // Связь с таблицей SkillsDNA
+  probeType: skillProbeEnum("probe_type").notNull(),
+  difficulty: skillProbeDifficultyEnum("difficulty").default("intermediate"),
+  estimatedTimeMinutes: integer("estimated_time_minutes").default(5),
+  passingScore: integer("passing_score").default(70), // Проходной балл (в процентах)
+  questions: json("questions").notNull(), // JSON-массив с вопросами и ответами
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => {
+  return {
+    skillIdx: index("skill_probe_skill_idx").on(table.skillId),
+    dnaIdx: index("skill_probe_dna_idx").on(table.dnaId),
+  };
+});
+
+// Таблица результатов прохождения Skill Probe тестов
+export const skillProbeResults = pgTable("skill_probe_results", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  probeId: integer("probe_id").notNull().references(() => skillProbes.id),
+  score: integer("score").notNull(), // Процент правильных ответов
+  passStatus: boolean("pass_status").notNull(), // Пройден или не пройден
+  answers: json("answers"), // JSON с ответами пользователя
+  startedAt: timestamp("started_at").notNull(),
+  completedAt: timestamp("completed_at").notNull(),
+  timeSpentSeconds: integer("time_spent_seconds"),
+  skillLevelBefore: integer("skill_level_before"), // Уровень навыка до прохождения
+  skillLevelAfter: integer("skill_level_after"), // Уровень навыка после прохождения
+  feedback: text("feedback"), // Обратная связь от системы
+}, (table) => {
+  return {
+    userProbeIdx: index("user_probe_idx").on(table.userId, table.probeId),
+    completedAtIdx: index("probe_completed_at_idx").on(table.completedAt),
+  };
+});
+
+// Таблица рекомендаций тестов по результатам
+export const skillProbeRecommendations = pgTable("skill_probe_recommendations", {
+  id: serial("id").primaryKey(),
+  resultId: integer("result_id").notNull().references(() => skillProbeResults.id),
+  userId: integer("user_id").notNull().references(() => users.id),
+  recommendationType: varchar("recommendation_type", { length: 100 }).notNull(), // Тип рекомендации (курс, модуль, урок)
+  entityId: integer("entity_id").notNull(), // ID рекомендуемой сущности
+  reason: text("reason"), // Причина рекомендации
+  priority: integer("priority").default(1), // Приоритет рекомендации
+  createdAt: timestamp("created_at").defaultNow(),
+  followed: boolean("followed").default(false), // Последовал ли пользователь рекомендации
+});
+
+// Схемы для вставки данных для Skill Probe
+export const insertSkillProbeSchema = createInsertSchema(skillProbes).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertSkillProbeResultSchema = createInsertSchema(skillProbeResults).omit({
+  id: true,
+});
+
+export const insertSkillProbeRecommendationSchema = createInsertSchema(skillProbeRecommendations).omit({
+  id: true,
+  createdAt: true,
+});
+
+// Типы для вставки данных Skill Probe
+export type InsertSkillProbe = z.infer<typeof insertSkillProbeSchema>;
+export type InsertSkillProbeResult = z.infer<typeof insertSkillProbeResultSchema>;
+export type InsertSkillProbeRecommendation = z.infer<typeof insertSkillProbeRecommendationSchema>;
+
 // Типы для выборки данных
 export type User = typeof users.$inferSelect;
 export type UserProfile = typeof userProfiles.$inferSelect;
@@ -672,6 +752,9 @@ export type CourseSkillOutcome = typeof courseSkillOutcomes.$inferSelect;
 export type UserSkillGap = typeof userSkillGaps.$inferSelect;
 export type EventLog = typeof eventLogs.$inferSelect;
 export type InsertEventLog = z.infer<typeof insertEventLogSchema>;
+export type SkillProbe = typeof skillProbes.$inferSelect;
+export type SkillProbeResult = typeof skillProbeResults.$inferSelect;
+export type SkillProbeRecommendation = typeof skillProbeRecommendations.$inferSelect;
 
 // ========== СХЕМЫ И ТИПЫ ДЛЯ SKILLS DNA И МИКРОУРОКОВ ==========
 
