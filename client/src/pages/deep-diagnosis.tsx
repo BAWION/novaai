@@ -497,11 +497,17 @@ export default function DeepDiagnosisPage() {
                 // Сохраняем результаты в Skills DNA
                 const saveSkillsToDna = async () => {
                   try {
-                    // Только если пользователь авторизован
-                    if (userProfile?.userId) {
+                    // Определяем, используем ли демо-режим
+                    const isDemoMode = !userProfile?.userId;
+                    const userId = userProfile?.userId || 999; // Используем 999 для демо-режима
+                    
+                    // Сохраняем результаты для авторизованного пользователя или в демо-режиме
+                    if (userProfile?.userId || isDemoMode) {
+                      console.log(`[DeepDiagnosis] Сохранение результатов для пользователя: ${userId}, демо-режим: ${isDemoMode}`);
+                      
                       // Подготавливаем данные для отправки
                       const diagnosisResult = {
-                        userId: userProfile.userId,
+                        userId: userId,
                         skills: skillProfile,
                         diagnosticType: 'deep' as 'deep', // явное приведение типа для TypeScript
                         metadata: {
