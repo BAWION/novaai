@@ -3,7 +3,7 @@ import { diagnosisApi } from "@/api/diagnosis-api";
 import { useUserProfile } from "@/context/user-profile-context";
 // Безопасный импорт хука useAuth без непосредственного вызова
 import * as AuthModule from "@/context/auth-context";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 /**
  * Тип данных для записи истории прогресса
@@ -80,15 +80,12 @@ export default function useSkillsDna(userId?: number): SkillsDnaData {
     isExplicitDemo
   });
   
-  // Для обработки ошибки аутентификации (401) автоматически переключаемся на демо-режим
-  const [shouldUseDemoMode, setShouldUseDemoMode] = useState(demoMode);
-  
-  // Применим демо-режим если shouldUseDemoMode = true
-  const effectiveUserId = shouldUseDemoMode ? 999 : currentUserId;
+  // Используем только реальный ID или демо-ID, без автоматического переключения
+  const effectiveUserId = demoMode ? 999 : currentUserId;
 
   // При первой загрузке компонента инициализируем демо-данные, если мы в демо-режиме
   useEffect(() => {
-    if (demoMode || shouldUseDemoMode) {
+    if (demoMode) {
       console.log("[useSkillsDna] Инициализация демо-данных");
       diagnosisApi.initializeDemoData()
         .then(() => {
@@ -98,7 +95,7 @@ export default function useSkillsDna(userId?: number): SkillsDnaData {
           console.error("[useSkillsDna] Ошибка при инициализации демо-данных:", error);
         });
     }
-  }, [demoMode, shouldUseDemoMode]);
+  }, [demoMode]);
 
   // Запрос на получение прогресса пользователя по Skills DNA
   const {
@@ -111,8 +108,8 @@ export default function useSkillsDna(userId?: number): SkillsDnaData {
     queryFn: () => diagnosisApi.getUserProgress(effectiveUserId as number),
     enabled: !!effectiveUserId,
     staleTime: 1000 * 60 * 5, // 5 минут
-    retry: demoMode || shouldUseDemoMode ? 0 : 1, // В демо-режиме не пытаемся повторить запрос
-    retryOnMount: demoMode || shouldUseDemoMode // В демо-режиме повторяем запрос при монтировании компонента
+    retry: demoMode ? 0 : 1, // В демо-режиме не пытаемся повторить запрос
+    retryOnMount: demoMode // В демо-режиме повторяем запрос при монтировании компонента
   });
 
   // Запрос на получение сводной информации о прогрессе пользователя
@@ -126,8 +123,8 @@ export default function useSkillsDna(userId?: number): SkillsDnaData {
     queryFn: () => diagnosisApi.getUserSummary(effectiveUserId as number),
     enabled: !!effectiveUserId,
     staleTime: 1000 * 60 * 5, // 5 минут
-    retry: demoMode || shouldUseDemoMode ? 0 : 1, // В демо-режиме не пытаемся повторить запрос
-    retryOnMount: demoMode || shouldUseDemoMode // В демо-режиме повторяем запрос при монтировании компонента
+    retry: demoMode ? 0 : 1, // В демо-режиме не пытаемся повторить запрос
+    retryOnMount: demoMode // В демо-режиме повторяем запрос при монтировании компонента
   });
 
   // Эффект для обработки ошибок аутентификации
@@ -175,8 +172,6 @@ export default function useSkillsDna(userId?: number): SkillsDnaData {
             // Диспатчим событие для глобальной обработки
             const authErrorEvent = new CustomEvent('authenticationError');
             window.dispatchEvent(authErrorEvent);
-            
-            // Не устанавливаем shouldUseDemoMode в true - это предотвращает автоматический переход в демо-режим
           }
         } else {
           // Пользователь не авторизован - показываем сообщение о необходимости авторизации
@@ -206,7 +201,7 @@ export default function useSkillsDna(userId?: number): SkillsDnaData {
   // Функция для обновления данных
   const refetchSkillsData = () => {
     console.log("[useSkillsDna] Обновление данных Skills DNA для пользователя:", effectiveUserId);
-    if (demoMode || shouldUseDemoMode) {
+    if (demoMode) {
       // Для демо-режима сначала инициализируем данные, затем обновляем запросы
       diagnosisApi.initializeDemoData().then(() => {
         refetchProgress();
@@ -268,8 +263,8 @@ export default function useSkillsDna(userId?: number): SkillsDnaData {
     error: progressError || summaryError,
     isEmpty,
     refetch: refetchSkillsData,
-    isDemoMode: demoMode || shouldUseDemoMode,
+    isDemoMode: demoMode,
     userId: currentUserId,
     progressHistory
   };
-};
+}
