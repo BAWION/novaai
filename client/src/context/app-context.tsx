@@ -119,42 +119,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     enabled: !!user?.id,
   });
   
-  // Определение демо-режима для рекомендованных курсов
-  const isDemoMode = !user || user?.id === 999;
-  const demoUserId = 999;
-  
-  // Рекомендуемые курсы для пользователя с поддержкой демо-режима
+  // Рекомендуемые курсы для пользователя
   const {
     data: recommendedCourses = [] as any[],
     isLoading: isRecommendedLoading,
     error: recommendedError
   } = useQuery<any[]>({
-    queryKey: ['/api/courses/recommended', isDemoMode ? demoUserId : user?.id],
-    queryFn: async () => {
-      try {
-        // Формируем URL с параметром userId для демо-режима
-        const endpoint = isDemoMode 
-          ? `/api/courses/recommended?userId=${demoUserId}` 
-          : '/api/courses/recommended';
-          
-        console.log(`[AppContext] Запрос рекомендаций, демо-режим: ${isDemoMode}, endpoint: ${endpoint}`);
-        
-        const response = await fetch(endpoint);
-        if (!response.ok) {
-          console.error(`[AppContext] Ошибка при загрузке рекомендуемых курсов: ${response.status}`);
-          throw new Error('Ошибка при загрузке рекомендуемых курсов');
-        }
-        
-        const data = await response.json();
-        console.log(`[AppContext] Получены рекомендации: ${data.length} курсов`);
-        return data;
-      } catch (error) {
-        console.error('[AppContext] Ошибка:', error);
-        return []; // Возвращаем пустой массив в случае ошибки
-      }
-    },
-    // Включаем запрос как для авторизованных пользователей, так и для демо-режима
-    enabled: !!user?.id || isDemoMode,
+    queryKey: ['/api/courses/recommended', user?.id],
+    enabled: !!user?.id,
   });
   
   // Прогресс обучения пользователя

@@ -13,7 +13,6 @@ import { LearningTimeline } from "@/components/progress/learning-timeline";
 import { default as SkillProgress } from "@/components/progress/skill-progress";
 import { WelcomeModal } from "@/components/onboarding/welcome-modal";
 import { CompactSkillsDnaCard } from "@/components/skills-dna";
-import { RecommendationsLocked } from "@/components/courses/recommendations-locked";
 import { SkillsDnaProfile } from "@/components/skills-dna-profile";
 import { 
   Dialog,
@@ -32,42 +31,20 @@ export default function Dashboard() {
   const [showOnboardingPrompt, setShowOnboardingPrompt] = useState(true);
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   
-  // Определяем, находимся ли мы в демо-режиме
-  // Для авторизованных пользователей НИКОГДА не включаем демо-режим
-  const isDemoMode = !user ? true : false; // Только для неавторизованных пользователей
-  const demoUserId = 999;
-  
-  // Получение рекомендуемых курсов с учетом демо-режима
-  const { data: recommendedCourses = [], error: recommendationsError } = useQuery({
-    queryKey: ['/api/courses/recommended', isDemoMode ? demoUserId : user?.id],
+  // Получение рекомендуемых курсов
+  const { data: recommendedCourses = [] } = useQuery({
+    queryKey: ['/api/courses/recommended'],
     queryFn: async () => {
       try {
-        // Формируем URL с параметром userId для демо-режима
-        const endpoint = isDemoMode 
-          ? `/api/courses/recommended?userId=${demoUserId}` 
-          : '/api/courses/recommended';
-          
-        console.log(`[Dashboard] Запрос рекомендаций, демо-режим: ${isDemoMode}, endpoint: ${endpoint}`);
-        
-        const res = await apiRequest('GET', endpoint);
+        const res = await apiRequest('GET', '/api/courses/recommended');
         if (!res.ok) {
-          console.error(`[Dashboard] Ошибка при загрузке рекомендуемых курсов: ${res.status}`);
-          // Не используем демо-режим для авторизованных пользователей!
           throw new Error('Ошибка при загрузке рекомендуемых курсов');
         }
         const data = await res.json();
-        console.log(`[Dashboard] Получены рекомендации: ${data.length} курсов`);
         return data;
       } catch (error) {
         console.error('Ошибка при загрузке рекомендуемых курсов:', error);
-        
-        // Важно: для авторизованных пользователей НЕ возвращаем тестовые данные,
-        // а кидаем ошибку дальше, чтобы отобразилась заблюренная карточка
-        if (user) {
-          throw error;
-        }
-        
-        // Для неавторизованных пользователей можно вернуть демо-данные
+        // Возвращаем тестовые данные при ошибке
         return [
           {
             id: 1,
@@ -86,8 +63,8 @@ export default function Dashboard() {
         ];
       }
     },
-    // Запрос включен всегда - для авторизованных и демо режима
-    enabled: true
+    // Если пользователь не авторизован, используем демо-данные
+    enabled: !!user
   });
   
   const [message, setMessage] = useState("");
@@ -349,32 +326,19 @@ export default function Dashboard() {
   useEffect(() => {
     // Если пользователь пришел после регистрации из onboarding
     // или если пользователь авторизован, но еще не прошел онбординг
-    // или если пользователь в демо-режиме
     const fromRegistration = sessionStorage.getItem("fromRegistrationAfterOnboarding") === "true";
-    const isFirstVisit = sessionStorage.getItem("firstVisitCompleted") !== "true";
     
-    // Проверяем, является ли это первым входом в демо-режиме
-    if (fromRegistration || (user && userProfile && !userProfile.completedOnboarding) || (isDemoMode && isFirstVisit)) {
+    if (fromRegistration || (user && userProfile && !userProfile.completedOnboarding)) {
       // Показываем приветственное модальное окно, вместо обычной подсказки
       setShowWelcomeModal(true);
-      console.log("Открываем приветственное модальное окно для нового пользователя", {
-        isDemoMode, 
-        isFirstVisit, 
-        fromRegistration,
-        userId: user?.id || 'demo'
-      });
+      console.log("Открываем приветственное модальное окно для нового пользователя");
       
       // Удаляем флаг, если он был установлен
       if (fromRegistration) {
         sessionStorage.removeItem("fromRegistrationAfterOnboarding");
       }
-      
-      // Отмечаем, что первый визит завершен
-      if (isFirstVisit) {
-        sessionStorage.setItem("firstVisitCompleted", "true");
-      }
     }
-  }, [user, userProfile, isDemoMode]);
+  }, [user, userProfile]);
 
   // Обработчик начала онбординга - направляем сразу на глубокую диагностику
   const handleStartOnboarding = () => {
@@ -624,10 +588,10 @@ export default function Dashboard() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="w-full"
           >
-            <Glassmorphism className="h-full rounded-lg p-4">
+            <Glassmorphism className="h-full rounded-xl overflow-hidden border border-purple-500/30 p-6">
               <div className="flex items-center mb-4">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#6E3AFF]/40 to-[#6E3AFF]/20 flex items-center justify-center">
-                  <i className="fas fa-brain text-[#6E3AFF]"></i>
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600/40 to-purple-700/20 flex items-center justify-center">
+                  <i className="fas fa-brain text-purple-300"></i>
                 </div>
                 <h2 className="font-orbitron text-xl font-semibold ml-3">
                   Skills DNA
@@ -644,62 +608,61 @@ export default function Dashboard() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="w-full"
           >
-            {/* Отображаем заблюренное состояние для авторизованных пользователей без диагностики */}
-            {user && (recommendedCourses.length === 0 || recommendationsError) ? (
-              <RecommendationsLocked className="h-full" />
-            ) : (
-              <Glassmorphism className="h-full rounded-lg p-4">
-                <div className="flex items-center mb-4">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-600/40 to-indigo-700/20 flex items-center justify-center">
-                    <i className="fas fa-book text-indigo-300"></i>
-                  </div>
-                  <h2 className="font-orbitron text-xl font-semibold ml-3">
-                    Рекомендуемые курсы
-                  </h2>
-                  {isDemoMode && (
-                    <span className="ml-auto text-xs bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded">
-                      Demo
-                    </span>
-                  )}
+            <Glassmorphism className="h-full rounded-xl overflow-hidden border border-indigo-500/30 p-6">
+              <div className="flex items-center mb-4">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-600/40 to-indigo-700/20 flex items-center justify-center">
+                  <i className="fas fa-book text-indigo-300"></i>
                 </div>
+                <h2 className="font-orbitron text-xl font-semibold ml-3">
+                  Рекомендуемые курсы
+                </h2>
+              </div>
               
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {recommendedCourses.slice(0, 2).map((course: any) => (
                   <div 
                     key={course.id}
-                    className="p-3 rounded-lg border-l-2 border-primary bg-space-900/50 hover:bg-space-900/70 transition-all cursor-pointer"
+                    className="bg-space-900/50 hover:bg-space-900/70 border border-space-700 rounded-lg p-4 transition-all cursor-pointer"
                     onClick={() => setLocation(`/courses/${course.id}`)}
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <div className="flex items-center gap-1.5">
-                          <h3 className="font-medium">{course.title}</h3>
-                          <span className="bg-green-500/20 text-green-400 border-0 px-2 py-0.5 text-xs rounded-md">
+                        <div className="flex items-center gap-2">
+                          <span className={`px-2 py-0.5 text-xs rounded-md ${
+                            course.matchPercentage && course.matchPercentage > 90 
+                              ? 'bg-green-500/20 text-green-300' 
+                              : course.matchPercentage && course.matchPercentage > 75
+                                ? 'bg-yellow-500/20 text-yellow-300'
+                                : 'bg-blue-500/20 text-blue-300'
+                          }`}>
                             {course.matchPercentage ? `${course.matchPercentage}% совпадение` : '95% совпадение'}
                           </span>
                         </div>
-                        <p className="text-white/70 text-sm mt-1">{course.description || 'Описание курса'}</p>
+                        <h3 className="text-lg font-medium mt-2">{course.title}</h3>
+                        <p className="text-white/60 text-sm mt-1">{course.description || 'Описание курса'}</p>
                         
-                        <div className="mt-2 text-xs text-white/60 flex items-center gap-3">
-                          <div className="flex items-center gap-1">
-                            <i className="fas fa-signal"></i>
-                            <span>Сложность: {course.level}/5</span>
+                        <div className="flex flex-wrap items-center gap-3 mt-3">
+                          <div className="flex items-center gap-1.5">
+                            <i className="fas fa-signal text-white/60"></i>
+                            <span className="text-white/60 text-xs">Сложность: {course.level}/5</span>
                           </div>
-                          <div className="flex items-center gap-1">
-                            <i className="fas fa-clock"></i>
-                            <span>120 мин</span>
+                          <div className="flex items-center gap-1.5">
+                            <i className="fas fa-clock text-white/60"></i>
+                            <span className="text-white/60 text-xs">120 мин</span>
                           </div>
-                          <div className="flex items-center gap-1">
-                            <i className="fas fa-layer-group"></i>
-                            <span>5 модулей</span>
+                          <div className="flex items-center gap-1.5">
+                            <i className="fas fa-layer-group text-white/60"></i>
+                            <span className="text-white/60 text-xs">5 модулей</span>
                           </div>
                         </div>
                         
-                        <div className="mt-2 text-xs p-1.5 bg-primary/10 rounded">
-                          <span className="text-primary font-medium">Почему подходит:</span>
-                          {course.id === 1 
-                            ? ' Идеально для начала обучения машинному обучению на вашем уровне' 
-                            : ' Поможет заполнить пробелы в математической подготовке'}
+                        <div className="mt-3">
+                          <span className="text-purple-400 text-xs">Почему подходит:</span>
+                          <p className="text-white/80 text-xs mt-1">
+                            {course.id === 1 
+                              ? 'Идеально для начала обучения машинному обучению на вашем уровне' 
+                              : 'Поможет заполнить пробелы в математической подготовке'}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -723,17 +686,7 @@ export default function Dashboard() {
                 ))}
               </div>
               
-              <div className="flex justify-center mt-4">
-                <button 
-                  onClick={() => setLocation('/courses')}
-                  className="px-4 py-2 bg-indigo-900/50 border border-indigo-500/30 hover:bg-indigo-900/70 text-white/90 rounded-lg text-sm transition flex items-center"
-                >
-                  <span>Все курсы</span>
-                  <i className="fas fa-arrow-right ml-2"></i>
-                </button>
-              </div>
-              </Glassmorphism>
-            )}
+            </Glassmorphism>
           </motion.div>
         </div>
 

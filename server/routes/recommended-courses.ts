@@ -9,30 +9,16 @@ const router = Router();
 /**
  * GET /api/courses/recommended
  * Получение списка рекомендованных курсов для пользователя на основе его профиля Skills DNA
- * Для пользователя с ID 999 (демо-пользователь) авторизация не требуется
  */
 router.get("/", async (req, res) => {
   try {
-    // Проверяем, запрашиваются ли рекомендации для демо-пользователя (ID 999)
-    const isDemoRequest = req.query.userId === '999';
-    
     // Проверка авторизации - используем сессию для получения пользователя
     if (!req.session || !req.session.user) {
-      if (isDemoRequest) {
-        console.log("Доступ к /api/courses/recommended для демо-пользователя");
-      } else {
-        console.log("Неавторизованный доступ к /api/courses/recommended");
-        return res.status(401).json({ error: "Требуется авторизация" });
-      }
-    }
-    
-    // Определяем ID пользователя: либо из запроса для демо, либо из сессии
-    const userId = isDemoRequest ? 999 : (req.session.user ? req.session.user.id : null);
-    
-    // Дополнительная проверка на случай непредвиденных ситуаций
-    if (userId === null) {
+      console.log("Неавторизованный доступ к /api/courses/recommended");
       return res.status(401).json({ error: "Требуется авторизация" });
     }
+    
+    const userId = req.session.user.id;
     
     // Получаем профиль пользователя
     const [userProfile] = await db
