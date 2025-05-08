@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import { Switch, Route, useLocation } from "wouter";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/context/auth-context";
-import { useToast } from "@/hooks/use-toast";
 import { ParticlesBackground } from "@/components/particles-background";
 import { SidebarProvider } from "@/components/layout/sidebar";
 import { PWAInstallPrompt, MobilePWAInstallButton } from "@/components/pwa/install-prompt";
@@ -88,34 +87,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ component: Component, p
 };
 
 function Router() {
-  const { isAuthenticated, logout } = useAuth();
-  const [location, setLocation] = useLocation();
-  const { toast } = useToast();
-  
-  // Обработчик глобального события ошибки аутентификации
-  useEffect(() => {
-    const handleAuthError = () => {
-      // Показываем уведомление об ошибке аутентификации
-      toast({
-        title: "Ошибка аутентификации",
-        description: "Ваша сессия устарела. Необходимо войти в систему повторно.",
-        variant: "destructive",
-        duration: 5000
-      });
-      
-      // Выполняем выход и перенаправляем на страницу входа
-      logout();
-      setLocation("/login");
-    };
-    
-    // Регистрируем обработчик события
-    window.addEventListener('authenticationError', handleAuthError);
-    
-    // Очистка при размонтировании
-    return () => {
-      window.removeEventListener('authenticationError', handleAuthError);
-    };
-  }, [setLocation, logout, toast]);
+  const { isAuthenticated } = useAuth();
+  const [location] = useLocation();
   
   // Check if we're on public pages
   const isPublicPage = location === "/" || location === "/login" || location === "/register" || 

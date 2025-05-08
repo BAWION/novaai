@@ -3,8 +3,6 @@ import SkillsRadarChart from "@/components/skills-radar-chart";
 import { SkillsTriangleChart } from "@/components/skills-dna";
 import useSkillsDna from "@/hooks/use-skills-dna";
 import { useUserProfile } from "@/context/user-profile-context";
-import { useAuth } from "@/context/auth-context";
-import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -47,10 +45,6 @@ export function SkillsDnaProfile({
     userId: resolvedUserId
   } = useSkillsDna(currentUserId);
   
-  // Получаем функции и состояние из контекста аутентификации
-  const { refreshAuth } = useAuth();
-  const { toast } = useToast();
-  
   // Выводим отладочную информацию о полученных данных
   console.log("[SkillsDnaProfile] Получены данные:", { 
     requestedUserId: currentUserId,
@@ -60,35 +54,6 @@ export function SkillsDnaProfile({
     isDataEmpty: isEmpty,
     isDemoMode
   });
-  
-  // Функция для повторной попытки авторизации и обновления данных
-  const handleRefreshAuth = async () => {
-    toast({
-      title: "Обновление сессии",
-      description: "Пытаемся восстановить вашу сессию...",
-      variant: "default"
-    });
-    
-    const success = await refreshAuth();
-    
-    if (success) {
-      toast({
-        title: "Сессия обновлена",
-        description: "Ваша сессия успешно восстановлена",
-        variant: "default"
-      });
-      // После успешной авторизации обновляем данные
-      refetch();
-    } else {
-      toast({
-        title: "Ошибка обновления сессии",
-        description: "Не удалось восстановить сессию. Пожалуйста, войдите в систему заново.",
-        variant: "destructive"
-      });
-      // Перенаправляем на страницу входа
-      setLocation("/login");
-    }
-  };
   
   // Если это демо-режим и данных нет, автоматически инициализируем демо-данные
   useEffect(() => {
@@ -258,28 +223,18 @@ export function SkillsDnaProfile({
                     <div className="bg-indigo-900/30 rounded-full p-4 mb-3">
                       <AlertTriangle className="h-10 w-10 text-amber-400" />
                     </div>
-                    <h3 className="text-lg font-medium text-white mb-2">Ошибка авторизации</h3>
+                    <h3 className="text-lg font-medium text-white mb-2">Требуется авторизация</h3>
                     <p className="text-white/70 text-sm mb-4 max-w-md">
-                      Для просмотра вашего профиля Skills DNA необходима активная сессия. 
-                      Проблема может быть связана с истечением срока сессии.
+                      Для просмотра вашего профиля Skills DNA необходимо войти в систему. 
+                      После авторизации вы получите доступ к персонализированным данным о ваших навыках.
                     </p>
-                    <div className="flex space-x-3">
-                      <Button 
-                        variant="outline"
-                        onClick={handleRefreshAuth}
-                        className="bg-indigo-900/30 hover:bg-indigo-800/50 border-indigo-500/30"
-                      >
-                        <RefreshCw className="h-4 w-4 mr-2" />
-                        Обновить сессию
-                      </Button>
-                      <Button 
-                        variant="default" 
-                        className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600"
-                        onClick={() => setLocation("/login")}
-                      >
-                        Войти снова
-                      </Button>
-                    </div>
+                    <Button 
+                      variant="default" 
+                      className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 mb-2"
+                      onClick={() => window.location.href = '/auth'}
+                    >
+                      Войти в систему
+                    </Button>
                   </>
                 ) : (
                   <>
@@ -357,29 +312,18 @@ export function SkillsDnaProfile({
                       <div className="bg-indigo-900/30 rounded-full p-3 mb-3">
                         <AlertTriangle className="h-8 w-8 text-amber-400" />
                       </div>
-                      <h3 className="text-white font-medium mb-2">Ошибка сессии</h3>
+                      <h3 className="text-white font-medium mb-2">Требуется авторизация</h3>
                       <p className="text-white/70 text-sm mb-3">
-                        Сессия устарела или прервана
+                        Авторизуйтесь для доступа к данным о ваших навыках
                       </p>
-                      <div className="flex space-x-2">
-                        <Button 
-                          variant="outline"
-                          size="sm"
-                          onClick={handleRefreshAuth}
-                          className="bg-indigo-900/30 hover:bg-indigo-800/50 border-indigo-500/30"
-                        >
-                          <RefreshCw className="h-3 w-3 mr-1" />
-                          Обновить
-                        </Button>
-                        <Button 
-                          variant="default" 
-                          size="sm"
-                          className="bg-gradient-to-r from-purple-500 to-indigo-500"
-                          onClick={() => setLocation("/login")}
-                        >
-                          Войти
-                        </Button>
-                      </div>
+                      <Button 
+                        variant="default" 
+                        size="sm"
+                        className="bg-gradient-to-r from-purple-500 to-indigo-500"
+                        onClick={() => window.location.href = '/auth'}
+                      >
+                        Войти в систему
+                      </Button>
                     </>
                   ) : (
                     <>

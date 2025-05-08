@@ -1,22 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { Brain, ChevronRight, RefreshCw, AlertTriangle } from "lucide-react";
+import { Brain, ChevronRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import useSkillsDna from "@/hooks/use-skills-dna";
-import { useAuth } from "@/context/auth-context";
-import { useToast } from "@/hooks/use-toast";
+import { SkillsTriangleChart } from "./triangle-chart";
 import { SkillsDnaModal } from "./modal-dialog";
-import { 
-  ResponsiveContainer, 
-  RadarChart, 
-  PolarGrid, 
-  PolarAngleAxis, 
-  Radar, 
-  Tooltip 
-} from "recharts";
 
 interface CompactSkillsDnaCardProps {
   userId?: number;
@@ -35,10 +26,6 @@ export function CompactSkillsDnaCard({
   const [, setLocation] = useLocation();
   const [showModal, setShowModal] = useState(false);
   
-  // Получаем функции и состояние из контекста аутентификации
-  const { refreshAuth } = useAuth();
-  const { toast } = useToast();
-  
   // Получаем данные Skills DNA
   const {
     skills,
@@ -46,38 +33,8 @@ export function CompactSkillsDnaCard({
     isLoading,
     error,
     isEmpty,
-    isDemoMode,
-    refetch
+    isDemoMode
   } = useSkillsDna(userId);
-  
-  // Функция для повторной попытки авторизации и обновления данных
-  const handleRefreshAuth = async () => {
-    toast({
-      title: "Обновление сессии",
-      description: "Пытаемся восстановить вашу сессию...",
-      variant: "default"
-    });
-    
-    const success = await refreshAuth();
-    
-    if (success) {
-      toast({
-        title: "Сессия обновлена",
-        description: "Ваша сессия успешно восстановлена",
-        variant: "default"
-      });
-      // После успешной авторизации обновляем данные
-      refetch();
-    } else {
-      toast({
-        title: "Ошибка обновления сессии",
-        description: "Не удалось восстановить сессию. Пожалуйста, войдите в систему заново.",
-        variant: "destructive"
-      });
-      // Перенаправляем на страницу входа
-      setLocation("/login");
-    }
-  };
   
   // Обработчик для открытия модального окна
   const handleViewFullProfile = (e: React.MouseEvent) => {
@@ -117,61 +74,7 @@ export function CompactSkillsDnaCard({
     );
   }
   
-  // Проверяем, является ли ошибка ошибкой аутентификации (401)
-  if (error && (error as any)?.status === 401) {
-    return (
-      <Card className={`bg-space-800/70 border-blue-500/20 ${className}`}>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-white flex items-center justify-between">
-            <div className="flex items-center">
-              <Brain className="h-5 w-5 mr-2" />
-              Skills DNA
-            </div>
-            <Badge 
-              variant="outline" 
-              className="bg-amber-500/20 border-amber-500/30 text-amber-300 text-xs animate-pulse"
-            >
-              Ошибка сессии
-            </Badge>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="pt-4">
-          <div className="flex flex-col items-center justify-center text-center">
-            <div className="bg-indigo-900/30 rounded-full p-4 mb-4 relative">
-              <AlertTriangle className="h-10 w-10 text-amber-400" />
-            </div>
-            
-            <h3 className="text-white font-medium mb-2">
-              Ошибка авторизации
-            </h3>
-            <p className="text-white/70 text-sm mb-4">
-              Ваша сессия могла устареть или быть прервана. Попробуйте обновить её или войти заново.
-            </p>
-            
-            <div className="flex space-x-3">
-              <Button 
-                variant="outline"
-                onClick={handleRefreshAuth}
-                className="bg-indigo-900/30 hover:bg-indigo-800/50 border-indigo-500/30"
-              >
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Обновить сессию
-              </Button>
-              <Button 
-                variant="default" 
-                className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600"
-                onClick={() => setLocation("/login")}
-              >
-                Войти снова
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-  
-  // Если нет данных или есть другая ошибка
+  // Если нет данных или есть ошибка
   if (error || isEmpty) {
     return (
       <Card className={`bg-space-800/70 border-blue-500/20 ${className}`}>
@@ -235,13 +138,12 @@ export function CompactSkillsDnaCard({
     }
   }
   
-  // Формируем данные для радарной диаграммы
-  // Старый код треугольной диаграммы больше не нужен
-  // const triangleSkills = {
-  //   top: { name: mainSkills[0][0], value: mainSkills[0][1] as number },
-  //   bottomLeft: { name: mainSkills[1][0], value: mainSkills[1][1] as number },
-  //   bottomRight: { name: mainSkills[2][0], value: mainSkills[2][1] as number }
-  // };
+  // Формируем объект с тремя основными навыками
+  const triangleSkills = {
+    top: { name: mainSkills[0][0], value: mainSkills[0][1] as number },
+    bottomLeft: { name: mainSkills[1][0], value: mainSkills[1][1] as number },
+    bottomRight: { name: mainSkills[2][0], value: mainSkills[2][1] as number }
+  };
   
   // Выделяем сильные и слабые навыки
   const strongSkills = skillEntries
@@ -273,48 +175,14 @@ export function CompactSkillsDnaCard({
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Радарная диаграмма навыков */}
+          {/* Треугольная диаграмма навыков */}
           <div className="pt-2">
-            <Card className="bg-transparent border-0 shadow-none">
-              <CardContent className="p-0">
-                <div className="w-full h-[280px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <RadarChart 
-                      cx="50%" 
-                      cy="50%" 
-                      outerRadius="80%" 
-                      data={Object.entries(skills).map(([key, value]) => ({
-                        category: key,
-                        value: value as number,
-                        fullMark: 100
-                      }))}
-                    >
-                      <PolarGrid stroke="#ffffff20" />
-                      <PolarAngleAxis 
-                        dataKey="category" 
-                        tick={{ fill: "#ffffffaa", fontSize: 11 }} 
-                      />
-                      <Radar
-                        name="Уровень навыков"
-                        dataKey="value"
-                        stroke="#8884d8"
-                        fill="#8884d8"
-                        fillOpacity={0.6}
-                      />
-                      <Tooltip 
-                        contentStyle={{ 
-                          backgroundColor: "#191c29", 
-                          border: "1px solid #414868",
-                          borderRadius: "4px",
-                          color: "#fff"
-                        }} 
-                        formatter={(value: number) => [`${value}%`, "Уровень"]}
-                      />
-                    </RadarChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
+            <SkillsTriangleChart 
+              skills={triangleSkills}
+              height={280}
+              width={280}
+              className="mx-auto"
+            />
           </div>
           
           {/* Общая картина */}
