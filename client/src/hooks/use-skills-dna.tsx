@@ -130,34 +130,67 @@ export default function useSkillsDna(userId?: number): SkillsDnaData {
     retryOnMount: demoMode || shouldUseDemoMode // В демо-режиме повторяем запрос при монтировании компонента
   });
 
-  // Эффект для переключения на демо-режим при ошибках 401
+  // Эффект для переключения на демо-режим при ошибках 401 или других проблемах аутентификации
   useEffect(() => {
+    // Проверяем наличие ошибок
+    const hasError = progressError || summaryError;
+    
+    // Отладочное логирование состояния ошибок
+    if (hasError) {
+      console.warn("[useSkillsDna] Обнаружены ошибки API, проверяем необходимость переключения в демо-режим", {
+        hasProgressError: !!progressError,
+        hasSummaryError: !!summaryError,
+        currentDemoMode: demoMode,
+        shouldUseDemoMode: shouldUseDemoMode,
+        currentUserId
+      });
+    }
+    
     // Только если получена ошибка и мы еще не в демо-режиме
-    if ((progressError || summaryError) && !demoMode && currentUserId !== 999) {
-      const error = progressError || summaryError;
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      const hasAuthError = errorMessage.includes('401') || 
-                           errorMessage.toLowerCase().includes('unauthorized') ||
-                           errorMessage.toLowerCase().includes('not authenticated');
+    if (hasError && !demoMode && !shouldUseDemoMode && currentUserId !== 999) {
+      // Подробно анализируем ошибку для определения типа
+      const detectAuthError = (err: any) => {
+        if (!err) return false;
+        
+        // Проверяем наличие статуса 401 в объекте error
+        if (err.status === 401) return true;
+        
+        // Проверяем сообщение ошибки
+        const errMsg = err instanceof Error ? err.message : String(err);
+        return errMsg.includes('401') || 
+               errMsg.toLowerCase().includes('unauthorized') ||
+               errMsg.toLowerCase().includes('not authenticated') ||
+               errMsg.toLowerCase().includes('авторизаци');
+      };
+      
+      const hasAuthError = detectAuthError(progressError) || detectAuthError(summaryError);
       
       if (hasAuthError) {
-        console.warn("[useSkillsDna] Получена ошибка аутентификации, переключаемся на демо-режим:", errorMessage);
+        console.warn("[useSkillsDna] Получена ошибка аутентификации, переключаемся на демо-режим:", {
+          progressError: progressError instanceof Error ? progressError.message : progressError,
+          summaryError: summaryError instanceof Error ? summaryError.message : summaryError,
+        });
+        
+        // Устанавливаем флаг демо-режима
         setShouldUseDemoMode(true);
         
-        // Запустим демо-данные
+        // Запускаем инициализацию демо-данных
+        console.log("[useSkillsDna] Запуск инициализации демо-данных...");
         diagnosisApi.initializeDemoData()
           .then(() => {
-            console.log("[useSkillsDna] Демо-данные успешно инициализированы");
+            console.log("[useSkillsDna] Демо-данные успешно инициализированы, обновляем запросы");
             // Обновим запросы после переключения на демо-режим
-            refetchProgress();
-            refetchSummary();
+            setTimeout(() => {
+              refetchProgress();
+              refetchSummary();
+            }, 100); // Небольшая задержка для гарантии применения состояния
           })
           .catch(error => {
             console.error("[useSkillsDna] Ошибка при инициализации демо-данных:", error);
           });
       }
     }
-  }, [progressError, summaryError, demoMode, currentUserId]);
+  }, [progressError, summaryError, demoMode, shouldUseDemoMode, currentUserId, refetchProgress, refetchSummary]);
 
   // Преобразуем данные прогресса в формат для радарной диаграммы
   const skillsData = progressData?.reduce((acc: Record<string, number>, item: any) => {
