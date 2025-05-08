@@ -130,7 +130,7 @@ export default function useSkillsDna(userId?: number): SkillsDnaData {
     retryOnMount: demoMode || shouldUseDemoMode // В демо-режиме повторяем запрос при монтировании компонента
   });
 
-  // Эффект для логирования ошибок аутентификации
+  // Эффект для обработки ошибок аутентификации
   useEffect(() => {
     // Проверяем наличие ошибок
     const hasError = progressError || summaryError;
@@ -161,11 +161,19 @@ export default function useSkillsDna(userId?: number): SkillsDnaData {
           userId: currentUserId
         });
         
-        // Только логируем ошибку, но НЕ переключаемся на демо-режим
-        // Пользователю будет показана пустая диаграмма или сообщение о необходимости авторизации
+        // Если у нас есть пользователь, но API возвращает 401,
+        // это означает, что токен авторизации недействителен, но мы не хотим показывать ошибку
+        // Включаем демо-режим, чтобы пользователь видел данные
+        if (authUser || userProfile?.userId) {
+          console.log("[useSkillsDna] Переключение на демо-режим из-за проблем с аутентификацией при наличии пользователя");
+          setShouldUseDemoMode(true);
+        } else {
+          // Пользователь не авторизован - показываем сообщение о необходимости авторизации
+          console.log("[useSkillsDna] Пользователь не авторизован, показываем сообщение об ошибке");
+        }
       }
     }
-  }, [progressError, summaryError, currentUserId]);
+  }, [progressError, summaryError, currentUserId, authUser, userProfile]);
 
   // Преобразуем данные прогресса в формат для радарной диаграммы
   const skillsData = progressData?.reduce((acc: Record<string, number>, item: any) => {
