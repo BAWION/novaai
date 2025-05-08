@@ -184,6 +184,12 @@ export function CompactSkillsDnaCard({
               showControls={false}
               className="bg-transparent border-0"
             />
+            <div className="text-center mt-2 mb-3">
+              <div className="flex items-center justify-center gap-2">
+                <div className="w-3 h-3 bg-purple-500/60 rounded-full"></div>
+                <span className="text-blue-300/90 text-sm">Уровень навыков</span>
+              </div>
+            </div>
           </div>
           
           {/* Общая картина */}

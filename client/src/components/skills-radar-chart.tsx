@@ -245,17 +245,18 @@ export default function SkillsRadarChart({
                       outerRadius="80%" 
                       data={filteredData}
                     >
-                      <PolarGrid stroke="#ffffff20" />
+                      <PolarGrid stroke="#ffffff10" />
                       <PolarAngleAxis 
                         dataKey="category" 
-                        tick={{ fill: "#ffffffaa", fontSize: 11 }} 
+                        tick={{ fill: "#ffffffcc", fontSize: 10 }}
+                        tickLine={false}
                       />
                       <Radar
                         name="Уровень навыков"
                         dataKey="value"
-                        stroke="#8884d8"
-                        fill="#8884d8"
-                        fillOpacity={0.6}
+                        stroke="#6E3AFF"
+                        fill="#6E3AFF"
+                        fillOpacity={0.4}
                       />
                       <Tooltip 
                         contentStyle={{ 
@@ -302,7 +303,7 @@ export default function SkillsRadarChart({
                 outerRadius="80%" 
                 data={filteredData}
               >
-                <PolarGrid stroke="#ffffff20" />
+                <PolarGrid stroke="#ffffff10" />
                 <PolarAngleAxis 
                   dataKey="category" 
                   tick={{ fill: "#ffffffaa", fontSize: 11 }} 
@@ -310,9 +311,9 @@ export default function SkillsRadarChart({
                 <Radar
                   name="Уровень навыков"
                   dataKey="value"
-                  stroke="#8884d8"
-                  fill="#8884d8"
-                  fillOpacity={0.6}
+                  stroke="#6E3AFF"
+                  fill="#6E3AFF"
+                  fillOpacity={0.4}
                 />
                 <Tooltip 
                   contentStyle={{ 
