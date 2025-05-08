@@ -339,19 +339,32 @@ export default function Dashboard() {
   useEffect(() => {
     // Если пользователь пришел после регистрации из onboarding
     // или если пользователь авторизован, но еще не прошел онбординг
+    // или если пользователь в демо-режиме
     const fromRegistration = sessionStorage.getItem("fromRegistrationAfterOnboarding") === "true";
+    const isFirstVisit = sessionStorage.getItem("firstVisitCompleted") !== "true";
     
-    if (fromRegistration || (user && userProfile && !userProfile.completedOnboarding)) {
+    // Проверяем, является ли это первым входом в демо-режиме
+    if (fromRegistration || (user && userProfile && !userProfile.completedOnboarding) || (isDemoMode && isFirstVisit)) {
       // Показываем приветственное модальное окно, вместо обычной подсказки
       setShowWelcomeModal(true);
-      console.log("Открываем приветственное модальное окно для нового пользователя");
+      console.log("Открываем приветственное модальное окно для нового пользователя", {
+        isDemoMode, 
+        isFirstVisit, 
+        fromRegistration,
+        userId: user?.id || 'demo'
+      });
       
       // Удаляем флаг, если он был установлен
       if (fromRegistration) {
         sessionStorage.removeItem("fromRegistrationAfterOnboarding");
       }
+      
+      // Отмечаем, что первый визит завершен
+      if (isFirstVisit) {
+        sessionStorage.setItem("firstVisitCompleted", "true");
+      }
     }
-  }, [user, userProfile]);
+  }, [user, userProfile, isDemoMode]);
 
   // Обработчик начала онбординга - направляем сразу на глубокую диагностику
   const handleStartOnboarding = () => {
