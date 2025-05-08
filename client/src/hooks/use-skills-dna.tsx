@@ -130,24 +130,13 @@ export default function useSkillsDna(userId?: number): SkillsDnaData {
     retryOnMount: demoMode || shouldUseDemoMode // В демо-режиме повторяем запрос при монтировании компонента
   });
 
-  // Эффект для переключения на демо-режим при ошибках 401 или других проблемах аутентификации
+  // Эффект для логирования ошибок аутентификации
   useEffect(() => {
     // Проверяем наличие ошибок
     const hasError = progressError || summaryError;
     
     // Отладочное логирование состояния ошибок
     if (hasError) {
-      console.warn("[useSkillsDna] Обнаружены ошибки API, проверяем необходимость переключения в демо-режим", {
-        hasProgressError: !!progressError,
-        hasSummaryError: !!summaryError,
-        currentDemoMode: demoMode,
-        shouldUseDemoMode: shouldUseDemoMode,
-        currentUserId
-      });
-    }
-    
-    // Только если получена ошибка и мы еще не в демо-режиме
-    if (hasError && !demoMode && !shouldUseDemoMode && currentUserId !== 999) {
       // Подробно анализируем ошибку для определения типа
       const detectAuthError = (err: any) => {
         if (!err) return false;
@@ -166,31 +155,17 @@ export default function useSkillsDna(userId?: number): SkillsDnaData {
       const hasAuthError = detectAuthError(progressError) || detectAuthError(summaryError);
       
       if (hasAuthError) {
-        console.warn("[useSkillsDna] Получена ошибка аутентификации, переключаемся на демо-режим:", {
+        console.warn("[useSkillsDna] Обнаружена ошибка аутентификации:", {
           progressError: progressError instanceof Error ? progressError.message : progressError,
           summaryError: summaryError instanceof Error ? summaryError.message : summaryError,
+          userId: currentUserId
         });
         
-        // Устанавливаем флаг демо-режима
-        setShouldUseDemoMode(true);
-        
-        // Запускаем инициализацию демо-данных
-        console.log("[useSkillsDna] Запуск инициализации демо-данных...");
-        diagnosisApi.initializeDemoData()
-          .then(() => {
-            console.log("[useSkillsDna] Демо-данные успешно инициализированы, обновляем запросы");
-            // Обновим запросы после переключения на демо-режим
-            setTimeout(() => {
-              refetchProgress();
-              refetchSummary();
-            }, 100); // Небольшая задержка для гарантии применения состояния
-          })
-          .catch(error => {
-            console.error("[useSkillsDna] Ошибка при инициализации демо-данных:", error);
-          });
+        // Только логируем ошибку, но НЕ переключаемся на демо-режим
+        // Пользователю будет показана пустая диаграмма или сообщение о необходимости авторизации
       }
     }
-  }, [progressError, summaryError, demoMode, shouldUseDemoMode, currentUserId, refetchProgress, refetchSummary]);
+  }, [progressError, summaryError, currentUserId]);
 
   // Преобразуем данные прогресса в формат для радарной диаграммы
   const skillsData = progressData?.reduce((acc: Record<string, number>, item: any) => {
