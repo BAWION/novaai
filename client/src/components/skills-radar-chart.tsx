@@ -233,8 +233,68 @@ export default function SkillsRadarChart({
       </CardHeader>
       
       <CardContent className="pt-2">
-        <TabsContent value="radar" className="mt-0">
-          <div className="w-full h-64 md:h-80">
+        {showControls ? (
+          <>
+            <Tabs defaultValue="radar" value={viewType}>
+              <TabsContent value="radar" className="mt-0">
+                <div className="w-full h-64 md:h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RadarChart 
+                      cx="50%" 
+                      cy="50%" 
+                      outerRadius="80%" 
+                      data={filteredData}
+                    >
+                      <PolarGrid stroke="#ffffff20" />
+                      <PolarAngleAxis 
+                        dataKey="category" 
+                        tick={{ fill: "#ffffffaa", fontSize: 11 }} 
+                      />
+                      <Radar
+                        name="Уровень навыков"
+                        dataKey="value"
+                        stroke="#8884d8"
+                        fill="#8884d8"
+                        fillOpacity={0.6}
+                      />
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: "#191c29", 
+                          border: "1px solid #414868",
+                          borderRadius: "4px",
+                          color: "#fff"
+                        }} 
+                        formatter={(value) => [`${value}%`, "Уровень"]}
+                      />
+                      <Legend />
+                    </RadarChart>
+                  </ResponsiveContainer>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="list" className="mt-0">
+                <div className="space-y-2 pt-4">
+                  {filteredData.map((skill, index) => (
+                    <div key={index} className="flex flex-col">
+                      <div className="flex justify-between items-center">
+                        <span className="text-white text-sm">{skill.category}</span>
+                        <span className="text-white/80 text-sm font-medium">{skill.value}%</span>
+                      </div>
+                      <div className="w-full h-2 bg-white/10 rounded-full mt-1">
+                        <div 
+                          className="h-full bg-gradient-to-r from-blue-400 to-indigo-400 rounded-full"
+                          style={{ width: `${skill.value}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </TabsContent>
+            </Tabs>
+          </>
+        ) : (
+          // Простая радарная диаграмма без табов
+          <div className="w-full h-64 md:h-72">
             <ResponsiveContainer width="100%" height="100%">
               <RadarChart 
                 cx="50%" 
@@ -263,30 +323,10 @@ export default function SkillsRadarChart({
                   }} 
                   formatter={(value) => [`${value}%`, "Уровень"]}
                 />
-                <Legend />
               </RadarChart>
             </ResponsiveContainer>
           </div>
-        </TabsContent>
-        
-        <TabsContent value="list" className="mt-0">
-          <div className="space-y-2 pt-4">
-            {filteredData.map((skill, index) => (
-              <div key={index} className="flex flex-col">
-                <div className="flex justify-between items-center">
-                  <span className="text-white text-sm">{skill.category}</span>
-                  <span className="text-white/80 text-sm font-medium">{skill.value}%</span>
-                </div>
-                <div className="w-full h-2 bg-white/10 rounded-full mt-1">
-                  <div 
-                    className="h-full bg-gradient-to-r from-blue-400 to-indigo-400 rounded-full"
-                    style={{ width: `${skill.value}%` }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </TabsContent>
+        )}
       </CardContent>
     </Card>
   );
