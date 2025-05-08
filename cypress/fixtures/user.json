@@ -1,0 +1,31 @@
+{
+  "validUser": {
+    "username": "test_user",
+    "password": "Password123!",
+    "displayName": "Test User"
+  },
+  "skillProbes": [
+    {
+      "prompt": "Write a prompt for generating creative story ideas",
+      "category": "prompt_engineering"
+    },
+    {
+      "prompt": "Create a prompt that analyzes financial data and identifies trends",
+      "category": "data_analysis"
+    },
+    {
+      "prompt": "Design a prompt that generates effective marketing copy for a new product",
+      "category": "content_creation"
+    }
+  ],
+  "courses": [
+    {
+      "name": "Основы искусственного интеллекта",
+      "slug": "ai-fundamentals"
+    },
+    {
+      "name": "Prompt Engineering",
+      "slug": "prompt-engineering"
+    }
+  ]
+}
