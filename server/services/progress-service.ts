@@ -13,7 +13,7 @@ import {
   lessonSkillsDna
 } from '@shared/schema';
 import { eq, and, sql } from 'drizzle-orm';
-import { skillGraphService } from './skill-graph-service';
+import { skillGraphService, skillEventBus } from './skill-graph-service';
 
 interface LessonCompletionResult {
   lessonId: number;
@@ -154,6 +154,12 @@ class ProgressService {
           });
         }
       }
+    }
+    
+    // Отправляем событие об изменении навыков для обновления Bridge
+    if (updatedSkills.length > 0) {
+      skillEventBus.emit('skills_changed', userId);
+      console.log(`[ProgressService] Отправлено событие skills_changed для пользователя ${userId}`);
     }
     
     return {
