@@ -40,6 +40,8 @@ import skillProbeRouter from "./routes/skill-probe-api";
 // Импортируем маршрут для функциональности S4 (INSIGHT "Time-Saved")
 import { timeSavedRouter } from "./routes/time-saved-api";
 import { skillsRouter } from "./routes/skills-api";
+// Импортируем маршрутизатор для AB-тестирования
+import { abTestRouter } from "./routes/ab-test";
 
 // Add any middleware needed
 const authMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
