@@ -268,7 +268,7 @@ export default function Login() {
                 <div className="space-y-4">
                   <button
                     onClick={toggleLoginForm}
-                    className="w-full bg-gradient-to-r from-[#6E3AFF] to-[#B28DFF] hover:from-[#6E3AFF]/90 hover:to-[#B28DFF]/90 text-white py-3 px-4 rounded-lg font-medium transition duration-300 flex items-center justify-center tap-highlight-none btn-mobile"
+                    className="w-full bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:from-[#4922B2] hover:to-[#1682A1] text-white py-3 px-4 rounded-lg font-medium transition duration-300 flex items-center justify-center tap-highlight-none btn-mobile"
                   >
                     <i className="fas fa-user mr-2"></i>
                     <span>Войти с паролем</span>
@@ -276,7 +276,7 @@ export default function Login() {
 
                   <button
                     onClick={handleStartJourney}
-                    className="w-full border border-[#6E3AFF]/30 hover:bg-[#6E3AFF]/10 text-white py-3 px-4 rounded-lg font-medium transition duration-300 flex items-center justify-center tap-highlight-none btn-mobile"
+                    className="w-full border border-white/20 hover:bg-white/10 text-white py-3 px-4 rounded-lg font-medium transition duration-300 flex items-center justify-center tap-highlight-none btn-mobile"
                   >
                     <span>Начать знакомство</span>
                     <i className="fas fa-arrow-right ml-2"></i>
@@ -295,7 +295,7 @@ export default function Login() {
                     type="text"
                     value={credentials.username}
                     onChange={handleInputChange}
-                    className="w-full bg-white/10 border border-[#6E3AFF]/30 rounded-lg py-2 px-3 text-white placeholder:text-white/50 focus:ring-2 focus:ring-[#6E3AFF]/50 focus:border-[#B28DFF] transition-all"
+                    className="w-full bg-white/10 border border-white/20 rounded-lg py-2 px-3 text-white placeholder:text-white/50 focus:ring-2 focus:ring-[#6E3AFF]/50 focus:border-[#6E3AFF] transition-all"
                     placeholder="Введите имя пользователя"
                   />
                 </div>
@@ -309,8 +309,8 @@ export default function Login() {
                       .colorful-password-login {
                         font-size: 24px;
                         letter-spacing: 4px;
-                        color: #6E3AFF !important;
-                        text-shadow: 0 0 8px rgba(110, 58, 255, 0.5);
+                        color: #9d4edd !important;
+                        text-shadow: 0 0 8px rgba(157, 78, 221, 0.5);
                       }
                     `}
                   </style>
@@ -320,7 +320,7 @@ export default function Login() {
                     type="password"
                     value={credentials.password}
                     onChange={handleInputChange}
-                    className="w-full bg-white/10 border-2 border-[#6E3AFF] rounded-lg py-2 px-3 text-white focus:ring-2 focus:ring-[#6E3AFF]/50 focus:border-[#B28DFF] transition-all colorful-password-login"
+                    className="w-full bg-white/10 border-2 border-purple-500 rounded-lg py-2 px-3 text-white focus:ring-2 focus:ring-[#6E3AFF]/50 focus:border-[#6E3AFF] transition-all colorful-password-login"
                   />
                 </div>
 
@@ -334,7 +334,7 @@ export default function Login() {
                   <button
                     type="button"
                     onClick={toggleLoginForm}
-                    className="flex-1 border border-[#6E3AFF]/30 hover:bg-[#6E3AFF]/10 text-white py-2 px-4 rounded-lg transition duration-300 tap-highlight-none btn-mobile"
+                    className="flex-1 border border-white/20 hover:bg-white/10 text-white py-2 px-4 rounded-lg transition duration-300 tap-highlight-none btn-mobile"
                     disabled={isLoggingIn}
                   >
                     Назад
@@ -345,7 +345,7 @@ export default function Login() {
                       console.log("Кнопка входа нажата напрямую");
                       handleLoginSubmit(e as any);
                     }}
-                    className="flex-1 bg-gradient-to-r from-[#6E3AFF] to-[#B28DFF] hover:from-[#6E3AFF]/90 hover:to-[#B28DFF]/90 text-white py-2 px-4 rounded-lg font-medium transition duration-300 flex items-center justify-center tap-highlight-none btn-mobile"
+                    className="flex-1 bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:from-[#4922B2] hover:to-[#1682A1] text-white py-2 px-4 rounded-lg font-medium transition duration-300 flex items-center justify-center tap-highlight-none btn-mobile"
                     disabled={isLoggingIn}
                   >
                     {isLoggingIn ? (
@@ -391,7 +391,7 @@ export default function Login() {
             <div className="mt-4 text-center">
               <button
                 onClick={() => navigate("/")}
-                className="text-white/70 hover:text-white py-2 px-4 rounded-lg text-sm transition-all border border-[#6E3AFF]/30 hover:bg-[#6E3AFF]/10 inline-flex items-center"
+                className="text-white/70 hover:text-white py-2 px-4 rounded-lg text-sm transition-all border border-white/10 hover:bg-white/5 inline-flex items-center"
               >
                 <i className="fas fa-home mr-2"></i>
                 Вернуться на главную
