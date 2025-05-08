@@ -6,7 +6,7 @@ import { ProgressRing } from "@/components/ui/progress-ring";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useUserProfile } from "@/context/user-profile-context";
 import { UserRole, UserInterest } from "@/lib/constants";
-import { SkillsDnaProfile } from "@/components/skills-dna-profile";
+// Импорт SkillsDnaProfile удален
 import { useLocation } from "wouter";
 
 // Вспомогательные функции для получения русских названий ролей и интересов
@@ -117,23 +117,22 @@ export default function Profile() {
   const { userProfile } = useUserProfile();
   const [location] = useLocation();
   const [activeTab, setActiveTab] = useState("overview");
-  const [isDeepdDiagnosis, setIsDeepdDiagnosis] = useState(false);
   const [editMode, setEditMode] = useState(false);
   
-  // Обработка URL-параметров для переключения на вкладку Skills DNA
+  // Обработка URL-параметров для переключения на вкладки
   useEffect(() => {
     // Парсим URL-параметры
     const params = new URLSearchParams(window.location.search);
     const section = params.get('section');
-    const isDeep = params.get('deep') === 'true';
     
-    // Если указан параметр section=skills-dna, переключаемся на эту вкладку
-    if (section === 'skills-dna') {
-      setActiveTab('overview'); // Вкладка обзора содержит Skills DNA
-      setIsDeepdDiagnosis(isDeep); // Устанавливаем флаг глубокой диагностики
-      
-      console.log('[ProfilePage] Переключение на Skills DNA, глубокая диагностика:', isDeep);
+    // Если указан параметр section, переключаемся на соответствующую вкладку
+    if (section && ['overview', 'certificates', 'courses', 'achievements'].includes(section)) {
+      setActiveTab(section);
+      console.log(`[ProfilePage] Переключение на вкладку: ${section}`);
     }
+    
+    // Обратите внимание: параметр section=skills-dna больше не поддерживается,
+    // так как Skills DNA теперь доступен только на мостике
   }, [location]);
   
   const [profileData, setProfileData] = useState({
@@ -514,19 +513,7 @@ export default function Profile() {
                 </Glassmorphism>
               </motion.div>
               
-              {/* Skills DNA Profile */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.4 }}
-              >
-                <SkillsDnaProfile 
-                  userId={userProfile?.userId}
-                  showHeader={true}
-                  className="mt-4"
-                  isDeepdDiagnosis={isDeepdDiagnosis}
-                />
-              </motion.div>
+              {/* Skills DNA Profile удален из профиля, теперь доступен только на мостике */}
               
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
