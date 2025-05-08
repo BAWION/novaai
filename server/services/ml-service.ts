@@ -61,8 +61,8 @@ export class MLService {
    */
   private async initRecommendationModel() {
     try {
-      // Проверяем наличие активной модели типа "course_recommendation"
-      const activeModel = await this.mlStorage.getActiveMlModelByType("course_recommendation");
+      // Проверяем наличие активной модели типа "recommendation"
+      const activeModel = await this.mlStorage.getActiveMlModelByType("recommendation");
       
       if (activeModel && activeModel.configuration) {
         // Десериализуем модель из конфигурации
