@@ -541,6 +541,99 @@ export class MLStorage {
     return await query;
   }
 
+  /**
+   * S3 (SMART QUEST) - Получение информации о пользователе
+   */
+  async getUser(userId: number) {
+    try {
+      const [user] = await db.select().from(users).where(eq(users.id, userId));
+      return user;
+    } catch (error) {
+      console.error(`Error getting user ${userId}:`, error);
+      return null;
+    }
+  }
+  
+  /**
+   * S3 (SMART QUEST) - Получение профиля пользователя
+   */
+  async getUserProfile(userId: number) {
+    try {
+      const [profile] = await db.select().from(userProfiles).where(eq(userProfiles.userId, userId));
+      return profile;
+    } catch (error) {
+      console.error(`Error getting profile for user ${userId}:`, error);
+      return null;
+    }
+  }
+  
+  /**
+   * S3 (SMART QUEST) - Получение навыков пользователя
+   */
+  async getUserSkills(userId: number) {
+    try {
+      return await db.select().from(userSkillsDnaProgress).where(eq(userSkillsDnaProgress.userId, userId));
+    } catch (error) {
+      console.error(`Error getting skills for user ${userId}:`, error);
+      return [];
+    }
+  }
+  
+  /**
+   * S3 (SMART QUEST) - Получение требуемых навыков для курса
+   */
+  async getCourseSkillRequirements(courseId: number) {
+    try {
+      return await db.select().from(courseSkillRequirements).where(eq(courseSkillRequirements.courseId, courseId));
+    } catch (error) {
+      console.error(`Error getting skill requirements for course ${courseId}:`, error);
+      return [];
+    }
+  }
+  
+  /**
+   * S3 (SMART QUEST) - Получение статистики курса
+   */
+  async getCourseStatistics(courseId: number) {
+    try {
+      // Получаем количество записанных на курс студентов
+      const [enrollmentCount] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(courseEnrollments)
+        .where(eq(courseEnrollments.courseId, courseId));
+      
+      // Получаем среднюю оценку курса
+      const [avgRating] = await db
+        .select({ avg: sql<number>`avg(rating)` })
+        .from(courseRatings)
+        .where(eq(courseRatings.courseId, courseId));
+      
+      // Получаем количество завершивших курс
+      const [completionCount] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(courseEnrollments)
+        .where(
+          and(
+            eq(courseEnrollments.courseId, courseId),
+            eq(courseEnrollments.status, 'completed')
+          )
+        );
+      
+      return {
+        enrollmentCount: enrollmentCount?.count || 0,
+        avgRating: avgRating?.avg || 0,
+        completionCount: completionCount?.count || 0
+      };
+    } catch (error) {
+      console.error(`Error getting statistics for course ${courseId}:`, error);
+      return {
+        enrollmentCount: 0,
+        avgRating: 0,
+        completionCount: 0
+      };
+    }
+  }
+  
   async getEventStats(
     eventType: string,
     timeframe: 'day' | 'week' | 'month',
