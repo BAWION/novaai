@@ -312,7 +312,7 @@ export class MLService {
       const mlModel = await this.mlStorage.createMlModel({
         name: this.recommendationModel.name,
         description: "Начальная модель рекомендаций курсов на основе LightGBM",
-        type: "course_recommendation",
+        type: "recommendation",
         version: this.recommendationModel.version,
         active: true,
         configuration: serializedModel,
