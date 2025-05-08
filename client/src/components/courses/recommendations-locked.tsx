@@ -28,7 +28,7 @@ export function RecommendationsLocked({
       <CardHeader className="pb-2">
         <CardTitle className="text-white flex items-center justify-between">
           <div className="flex items-center">
-            <Book className="h-5 w-5 mr-2 text-indigo-300" />
+            <Book className="h-5 w-5 mr-2 text-[#6E3AFF]" />
             Рекомендуемые курсы
           </div>
           <Badge 

@@ -90,7 +90,7 @@ export function CompactSkillsDnaCard({
         <CardHeader className="pb-2">
           <CardTitle className="text-white flex items-center justify-between">
             <div className="flex items-center">
-              <Brain className="h-5 w-5 mr-2" />
+              <Brain className="h-5 w-5 mr-2 text-[#6E3AFF]" />
               Skills DNA
             </div>
             <Badge 
@@ -163,7 +163,7 @@ export function CompactSkillsDnaCard({
         <CardHeader className="pb-2">
           <CardTitle className="text-white flex items-center justify-between">
             <div className="flex items-center">
-              <Brain className="h-5 w-5 mr-2" />
+              <Brain className="h-5 w-5 mr-2 text-[#6E3AFF]" />
               Skills DNA
             </div>
             <Badge 
@@ -246,7 +246,7 @@ export function CompactSkillsDnaCard({
         <CardHeader className="pb-2">
           <div className="flex justify-between items-center">
             <CardTitle className="text-white flex items-center">
-              <Brain className="h-5 w-5 mr-2" />
+              <Brain className="h-5 w-5 mr-2 text-[#6E3AFF]" />
               Skills DNA
             </CardTitle>
             {isDemoMode && (
