@@ -245,7 +245,7 @@ export default function SkillsRadarChart({
                       outerRadius="80%" 
                       data={filteredData}
                     >
-                      <PolarGrid stroke="#ffffff10" />
+                      <PolarGrid stroke="#ffffff10" gridType="polygon" />
                       <PolarAngleAxis 
                         dataKey="category" 
                         tick={{ fill: "#ffffffcc", fontSize: 10 }}
@@ -303,10 +303,11 @@ export default function SkillsRadarChart({
                 outerRadius="80%" 
                 data={filteredData}
               >
-                <PolarGrid stroke="#ffffff10" />
+                <PolarGrid stroke="#ffffff10" gridType="polygon" />
                 <PolarAngleAxis 
                   dataKey="category" 
-                  tick={{ fill: "#ffffffaa", fontSize: 11 }} 
+                  tick={{ fill: "#ffffffcc", fontSize: 10 }}
+                  tickLine={false}
                 />
                 <Radar
                   name="Уровень навыков"
