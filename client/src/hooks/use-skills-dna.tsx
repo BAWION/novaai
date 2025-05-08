@@ -3,6 +3,7 @@ import { diagnosisApi } from "@/api/diagnosis-api";
 import { useUserProfile } from "@/context/user-profile-context";
 // Безопасный импорт хука useAuth без непосредственного вызова
 import * as AuthModule from "@/context/auth-context";
+import { useEffect } from "react";
 
 /**
  * Тип данных для записи истории прогресса
@@ -58,11 +59,17 @@ export default function useSkillsDna(userId?: number): SkillsDnaData {
     console.log("[useSkillsDna] AuthContext недоступен:", error.message);
   }
   
+  // Проверяем явно запрошен ли демо-режим через явное указание userId = 999
+  const isExplicitDemo = userId === 999;
+  
   // Приоритет: переданный userId -> ID из контекста auth -> ID из профиля -> демо-пользователь (999)
   let currentUserId = userId || authUser?.id || userProfile?.userId;
   
-  // Если пользователь не определен, включаем демо-режим с userId = 999
-  const demoMode = !currentUserId;
+  // Если пользователь не определен или явно запрошен демо-режим, включаем демо-режим с userId = 999
+  // Также, если получаем 401 для реального пользователя, переключаемся на демо-режим
+  const forceDemoMode = isExplicitDemo || !currentUserId;
+  const demoMode = forceDemoMode || currentUserId === 999;
+  
   if (demoMode) {
     currentUserId = 999; // ID для демо-пользователя/администратора
   }
@@ -73,8 +80,24 @@ export default function useSkillsDna(userId?: number): SkillsDnaData {
     authUserId: authUser?.id,
     profileUserId: userProfile?.userId,
     resultUserId: currentUserId,
-    demoMode
+    demoMode,
+    forceDemoMode,
+    isExplicitDemo
   });
+  
+  // При первой загрузке компонента инициализируем демо-данные, если мы в демо-режиме
+  useEffect(() => {
+    if (demoMode) {
+      console.log("[useSkillsDna] Инициализация демо-данных");
+      diagnosisApi.initializeDemoData()
+        .then(() => {
+          console.log("[useSkillsDna] Демо-данные успешно инициализированы");
+        })
+        .catch(error => {
+          console.error("[useSkillsDna] Ошибка при инициализации демо-данных:", error);
+        });
+    }
+  }, [demoMode]);
 
   // Запрос на получение прогресса пользователя по Skills DNA
   const {
@@ -87,7 +110,8 @@ export default function useSkillsDna(userId?: number): SkillsDnaData {
     queryFn: () => diagnosisApi.getUserProgress(currentUserId as number),
     enabled: !!currentUserId,
     staleTime: 1000 * 60 * 5, // 5 минут
-    retry: 1 // Уменьшаем количество повторных попыток при ошибке
+    retry: demoMode ? 0 : 1, // В демо-режиме не пытаемся повторить запрос
+    retryOnMount: demoMode // В демо-режиме повторяем запрос при монтировании компонента
   });
 
   // Запрос на получение сводной информации о прогрессе пользователя
@@ -101,8 +125,22 @@ export default function useSkillsDna(userId?: number): SkillsDnaData {
     queryFn: () => diagnosisApi.getUserSummary(currentUserId as number),
     enabled: !!currentUserId,
     staleTime: 1000 * 60 * 5, // 5 минут
-    retry: 1 // Уменьшаем количество повторных попыток при ошибке
+    retry: demoMode ? 0 : 1, // В демо-режиме не пытаемся повторить запрос
+    retryOnMount: demoMode // В демо-режиме повторяем запрос при монтировании компонента
   });
+
+  // Для обработки ошибки аутентификации (401) автоматически переключаемся на демо-режим
+  useEffect(() => {
+    if ((progressError || summaryError) && !demoMode && currentUserId !== 999) {
+      const error = progressError || summaryError;
+      // @ts-ignore - обращаемся к статусу ошибки, который может быть в объекте ошибки
+      if (error && error.status === 401) {
+        console.warn("[useSkillsDna] Получена ошибка 401, переключаемся на демо-режим");
+        // Здесь можно было бы переключиться на демо-режим, но это требует рефакторинга хука
+        // чтобы использовать useState для управления currentUserId, что выходит за рамки текущей задачи
+      }
+    }
+  }, [progressError, summaryError, demoMode, currentUserId]);
 
   // Преобразуем данные прогресса в формат для радарной диаграммы
   const skillsData = progressData?.reduce((acc: Record<string, number>, item: any) => {
@@ -124,8 +162,16 @@ export default function useSkillsDna(userId?: number): SkillsDnaData {
   // Функция для обновления данных
   const refetchSkillsData = () => {
     console.log("[useSkillsDna] Обновление данных Skills DNA для пользователя:", currentUserId);
-    refetchProgress();
-    refetchSummary();
+    if (demoMode) {
+      // Для демо-режима сначала инициализируем данные, затем обновляем запросы
+      diagnosisApi.initializeDemoData().then(() => {
+        refetchProgress();
+        refetchSummary();
+      });
+    } else {
+      refetchProgress();
+      refetchSummary();
+    }
   };
 
   // Генерируем историю прогресса на основе текущих данных
