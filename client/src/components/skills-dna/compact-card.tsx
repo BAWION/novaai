@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import useSkillsDna from "@/hooks/use-skills-dna";
-import { SkillsTriangleChart } from "./triangle-chart";
+import SkillsRadarChart from "@/components/skills-radar-chart";
 import { SkillsDnaModal } from "./modal-dialog";
 
 interface CompactSkillsDnaCardProps {
@@ -138,12 +138,11 @@ export function CompactSkillsDnaCard({
     }
   }
   
-  // Формируем объект с тремя основными навыками
-  const triangleSkills = {
-    top: { name: mainSkills[0][0], value: mainSkills[0][1] as number },
-    bottomLeft: { name: mainSkills[1][0], value: mainSkills[1][1] as number },
-    bottomRight: { name: mainSkills[2][0], value: mainSkills[2][1] as number }
-  };
+  // Формируем данные для радарной диаграммы
+  const skillsForRadar = Object.entries(skills).map(([name, value]) => ({
+    name,
+    value: value as number
+  }));
   
   // Выделяем сильные и слабые навыки
   const strongSkills = skillEntries
