@@ -112,7 +112,7 @@ export function CompactSkillsDnaCard({
               Доступно после диагностики
             </h3>
             <p className="text-white/70 text-sm mb-5 max-w-xs text-center">
-              Пройдите единую диагностику из 15 вопросов для разблокировки персонального профиля
+              Пройдите единую диагностику из 15 вопросов для получения персональных рекомендаций
             </p>
             
             <Button 
@@ -183,8 +183,8 @@ export function CompactSkillsDnaCard({
             <h3 className="text-white font-medium mb-2">
               Необходима диагностика
             </h3>
-            <p className="text-white/70 text-sm mb-5">
-              Пройдите единую диагностику из 15 вопросов для формирования персонального профиля Skills DNA
+            <p className="text-white/70 text-sm mb-5 max-w-xs text-center">
+              Пройдите единую диагностику из 15 вопросов для получения персональных рекомендаций
             </p>
             
             <Button 
