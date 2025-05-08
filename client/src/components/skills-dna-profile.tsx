@@ -357,18 +357,29 @@ export function SkillsDnaProfile({
                       <div className="bg-indigo-900/30 rounded-full p-3 mb-3">
                         <AlertTriangle className="h-8 w-8 text-amber-400" />
                       </div>
-                      <h3 className="text-white font-medium mb-2">Требуется авторизация</h3>
+                      <h3 className="text-white font-medium mb-2">Ошибка сессии</h3>
                       <p className="text-white/70 text-sm mb-3">
-                        Авторизуйтесь для доступа к данным о ваших навыках
+                        Сессия устарела или прервана
                       </p>
-                      <Button 
-                        variant="default" 
-                        size="sm"
-                        className="bg-gradient-to-r from-purple-500 to-indigo-500"
-                        onClick={() => window.location.href = '/auth'}
-                      >
-                        Войти в систему
-                      </Button>
+                      <div className="flex space-x-2">
+                        <Button 
+                          variant="outline"
+                          size="sm"
+                          onClick={handleRefreshAuth}
+                          className="bg-indigo-900/30 hover:bg-indigo-800/50 border-indigo-500/30"
+                        >
+                          <RefreshCw className="h-3 w-3 mr-1" />
+                          Обновить
+                        </Button>
+                        <Button 
+                          variant="default" 
+                          size="sm"
+                          className="bg-gradient-to-r from-purple-500 to-indigo-500"
+                          onClick={() => setLocation("/login")}
+                        >
+                          Войти
+                        </Button>
+                      </div>
                     </>
                   ) : (
                     <>
