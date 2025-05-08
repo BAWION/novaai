@@ -281,6 +281,45 @@ export const skillTimeEfficiency = pgTable("skill_time_efficiency", {
   };
 });
 
+// S4 (INSIGHT "Time-Saved") - Основная таблица экономии времени
+export const timeSaved = pgTable("time_saved", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  minutesPerDay: integer("minutes_per_day").notNull().default(0),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull()
+}, (table) => {
+  return {
+    userIdIdx: uniqueIndex("time_saved_user_id_idx").on(table.userId)
+  };
+});
+
+// S4 (INSIGHT "Time-Saved") - Таблица истории экономии времени
+export const timeSavedHistory = pgTable("time_saved_history", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  date: timestamp("date").notNull(),
+  minutesSaved: integer("minutes_saved").notNull()
+}, (table) => {
+  return {
+    userDateIdx: index("time_saved_history_user_date_idx").on(table.userId, table.date)
+  };
+});
+
+// S4 (INSIGHT "Time-Saved") - Таблица целей по экономии времени
+export const timeSavedGoals = pgTable("time_saved_goals", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  targetMinutesMonthly: integer("target_minutes_monthly").notNull(),
+  targetDate: timestamp("target_date").notNull(),
+  status: varchar("status", { length: 20 }).notNull().default("active"),
+  createdAt: timestamp("created_at").notNull()
+}, (table) => {
+  return {
+    userIdIdx: index("time_saved_goals_user_id_idx").on(table.userId)
+  };
+});
+
 // S4 (INSIGHT "Time-Saved") - Таблица истории экономии времени пользователя
 export const userTimeSavedHistory = pgTable("user_time_saved_history", {
   id: serial("id").primaryKey(),
@@ -305,18 +344,6 @@ export const userSkillTimeSaved = pgTable("user_skill_time_saved", {
   return {
     userDnaUnique: uniqueIndex("user_skill_time_saved_user_dna_unique").on(table.userId, table.dnaId)
   };
-});
-
-// S4 (INSIGHT "Time-Saved") - Таблица целей по экономии времени
-export const userTimeSavedGoals = pgTable("user_time_saved_goals", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-  targetMinutesMonthly: integer("target_minutes_monthly").notNull(),
-  startDate: timestamp("start_date").notNull(),
-  targetDate: timestamp("target_date").notNull(),
-  status: varchar("status", { length: 20 }).notNull().default("active"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow()
 });
 
 // Таблица метрик и данных для ML-моделей

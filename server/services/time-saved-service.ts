@@ -1,501 +1,313 @@
-/**
- * time-saved-service.ts
- * 
- * Сервис для функциональности S4 (INSIGHT "Time-Saved")
- * Рассчитывает и отслеживает экономию времени пользователей на основе их навыков
- */
-
 import { db } from "../db";
 import { 
-  skillTimeEfficiency, 
-  userSkillsDnaProgress, 
-  userSkillTimeSaved,
-  userTimeSavedHistory,
-  userTimeSavedGoals
+  userSkills,
+  timeSaved,
+  timeSavedHistory,
+  timeSavedGoals
 } from "@shared/schema";
-import { eq, and, sql, desc, gte } from "drizzle-orm";
-
-export interface TimeSavedSummary {
-  totalMinutesSaved: number;
-  totalHoursSaved: number;
-  dailyMinutesSaved: number;
-  weeklyMinutesSaved: number;
-  monthlyMinutesSaved: number;
-  yearlyHoursSaved: number;
-  topSkills: SkillTimeSavedDetails[];
-  lastCalculatedAt: Date;
-}
-
-export interface SkillTimeSavedDetails {
-  skillId: number;
-  skillName: string;
-  currentLevel: number;
-  minutesSavedMonthly: number;
-  hoursSavedMonthly: number;
-  percentage: number; // Доля в общей экономии
-}
-
-export interface TimeSavedGoal {
-  id: number;
-  userId: number;
-  targetMinutesMonthly: number;
-  targetHoursMonthly: number;
-  startDate: Date;
-  targetDate: Date;
-  status: string;
-  progress: number; // От 0 до 1
-  remainingDays: number;
-}
-
-export interface TimeSavedHistoryPoint {
-  date: Date;
-  totalMinutesSaved: number;
-  totalHoursSaved: number;
-}
+import { desc, eq, sql, gte, and } from "drizzle-orm";
 
 /**
- * Сервис для расчета и отслеживания экономии времени
+ * Сервис для работы с функциональностью экономии времени
  */
 export class TimeSavedService {
   /**
-   * Проверяет необходимость обновления расчетов экономии времени
-   * @param userId ID пользователя
-   * @returns true если требуется обновление
-   */
-  async needsRecalculation(userId: number): Promise<boolean> {
-    // Проверяем, когда в последний раз выполнялся расчет
-    const [lastCalculation] = await db
-      .select()
-      .from(userTimeSavedHistory)
-      .where(eq(userTimeSavedHistory.userId, userId))
-      .orderBy(desc(userTimeSavedHistory.calculationDate))
-      .limit(1);
-    
-    if (!lastCalculation) {
-      return true; // Если расчетов еще не было, то требуется выполнить
-    }
-    
-    // Проверяем наличие изменений в навыках с момента последнего расчета
-    const [skillsUpdated] = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(userSkillsDnaProgress)
-      .where(and(
-        eq(userSkillsDnaProgress.userId, userId),
-        sql`${userSkillsDnaProgress.updatedAt} > ${lastCalculation.calculationDate}`
-      ));
-    
-    // Если были обновления навыков после последнего расчета, нужно пересчитать
-    return (skillsUpdated && skillsUpdated.count > 0);
-  }
-  
-  /**
-   * Расчет экономии времени для пользователя по всем его навыкам
+   * Рассчитывает экономию времени для пользователя на основе его уровней навыков
    * @param userId ID пользователя
    */
-  async calculateTimeSaved(userId: number): Promise<TimeSavedSummary> {
-    console.log(`Расчет экономии времени для пользователя ${userId}...`);
-    
+  async calculateTimeSaved(userId: number) {
     try {
-      // Получаем текущие навыки пользователя
-      const userSkills = await db
+      // Получаем все навыки пользователя
+      const skills = await db
         .select()
-        .from(userSkillsDnaProgress)
-        .where(eq(userSkillsDnaProgress.userId, userId));
+        .from(userSkills)
+        .where(eq(userSkills.userId, userId));
       
-      if (!userSkills || userSkills.length === 0) {
-        console.log(`У пользователя ${userId} нет навыков для расчета экономии времени`);
-        
-        // Возвращаем нулевые показатели
-        return {
-          totalMinutesSaved: 0,
-          totalHoursSaved: 0,
-          dailyMinutesSaved: 0,
-          weeklyMinutesSaved: 0,
-          monthlyMinutesSaved: 0,
-          yearlyHoursSaved: 0,
-          topSkills: [],
-          lastCalculatedAt: new Date()
-        };
+      if (!skills.length) {
+        return { totalMinutesSaved: 0 };
       }
+
+      // Расчет экономии времени на основе уровней навыка
+      // Формула: сумма (уровень * коэффициент эффективности для навыка)
+      let totalMinutesSaved = 0;
+      const coefficientsByLevel = {
+        'awareness': 5,     // 5 минут в день
+        'knowledge': 15,    // 15 минут в день
+        'application': 30,  // 30 минут в день
+        'mastery': 60,      // 1 час в день
+        'expertise': 120    // 2 часа в день
+      };
+
+      const effectivenessMultipliers: Record<number, number> = {};
       
-      // Для каждого навыка получаем данные по экономии времени и рассчитываем
-      const skillDetails: SkillTimeSavedDetails[] = [];
-      let totalMonthlyMinutes = 0;
-      
-      for (const skill of userSkills) {
-        if (!skill.currentLevel || skill.currentLevel < 1) {
-          continue; // Пропускаем навыки с нулевым уровнем
-        }
-        
-        // Получаем данные по эффективности для конкретного навыка и уровня
-        const [efficiency] = await db
-          .select()
-          .from(skillTimeEfficiency)
-          .where(and(
-            eq(skillTimeEfficiency.dnaId, skill.dnaId),
-            eq(skillTimeEfficiency.level, skill.currentLevel)
-          ));
-        
-        if (!efficiency) {
-          console.log(`Нет данных об эффективности для навыка ${skill.dnaId} уровня ${skill.currentLevel}`);
-          continue;
-        }
-        
-        // Расчет минут, сэкономленных в месяц с этим навыком
-        const minutesSavedMonthly = efficiency.minutesSavedPerTask * efficiency.typicalTasksPerMonth;
-        totalMonthlyMinutes += minutesSavedMonthly;
-        
-        // Получаем информацию о названии навыка
-        const [skillInfo] = await db
-          .select()
-          .from(userSkillsDnaProgress)
-          .innerJoin('skills_dna', sql`skills_dna.id = ${userSkillsDnaProgress.dnaId}`)
-          .where(and(
-            eq(userSkillsDnaProgress.userId, userId),
-            eq(userSkillsDnaProgress.dnaId, skill.dnaId)
-          ));
-        
-        // Сохраняем детали по навыку
-        skillDetails.push({
-          skillId: skill.dnaId,
-          skillName: skillInfo?.skills_dna?.name || `Навык #${skill.dnaId}`,
-          currentLevel: skill.currentLevel,
-          minutesSavedMonthly,
-          hoursSavedMonthly: minutesSavedMonthly / 60,
-          percentage: 0 // Заполним позже, когда будет известна общая сумма
-        });
-        
-        // Обновляем или создаем запись в таблице userSkillTimeSaved
-        const [existingRecord] = await db
-          .select()
-          .from(userSkillTimeSaved)
-          .where(and(
-            eq(userSkillTimeSaved.userId, userId),
-            eq(userSkillTimeSaved.dnaId, skill.dnaId)
-          ));
-        
-        if (existingRecord) {
-          await db
-            .update(userSkillTimeSaved)
-            .set({
-              currentLevel: skill.currentLevel,
-              minutesSavedMonthly,
-              lastCalculatedAt: new Date(),
-              updatedAt: new Date()
-            })
-            .where(eq(userSkillTimeSaved.id, existingRecord.id));
-        } else {
-          await db
-            .insert(userSkillTimeSaved)
-            .values({
-              userId,
-              dnaId: skill.dnaId,
-              currentLevel: skill.currentLevel,
-              minutesSavedMonthly,
-              lastCalculatedAt: new Date()
-            });
-        }
+      // Получаем коэффициенты эффективности для всех навыков пользователя
+      // (в реальной системе будут храниться в базе данных)
+      for (const skill of skills) {
+        // Базовый коэффициент эффективности зависит от категории навыка
+        const effectivenessMultiplier = this.getEffectivenessMultiplier(skill.skillId);
+        effectivenessMultipliers[skill.skillId] = effectivenessMultiplier;
       }
-      
-      // Теперь, когда у нас есть общая сумма, рассчитываем проценты
-      for (const detail of skillDetails) {
-        detail.percentage = totalMonthlyMinutes > 0 
-          ? (detail.minutesSavedMonthly / totalMonthlyMinutes) * 100 
-          : 0;
+
+      // Расчет общей экономии времени
+      for (const skill of skills) {
+        const levelName = skill.level.toLowerCase();
+        const baseMinutes = coefficientsByLevel[levelName as keyof typeof coefficientsByLevel] || 0;
+        const effectiveness = effectivenessMultipliers[skill.skillId] || 1;
+        
+        const minutesSaved = baseMinutes * effectiveness;
+        totalMinutesSaved += minutesSaved;
       }
+
+      // Сохраняем расчет в базу данных
+      const today = new Date();
       
-      // Сортируем навыки по убыванию экономии времени
-      skillDetails.sort((a, b) => b.minutesSavedMonthly - a.minutesSavedMonthly);
-      
-      // Берем топ-5 навыков
-      const topSkills = skillDetails.slice(0, 5);
-      
-      // Записываем историю экономии времени
+      // Записываем в основную таблицу экономии времени
+      const [existingRecord] = await db
+        .select()
+        .from(timeSaved)
+        .where(eq(timeSaved.userId, userId));
+
+      if (existingRecord) {
+        await db
+          .update(timeSaved)
+          .set({
+            minutesPerDay: totalMinutesSaved,
+            updatedAt: today
+          })
+          .where(eq(timeSaved.userId, userId));
+      } else {
+        await db
+          .insert(timeSaved)
+          .values({
+            userId,
+            minutesPerDay: totalMinutesSaved,
+            createdAt: today,
+            updatedAt: today
+          });
+      }
+
+      // Записываем в историю
       await db
-        .insert(userTimeSavedHistory)
+        .insert(timeSavedHistory)
         .values({
           userId,
-          totalMinutesSaved: totalMonthlyMinutes,
-          calculationDate: new Date()
+          date: today,
+          minutesSaved: totalMinutesSaved
         });
-      
-      // Формируем и возвращаем итоговую информацию
-      const summary: TimeSavedSummary = {
-        totalMinutesSaved: totalMonthlyMinutes,
-        totalHoursSaved: totalMonthlyMinutes / 60,
-        dailyMinutesSaved: totalMonthlyMinutes / 30, // Примерно в день
-        weeklyMinutesSaved: (totalMonthlyMinutes / 30) * 7, // Примерно в неделю
-        monthlyMinutesSaved: totalMonthlyMinutes,
-        yearlyHoursSaved: (totalMonthlyMinutes * 12) / 60, // В часах за год
-        topSkills,
-        lastCalculatedAt: new Date()
-      };
-      
-      console.log(`Расчет завершен. Экономия: ${totalMonthlyMinutes} минут в месяц.`);
-      return summary;
-      
+
+      return { totalMinutesSaved };
     } catch (error) {
-      console.error(`Ошибка при расчете экономии времени для пользователя ${userId}:`, error);
+      console.error('Ошибка при расчете экономии времени:', error);
       throw error;
     }
   }
-  
+
   /**
-   * Получение сводки по экономии времени пользователя
+   * Получает сводную информацию об экономии времени для пользователя
    * @param userId ID пользователя
    */
-  async getTimeSavedSummary(userId: number): Promise<TimeSavedSummary> {
+  async getTimeSavedSummary(userId: number) {
     try {
-      // Проверяем, нужно ли обновить расчеты
-      const needsUpdate = await this.needsRecalculation(userId);
-      
-      if (needsUpdate) {
-        console.log(`Требуется пересчет экономии времени для пользователя ${userId}`);
-        return this.calculateTimeSaved(userId);
-      }
-      
-      // Если пересчет не требуется, получаем данные из базы
-      const [latestHistory] = await db
+      // Получаем текущую экономию времени
+      const [timeSavedRecord] = await db
         .select()
-        .from(userTimeSavedHistory)
-        .where(eq(userTimeSavedHistory.userId, userId))
-        .orderBy(desc(userTimeSavedHistory.calculationDate))
-        .limit(1);
-      
-      // Если истории нет, запускаем расчет
-      if (!latestHistory) {
-        console.log(`История экономии времени не найдена для ${userId}, запуск расчета`);
-        return this.calculateTimeSaved(userId);
+        .from(timeSaved)
+        .where(eq(timeSaved.userId, userId));
+
+      if (!timeSavedRecord) {
+        // Если записей нет, выполняем расчет
+        await this.calculateTimeSaved(userId);
+        const [newRecord] = await db
+          .select()
+          .from(timeSaved)
+          .where(eq(timeSaved.userId, userId));
+        
+        if (!newRecord) {
+          return {
+            minutesPerDay: 0,
+            hoursPerWeek: 0,
+            hoursPerMonth: 0,
+            hoursPerYear: 0,
+            daysPerYear: 0
+          };
+        }
+        
+        return this.formatTimeSavedSummary(newRecord.minutesPerDay);
       }
-      
-      // Получаем детализацию по навыкам
-      const skillDetails = await db
-        .select()
-        .from(userSkillTimeSaved)
-        .innerJoin('skills_dna', sql`skills_dna.id = ${userSkillTimeSaved.dnaId}`)
-        .where(eq(userSkillTimeSaved.userId, userId))
-        .orderBy(desc(userSkillTimeSaved.minutesSavedMonthly));
-      
-      // Преобразуем в нужный формат
-      const totalMonthlyMinutes = latestHistory.totalMinutesSaved;
-      
-      const topSkills: SkillTimeSavedDetails[] = skillDetails.slice(0, 5).map(item => ({
-        skillId: item.userSkillTimeSaved.dnaId,
-        skillName: item.skills_dna?.name || `Навык #${item.userSkillTimeSaved.dnaId}`,
-        currentLevel: item.userSkillTimeSaved.currentLevel,
-        minutesSavedMonthly: item.userSkillTimeSaved.minutesSavedMonthly,
-        hoursSavedMonthly: item.userSkillTimeSaved.minutesSavedMonthly / 60,
-        percentage: totalMonthlyMinutes > 0 
-          ? (item.userSkillTimeSaved.minutesSavedMonthly / totalMonthlyMinutes) * 100 
-          : 0
-      }));
-      
-      // Формируем итоговую сводку
-      const summary: TimeSavedSummary = {
-        totalMinutesSaved: totalMonthlyMinutes,
-        totalHoursSaved: totalMonthlyMinutes / 60,
-        dailyMinutesSaved: totalMonthlyMinutes / 30, // Примерно в день
-        weeklyMinutesSaved: (totalMonthlyMinutes / 30) * 7, // Примерно в неделю
-        monthlyMinutesSaved: totalMonthlyMinutes,
-        yearlyHoursSaved: (totalMonthlyMinutes * 12) / 60, // В часах за год
-        topSkills,
-        lastCalculatedAt: latestHistory.calculationDate
-      };
-      
-      return summary;
-      
+
+      return this.formatTimeSavedSummary(timeSavedRecord.minutesPerDay);
     } catch (error) {
-      console.error(`Ошибка при получении сводки экономии времени для ${userId}:`, error);
+      console.error('Ошибка при получении сводки экономии времени:', error);
       throw error;
     }
   }
-  
+
   /**
-   * Получение истории экономии времени пользователя
+   * Получает историю экономии времени для пользователя
    * @param userId ID пользователя
-   * @param limit Ограничение количества записей
+   * @param limit Ограничение на количество записей
    */
-  async getTimeSavedHistory(userId: number, limit: number = 12): Promise<TimeSavedHistoryPoint[]> {
+  async getTimeSavedHistory(userId: number, limit = 30) {
     try {
       const history = await db
         .select()
-        .from(userTimeSavedHistory)
-        .where(eq(userTimeSavedHistory.userId, userId))
-        .orderBy(desc(userTimeSavedHistory.calculationDate))
+        .from(timeSavedHistory)
+        .where(eq(timeSavedHistory.userId, userId))
+        .orderBy(desc(timeSavedHistory.date))
         .limit(limit);
-      
-      return history.map(item => ({
-        date: item.calculationDate,
-        totalMinutesSaved: item.totalMinutesSaved,
-        totalHoursSaved: item.totalMinutesSaved / 60
-      }));
-      
+
+      return history;
     } catch (error) {
-      console.error(`Ошибка при получении истории экономии времени для ${userId}:`, error);
-      return [];
-    }
-  }
-  
-  /**
-   * Создание цели по экономии времени
-   * @param userId ID пользователя
-   * @param targetMinutesMonthly Целевая экономия минут в месяц
-   * @param targetDateStr Целевая дата в формате "YYYY-MM-DD"
-   */
-  async createTimeSavedGoal(userId: number, targetMinutesMonthly: number, targetDateStr: string): Promise<TimeSavedGoal> {
-    try {
-      // Валидация параметров
-      if (targetMinutesMonthly <= 0) {
-        throw new Error("Целевая экономия времени должна быть положительным числом");
-      }
-      
-      const targetDate = new Date(targetDateStr);
-      if (isNaN(targetDate.getTime())) {
-        throw new Error("Недействительная целевая дата");
-      }
-      
-      const now = new Date();
-      if (targetDate <= now) {
-        throw new Error("Целевая дата должна быть в будущем");
-      }
-      
-      // Создаем новую цель
-      const [newGoal] = await db
-        .insert(userTimeSavedGoals)
-        .values({
-          userId,
-          targetMinutesMonthly,
-          startDate: now,
-          targetDate,
-          status: "active"
-        })
-        .returning();
-      
-      // Рассчитываем прогресс - сколько времени пользователь уже экономит
-      const summary = await this.getTimeSavedSummary(userId);
-      const progress = Math.min(1, summary.monthlyMinutesSaved / targetMinutesMonthly);
-      
-      // Рассчитываем оставшиеся дни
-      const remainingDays = Math.ceil((targetDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-      
-      return {
-        id: newGoal.id,
-        userId: newGoal.userId,
-        targetMinutesMonthly: newGoal.targetMinutesMonthly,
-        targetHoursMonthly: newGoal.targetMinutesMonthly / 60,
-        startDate: newGoal.startDate,
-        targetDate: newGoal.targetDate,
-        status: newGoal.status,
-        progress,
-        remainingDays
-      };
-      
-    } catch (error) {
-      console.error(`Ошибка при создании цели экономии времени для ${userId}:`, error);
+      console.error('Ошибка при получении истории экономии времени:', error);
       throw error;
     }
   }
-  
+
   /**
-   * Получение целей пользователя по экономии времени
+   * Создает новую цель по экономии времени
+   * @param userId ID пользователя
+   * @param targetMinutesMonthly Целевое количество минут ежемесячной экономии
+   * @param targetDate Дата достижения цели
+   */
+  async createTimeSavedGoal(
+    userId: number,
+    targetMinutesMonthly: number,
+    targetDate: Date
+  ) {
+    try {
+      const [newGoal] = await db
+        .insert(timeSavedGoals)
+        .values({
+          userId,
+          targetMinutesMonthly,
+          targetDate,
+          status: 'active',
+          createdAt: new Date()
+        })
+        .returning();
+
+      return newGoal;
+    } catch (error) {
+      console.error('Ошибка при создании цели экономии времени:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Получает цели по экономии времени для пользователя с расчетом прогресса
    * @param userId ID пользователя
    */
-  async getUserTimeSavedGoals(userId: number): Promise<TimeSavedGoal[]> {
+  async getTimeSavedGoals(userId: number) {
     try {
-      // Получаем все цели пользователя
       const goals = await db
         .select()
-        .from(userTimeSavedGoals)
-        .where(eq(userTimeSavedGoals.userId, userId))
-        .orderBy(desc(userTimeSavedGoals.createdAt));
-      
+        .from(timeSavedGoals)
+        .where(eq(timeSavedGoals.userId, userId))
+        .orderBy(desc(timeSavedGoals.createdAt));
+
       // Получаем текущую экономию времени
-      const summary = await this.getTimeSavedSummary(userId);
-      const now = new Date();
-      
-      // Формируем ответ с прогрессом
-      return goals.map(goal => {
-        const progress = Math.min(1, summary.monthlyMinutesSaved / goal.targetMinutesMonthly);
-        const remainingDays = Math.max(0, Math.ceil((goal.targetDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
+      const [currentTimeSaved] = await db
+        .select()
+        .from(timeSaved)
+        .where(eq(timeSaved.userId, userId));
+
+      // Если нет целей или текущей экономии, возвращаем пустой список
+      if (!goals.length || !currentTimeSaved) {
+        return [];
+      }
+
+      // Для каждой цели рассчитываем прогресс
+      const goalsWithProgress = goals.map(goal => {
+        const currentMonthlyMinutes = currentTimeSaved.minutesPerDay * 30; // Приблизительно в месяц
+        const progressPercent = Math.min(
+          100,
+          Math.round((currentMonthlyMinutes / goal.targetMinutesMonthly) * 100)
+        );
+
+        // Определяем, достигнута ли цель
+        const isAchieved = progressPercent >= 100;
         
+        // Обновляем статус, если цель достигнута, но статус не изменен
+        if (isAchieved && goal.status === 'active') {
+          // Асинхронно обновляем статус (не ждем завершения)
+          this.updateGoalStatus(goal.id, 'achieved').catch(console.error);
+        }
+
         return {
-          id: goal.id,
-          userId: goal.userId,
-          targetMinutesMonthly: goal.targetMinutesMonthly,
-          targetHoursMonthly: goal.targetMinutesMonthly / 60,
-          startDate: goal.startDate,
-          targetDate: goal.targetDate,
-          status: goal.status,
-          progress,
-          remainingDays
+          ...goal,
+          currentMonthlyMinutes,
+          progressPercent,
+          isAchieved
         };
       });
-      
+
+      return goalsWithProgress;
     } catch (error) {
-      console.error(`Ошибка при получении целей экономии времени для ${userId}:`, error);
-      return [];
+      console.error('Ошибка при получении целей по экономии времени:', error);
+      throw error;
     }
   }
-  
+
   /**
-   * Обновление статуса целей пользователя (завершение достигнутых целей)
-   * @param userId ID пользователя
+   * Обновляет статус цели
+   * @param goalId ID цели
+   * @param status Новый статус
    */
-  async updateGoalsStatus(userId: number): Promise<number> {
+  async updateGoalStatus(goalId: number, status: string) {
     try {
-      // Получаем все активные цели пользователя
-      const activeGoals = await db
-        .select()
-        .from(userTimeSavedGoals)
-        .where(and(
-          eq(userTimeSavedGoals.userId, userId),
-          eq(userTimeSavedGoals.status, "active")
-        ));
-      
-      if (activeGoals.length === 0) {
-        return 0; // Нет активных целей
-      }
-      
-      // Получаем текущую экономию времени
-      const summary = await this.getTimeSavedSummary(userId);
-      let updatedCount = 0;
-      
-      // Проверяем каждую цель
-      for (const goal of activeGoals) {
-        // Проверяем достигнута ли цель по времени
-        if (summary.monthlyMinutesSaved >= goal.targetMinutesMonthly) {
-          await db
-            .update(userTimeSavedGoals)
-            .set({
-              status: "completed",
-              updatedAt: new Date()
-            })
-            .where(eq(userTimeSavedGoals.id, goal.id));
-          
-          updatedCount++;
-        }
-        // Проверяем истек ли срок цели
-        else if (new Date() > goal.targetDate) {
-          await db
-            .update(userTimeSavedGoals)
-            .set({
-              status: "expired",
-              updatedAt: new Date()
-            })
-            .where(eq(userTimeSavedGoals.id, goal.id));
-          
-          updatedCount++;
-        }
-      }
-      
-      return updatedCount;
-      
+      await db
+        .update(timeSavedGoals)
+        .set({ status })
+        .where(eq(timeSavedGoals.id, goalId));
     } catch (error) {
-      console.error(`Ошибка при обновлении статуса целей для ${userId}:`, error);
-      return 0;
+      console.error('Ошибка при обновлении статуса цели:', error);
+      throw error;
     }
+  }
+
+  // Вспомогательные методы
+
+  /**
+   * Форматирует данные об экономии времени
+   * @param minutesPerDay Минут экономии в день
+   */
+  private formatTimeSavedSummary(minutesPerDay: number) {
+    const hoursPerDay = minutesPerDay / 60;
+    const hoursPerWeek = hoursPerDay * 7;
+    const hoursPerMonth = hoursPerDay * 30;
+    const hoursPerYear = hoursPerDay * 365;
+    const daysPerYear = hoursPerYear / 24;
+
+    return {
+      minutesPerDay,
+      hoursPerWeek: parseFloat(hoursPerWeek.toFixed(1)),
+      hoursPerMonth: parseFloat(hoursPerMonth.toFixed(1)),
+      hoursPerYear: parseFloat(hoursPerYear.toFixed(1)),
+      daysPerYear: parseFloat(daysPerYear.toFixed(1))
+    };
+  }
+
+  /**
+   * Получает коэффициент эффективности для навыка
+   * @param skillId ID навыка
+   */
+  private getEffectivenessMultiplier(skillId: number) {
+    // В реальной системе эти коэффициенты будут храниться в базе данных
+    // и могут зависеть от различных факторов
+
+    // Базовые коэффициенты по категориям навыков:
+    // 1-100: Базовые навыки программирования (1.0)
+    // 101-200: Навыки работы с данными (1.2)
+    // 201-300: Навыки работы с ИИ (1.5)
+    // 301-400: Навыки управления проектами (1.3)
+    // 401-500: Навыки коммуникации (1.1)
+    // Остальные: 1.0
+
+    if (skillId >= 1 && skillId <= 100) return 1.0;
+    if (skillId >= 101 && skillId <= 200) return 1.2;
+    if (skillId >= 201 && skillId <= 300) return 1.5;
+    if (skillId >= 301 && skillId <= 400) return 1.3;
+    if (skillId >= 401 && skillId <= 500) return 1.1;
+    return 1.0;
   }
 }
-
-// Экспортируем экземпляр сервиса
-export const timeSavedService = new TimeSavedService();

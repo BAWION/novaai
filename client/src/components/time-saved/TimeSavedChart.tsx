@@ -1,54 +1,55 @@
 import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, LabelList } from 'recharts';
-import { SkillTimeSavedDetails } from '@/types/time-saved';
+import { Line, LineChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { format, subDays } from 'date-fns';
+import { Skeleton } from '@/components/ui/skeleton';
+
+type TimeSavedHistoryItem = {
+  id: number;
+  userId: number;
+  date: string | Date;
+  minutesSaved: number;
+};
 
 interface TimeSavedChartProps {
-  skills: SkillTimeSavedDetails[];
+  history: TimeSavedHistoryItem[];
+  isLoading: boolean;
 }
 
-export function TimeSavedChart({ skills }: TimeSavedChartProps) {
-  // Если нет навыков, показываем пустое состояние
-  if (!skills || skills.length === 0) {
-    return (
-      <div className="flex items-center justify-center h-40 text-muted-foreground">
-        Нет данных для отображения
-      </div>
-    );
-  }
+export const TimeSavedChart: React.FC<TimeSavedChartProps> = ({ history, isLoading }) => {
+  // Если история пуста, создаем пустой график с данными за последние 7 дней
+  const getChartData = () => {
+    if (history.length === 0) {
+      const emptyData = [];
+      // Создаем пустые данные за последние 7 дней
+      for (let i = 6; i >= 0; i--) {
+        const date = subDays(new Date(), i);
+        emptyData.push({
+          date: format(date, 'dd.MM'),
+          minutes: 0
+        });
+      }
+      return emptyData;
+    }
 
-  // Подготовка данных для графика
-  const chartData = skills.map((skill) => ({
-    name: skill.skillName,
-    minutesSaved: Math.round(skill.minutesSavedMonthly),
-    hoursSaved: Math.round(skill.hoursSavedMonthly * 10) / 10, // Округляем до 1 знака после запятой
-    percentage: Math.round(skill.percentage),
-    level: skill.currentLevel,
-  }));
+    // Преобразование данных для графика
+    const chartData = history.map(item => ({
+      date: typeof item.date === 'string' 
+        ? format(new Date(item.date), 'dd.MM') 
+        : format(item.date, 'dd.MM'),
+      minutes: item.minutesSaved
+    }));
 
-  // Цвета для баров
-  const barColors = [
-    'hsl(var(--primary))',
-    'hsl(var(--secondary))',
-    'hsl(var(--accent))',
-    'hsl(var(--info))',
-    'hsl(var(--success))'
-  ];
-
-  // Кастомный тултип
-  const CustomTooltip = ({ active, payload }: any) => {
+    return chartData;
+  };
+  
+  // Форматирование всплывающей подсказки
+  const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
-      const data = payload[0].payload;
       return (
-        <div className="bg-background border rounded-md shadow-md p-3">
-          <p className="font-medium text-sm">{data.name}</p>
-          <p className="text-sm">
-            <span className="font-medium">{data.hoursSaved}</span> часов в месяц
-          </p>
-          <p className="text-sm text-muted-foreground">
-            {data.minutesSaved} минут &middot; {data.percentage}% от общей экономии
-          </p>
-          <p className="text-xs text-muted-foreground mt-1">
-            Текущий уровень: {data.level}/5
+        <div className="bg-background border rounded p-2 shadow-md">
+          <p className="text-sm font-medium">{`Дата: ${label}`}</p>
+          <p className="text-sm text-primary">
+            {`Экономия: ${payload[0].value} мин`}
           </p>
         </div>
       );
@@ -56,35 +57,61 @@ export function TimeSavedChart({ skills }: TimeSavedChartProps) {
     return null;
   };
 
+  if (isLoading) {
+    return <Skeleton className="h-64 w-full" />;
+  }
+
+  const chartData = getChartData();
+
   return (
-    <ResponsiveContainer width="100%" height={300}>
-      <BarChart
-        data={chartData}
-        margin={{ top: 20, right: 30, left: 0, bottom: 20 }}
-        layout="vertical"
-      >
-        <XAxis type="number" hide />
-        <YAxis
-          dataKey="name"
-          type="category"
-          width={120}
-          axisLine={false}
-          tickLine={false}
-          tick={{ fontSize: 12 }}
-        />
-        <Tooltip content={<CustomTooltip />} />
-        <Bar dataKey="minutesSaved" barSize={20} radius={[0, 4, 4, 0]}>
-          {chartData.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={barColors[index % barColors.length]} />
-          ))}
-          <LabelList 
-            dataKey="hoursSaved" 
-            position="right" 
-            formatter={(value: number) => `${value} ч.`}
-            style={{ fill: 'hsl(var(--foreground))', fontSize: 12, fontWeight: 500 }}
+    <div className="w-full h-80">
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart
+          data={chartData}
+          margin={{
+            top: 5,
+            right: 30,
+            left: 20,
+            bottom: 5,
+          }}
+        >
+          <CartesianGrid strokeDasharray="3 3" stroke="#444" opacity={0.1} />
+          <XAxis 
+            dataKey="date" 
+            tick={{ fontSize: 12 }} 
+            axisLine={{ stroke: '#888', strokeWidth: 1 }}
+            tickLine={{ stroke: '#888' }}
           />
-        </Bar>
-      </BarChart>
-    </ResponsiveContainer>
+          <YAxis 
+            tick={{ fontSize: 12 }} 
+            axisLine={{ stroke: '#888', strokeWidth: 1 }}
+            tickLine={{ stroke: '#888' }}
+            label={{ 
+              value: 'Минут в день', 
+              angle: -90, 
+              position: 'insideLeft',
+              style: { textAnchor: 'middle', fontSize: 12, fill: '#888' }
+            }}
+          />
+          <Tooltip content={<CustomTooltip />} />
+          <Line
+            type="monotone"
+            dataKey="minutes"
+            stroke="var(--primary)"
+            strokeWidth={2}
+            dot={{ r: 4, fill: "var(--primary)" }}
+            activeDot={{ r: 6, fill: "var(--primary)" }}
+          />
+        </LineChart>
+      </ResponsiveContainer>
+      
+      {history.length === 0 && (
+        <div className="flex justify-center mt-4">
+          <p className="text-sm text-muted-foreground">
+            Данные об экономии времени пока не доступны
+          </p>
+        </div>
+      )}
+    </div>
   );
-}
+};

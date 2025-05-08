@@ -1,207 +1,160 @@
-/**
- * time-saved-api.ts
- * 
- * API маршруты для функциональности S4 (INSIGHT "Time-Saved")
- */
+import express from 'express';
+import { TimeSavedService } from '../services/time-saved-service';
+import { z } from 'zod';
 
-import { Router } from "express";
-import { timeSavedService } from "../services/time-saved-service";
-import { z } from "zod";
+export const timeSavedRouter = express.Router();
+const timeSavedService = new TimeSavedService();
 
-export const timeSavedRouter = Router();
-
-// Схема для создания цели
+// Схема для валидации целей экономии времени
 const createGoalSchema = z.object({
-  targetMinutesMonthly: z.number().positive("Целевое время должно быть положительным числом"),
-  targetDate: z.string().refine((date) => {
-    const parsedDate = new Date(date);
-    return !isNaN(parsedDate.getTime()) && parsedDate > new Date();
-  }, "Целевая дата должна быть корректным значением в будущем")
+  targetMinutesMonthly: z.number().positive(),
+  targetDate: z.string().refine((date) => !isNaN(Date.parse(date)), {
+    message: 'Некорректный формат даты',
+  }),
 });
 
 /**
- * Получение сводки по экономии времени пользователя
- * GET /api/time-saved/summary/:userId
+ * Получение сводной информации об экономии времени
  */
-timeSavedRouter.get("/summary/:userId", async (req, res) => {
+timeSavedRouter.get('/summary/:userId?', async (req, res) => {
   try {
-    const userId = parseInt(req.params.userId);
-    
-    // Проверка авторизации
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({
-        message: "Не авторизован",
-        details: "Для получения данных об экономии времени необходимо авторизоваться"
-      });
+    // Получаем ID пользователя из параметров или из текущей сессии
+    let userId = parseInt(req.params.userId || '0');
+    if (!userId && req.user) {
+      userId = req.user.id;
     }
-    
-    // Если пользователь пытается получить данные другого пользователя
-    if (req.user.id !== userId && req.user.role !== "admin") {
-      return res.status(403).json({
-        message: "Доступ запрещен",
-        details: "Вы можете просматривать только свои данные об экономии времени"
-      });
+
+    // Проверяем права доступа
+    if (!userId) {
+      return res.status(400).json({ message: 'ID пользователя не указан' });
     }
-    
+
+    // Проверяем, имеет ли текущий пользователь права на доступ к данным
+    // Администраторы могут просматривать данные любого пользователя
+    if (req.user && req.user.id !== userId && req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Доступ запрещен' });
+    }
+
+    // Получаем сводную информацию
     const summary = await timeSavedService.getTimeSavedSummary(userId);
-    res.status(200).json(summary);
+    res.json(summary);
   } catch (error) {
-    console.error("Ошибка при получении сводки экономии времени:", error);
-    res.status(500).json({
-      message: "Ошибка сервера",
-      details: "Не удалось получить данные об экономии времени"
-    });
-  }
-});
-
-/**
- * Принудительный пересчет экономии времени
- * POST /api/time-saved/recalculate/:userId
- */
-timeSavedRouter.post("/recalculate/:userId", async (req, res) => {
-  try {
-    const userId = parseInt(req.params.userId);
-    
-    // Проверка авторизации
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({
-        message: "Не авторизован",
-        details: "Для пересчета экономии времени необходимо авторизоваться"
-      });
-    }
-    
-    // Если пользователь пытается пересчитать данные другого пользователя
-    if (req.user.id !== userId && req.user.role !== "admin") {
-      return res.status(403).json({
-        message: "Доступ запрещен",
-        details: "Вы можете пересчитывать только свои данные об экономии времени"
-      });
-    }
-    
-    const summary = await timeSavedService.calculateTimeSaved(userId);
-    res.status(200).json(summary);
-  } catch (error) {
-    console.error("Ошибка при пересчете экономии времени:", error);
-    res.status(500).json({
-      message: "Ошибка сервера",
-      details: "Не удалось пересчитать данные об экономии времени"
-    });
+    console.error('Ошибка при получении сводки экономии времени:', error);
+    res.status(500).json({ message: 'Ошибка при получении сводки экономии времени' });
   }
 });
 
 /**
  * Получение истории экономии времени
- * GET /api/time-saved/history/:userId
  */
-timeSavedRouter.get("/history/:userId", async (req, res) => {
+timeSavedRouter.get('/history/:userId?', async (req, res) => {
   try {
-    const userId = parseInt(req.params.userId);
-    const limit = req.query.limit ? parseInt(req.query.limit as string) : 12;
-    
-    // Проверка авторизации
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({
-        message: "Не авторизован",
-        details: "Для получения истории экономии времени необходимо авторизоваться"
-      });
+    let userId = parseInt(req.params.userId || '0');
+    if (!userId && req.user) {
+      userId = req.user.id;
     }
-    
-    // Если пользователь пытается получить данные другого пользователя
-    if (req.user.id !== userId && req.user.role !== "admin") {
-      return res.status(403).json({
-        message: "Доступ запрещен",
-        details: "Вы можете просматривать только свою историю экономии времени"
-      });
+
+    if (!userId) {
+      return res.status(400).json({ message: 'ID пользователя не указан' });
     }
-    
+
+    if (req.user && req.user.id !== userId && req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Доступ запрещен' });
+    }
+
+    const limit = parseInt(req.query.limit as string || '30');
     const history = await timeSavedService.getTimeSavedHistory(userId, limit);
-    res.status(200).json(history);
+    res.json(history);
   } catch (error) {
-    console.error("Ошибка при получении истории экономии времени:", error);
-    res.status(500).json({
-      message: "Ошибка сервера",
-      details: "Не удалось получить историю экономии времени"
+    console.error('Ошибка при получении истории экономии времени:', error);
+    res.status(500).json({ message: 'Ошибка при получении истории экономии времени' });
+  }
+});
+
+/**
+ * Принудительный пересчет экономии времени
+ */
+timeSavedRouter.post('/recalculate/:userId?', async (req, res) => {
+  try {
+    let userId = parseInt(req.params.userId || '0');
+    if (!userId && req.user) {
+      userId = req.user.id;
+    }
+
+    if (!userId) {
+      return res.status(400).json({ message: 'ID пользователя не указан' });
+    }
+
+    if (req.user && req.user.id !== userId && req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Доступ запрещен' });
+    }
+
+    // Запускаем пересчет
+    const result = await timeSavedService.calculateTimeSaved(userId);
+    res.json({
+      message: 'Расчет экономии времени успешно выполнен',
+      totalMinutesSaved: result.totalMinutesSaved,
     });
+  } catch (error) {
+    console.error('Ошибка при пересчете экономии времени:', error);
+    res.status(500).json({ message: 'Ошибка при пересчете экономии времени' });
+  }
+});
+
+/**
+ * Получение целей по экономии времени
+ */
+timeSavedRouter.get('/goals/:userId?', async (req, res) => {
+  try {
+    let userId = parseInt(req.params.userId || '0');
+    if (!userId && req.user) {
+      userId = req.user.id;
+    }
+
+    if (!userId) {
+      return res.status(400).json({ message: 'ID пользователя не указан' });
+    }
+
+    const goals = await timeSavedService.getTimeSavedGoals(userId);
+    res.json(goals);
+  } catch (error) {
+    console.error('Ошибка при получении целей экономии времени:', error);
+    res.status(500).json({ message: 'Ошибка при получении целей экономии времени' });
   }
 });
 
 /**
  * Создание новой цели по экономии времени
- * POST /api/time-saved/goals
  */
-timeSavedRouter.post("/goals", async (req, res) => {
+timeSavedRouter.post('/goals', async (req, res) => {
   try {
-    // Проверка авторизации
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({
-        message: "Не авторизован",
-        details: "Для создания цели экономии времени необходимо авторизоваться"
-      });
+    if (!req.user) {
+      return res.status(401).json({ message: 'Требуется авторизация' });
     }
-    
-    const userId = req.user.id;
-    
+
     // Валидация входных данных
     const validationResult = createGoalSchema.safeParse(req.body);
     if (!validationResult.success) {
       return res.status(400).json({
-        message: "Некорректные данные",
-        details: validationResult.error.errors
+        message: 'Некорректные данные',
+        errors: validationResult.error.errors,
       });
     }
-    
+
     const { targetMinutesMonthly, targetDate } = validationResult.data;
     
-    const newGoal = await timeSavedService.createTimeSavedGoal(
-      userId,
+    // Создаем новую цель
+    const goal = await timeSavedService.createTimeSavedGoal(
+      req.user.id,
       targetMinutesMonthly,
-      targetDate
+      new Date(targetDate)
     );
-    
-    res.status(201).json(newGoal);
+
+    res.status(201).json(goal);
   } catch (error) {
-    console.error("Ошибка при создании цели экономии времени:", error);
-    res.status(500).json({
-      message: "Ошибка сервера",
-      details: "Не удалось создать цель экономии времени"
-    });
+    console.error('Ошибка при создании цели экономии времени:', error);
+    res.status(500).json({ message: 'Ошибка при создании цели экономии времени' });
   }
 });
 
-/**
- * Получение списка целей пользователя по экономии времени
- * GET /api/time-saved/goals/:userId
- */
-timeSavedRouter.get("/goals/:userId", async (req, res) => {
-  try {
-    const userId = parseInt(req.params.userId);
-    
-    // Проверка авторизации
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({
-        message: "Не авторизован",
-        details: "Для получения целей экономии времени необходимо авторизоваться"
-      });
-    }
-    
-    // Если пользователь пытается получить данные другого пользователя
-    if (req.user.id !== userId && req.user.role !== "admin") {
-      return res.status(403).json({
-        message: "Доступ запрещен",
-        details: "Вы можете просматривать только свои цели экономии времени"
-      });
-    }
-    
-    // Обновляем статус целей перед отправкой
-    await timeSavedService.updateGoalsStatus(userId);
-    
-    const goals = await timeSavedService.getUserTimeSavedGoals(userId);
-    res.status(200).json(goals);
-  } catch (error) {
-    console.error("Ошибка при получении целей экономии времени:", error);
-    res.status(500).json({
-      message: "Ошибка сервера",
-      details: "Не удалось получить цели экономии времени"
-    });
-  }
-});
+// No need for default export since we're using named export above
