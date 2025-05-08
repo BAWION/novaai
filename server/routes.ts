@@ -36,6 +36,7 @@ import diagnosisRouter from "./routes/diagnosis-api";
 import recommendedCoursesRouter from "./routes/recommended-courses";
 import userCoursesRouter from "./routes/user-courses";
 import skillsRadarRouter from "./routes/skills-radar-api";
+import skillProbeRouter from "./routes/skill-probe-api";
 // import skillsRouter from "./routes/skills";
 
 // Add any middleware needed
