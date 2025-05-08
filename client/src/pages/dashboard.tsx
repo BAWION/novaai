@@ -650,8 +650,8 @@ export default function Dashboard() {
             ) : (
               <Glassmorphism className="h-full rounded-lg p-4">
                 <div className="flex items-center mb-4">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#6E3AFF]/40 to-[#6E3AFF]/20 flex items-center justify-center">
-                    <i className="fas fa-book text-[#6E3AFF]"></i>
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-600/40 to-indigo-700/20 flex items-center justify-center">
+                    <i className="fas fa-book text-indigo-300"></i>
                   </div>
                   <h2 className="font-orbitron text-xl font-semibold ml-3">
                     Рекомендуемые курсы
@@ -667,7 +667,7 @@ export default function Dashboard() {
                 {recommendedCourses.slice(0, 2).map((course: any) => (
                   <div 
                     key={course.id}
-                    className="p-3 rounded-lg border-l-2 border-[#6E3AFF]/70 bg-space-900/50 hover:bg-space-900/70 transition-all cursor-pointer"
+                    className="p-3 rounded-lg border-l-2 border-primary bg-space-900/50 hover:bg-space-900/70 transition-all cursor-pointer"
                     onClick={() => setLocation(`/courses/${course.id}`)}
                   >
                     <div className="flex items-start justify-between">
@@ -695,8 +695,8 @@ export default function Dashboard() {
                           </div>
                         </div>
                         
-                        <div className="mt-2 text-xs p-1.5 bg-[#6E3AFF]/10 rounded">
-                          <span className="text-[#B28DFF] font-medium">Почему подходит:</span>
+                        <div className="mt-2 text-xs p-1.5 bg-primary/10 rounded">
+                          <span className="text-primary font-medium">Почему подходит:</span>
                           {course.id === 1 
                             ? ' Идеально для начала обучения машинному обучению на вашем уровне' 
                             : ' Поможет заполнить пробелы в математической подготовке'}
@@ -726,7 +726,7 @@ export default function Dashboard() {
               <div className="flex justify-center mt-4">
                 <button 
                   onClick={() => setLocation('/courses')}
-                  className="px-4 py-2 bg-[#6E3AFF]/20 border border-[#6E3AFF]/30 hover:bg-[#6E3AFF]/30 text-white/90 rounded-lg text-sm transition flex items-center"
+                  className="px-4 py-2 bg-indigo-900/50 border border-indigo-500/30 hover:bg-indigo-900/70 text-white/90 rounded-lg text-sm transition flex items-center"
                 >
                   <span>Все курсы</span>
                   <i className="fas fa-arrow-right ml-2"></i>
