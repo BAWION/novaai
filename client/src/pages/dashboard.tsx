@@ -635,15 +635,24 @@ export default function Dashboard() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="w-full"
           >
-            <Glassmorphism className="h-full rounded-lg p-4">
-              <div className="flex items-center mb-4">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-600/40 to-indigo-700/20 flex items-center justify-center">
-                  <i className="fas fa-book text-indigo-300"></i>
+            {/* Отображаем заблюренное состояние для авторизованных пользователей без диагностики */}
+            {user && (recommendedCourses.length === 0 || !isDemoMode) ? (
+              <RecommendationsLocked className="h-full" />
+            ) : (
+              <Glassmorphism className="h-full rounded-lg p-4">
+                <div className="flex items-center mb-4">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-600/40 to-indigo-700/20 flex items-center justify-center">
+                    <i className="fas fa-book text-indigo-300"></i>
+                  </div>
+                  <h2 className="font-orbitron text-xl font-semibold ml-3">
+                    Рекомендуемые курсы
+                  </h2>
+                  {isDemoMode && (
+                    <span className="ml-auto text-xs bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded">
+                      Demo
+                    </span>
+                  )}
                 </div>
-                <h2 className="font-orbitron text-xl font-semibold ml-3">
-                  Рекомендуемые курсы
-                </h2>
-              </div>
               
               <div className="space-y-3">
                 {recommendedCourses.slice(0, 2).map((course: any) => (
@@ -705,7 +714,17 @@ export default function Dashboard() {
                 ))}
               </div>
               
-            </Glassmorphism>
+              <div className="flex justify-center mt-4">
+                <button 
+                  onClick={() => setLocation('/courses')}
+                  className="px-4 py-2 bg-indigo-900/50 border border-indigo-500/30 hover:bg-indigo-900/70 text-white/90 rounded-lg text-sm transition flex items-center"
+                >
+                  <span>Все курсы</span>
+                  <i className="fas fa-arrow-right ml-2"></i>
+                </button>
+              </div>
+              </Glassmorphism>
+            )}
           </motion.div>
         </div>
 
