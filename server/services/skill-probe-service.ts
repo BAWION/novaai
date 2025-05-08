@@ -14,7 +14,9 @@ import {
   courses,
   courseModules,
   lessons,
-  users
+  users,
+  courseSkillOutcomes,
+  lessonSkillsDna
 } from '@shared/schema';
 import { eq, and, desc, gt, lt, between, or, inArray } from 'drizzle-orm';
 import { skillGraphService } from './skill-graph-service';
@@ -24,7 +26,7 @@ import { skillGraphService } from './skill-graph-service';
  */
 interface CreateSkillProbeOptions {
   title: string;
-  description: string;
+  description?: string; // Опциональный, чтобы соответствовать схеме валидации в API
   skillId?: number;
   dnaId?: number;
   probeType: 'multiple_choice' | 'coding' | 'fill_blanks' | 'matching' | 'practical';
@@ -456,14 +458,21 @@ class SkillProbeService {
     skillId?: number; 
     dnaId?: number 
   }) {
-    const recommendations: any[] = [];
+    const recommendations: Array<{
+      id: number;
+      type: string;
+      entityId: number;
+      title: string;
+      reason: string;
+      priority: number;
+    }> = [];
     
     try {
       // Если тест не пройден, рекомендуем курсы и уроки по теме
       if (!passStatus) {
         // Поиск курсов и уроков, связанных с навыком или компетенцией
-        let relevantCourses = [];
-        let relevantLessons = [];
+        let relevantCourses: Array<{courseId: number; courseTitle: string; courseLevel: string}> = [];
+        let relevantLessons: Array<{lessonId: number; lessonTitle: string; moduleId: number}> = [];
         
         if (skillId) {
           // Находим курсы, которые развивают данный навык
@@ -474,7 +483,10 @@ class SkillProbeService {
               courseLevel: courses.level
             })
             .from(courses)
-            .innerJoin(courseSkillOutcomes, eq(courseSkillOutcomes.courseId, courses.id))
+            .innerJoin(
+              courseSkillOutcomes, 
+              eq(courseSkillOutcomes.courseId, courses.id)
+            )
             .where(eq(courseSkillOutcomes.skillId, skillId))
             .limit(3);
             
@@ -490,7 +502,10 @@ class SkillProbeService {
               moduleId: lessons.moduleId
             })
             .from(lessons)
-            .innerJoin(lessonSkillsDna, eq(lessonSkillsDna.lessonId, lessons.id))
+            .innerJoin(
+              lessonSkillsDna, 
+              eq(lessonSkillsDna.lessonId, lessons.id)
+            )
             .where(eq(lessonSkillsDna.dnaId, dnaId))
             .limit(5);
             
@@ -562,7 +577,7 @@ class SkillProbeService {
                 eq(skillProbes.difficulty, 'expert')
               ),
               // Исключаем текущий тест
-              skillProbes.id !== probeId
+              ne(skillProbes.id, probeId)
             )
           )
           .limit(2);
