@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { Brain, ChevronRight } from "lucide-react";
+import { Brain, ChevronRight, Lock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,11 +9,13 @@ import useSkillsDna from "@/hooks/use-skills-dna";
 import { SkillsTriangleChart } from "./triangle-chart";
 import { SkillsDnaModal } from "./modal-dialog";
 import SkillsRadarChart from "@/components/skills-radar-chart";
+import { useAuth } from "@/context/auth-context";
 
 interface CompactSkillsDnaCardProps {
   userId?: number;
   className?: string;
   showHeader?: boolean;
+  forceLocked?: boolean;
 }
 
 /**
@@ -22,10 +24,12 @@ interface CompactSkillsDnaCardProps {
 export function CompactSkillsDnaCard({
   userId,
   className = "",
-  showHeader = true
+  showHeader = true,
+  forceLocked = false
 }: CompactSkillsDnaCardProps) {
   const [, setLocation] = useLocation();
   const [showModal, setShowModal] = useState(false);
+  const { user } = useAuth();
   
   // Получаем данные Skills DNA
   const {
@@ -75,7 +79,83 @@ export function CompactSkillsDnaCard({
     );
   }
   
-  // Если нет данных или есть ошибка
+  // Если пользователь авторизован, но нужно показать заблюренное состояние
+  const shouldShowLocked = forceLocked || (user && (error || isEmpty) && !isDemoMode);
+  
+  // Если нужно показать заблюренное состояние
+  if (shouldShowLocked) {
+    return (
+      <Card className={`bg-space-800/70 border-blue-500/20 ${className}`}>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-white flex items-center justify-between">
+            <div className="flex items-center">
+              <Brain className="h-5 w-5 mr-2" />
+              Skills DNA
+            </div>
+            <Badge 
+              variant="outline" 
+              className="bg-amber-500/20 border-amber-500/30 text-amber-300 text-xs"
+            >
+              Доступно после диагностики
+            </Badge>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-4 relative">
+          {/* Заблюренное содержимое */}
+          <div className="backdrop-blur-sm absolute inset-0 z-10 flex flex-col items-center justify-center">
+            <div className="bg-space-900/80 rounded-full p-4 mb-4 relative">
+              <Lock className="h-10 w-10 text-[#6E3AFF]/70" />
+            </div>
+            
+            <h3 className="text-white font-medium mb-2">
+              Доступно после диагностики
+            </h3>
+            <p className="text-white/70 text-sm mb-5 max-w-xs text-center">
+              Пройдите единую диагностику из 15 вопросов для разблокировки персонального профиля
+            </p>
+            
+            <Button 
+              variant="default" 
+              className="bg-gradient-to-r from-[#6E3AFF] to-indigo-500 hover:from-[#6E3AFF]/90 hover:to-indigo-600"
+              onClick={handleStartDiagnostics}
+            >
+              Пройти диагностику
+            </Button>
+          </div>
+          
+          {/* Размытое фоновое содержимое для эффекта blur */}
+          <div className="filter blur-md opacity-30">
+            <div className="h-64">
+              {/* Здесь вставляем пустую радарную диаграмму для фона */}
+              <div className="w-full h-full flex items-center justify-center">
+                <svg viewBox="0 0 200 200" className="w-3/4 h-3/4">
+                  <g transform="translate(100,100)">
+                    <circle r="80" className="fill-none stroke-[#6E3AFF]/20 stroke-[0.5]" />
+                    <circle r="60" className="fill-none stroke-[#6E3AFF]/20 stroke-[0.5]" />
+                    <circle r="40" className="fill-none stroke-[#6E3AFF]/20 stroke-[0.5]" />
+                    <circle r="20" className="fill-none stroke-[#6E3AFF]/20 stroke-[0.5]" />
+                    <path d="M0,-80 L69.28,-40 L69.28,40 L0,80 L-69.28,40 L-69.28,-40 Z" className="fill-none stroke-[#6E3AFF]/20 stroke-[0.5]" />
+                    <polygon points="0,-30 26,-15 26,15 0,30 -26,15 -26,-15" className="fill-[#6E3AFF]/20" />
+                  </g>
+                </svg>
+              </div>
+            </div>
+            
+            <div className="bg-space-900/30 rounded-md p-3 mt-4">
+              <h3 className="text-white font-medium mb-2">Общая картина</h3>
+              <div className="h-4 bg-white/10 rounded mb-2"></div>
+              <div className="h-4 bg-white/10 rounded mb-2"></div>
+              <div className="h-4 bg-white/10 rounded w-3/4"></div>
+              
+              <div className="mt-3 h-10 bg-space-800/70 rounded-md"></div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+  
+  // Если нет данных или есть ошибка (и не авторизован)
   if (error || isEmpty) {
     return (
       <Card className={`bg-space-800/70 border-blue-500/20 ${className}`}>
