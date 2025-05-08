@@ -645,7 +645,7 @@ export default function Dashboard() {
             className="w-full"
           >
             {/* Отображаем заблюренное состояние для авторизованных пользователей без диагностики */}
-            {user && recommendedCourses.length === 0 ? (
+            {user && (recommendedCourses.length === 0 || recommendationsError) ? (
               <RecommendationsLocked className="h-full" />
             ) : (
               <Glassmorphism className="h-full rounded-lg p-4">

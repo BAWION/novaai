@@ -55,10 +55,14 @@ export function SkillsDnaProfile({
     isDemoMode
   });
   
-  // Если это демо-режим и данных нет, автоматически инициализируем демо-данные
+  // Если это демо-режим для неавторизованного пользователя и данных нет, автоматически инициализируем демо-данные
   useEffect(() => {
-    if (isDemoMode && isEmpty && !isLoading) {
-      console.log("[SkillsDnaProfile] Автоматическая инициализация демо-данных");
+    // Проверяем, что пользователь не авторизован прежде чем инициализировать демо-данные
+    const isAuthenticated = !!resolvedUserId && resolvedUserId !== 999;
+    
+    // Инициализируем демо-данные только для неавторизованных пользователей
+    if (isDemoMode && isEmpty && !isLoading && !isAuthenticated) {
+      console.log("[SkillsDnaProfile] Автоматическая инициализация демо-данных для неавторизованного пользователя");
       
       (async () => {
         try {
@@ -70,7 +74,7 @@ export function SkillsDnaProfile({
         }
       })();
     }
-  }, [isDemoMode, isEmpty, isLoading, refetch]);
+  }, [isDemoMode, isEmpty, isLoading, refetch, resolvedUserId]);
 
   if (!currentUserId) {
     return (
