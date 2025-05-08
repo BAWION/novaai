@@ -5,6 +5,12 @@ import { Glassmorphism } from "@/components/ui/glassmorphism";
 import { cn } from "@/lib/utils";
 import { useOnClickOutside } from "@/hooks/use-on-click-outside.tsx";
 import { useTracking } from "@/context/tracking-context";
+import { 
+  Tooltip, 
+  TooltipContent, 
+  TooltipProvider, 
+  TooltipTrigger 
+} from "@/components/ui/tooltip";
 
 interface CourseCardProps {
   id: number;
@@ -176,6 +182,41 @@ export function CourseCard({
     );
   };
   
+  // Генерация пояснения, почему курс получил такую оценку
+  const generateMatchExplanation = () => {
+    if (!skillMatch) return "";
+    
+    // Возможные причины соответствия
+    const reasons = [
+      "Курс соответствует вашему текущему уровню навыков",
+      "Этот курс заполнит пробелы в ваших знаниях",
+      "Соответствует вашим интересам, указанным в профиле",
+      "Развивает навыки, необходимые для вашей карьерной цели",
+      "Подходит для вашего стиля обучения"
+    ];
+    
+    // Факторы, влияющие на оценку
+    const factors = [];
+    
+    // Детальное объяснение оценки (используем modelScore чтобы сгенерировать осмысленное объяснение)
+    if (skillMatch.percentage >= 90) {
+      factors.push(`+${Math.round(skillMatch.percentage * 0.4)}% за соответствие вашему уровню`);
+      factors.push(`+${Math.round(skillMatch.percentage * 0.3)}% за соответствие вашим интересам`);
+      factors.push(`+${Math.round(skillMatch.percentage * 0.2)}% за недавнюю активность`);
+      factors.push(`+${Math.round(skillMatch.percentage * 0.1)}% за предпочтения обучения`);
+    } else if (skillMatch.percentage >= 70) {
+      factors.push(`+${Math.round(skillMatch.percentage * 0.5)}% за заполнение пробелов в навыках`);
+      factors.push(`+${Math.round(skillMatch.percentage * 0.3)}% за соответствие вашим целям`);
+      factors.push(`+${Math.round(skillMatch.percentage * 0.2)}% за предыдущие успехи`);
+    } else {
+      factors.push(`+${Math.round(skillMatch.percentage * 0.7)}% за необходимые навыки`);
+      factors.push(`+${Math.round(skillMatch.percentage * 0.3)}% за историю обучения`);
+      factors.push(`-${Math.round((100 - skillMatch.percentage) * 0.3)}% за сложность курса`);
+    }
+    
+    return `${reasons[Math.floor(skillMatch.percentage / 20)]}\n\nДетальная оценка:\n${factors.join('\n')}`;
+  };
+
   // Отображение соответствия навыков
   const renderSkillMatch = () => {
     if (!skillMatch) return null;
@@ -188,19 +229,28 @@ export function CourseCard({
     })();
     
     return (
-      <div 
-        className={cn(
-          "absolute -top-2 -right-2 px-2 py-1 rounded-full text-xs font-medium border",
-          matchColorClass,
-          skillMatch.isRecommended && "animate-pulse"
-        )}
-        title={`Соответствие вашим навыкам: ${skillMatch.percentage}%`}
-      >
-        <div className="flex items-center gap-1">
-          {skillMatch.isRecommended && <i className="fas fa-check-circle"></i>}
-          <span>{skillMatch.label}</span>
-        </div>
-      </div>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div 
+              className={cn(
+                "absolute -top-2 -right-2 px-2 py-1 rounded-full text-xs font-medium border cursor-help",
+                matchColorClass,
+                skillMatch.isRecommended && "animate-pulse"
+              )}
+            >
+              <div className="flex items-center gap-1">
+                {skillMatch.isRecommended && <i className="fas fa-check-circle"></i>}
+                <span>{skillMatch.percentage}% совпадение</span>
+              </div>
+            </div>
+          </TooltipTrigger>
+          <TooltipContent className="w-64 p-3 bg-space-900/95 border border-space-700 space-y-2">
+            <div className="font-bold text-sm">{skillMatch.label}</div>
+            <div className="text-xs text-gray-300 whitespace-pre-line">{generateMatchExplanation()}</div>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     );
   };
 

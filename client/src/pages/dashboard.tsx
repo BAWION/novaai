@@ -32,7 +32,7 @@ export default function Dashboard() {
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   
   // Получение рекомендуемых курсов
-  const { data: recommendedCourses = [] } = useQuery({
+  const { data: rawRecommendedCourses = [] } = useQuery({
     queryKey: ['/api/courses/recommended'],
     queryFn: async () => {
       try {
@@ -51,14 +51,16 @@ export default function Dashboard() {
             title: "AI Literacy 101",
             description: "Базовый курс по основам ИИ и его применению",
             level: 1,
-            matchPercentage: 95
+            matchPercentage: 95,
+            modelScore: 0.95
           },
           {
             id: 2,
             title: "Математика для ИИ",
             description: "Основы математики, необходимые для понимания алгоритмов ИИ",
             level: 2,
-            matchPercentage: 85
+            matchPercentage: 85,
+            modelScore: 0.85
           }
         ];
       }
@@ -66,6 +68,26 @@ export default function Dashboard() {
     // Если пользователь не авторизован, используем демо-данные
     enabled: !!user
   });
+  
+  // Фильтрация курсов с низкой релевантностью (меньше 0.4) и сортировка по оценке модели
+  const recommendedCourses = React.useMemo(() => {
+    const filtered = rawRecommendedCourses.filter((course: any) => {
+      // Используем modelScore если он есть, иначе matchPercentage/100
+      const score = course.modelScore !== undefined 
+        ? course.modelScore 
+        : (course.matchPercentage ? course.matchPercentage / 100 : 0);
+      
+      // Фильтруем курсы с оценкой менее 0.4
+      return score >= 0.4;
+    });
+    
+    // Сортируем по убыванию оценки модели
+    return filtered.sort((a: any, b: any) => {
+      const scoreA = a.modelScore !== undefined ? a.modelScore : (a.matchPercentage ? a.matchPercentage / 100 : 0);
+      const scoreB = b.modelScore !== undefined ? b.modelScore : (b.matchPercentage ? b.matchPercentage / 100 : 0);
+      return scoreB - scoreA; // Сортировка по убыванию
+    });
+  }, [rawRecommendedCourses]);
   
   const [message, setMessage] = useState("");
   const [AITutorChat, setAITutorChat] = useState({
