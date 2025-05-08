@@ -101,6 +101,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/courses/recommended', recommendedCoursesRouter);
   app.use('/api/courses/user', userCoursesRouter);
   app.use('/api/skills', skillsRadarRouter);
+  app.use('/api/skill-probes', skillProbeRouter);
   
   // Создаем тестового пользователя Vitaliy
   (async () => {
