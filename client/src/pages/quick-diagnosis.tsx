@@ -139,9 +139,21 @@ export default function QuickDiagnosis() {
             
             // Запускаем процесс сохранения результатов
             setTimeout(() => {
+              // Определяем, используем ли демо-режим
+              const isDemoMode = !user;
+              const userId = user?.id || (isDemoMode ? 999 : undefined);
+              
+              console.log(`[QuickDiagnosis] Восстановление результатов, пользователь: ${userId}, демо-режим: ${isDemoMode}`);
+              
+              // Проверяем наличие userId
+              if (!userId) {
+                console.error("[QuickDiagnosis] Отсутствует userId для сохранения результатов");
+                return false;
+              }
+              
               // Имитируем отправку данных диагностики напрямую
               const diagnosisResult = {
-                userId: user.id,
+                userId: userId as number, // Явное приведение типа для TypeScript
                 skills: savedData.skillProfile,
                 diagnosticType: 'quick' as import("@/api/diagnosis-api").DiagnosticType,
                 metadata: {
@@ -337,10 +349,13 @@ export default function QuickDiagnosis() {
             profileUser: userProfile
           });
           
-          // Используем ID пользователя из контекста auth, если доступен
-          const userId = user?.id || userProfile?.userId;
+          // Определяем, используем ли демо-режим
+          const isDemoMode = !user && !userProfile?.userId;
           
-          console.log("[SkillsDNA] Определен ID пользователя:", userId);
+          // Используем ID пользователя из контекста, или 999 для демо-режима
+          const userId = user?.id || userProfile?.userId || (isDemoMode ? 999 : undefined);
+          
+          console.log(`[QuickDiagnosis] Определен ID пользователя: ${userId}, демо-режим: ${isDemoMode}`);
           
           // Сохраняем данные диагностики в sessionStorage для возможного восстановления после авторизации
           const diagnosticData = {
@@ -353,9 +368,9 @@ export default function QuickDiagnosis() {
           sessionStorage.setItem("diagnosticResults", JSON.stringify(diagnosticData));
           console.log("[SkillsDNA] Временно сохранены результаты диагностики в sessionStorage");
           
-          // Проверяем авторизацию
-          if (!userId) {
-            console.warn("[SkillsDNA] Пользователь не авторизован, предлагаем войти в систему");
+          // Проверяем авторизацию или демо-режим
+          if (!userId && !isDemoMode) {
+            console.warn("[SkillsDNA] Пользователь не авторизован и не в демо-режиме, предлагаем войти в систему");
             
             toast({
               title: "Требуется авторизация",
@@ -385,9 +400,15 @@ export default function QuickDiagnosis() {
             skills: Object.entries(skillProfile).map(([k, v]) => `${k}: ${v}`).join(', ')
           });
           
+          // Проверяем наличие userId
+          if (!userId) {
+            console.error("[QuickDiagnosis] Отсутствует userId для сохранения результатов");
+            return;
+          }
+          
           // Подготавливаем данные для отправки
           const diagnosisResult: import("@/api/diagnosis-api").DiagnosisResult = {
-            userId,
+            userId: userId as number, // Явное приведение типа для TypeScript
             skills: skillProfile,
             diagnosticType, // Теперь используем переменную с явным типом
             metadata: {
