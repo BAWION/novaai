@@ -37,6 +37,8 @@ import recommendedCoursesRouter from "./routes/recommended-courses";
 import userCoursesRouter from "./routes/user-courses";
 import skillsRadarRouter from "./routes/skills-radar-api";
 import skillProbeRouter from "./routes/skill-probe-api";
+// Импортируем маршрут для функциональности S4 (INSIGHT "Time-Saved")
+import { timeSavedRouter } from "./routes/time-saved-api";
 // import skillsRouter from "./routes/skills";
 
 // Add any middleware needed
@@ -102,6 +104,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/courses/user', userCoursesRouter);
   app.use('/api/skills', skillsRadarRouter);
   app.use('/api/skill-probes', skillProbeRouter);
+  // Добавляем маршрут для функциональности S4 (INSIGHT "Time-Saved")
+  app.use('/api/time-saved', timeSavedRouter);
   
   // Создаем тестового пользователя Vitaliy
   (async () => {
