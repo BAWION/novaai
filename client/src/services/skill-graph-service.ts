@@ -3,7 +3,7 @@
  * Клиентский сервис для управления навыками пользователя
  */
 
-import { apiRequest } from '@/lib/api';
+import { apiRequest } from '../lib/api';
 
 interface SkillLevel {
   level: number;
@@ -25,7 +25,7 @@ export async function updateSkill(
   deltaXp: number = 0
 ): Promise<{ success: boolean; data: any }> {
   try {
-    const response = await apiRequest('POST', '/api/skills/update', {
+    const response = await apiRequest('POST', '/api/skills-tracking/update', {
       userId,
       skillName,
       deltaLevel,
@@ -55,7 +55,7 @@ export async function getLevel(
   skillName: string
 ): Promise<SkillLevel> {
   try {
-    const response = await apiRequest('GET', `/api/skills/${userId}/${skillName}`);
+    const response = await apiRequest('GET', `/api/skills-tracking/${userId}/${skillName}`);
 
     if (!response.ok) {
       throw new Error(`Ошибка получения уровня навыка: ${response.status}`);
@@ -69,5 +69,25 @@ export async function getLevel(
   } catch (error) {
     console.error('Ошибка при получении уровня навыка:', error);
     return { level: 0, xp: 0 };
+  }
+}
+
+/**
+ * Получает все навыки пользователя
+ * @returns список навыков пользователя с уровнями и категориями
+ */
+export async function getUserSkills(): Promise<any[]> {
+  try {
+    const response = await apiRequest('GET', '/api/skills-tracking/user');
+
+    if (!response.ok) {
+      throw new Error(`Ошибка получения навыков пользователя: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Ошибка при получении навыков пользователя:', error);
+    return [];
   }
 }

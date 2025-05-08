@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useUserProfile } from "@/context/user-profile-context";
 import { UserRole, UserInterest } from "@/lib/constants";
 import { SkillsDnaProfile } from "@/components/skills-dna-profile";
+import SkillTracker from "@/components/skills/SkillTracker";
 import { useLocation } from "wouter";
 
 // Вспомогательные функции для получения русских названий ролей и интересов
@@ -519,6 +520,14 @@ export default function Profile() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
+              >
+                <SkillTracker />
+              </motion.div>
+              
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.6 }}
               >
                 <SkillsDnaProfile 
                   userId={userProfile?.userId}
