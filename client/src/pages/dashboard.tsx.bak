@@ -679,6 +679,52 @@ export default function Dashboard() {
                     }}
                   />
                 ))}
+                        <h3 className="text-lg font-medium mt-2">{course.title}</h3>
+                        <p className="text-white/60 text-sm mt-1">{course.description || 'Описание курса'}</p>
+                        
+                        <div className="flex flex-wrap items-center gap-3 mt-3">
+                          <div className="flex items-center gap-1.5">
+                            <i className="fas fa-signal text-white/60"></i>
+                            <span className="text-white/60 text-xs">Сложность: {course.level}/5</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <i className="fas fa-clock text-white/60"></i>
+                            <span className="text-white/60 text-xs">120 мин</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <i className="fas fa-layer-group text-white/60"></i>
+                            <span className="text-white/60 text-xs">5 модулей</span>
+                          </div>
+                        </div>
+                        
+                        <div className="mt-3">
+                          <span className="text-purple-400 text-xs">Почему подходит:</span>
+                          <p className="text-white/80 text-xs mt-1">
+                            {course.id === 1 
+                              ? 'Идеально для начала обучения машинному обучению на вашем уровне' 
+                              : 'Поможет заполнить пробелы в математической подготовке'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {course.id === 1 ? (
+                        <>
+                          <span className="px-2 py-1 bg-space-800/60 text-white/80 text-xs rounded-md">Линейная алгебра</span>
+                          <span className="px-2 py-1 bg-space-800/60 text-white/80 text-xs rounded-md">Статистика</span>
+                          <span className="px-2 py-1 bg-space-800/60 text-white/80 text-xs rounded-md">Оптимизация</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="px-2 py-1 bg-space-800/60 text-white/80 text-xs rounded-md">Программирование</span>
+                          <span className="px-2 py-1 bg-space-800/60 text-white/80 text-xs rounded-md">Python</span>
+                          <span className="px-2 py-1 bg-space-800/60 text-white/80 text-xs rounded-md">Алгоритмы</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
               
             </Glassmorphism>
