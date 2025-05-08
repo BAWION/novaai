@@ -41,6 +41,7 @@ import LessonStructurePage from "@/pages/admin/lesson-structure-page";
 import PersonalDashboardPage from "@/pages/personal-dashboard";
 import SimulatorDemoPage from "@/pages/simulator-demo-page";
 import SkillsDnaPage from "@/pages/skills-dna";
+import TimeSavedPageRoute from "@/pages/time-saved-page";
 
 interface ProtectedRouteProps {
   component: React.ComponentType;
@@ -148,6 +149,9 @@ function Router() {
           
           {/* Gap-анализ навыков */}
           <ProtectedRoute path="/gap-analysis" component={GapAnalysisPage} />
+          
+          {/* Страница экономии времени (S4 Time-Saved) */}
+          <ProtectedRoute path="/time-saved" component={TimeSavedPageRoute} />
           
           {/* AI-ассистент */}
           <ProtectedRoute path="/ai-assistant" component={AIAssistantPage} />
