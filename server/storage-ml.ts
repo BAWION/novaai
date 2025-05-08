@@ -66,6 +66,51 @@ export class MLStorage {
     return updatedFlag;
   }
 
+  /**
+   * Получение конфигурации AB-теста по его имени
+   * Поскольку отдельной таблицы AB-тестов нет, используем feature flags с префиксом "ab_test_"
+   */
+  async getABTestConfig(experimentName: string): Promise<{
+    isActive: boolean;
+    experimentGroupPercentage: number;
+    description?: string;
+    metadata?: any;
+  } | null> {
+    try {
+      // AB-тесты хранятся как feature flags с определенным форматом имени
+      const flagName = `ab_test_${experimentName}`;
+      const flag = await this.getFeatureFlag(flagName);
+      
+      if (!flag) {
+        console.log(`AB test configuration for ${experimentName} not found`);
+        return null;
+      }
+      
+      // Проверяем статус AB-теста
+      const isActive = flag.status === 'enabled' || flag.status === 'beta';
+      
+      // Процент пользователей в экспериментальной группе
+      // По умолчанию 50% если не указано иное
+      const experimentGroupPercentage = flag.rolloutPercentage !== null && flag.rolloutPercentage !== undefined
+        ? flag.rolloutPercentage
+        : 50;
+      
+      // Дополнительные метаданные эксперимента из targetAudience JSON
+      const metadata = flag.targetAudience || {};
+      
+      // Формируем и возвращаем конфигурацию AB-теста
+      return {
+        isActive,
+        experimentGroupPercentage,
+        description: flag.description || undefined,
+        metadata
+      };
+    } catch (error) {
+      console.error(`Error getting AB test configuration for ${experimentName}:`, error);
+      return null;
+    }
+  }
+
   async isFeatureEnabled(name: string, userId?: number): Promise<boolean> {
     const flag = await this.getFeatureFlag(name);
     if (!flag) {
