@@ -80,7 +80,8 @@ export function CompactSkillsDnaCard({
   }
   
   // Если пользователь авторизован, но нужно показать заблюренное состояние
-  const shouldShowLocked = forceLocked || (user && (error || isEmpty) && !isDemoMode);
+  // Всегда показываем заблюренное состояние для авторизованных пользователей без данных
+  const shouldShowLocked = forceLocked || (user && (error || isEmpty));
   
   // Если нужно показать заблюренное состояние
   if (shouldShowLocked) {

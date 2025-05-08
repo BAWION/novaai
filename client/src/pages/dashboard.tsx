@@ -33,11 +33,12 @@ export default function Dashboard() {
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   
   // Определяем, находимся ли мы в демо-режиме
-  const isDemoMode = userProfile?.userId === 999 || !user; // Считаем неавторизованных пользователей как демо
+  // Для авторизованных пользователей НИКОГДА не включаем демо-режим
+  const isDemoMode = !user ? true : false; // Только для неавторизованных пользователей
   const demoUserId = 999;
   
   // Получение рекомендуемых курсов с учетом демо-режима
-  const { data: recommendedCourses = [] } = useQuery({
+  const { data: recommendedCourses = [], error: recommendationsError } = useQuery({
     queryKey: ['/api/courses/recommended', isDemoMode ? demoUserId : user?.id],
     queryFn: async () => {
       try {
@@ -51,6 +52,7 @@ export default function Dashboard() {
         const res = await apiRequest('GET', endpoint);
         if (!res.ok) {
           console.error(`[Dashboard] Ошибка при загрузке рекомендуемых курсов: ${res.status}`);
+          // Не используем демо-режим для авторизованных пользователей!
           throw new Error('Ошибка при загрузке рекомендуемых курсов');
         }
         const data = await res.json();
@@ -58,7 +60,14 @@ export default function Dashboard() {
         return data;
       } catch (error) {
         console.error('Ошибка при загрузке рекомендуемых курсов:', error);
-        // Возвращаем тестовые данные при ошибке
+        
+        // Важно: для авторизованных пользователей НЕ возвращаем тестовые данные,
+        // а кидаем ошибку дальше, чтобы отобразилась заблюренная карточка
+        if (user) {
+          throw error;
+        }
+        
+        // Для неавторизованных пользователей можно вернуть демо-данные
         return [
           {
             id: 1,
@@ -77,8 +86,8 @@ export default function Dashboard() {
         ];
       }
     },
-    // Если пользователь не авторизован, используем демо-данные
-    enabled: !!user
+    // Запрос включен всегда - для авторизованных и демо режима
+    enabled: true
   });
   
   const [message, setMessage] = useState("");
@@ -636,7 +645,7 @@ export default function Dashboard() {
             className="w-full"
           >
             {/* Отображаем заблюренное состояние для авторизованных пользователей без диагностики */}
-            {user && (recommendedCourses.length === 0 || !isDemoMode) ? (
+            {user && recommendedCourses.length === 0 ? (
               <RecommendationsLocked className="h-full" />
             ) : (
               <Glassmorphism className="h-full rounded-lg p-4">
