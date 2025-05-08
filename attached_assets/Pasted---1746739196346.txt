@@ -1,0 +1,91 @@
+### 🎯  Цель
+Довести движок до состояния «живой радар → умные квесты → ощутимая выгода», реализовав шаги S1–S4.
+
+====================================================================
+S1 ── LIVE UPDATE: урок → Δ‑навык
+====================================================================
+1.  server/services/skill-graph-service.ts  (NEW)
+    └─  async updateSkill(userId, skillId, deltaLvl, deltaXp)
+
+2.  server/services/progress-service.ts
+    ▸  после записи lesson_progress:
+       await skillGraph.updateSkill(userId, lesson.masterSkillId, 1, earnedXp);
+
+3.  DB migration
+    ALTER TABLE user_skill ADD COLUMN updated_at TIMESTAMP DEFAULT now();
+
+4.  eventBus
+    publish('skills_changed', userId)  → frontend invalidates '/api/skills/radar'
+
+====================================================================
+S2 ── SKILL‑PROBE (5‑мин интерактив тест)
+====================================================================
+1.  client/src/pages/probe-prompt.tsx  (NEW)
+    •  textarea для prompt → submit
+
+2.  server/services/probe-service.ts  (NEW)
+    •  gradePrompt(userText)  // simple regex heuristics, return level 0‑5
+
+3.  routes/probe-api.ts
+    POST /api/probe/prompt  →  probeService.gradePrompt → skillGraph.updateSkill(userId, 'prompt_engineering', Δ)
+
+4.  redirect /probe/prompt?after=courseId  → on finish navigate('/bridge')
+
+====================================================================
+S3 ── SMART QUEST v0.9 (LightGBM offline model)
+====================================================================
+1.  server/services/ml-service.ts
+    •  loadModel('models/lgbm_reco.json')
+    •  getUserRecommendations(uid):
+       – fetch user_skill vector
+       – model.predict_topN(lessons, N=5)
+
+2.  routes/recommended-courses.ts
+    •  заменить эвристику:
+       if(modelExists) recs = mlService.getUserRecommendations(uid) else fallbackSimple()
+
+3.  cron/train-model.js  (weekly)
+    •  собирает dataset lesson → delta_gen → success, retrain LightGBM
+
+====================================================================
+S4 ── INSIGHT “Time‑Saved”
+====================================================================
+1.  DB
+    CREATE TABLE skill_roi (skill_id TEXT PRIMARY KEY, minutes_per_level INT);
+
+2.  server/services/insight-service.ts  (NEW)
+    getTimeSaved(uid) = Σ(Δlevel * roi.minutes)
+
+3.  routes/insights-api.ts
+    GET /api/insights/time_saved
+
+4.  BridgePage.tsx
+    •  useQuery('/api/insights/time_saved')
+    •  Toast “Вы уже экономите {{time}} мин/нед!”
+
+====================================================================
+Smoke‑тест checklist
+--------------------------------------------------------------------
+✔ lesson_complete → radar сектор +1 lvl без перезагрузки  
+✔ POST /api/probe/prompt → +lvl, redirect Bridge  
+✔ GET /api/courses/recommended → приходит из ML (если модель)  
+✔ Bridge показывает toast “Экономия 45 мин/нед”  
+
+====================================================================
+Файлы для изменения / добавления
+--------------------------------------------------------------------
+server/services/skill-graph-service.ts      (NEW)
+server/services/progress-service.ts         (edit)
+server/services/probe-service.ts            (NEW)
+server/services/ml-service.ts               (edit)
+server/services/insight-service.ts          (NEW)
+server/routes/probe-api.ts                  (NEW)
+server/routes/recommended-courses.ts        (edit)
+server/routes/insights-api.ts               (NEW)
+client/src/pages/probe-prompt.tsx           (NEW)
+client/src/pages/BridgePage.tsx             (edit)
+migrations/2024_05_add_updated_at.sql
+migrations/2024_05_create_skill_roi.sql
+cron/train-model.js
+
+### 🚀  Приступай!
