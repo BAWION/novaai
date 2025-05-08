@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { EducationalNavigator } from "@/components/ai-agent/educational-navigator";
 import { Badge } from "@/components/ui/badge";
+import SkillTracker from "@/components/skills/SkillTracker";
 
 // Компонент с аватаром и общей информацией
 const UserProfileOverview = () => {
@@ -505,6 +506,7 @@ export default function PersonalDashboardPage() {
         
         {/* Вкладка "Skills DNA" */}
         <TabsContent value="skills" className="space-y-6">
+          <SkillTracker />
           <CompetencyMapSection />
         </TabsContent>
         
