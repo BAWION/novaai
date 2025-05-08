@@ -3,7 +3,7 @@
  * Клиентский сервис для управления навыками пользователя
  */
 
-import { apiRequest } from '../lib/api';
+import { apiRequest } from '@/lib/api';
 
 interface SkillLevel {
   level: number;
