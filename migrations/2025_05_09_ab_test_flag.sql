@@ -1,48 +1,47 @@
--- Миграция для добавления A/B-теста для улучшенных рекомендаций
--- 1. Создание feature flag для A/B тестирования
-INSERT INTO feature_flags (name, description, status, rollout_percentage, target_audience, created_at, updated_at)
-VALUES (
-  'ab_testing', 
-  'Мастер-флаг для включения системы A/B тестирования', 
-  'enabled', 
-  100, 
-  '{}', 
-  NOW(), 
-  NOW()
+-- AB Test Flags Table для хранения флагов экспериментов
+CREATE TABLE IF NOT EXISTS ab_test_flags (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  experiment_name VARCHAR(100) NOT NULL,
+  is_in_experiment BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(user_id, experiment_name)
 );
 
--- 2. Создание конкретного A/B теста для улучшенного алгоритма рекомендаций
-INSERT INTO feature_flags (name, description, status, rollout_percentage, target_audience, created_at, updated_at)
-VALUES (
-  'ab_test_enhanced_recommendations', 
-  'A/B тест для улучшенного алгоритма рекомендаций с порогом релевантности и разнообразием по навыкам', 
-  'enabled', 
-  50, 
-  '{"description": "Тестирование улучшенного алгоритма рекомендаций с фильтрацией по порогу и разнообразием", "metrics": ["clicks", "course_completions", "time_spent"]}', 
-  NOW(), 
-  NOW()
+-- AB Test Configurations Table для хранения конфигураций экспериментов
+CREATE TABLE IF NOT EXISTS ab_test_configs (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100) NOT NULL UNIQUE,
+  description TEXT,
+  is_enabled BOOLEAN NOT NULL DEFAULT TRUE,
+  config JSONB DEFAULT '{}',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- 3. Feature flag для включения улучшенного алгоритма рекомендаций (для ручного управления)
-INSERT INTO feature_flags (name, description, status, rollout_percentage, target_audience, created_at, updated_at)
-VALUES (
-  'enhanced_recommendations', 
-  'Улучшенный алгоритм рекомендаций с порогом и разнообразием', 
-  'beta', 
-  0, 
-  '{"description": "Принудительное включение улучшенного алгоритма рекомендаций для всех пользователей"}', 
-  NOW(), 
-  NOW()
+-- AB Test Events Table для хранения событий экспериментов
+CREATE TABLE IF NOT EXISTS ab_test_events (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  experiment_name VARCHAR(100) NOT NULL,
+  event_type VARCHAR(50) NOT NULL,
+  metadata JSONB DEFAULT '{}',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- 4. Обновление таблицы user_recommendations для хранения метаданных
--- Первая проверка, есть ли уже колонка meta_data
-DO $$
-BEGIN
-    IF NOT EXISTS (
-        SELECT FROM information_schema.columns 
-        WHERE table_name = 'user_recommendations' AND column_name = 'meta_data'
-    ) THEN
-        ALTER TABLE user_recommendations ADD COLUMN meta_data JSONB;
-    END IF;
-END $$;
+-- Индексы для оптимизации запросов
+CREATE INDEX IF NOT EXISTS idx_ab_test_flags_user_id ON ab_test_flags(user_id);
+CREATE INDEX IF NOT EXISTS idx_ab_test_flags_experiment_name ON ab_test_flags(experiment_name);
+CREATE INDEX IF NOT EXISTS idx_ab_test_events_user_id ON ab_test_events(user_id);
+CREATE INDEX IF NOT EXISTS idx_ab_test_events_experiment_name ON ab_test_events(experiment_name);
+CREATE INDEX IF NOT EXISTS idx_ab_test_events_event_type ON ab_test_events(event_type);
+
+-- Вставка начальных экспериментов
+INSERT INTO ab_test_configs (name, description, is_enabled, config)
+VALUES 
+  ('recommendation_diversity', 'Эксперимент по повышению разнообразия рекомендаций с учетом первичного навыка', TRUE, '{"threshold": 0.4, "description": "Фильтрация рекомендаций с modelScore < 0.4 и повышение разнообразия по первичному навыку"}')
+ON CONFLICT (name) DO UPDATE 
+SET description = EXCLUDED.description,
+    is_enabled = EXCLUDED.is_enabled,
+    config = EXCLUDED.config,
+    updated_at = CURRENT_TIMESTAMP;
