@@ -35,6 +35,7 @@ import diagnosisRouter from "./routes/diagnosis-api";
 // import { lessonProgressRouter } from "./routes/lesson-progress";
 import recommendedCoursesRouter from "./routes/recommended-courses";
 import userCoursesRouter from "./routes/user-courses";
+import skillsRadarRouter from "./routes/skills-radar-api";
 // import skillsRouter from "./routes/skills";
 
 // Add any middleware needed
@@ -98,6 +99,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/diagnosis', diagnosisRouter);
   app.use('/api/courses/recommended', recommendedCoursesRouter);
   app.use('/api/courses/user', userCoursesRouter);
+  app.use('/api/skills', skillsRadarRouter);
   
   // Создаем тестового пользователя Vitaliy
   (async () => {

@@ -56,7 +56,7 @@ class SkillGraphService {
     
     if (existingSkill) {
       // Обновляем существующий навык
-      const previousLevel = existingSkill.level;
+      const previousLevel = existingSkill.level || 0;
       const newLevel = Math.max(0, Math.min(100, previousLevel + deltaLevel)); // Ограничиваем значение от 0 до 100
       
       await db
@@ -74,7 +74,7 @@ class SkillGraphService {
       
       result = {
         updated: true,
-        previousLevel,
+        previousLevel: previousLevel || 0,
         newLevel,
         userId,
         skillId,
@@ -161,7 +161,7 @@ class SkillGraphService {
           };
           
           const currentLevelValue = currentLevelMap[existingProgress.currentLevel] || 0;
-          const newProgressValue = Math.min(100, Math.max(0, existingProgress.progress + weightedDelta));
+          const newProgressValue = Math.min(100, Math.max(0, (existingProgress.progress || 0) + weightedDelta));
           
           // Определяем новый уровень компетенции на основе прогресса
           let newLevel = existingProgress.currentLevel;
