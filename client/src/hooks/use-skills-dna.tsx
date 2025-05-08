@@ -106,12 +106,12 @@ export default function useSkillsDna(userId?: number): SkillsDnaData {
     error: progressError,
     refetch: refetchProgress
   } = useQuery({
-    queryKey: ['skillsDna', 'progress', currentUserId],
-    queryFn: () => diagnosisApi.getUserProgress(currentUserId as number),
-    enabled: !!currentUserId,
+    queryKey: ['skillsDna', 'progress', effectiveUserId],
+    queryFn: () => diagnosisApi.getUserProgress(effectiveUserId as number),
+    enabled: !!effectiveUserId,
     staleTime: 1000 * 60 * 5, // 5 минут
-    retry: demoMode ? 0 : 1, // В демо-режиме не пытаемся повторить запрос
-    retryOnMount: demoMode // В демо-режиме повторяем запрос при монтировании компонента
+    retry: demoMode || shouldUseDemoMode ? 0 : 1, // В демо-режиме не пытаемся повторить запрос
+    retryOnMount: demoMode || shouldUseDemoMode // В демо-режиме повторяем запрос при монтировании компонента
   });
 
   // Запрос на получение сводной информации о прогрессе пользователя
@@ -121,26 +121,48 @@ export default function useSkillsDna(userId?: number): SkillsDnaData {
     error: summaryError,
     refetch: refetchSummary
   } = useQuery({
-    queryKey: ['skillsDna', 'summary', currentUserId],
-    queryFn: () => diagnosisApi.getUserSummary(currentUserId as number),
-    enabled: !!currentUserId,
+    queryKey: ['skillsDna', 'summary', effectiveUserId],
+    queryFn: () => diagnosisApi.getUserSummary(effectiveUserId as number),
+    enabled: !!effectiveUserId,
     staleTime: 1000 * 60 * 5, // 5 минут
-    retry: demoMode ? 0 : 1, // В демо-режиме не пытаемся повторить запрос
-    retryOnMount: demoMode // В демо-режиме повторяем запрос при монтировании компонента
+    retry: demoMode || shouldUseDemoMode ? 0 : 1, // В демо-режиме не пытаемся повторить запрос
+    retryOnMount: demoMode || shouldUseDemoMode // В демо-режиме повторяем запрос при монтировании компонента
   });
 
   // Для обработки ошибки аутентификации (401) автоматически переключаемся на демо-режим
+  const [shouldUseDemoMode, setShouldUseDemoMode] = useState(demoMode);
+
+  // Эффект для переключения на демо-режим при ошибках 401
   useEffect(() => {
+    // Только если получена ошибка и мы еще не в демо-режиме
     if ((progressError || summaryError) && !demoMode && currentUserId !== 999) {
       const error = progressError || summaryError;
-      // @ts-ignore - обращаемся к статусу ошибки, который может быть в объекте ошибки
-      if (error && error.status === 401) {
-        console.warn("[useSkillsDna] Получена ошибка 401, переключаемся на демо-режим");
-        // Здесь можно было бы переключиться на демо-режим, но это требует рефакторинга хука
-        // чтобы использовать useState для управления currentUserId, что выходит за рамки текущей задачи
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const hasAuthError = errorMessage.includes('401') || 
+                           errorMessage.toLowerCase().includes('unauthorized') ||
+                           errorMessage.toLowerCase().includes('not authenticated');
+      
+      if (hasAuthError) {
+        console.warn("[useSkillsDna] Получена ошибка аутентификации, переключаемся на демо-режим:", errorMessage);
+        setShouldUseDemoMode(true);
+        
+        // Запустим демо-данные
+        diagnosisApi.initializeDemoData()
+          .then(() => {
+            console.log("[useSkillsDna] Демо-данные успешно инициализированы");
+            // Обновим запросы после переключения на демо-режим
+            refetchProgress();
+            refetchSummary();
+          })
+          .catch(error => {
+            console.error("[useSkillsDna] Ошибка при инициализации демо-данных:", error);
+          });
       }
     }
   }, [progressError, summaryError, demoMode, currentUserId]);
+  
+  // Применим демо-режим если shouldUseDemoMode = true
+  const effectiveUserId = shouldUseDemoMode ? 999 : currentUserId;
 
   // Преобразуем данные прогресса в формат для радарной диаграммы
   const skillsData = progressData?.reduce((acc: Record<string, number>, item: any) => {
