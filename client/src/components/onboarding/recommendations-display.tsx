@@ -50,30 +50,7 @@ export function RecommendationsDisplay({
   // Загрузка данных о рекомендованных курсах
   const { data: courses, isLoading } = useQuery<Course[]>({
     queryKey: ["/api/courses/recommended", courseIds],
-    queryFn: async () => {
-      try {
-        // Для демо-режима используем userId=999
-        const isDemoMode = !localStorage.getItem('token'); // Проверка авторизации
-        const endpoint = isDemoMode 
-          ? `/api/courses/recommended?userId=999` 
-          : `/api/courses/recommended`;
-          
-        console.log(`[RecommendationsDisplay] Запрос рекомендаций, демо-режим: ${isDemoMode}`);
-        
-        const response = await fetch(endpoint);
-        if (!response.ok) {
-          throw new Error(`Ошибка загрузки рекомендованных курсов: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        console.log(`[RecommendationsDisplay] Получены рекомендации: ${data.length} курсов`);
-        return data;
-      } catch (error) {
-        console.error("[RecommendationsDisplay] Ошибка:", error);
-        return []; // Возвращаем пустой массив в случае ошибки
-      }
-    },
-    enabled: courseIds.length > 0 || !localStorage.getItem('token'), // Включаем запрос для демо-режима
+    enabled: courseIds.length > 0,
     placeholderData: [],
   });
   

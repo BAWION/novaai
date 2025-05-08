@@ -165,13 +165,11 @@ export const diagnosisApi = {
       // Обрабатываем ошибки HTTP более детально
       if (!response.ok) {
         let errorMessage = "Ошибка при получении прогресса";
-        let errorData = null;
         
         try {
           // Пытаемся получить подробности ошибки из JSON-ответа
           const errorResponse = await response.json();
           errorMessage = errorResponse.message || errorMessage;
-          errorData = errorResponse;
           
           console.error(`[API] Ошибка при получении прогресса:`, {
             status: response.status,
@@ -188,13 +186,14 @@ export const diagnosisApi = {
           }
         }
         
-        // Создаем соответствующую ошибку с деталями о статусе HTTP
-        const error = new Error(`Ошибка API: ${errorMessage}`);
-        (error as any).status = response.status;
-        (error as any).data = errorData;
+        // Особая обработка для разных статусов ошибок
+        if (response.status === 401) {
+          console.warn('[API] Пользователь не авторизован для получения данных прогресса');
+        } else if (response.status === 403) {
+          console.warn('[API] Нет доступа для просмотра прогресса запрошенного пользователя');
+        } 
         
-        // Для любого статуса ошибки просто пробрасываем её дальше
-        throw error;
+        return [];
       }
       
       const result = await response.json();
@@ -202,15 +201,8 @@ export const diagnosisApi = {
       
       // Более детальное логирование при успешном получении данных
       if (result.data && result.data.length > 0) {
-        // Создаем объект для подсчета уникальных категорий
-        const categories: Record<string, boolean> = {};
-        result.data.forEach((item: any) => {
-          if (item.category) {
-            categories[item.category] = true;
-          }
-        });
-        
-        console.log('[API] Категории навыков в профиле:', Object.keys(categories).join(', '));
+        console.log('[API] Категории навыков в профиле:', 
+          [...new Set(result.data.map((item: any) => item.category))].join(', '));
         
         // Логируем несколько навыков с наивысшим прогрессом
         const topSkills = result.data
@@ -226,7 +218,7 @@ export const diagnosisApi = {
       return result.data || [];
     } catch (error) {
       console.error('[API] Исключение при получении прогресса пользователя:', error);
-      throw error; // Пробрасываем ошибку дальше для её правильной обработки
+      return [];
     }
   },
 
@@ -250,13 +242,11 @@ export const diagnosisApi = {
       // Обрабатываем ошибки HTTP более детально
       if (!response.ok) {
         let errorMessage = "Ошибка при получении сводки";
-        let errorData = null;
         
         try {
           // Пытаемся получить подробности ошибки из JSON-ответа
           const errorResponse = await response.json();
           errorMessage = errorResponse.message || errorMessage;
-          errorData = errorResponse;
           
           console.error(`[API] Ошибка при получении сводки:`, {
             status: response.status,
@@ -273,20 +263,14 @@ export const diagnosisApi = {
           }
         }
         
-        // Создаем соответствующую ошибку с деталями о статусе HTTP
-        const error = new Error(`Ошибка API: ${errorMessage}`);
-        (error as any).status = response.status;
-        (error as any).data = errorData;
-        
-        // Логируем дополнительную информацию для определенных типов ошибок
+        // Особая обработка для разных статусов ошибок
         if (response.status === 401) {
           console.warn('[API] Пользователь не авторизован для получения сводки');
         } else if (response.status === 403) {
           console.warn('[API] Нет доступа для просмотра сводки запрошенного пользователя');
-        }
+        } 
         
-        // Для любого статуса ошибки просто пробрасываем её дальше
-        throw error;
+        return {};
       }
       
       const result = await response.json();
@@ -317,7 +301,7 @@ export const diagnosisApi = {
       return result.data || {};
     } catch (error) {
       console.error('[API] Исключение при получении сводки пользователя:', error);
-      throw error; // Пробрасываем ошибку дальше для её правильной обработки
+      return {};
     }
   }
 };

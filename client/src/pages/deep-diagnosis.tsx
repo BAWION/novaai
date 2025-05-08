@@ -146,50 +146,9 @@ export default function DeepDiagnosisPage() {
   const [analysisComplete, setAnalysisComplete] = useState(false);
   const [userSkillProfile, setUserSkillProfile] = useState<SkillProfile>({});
   const [recommendations, setRecommendations] = useState<CourseRecommendation[]>([]);
-  const [isDemoMode, setIsDemoMode] = useState<boolean>(false);
   
   // Это компонент глубокой диагностики, по умолчанию разрешаем показывать рекомендации
   const isDeepdDiagnosis = true;
-  
-  // Проверяем, есть ли данные из модального окна приветствия
-  useEffect(() => {
-    try {
-      const savedData = sessionStorage.getItem("onboardingData");
-      if (savedData) {
-        const parsedData = JSON.parse(savedData);
-        console.log("[DeepDiagnosis] Загружены данные из onboardingData:", parsedData);
-        
-        // Проверяем, есть ли флаг демо-режима в данных
-        if (parsedData.isDemoMode) {
-          console.log("[DeepDiagnosis] Обнаружен демо-режим в данных onboardingData");
-          setIsDemoMode(true);
-        }
-        
-        // Предзаполняем форму данными из onboardingData, если они есть
-        if (parsedData.role) {
-          setFormData(prevData => ({
-            ...prevData,
-            role: parsedData.role,
-            experience: parsedData.experience || prevData.experience,
-            pythonLevel: parsedData.pythonLevel || prevData.pythonLevel,
-            interest: parsedData.interest || prevData.interest,
-            goal: parsedData.goal || prevData.goal,
-            preferredLearningStyle: parsedData.learningPreferences?.style || prevData.preferredLearningStyle,
-            timeCommitment: parsedData.learningPreferences?.timeCommitment || prevData.timeCommitment
-          }));
-        }
-      }
-    } catch (error) {
-      console.error("[DeepDiagnosis] Ошибка при чтении данных из sessionStorage:", error);
-    }
-    
-    // Если нет userProfile, но есть признаки демо-режима в URL, включаем демо-режим
-    if (!userProfile?.userId && window.location.search.includes('demo=true')) {
-      console.log("[DeepDiagnosis] Включен демо-режим через URL параметр");
-      setIsDemoMode(true);
-      sessionStorage.setItem("onboardingData", JSON.stringify({ isDemoMode: true }));
-    }
-  }, [userProfile]);
   
   // Формы данных
   const [formData, setFormData] = useState<DeepDiagnosisFormData>({
@@ -395,8 +354,6 @@ export default function DeepDiagnosisPage() {
     setAnalysisStep(0);
     
     try {
-      console.log(`[DeepDiagnosis] Запуск обработки формы, демо-режим: ${isDemoMode}`);
-      
       // Подготовка данных для обновления профиля с учетом типов UserRole и т.д.
       const profileUpdate = {
         // Преобразуем строковые значения в соответствующие типы из констант
@@ -467,38 +424,20 @@ export default function DeepDiagnosisPage() {
       // Имитация последовательного анализа с задержками
       const updateUserProfileSafely = () => {
         try {
-          // Используем состояние isDemoMode вместо повторной проверки
-          console.log(`[DeepDiagnosis] updateUserProfileSafely: демо-режим=${isDemoMode}`);
-          
-          // Для реальных пользователей обновляем профиль
-          if (!isDemoMode && userProfile?.userId) {
-            console.log("[DeepDiagnosis] Обновление профиля пользователя:", userProfile.userId);
-            updateUserProfile(profileUpdate);
-          } else {
-            console.log("[DeepDiagnosis] Демо-режим: пропускаем обновление профиля пользователя");
-          }
-          
+          updateUserProfile(profileUpdate);
           toast({
             title: "Диагностика успешно завершена",
-            description: isDemoMode 
-              ? "Ваш демо-профиль Skills DNA обновлен. Теперь вы можете просмотреть рекомендуемые курсы!" 
-              : "Ваш профиль Skills DNA обновлен. Теперь вы можете просмотреть рекомендуемые курсы!",
+            description: "Ваш профиль Skills DNA обновлен. Теперь вы можете просмотреть рекомендуемые курсы!",
             duration: 5000,
             variant: "default",
           });
-          
-          // Отмечаем, что диагностика завершена (для WelcomeModal)
-          sessionStorage.setItem("diagnosticsCompleted", "true");
-          
-          // Также отмечаем, что это была глубокая диагностика
-          sessionStorage.setItem("deepDiagnosticsCompleted", "true");
           
           // Очищаем временные данные
           setTimeout(() => {
             sessionStorage.removeItem("diagnosisData");
           }, 5000);
         } catch (error) {
-          console.error("[DeepDiagnosis] Ошибка при обновлении профиля:", error);
+          console.error("Ошибка при обновлении профиля:", error);
         }
       };
       
@@ -518,117 +457,58 @@ export default function DeepDiagnosisPage() {
               setTimeout(() => {
                 setAnalysisStep(5); // Формируем карту навыков
                 
-                // Запрашиваем персонализированные рекомендации с сервера
-                // Для демо-пользователя используем специальный userId=999
-                const fetchRecommendations = async () => {
-                  try {
-                    // Используем состояние isDemoMode вместо повторной проверки
-                    // Для демо-режима всегда используем userId=999
-                    const userId = isDemoMode ? 999 : (userProfile?.userId || 999);
-                    
-                    console.log(`[DeepDiagnosis] Запрос рекомендаций для пользователя: ${userId}, демо-режим: ${isDemoMode}`);
-                    
-                    // Для демо-пользователя добавляем параметр userId в запрос
-                    const endpoint = isDemoMode 
-                      ? `/api/courses/recommended?userId=999` 
-                      : `/api/courses/recommended`;
-                      
-                    const response = await fetch(endpoint);
-                    
-                    if (!response.ok) {
-                      console.error(`[DeepDiagnosis] Ошибка при получении рекомендаций: ${response.status} ${response.statusText}`);
-                      // В случае ошибки используем локально сгенерированные рекомендации
-                      const fallbackRecommendations = generateRecommendations();
-                      setRecommendations(fallbackRecommendations);
-                      return;
-                    }
-                    
-                    const data = await response.json();
-                    console.log(`[DeepDiagnosis] Получены рекомендации: ${data.length} курсов`);
-                    setRecommendations(data);
-                  } catch (error) {
-                    console.error("[DeepDiagnosis] Ошибка при получении рекомендаций:", error);
-                    // В случае ошибки используем локально сгенерированные рекомендации
-                    const fallbackRecommendations = generateRecommendations();
-                    setRecommendations(fallbackRecommendations);
-                  }
-                };
-                
-                fetchRecommendations();
+                // Генерируем персонализированные рекомендации на основе профиля
+                const mockRecommendations = generateRecommendations();
+                setRecommendations(mockRecommendations);
                 
                 // Сохраняем результаты в Skills DNA
                 const saveSkillsToDna = async () => {
                   try {
-                    // Используем состояние isDemoMode вместо повторной проверки
-                    // Явно устанавливаем userId=999 для демо-режима, иначе берем из профиля
-                    const userId = isDemoMode ? 999 : (userProfile?.userId || 999);
-                    
-                    console.log(`[DeepDiagnosis] Сохранение результатов для пользователя: ${userId}, демо-режим: ${isDemoMode}`);
-                    
-                    // Подготавливаем данные для отправки
-                    const diagnosisResult = {
-                      userId: userId,
-                      skills: skillProfile,
-                      diagnosticType: 'deep' as 'deep', // явное приведение типа для TypeScript
-                      metadata: {
-                        profileData: {
-                          role: formData.role,
-                          experience: formData.experience,
-                          pythonLevel: formData.pythonLevel,
-                          interest: formData.interest,
-                          goal: formData.goal
-                        },
-                        demographic: {
-                          ageGroup: formData.ageGroup,
-                          education: formData.education
-                        },
-                        technicalBackground: {
-                          programmingLanguages: formData.programmingLanguages,
-                          dataAnalysisLevel: formData.dataAnalysisLevel,
-                          mathBackground: formData.mathBackground
-                        },
-                        cognitiveProfile: {
-                          analyticalThinking: formData.analyticalThinking,
-                          creativeProblemSolving: formData.creativeProblemSolving,
-                          attentionToDetail: formData.attentionToDetail
-                        },
-                        interests: {
-                          primary: formData.interest,
-                          subdomains: formData.subdomains
-                        },
-                        isDemoMode: isDemoMode, // Добавляем флаг демо-режима в метаданные
-                        completedAt: new Date().toISOString() // Добавляем время завершения
-                      }
-                    };
-                    
-                    // Отправляем результаты в систему Skills DNA
-                    const diagnosisApi = {
-                      async saveResults(data: any) {
-                        const response = await fetch('/api/diagnosis/results', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify(data)
-                        });
-                        
-                        if (!response.ok) {
-                          throw new Error(`API Error: ${response.status} ${response.statusText}`);
+                    // Только если пользователь авторизован
+                    if (userProfile?.userId) {
+                      // Подготавливаем данные для отправки
+                      const diagnosisResult = {
+                        userId: userProfile.userId,
+                        skills: skillProfile,
+                        diagnosticType: 'deep' as 'deep', // явное приведение типа для TypeScript
+                        metadata: {
+                          profileData: {
+                            role: formData.role,
+                            experience: formData.experience,
+                            pythonLevel: formData.pythonLevel,
+                            interest: formData.interest,
+                            goal: formData.goal
+                          },
+                          demographic: {
+                            ageGroup: formData.ageGroup,
+                            education: formData.education
+                          },
+                          technicalBackground: {
+                            programmingLanguages: formData.programmingLanguages,
+                            dataAnalysisLevel: formData.dataAnalysisLevel,
+                            mathBackground: formData.mathBackground
+                          },
+                          cognitiveProfile: {
+                            analyticalThinking: formData.analyticalThinking,
+                            creativeProblemSolving: formData.creativeProblemSolving,
+                            attentionToDetail: formData.attentionToDetail
+                          },
+                          interests: {
+                            primary: formData.interest,
+                            subdomains: formData.subdomains
+                          },
+                          formData // полные данные формы
                         }
-                        
-                        return await response.json();
-                      }
-                    };
-                    
-                    const result = await diagnosisApi.saveResults(diagnosisResult);
-                    console.log("Результаты глубокой диагностики сохранены в Skills DNA:", result);
-                    
+                      };
+                      
+                      // Отправляем результаты в систему Skills DNA
+                      const result = await diagnosisApi.saveResults(diagnosisResult);
+                      console.log("Результаты глубокой диагностики сохранены в Skills DNA:", result);
+                    } else {
+                      console.warn("Пользователь не авторизован, результаты не будут сохранены в Skills DNA");
+                    }
                   } catch (error) {
                     console.error("Ошибка при сохранении результатов в Skills DNA:", error);
-                    toast({
-                      title: "Внимание",
-                      description: "Возникла проблема при сохранении результатов диагностики. Это не повлияет на ваши рекомендации.",
-                      variant: "default",
-                      duration: 5000
-                    });
                   }
                 };
                 
@@ -662,23 +542,11 @@ export default function DeepDiagnosisPage() {
   
   // Функция для перехода к профилю Skills DNA с результатами глубокой диагностики
   const handleViewSkillsDna = () => {
-    // Для демо-режима добавляем специальный параметр demo=true
-    const profileUrl = isDemoMode 
-      ? "/profile?section=skills-dna&deep=true&demo=true" 
-      : "/profile?section=skills-dna&deep=true";
-    
-    console.log(`[DeepDiagnosis] handleViewSkillsDna: демо-режим=${isDemoMode}, перенаправляем на ${profileUrl}`);
-    setLocation(profileUrl);
+    setLocation("/profile?section=skills-dna&deep=true");
   };
   
   // Функция для перехода к регистрации после завершения диагностики
   const handleContinueToDashboard = () => {
-    // Используем состояние isDemoMode вместо повторной проверки
-    // В демо-режиме возвращаемся сразу на дашборд, иначе идем на регистрацию
-    const redirectUrl = isDemoMode ? "/dashboard" : "/register-after-onboarding";
-    
-    console.log(`[DeepDiagnosis] handleContinueToDashboard: демо-режим=${isDemoMode}, перенаправляем на ${redirectUrl}`);
-    
     // Сохраняем результаты диагностики и рекомендации в sessionStorage
     try {
       // Сохраняем данные диагностики для использования на странице регистрации
@@ -696,26 +564,13 @@ export default function DeepDiagnosisPage() {
         },
         // Сохраняем результаты анализа
         skillProfile: userSkillProfile,
-        recommendations: recommendations,
-        // Используем состояние isDemoMode
-        isDemoMode: isDemoMode,
-        // Добавляем время завершения
-        completedAt: new Date().toISOString(),
-        // Флаг завершенной глубокой диагностики
-        isDeepDiagnosisCompleted: true
+        recommendations: recommendations
       }));
       
-      // Отмечаем, что диагностика завершена (для WelcomeModal)
-      sessionStorage.setItem("diagnosticsCompleted", "true");
-      
-      // Также отмечаем, что это была глубокая диагностика
-      sessionStorage.setItem("deepDiagnosticsCompleted", "true");
-      
-      // Перенаправляем пользователя на соответствующую страницу
-      console.log(`[DeepDiagnosis] Перенаправление на ${redirectUrl} после завершения диагностики, демо-режим: ${isDemoMode}`);
-      setLocation(redirectUrl);
+      // Перенаправляем на страницу регистрации
+      setLocation("/register-after-onboarding");
     } catch (error) {
-      console.error("[DeepDiagnosis] Ошибка при сохранении данных диагностики:", error);
+      console.error("Ошибка при сохранении данных диагностики:", error);
       toast({
         title: "Ошибка",
         description: "Не удалось сохранить результаты диагностики. Попробуйте еще раз.",

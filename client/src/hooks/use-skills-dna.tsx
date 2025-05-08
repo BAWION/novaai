@@ -3,7 +3,6 @@ import { diagnosisApi } from "@/api/diagnosis-api";
 import { useUserProfile } from "@/context/user-profile-context";
 // Безопасный импорт хука useAuth без непосредственного вызова
 import * as AuthModule from "@/context/auth-context";
-import { useEffect, useState } from "react";
 
 /**
  * Тип данных для записи истории прогресса
@@ -42,6 +41,8 @@ export default function useSkillsDna(userId?: number): SkillsDnaData {
   try {
     // Мы используем динамический импорт хука useAuth
     // Это позволяет компоненту работать даже вне контекста AuthProvider
+    // Обычно работать с хуками таким образом не рекомендуется,
+    // но в данном случае это вынужденное решение проблемы совместимости
     const useAuth: Function = (AuthModule as any).useAuth;
     if (typeof useAuth === 'function') {
       try {
@@ -57,48 +58,23 @@ export default function useSkillsDna(userId?: number): SkillsDnaData {
     console.log("[useSkillsDna] AuthContext недоступен:", error.message);
   }
   
-  // Проверяем явно запрошен ли демо-режим через явное указание userId = 999
-  const isExplicitDemo = userId === 999;
-  
   // Приоритет: переданный userId -> ID из контекста auth -> ID из профиля -> демо-пользователь (999)
   let currentUserId = userId || authUser?.id || userProfile?.userId;
   
-  // Если пользователь не определен или явно запрошен демо-режим, включаем демо-режим с userId = 999
-  const forceDemoMode = isExplicitDemo || !currentUserId;
-  const demoMode = forceDemoMode || currentUserId === 999;
-  
+  // Если пользователь не определен, включаем демо-режим с userId = 999
+  const demoMode = !currentUserId;
   if (demoMode) {
     currentUserId = 999; // ID для демо-пользователя/администратора
   }
   
   // Выводим отладочную информацию
   console.log("[useSkillsDna] Источники userId:", { 
+    providedUserId: userId,
     authUserId: authUser?.id,
     profileUserId: userProfile?.userId,
-    demoMode,
-    forceDemoMode,
-    isExplicitDemo
+    resultUserId: currentUserId,
+    demoMode
   });
-  
-  // Для обработки ошибки аутентификации (401) автоматически переключаемся на демо-режим
-  const [shouldUseDemoMode, setShouldUseDemoMode] = useState(demoMode);
-  
-  // Применим демо-режим если shouldUseDemoMode = true
-  const effectiveUserId = shouldUseDemoMode ? 999 : currentUserId;
-
-  // При первой загрузке компонента инициализируем демо-данные, если мы в демо-режиме
-  useEffect(() => {
-    if (demoMode || shouldUseDemoMode) {
-      console.log("[useSkillsDna] Инициализация демо-данных");
-      diagnosisApi.initializeDemoData()
-        .then(() => {
-          console.log("[useSkillsDna] Демо-данные успешно инициализированы");
-        })
-        .catch(error => {
-          console.error("[useSkillsDna] Ошибка при инициализации демо-данных:", error);
-        });
-    }
-  }, [demoMode, shouldUseDemoMode]);
 
   // Запрос на получение прогресса пользователя по Skills DNA
   const {
@@ -107,12 +83,11 @@ export default function useSkillsDna(userId?: number): SkillsDnaData {
     error: progressError,
     refetch: refetchProgress
   } = useQuery({
-    queryKey: ['skillsDna', 'progress', effectiveUserId],
-    queryFn: () => diagnosisApi.getUserProgress(effectiveUserId as number),
-    enabled: !!effectiveUserId,
+    queryKey: ['skillsDna', 'progress', currentUserId],
+    queryFn: () => diagnosisApi.getUserProgress(currentUserId as number),
+    enabled: !!currentUserId,
     staleTime: 1000 * 60 * 5, // 5 минут
-    retry: demoMode || shouldUseDemoMode ? 0 : 1, // В демо-режиме не пытаемся повторить запрос
-    retryOnMount: demoMode || shouldUseDemoMode // В демо-режиме повторяем запрос при монтировании компонента
+    retry: 1 // Уменьшаем количество повторных попыток при ошибке
   });
 
   // Запрос на получение сводной информации о прогрессе пользователя
@@ -122,61 +97,12 @@ export default function useSkillsDna(userId?: number): SkillsDnaData {
     error: summaryError,
     refetch: refetchSummary
   } = useQuery({
-    queryKey: ['skillsDna', 'summary', effectiveUserId],
-    queryFn: () => diagnosisApi.getUserSummary(effectiveUserId as number),
-    enabled: !!effectiveUserId,
+    queryKey: ['skillsDna', 'summary', currentUserId],
+    queryFn: () => diagnosisApi.getUserSummary(currentUserId as number),
+    enabled: !!currentUserId,
     staleTime: 1000 * 60 * 5, // 5 минут
-    retry: demoMode || shouldUseDemoMode ? 0 : 1, // В демо-режиме не пытаемся повторить запрос
-    retryOnMount: demoMode || shouldUseDemoMode // В демо-режиме повторяем запрос при монтировании компонента
+    retry: 1 // Уменьшаем количество повторных попыток при ошибке
   });
-
-  // Эффект для обработки ошибок аутентификации
-  useEffect(() => {
-    // Проверяем наличие ошибок
-    const hasError = progressError || summaryError;
-    
-    // Отладочное логирование состояния ошибок
-    if (hasError) {
-      // Подробно анализируем ошибку для определения типа
-      const detectAuthError = (err: any) => {
-        if (!err) return false;
-        
-        // Проверяем наличие статуса 401 в объекте error
-        if (err.status === 401) return true;
-        
-        // Проверяем сообщение ошибки
-        const errMsg = err instanceof Error ? err.message : String(err);
-        return errMsg.includes('401') || 
-               errMsg.toLowerCase().includes('unauthorized') ||
-               errMsg.toLowerCase().includes('not authenticated') ||
-               errMsg.toLowerCase().includes('авторизаци');
-      };
-      
-      const hasAuthError = detectAuthError(progressError) || detectAuthError(summaryError);
-      
-      if (hasAuthError) {
-        console.warn("[useSkillsDna] Обнаружена ошибка аутентификации:", {
-          progressError: progressError instanceof Error ? progressError.message : progressError,
-          summaryError: summaryError instanceof Error ? summaryError.message : summaryError,
-          userId: currentUserId
-        });
-        
-        // Если у нас есть пользователь, но API возвращает 401,
-        // это означает, что прогресс не найден - НЕ включаем демо-режим!
-        // Вместо этого пусть компонент показывает "Доступно после диагностики"
-        if (authUser || userProfile?.userId) {
-          console.log("[useSkillsDna] Пользователь авторизован, но нет данных диагностики. Показываем заблюренное состояние.");
-          // НЕ включаем демо-режим, чтобы видеть реальное состояние
-          setShouldUseDemoMode(false);
-        } else {
-          // Пользователь не авторизован - показываем сообщение о необходимости авторизации
-          console.log("[useSkillsDna] Пользователь не авторизован, показываем сообщение об ошибке");
-          // Для неавторизованных можно включить демо-режим
-          setShouldUseDemoMode(true);
-        }
-      }
-    }
-  }, [progressError, summaryError, currentUserId, authUser, userProfile]);
 
   // Преобразуем данные прогресса в формат для радарной диаграммы
   const skillsData = progressData?.reduce((acc: Record<string, number>, item: any) => {
@@ -197,17 +123,9 @@ export default function useSkillsDna(userId?: number): SkillsDnaData {
 
   // Функция для обновления данных
   const refetchSkillsData = () => {
-    console.log("[useSkillsDna] Обновление данных Skills DNA для пользователя:", effectiveUserId);
-    if (demoMode || shouldUseDemoMode) {
-      // Для демо-режима сначала инициализируем данные, затем обновляем запросы
-      diagnosisApi.initializeDemoData().then(() => {
-        refetchProgress();
-        refetchSummary();
-      });
-    } else {
-      refetchProgress();
-      refetchSummary();
-    }
+    console.log("[useSkillsDna] Обновление данных Skills DNA для пользователя:", currentUserId);
+    refetchProgress();
+    refetchSummary();
   };
 
   // Генерируем историю прогресса на основе текущих данных
@@ -260,7 +178,7 @@ export default function useSkillsDna(userId?: number): SkillsDnaData {
     error: progressError || summaryError,
     isEmpty,
     refetch: refetchSkillsData,
-    isDemoMode: demoMode || shouldUseDemoMode,
+    isDemoMode: demoMode,
     userId: currentUserId,
     progressHistory
   };

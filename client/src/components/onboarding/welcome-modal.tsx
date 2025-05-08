@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Sparkles, BookOpen, Brain, Presentation } from "lucide-react";
-import { useUserProfile } from "@/context/user-profile-context";
 
 interface WelcomeModalProps {
   isOpen: boolean;
@@ -26,10 +25,6 @@ export function WelcomeModal({ isOpen, onOpenChange, userName = "студент"
   const [, setLocation] = useLocation();
   const [step, setStep] = useState(1);
   const [totalSteps, setTotalSteps] = useState(3); // Используем состояние для возможности изменения
-  const { userProfile } = useUserProfile();
-  
-  // Определяем, находимся ли мы в демо-режиме
-  const isDemoMode = userProfile?.userId === 999;
   
   // Автоматически открываем модальное окно для путей после регистрации через онбординг
   useEffect(() => {
@@ -51,14 +46,10 @@ export function WelcomeModal({ isOpen, onOpenChange, userName = "студент"
   // При открытии модального окна проверяем, прошел ли пользователь диагностику
   useEffect(() => {
     if (isOpen) {
-      console.log("[WelcomeModal] Открыто модальное окно, демо-режим:", isDemoMode);
-      
       // Если пользователь уже прошел диагностику (через путь "диагностика → регистрация")
-      // или в демо-режиме
       const diagnosticsCompleted = sessionStorage.getItem("diagnosticsCompleted") === "true";
-      
-      if (diagnosticsCompleted || isDemoMode) {
-        // Для демо-режима показываем только первый шаг с информацией о платформе
+      if (diagnosticsCompleted) {
+        // Показываем только информацию о платформе, без шагов с диагностикой
         // Адаптируем общее количество шагов
         setTotalSteps(1);
       } else {
@@ -67,7 +58,7 @@ export function WelcomeModal({ isOpen, onOpenChange, userName = "студент"
         setStep(1);
       }
     }
-  }, [isOpen, isDemoMode]);
+  }, [isOpen]);
 
   // Функция для перехода к следующему шагу
   const nextStep = () => {
@@ -84,15 +75,11 @@ export function WelcomeModal({ isOpen, onOpenChange, userName = "студент"
     // Вместо редиректа - начинаем диагностику прямо здесь
     onOpenChange(false);
     
-    // Формируем данные для диагностики с учетом демо-режима
+    // Показать уведомление о начале диагностики
     const onboardingData = {
       username: userName,
-      redirectAfterComplete: "/dashboard",
-      // Для демо-режима добавляем специальное поле
-      isDemoMode: isDemoMode
+      redirectAfterComplete: "/dashboard"
     };
-    
-    console.log("[WelcomeModal] Переход к диагностике, данные:", onboardingData);
     
     // Сохраняем данные диагностики, чтобы их можно было использовать на странице dashboard
     sessionStorage.setItem("onboardingData", JSON.stringify(onboardingData));

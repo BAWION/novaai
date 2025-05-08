@@ -55,14 +55,10 @@ export function SkillsDnaProfile({
     isDemoMode
   });
   
-  // Если это демо-режим для неавторизованного пользователя и данных нет, автоматически инициализируем демо-данные
+  // Если это демо-режим и данных нет, автоматически инициализируем демо-данные
   useEffect(() => {
-    // Проверяем, что пользователь не авторизован прежде чем инициализировать демо-данные
-    const isAuthenticated = !!resolvedUserId && resolvedUserId !== 999;
-    
-    // Инициализируем демо-данные только для неавторизованных пользователей
-    if (isDemoMode && isEmpty && !isLoading && !isAuthenticated) {
-      console.log("[SkillsDnaProfile] Автоматическая инициализация демо-данных для неавторизованного пользователя");
+    if (isDemoMode && isEmpty && !isLoading) {
+      console.log("[SkillsDnaProfile] Автоматическая инициализация демо-данных");
       
       (async () => {
         try {
@@ -74,7 +70,7 @@ export function SkillsDnaProfile({
         }
       })();
     }
-  }, [isDemoMode, isEmpty, isLoading, refetch, resolvedUserId]);
+  }, [isDemoMode, isEmpty, isLoading, refetch]);
 
   if (!currentUserId) {
     return (
@@ -221,42 +217,19 @@ export function SkillsDnaProfile({
               </div>
             ) : error ? (
               <div className="flex flex-col items-center justify-center text-center py-8">
-                {/* Проверяем, является ли ошибка ошибкой аутентификации (401) */}
-                {(error as any)?.status === 401 ? (
-                  <>
-                    <div className="bg-indigo-900/30 rounded-full p-4 mb-3">
-                      <AlertTriangle className="h-10 w-10 text-amber-400" />
-                    </div>
-                    <h3 className="text-lg font-medium text-white mb-2">Требуется авторизация</h3>
-                    <p className="text-white/70 text-sm mb-4 max-w-md">
-                      Для просмотра вашего профиля Skills DNA необходимо войти в систему. 
-                      После авторизации вы получите доступ к персонализированным данным о ваших навыках.
-                    </p>
-                    <Button 
-                      variant="default" 
-                      className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 mb-2"
-                      onClick={() => window.location.href = '/auth'}
-                    >
-                      Войти в систему
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <AlertTriangle className="h-10 w-10 text-red-400 mb-2" />
-                    <p className="text-red-300 mb-1">Ошибка загрузки данных</p>
-                    <p className="text-white/60 text-sm mb-3">
-                      {error instanceof Error ? error.message : 'Неизвестная ошибка'}
-                    </p>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={refetch}
-                      className="border-white/20 hover:border-white/40"
-                    >
-                      Попробовать снова
-                    </Button>
-                  </>
-                )}
+                <AlertTriangle className="h-10 w-10 text-red-400 mb-2" />
+                <p className="text-red-300 mb-1">Ошибка загрузки данных</p>
+                <p className="text-white/60 text-sm mb-3">
+                  {error instanceof Error ? error.message : 'Неизвестная ошибка'}
+                </p>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={refetch}
+                  className="border-white/20 hover:border-white/40"
+                >
+                  Попробовать снова
+                </Button>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center">
@@ -310,42 +283,19 @@ export function SkillsDnaProfile({
                 </div>
               ) : error ? (
                 <div className="flex flex-col items-center justify-center text-center py-4">
-                  {/* Проверяем, является ли ошибка ошибкой аутентификации (401) */}
-                  {(error as any)?.status === 401 ? (
-                    <>
-                      <div className="bg-indigo-900/30 rounded-full p-3 mb-3">
-                        <AlertTriangle className="h-8 w-8 text-amber-400" />
-                      </div>
-                      <h3 className="text-white font-medium mb-2">Требуется авторизация</h3>
-                      <p className="text-white/70 text-sm mb-3">
-                        Авторизуйтесь для доступа к данным о ваших навыках
-                      </p>
-                      <Button 
-                        variant="default" 
-                        size="sm"
-                        className="bg-gradient-to-r from-purple-500 to-indigo-500"
-                        onClick={() => window.location.href = '/auth'}
-                      >
-                        Войти в систему
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      <AlertTriangle className="h-10 w-10 text-red-400 mb-2" />
-                      <p className="text-red-300 mb-1">Ошибка загрузки данных</p>
-                      <p className="text-white/60 text-sm mb-3">
-                        {error instanceof Error ? error.message : 'Неизвестная ошибка'}
-                      </p>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={refetch}
-                        className="border-white/20 hover:border-white/40"
-                      >
-                        Попробовать снова
-                      </Button>
-                    </>
-                  )}
+                  <AlertTriangle className="h-10 w-10 text-red-400 mb-2" />
+                  <p className="text-red-300 mb-1">Ошибка загрузки данных</p>
+                  <p className="text-white/60 text-sm mb-3">
+                    {error instanceof Error ? error.message : 'Неизвестная ошибка'}
+                  </p>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={refetch}
+                    className="border-white/20 hover:border-white/40"
+                  >
+                    Попробовать снова
+                  </Button>
                 </div>
               ) : Object.keys(skills).length > 0 ? (
                 <div className="space-y-4">
