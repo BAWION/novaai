@@ -13,6 +13,7 @@ import { LearningTimeline } from "@/components/progress/learning-timeline";
 import { default as SkillProgress } from "@/components/progress/skill-progress";
 import { WelcomeModal } from "@/components/onboarding/welcome-modal";
 import { CompactSkillsDnaCard } from "@/components/skills-dna";
+import { RecommendationsLocked } from "@/components/courses/recommendations-locked";
 import { SkillsDnaProfile } from "@/components/skills-dna-profile";
 import { 
   Dialog,
