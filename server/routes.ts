@@ -109,6 +109,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Добавляем маршрут для функциональности S4 (INSIGHT "Time-Saved")
   app.use('/api/time-saved', timeSavedRouter);
   app.use('/api/skills-tracking', skillsRouter);
+  // Добавляем маршрут для AB-тестирования
+  app.use('/api/ab-test', abTestRouter);
   
   // Создаем тестового пользователя Vitaliy
   (async () => {
