@@ -219,10 +219,18 @@ class DiagnosisService {
 
   /**
    * Проверяет существование пользователя в системе
+   * Для демо-пользователя (userId: 999) всегда возвращает true
    * @param userId ID пользователя
-   * @returns true если пользователь существует, иначе false
+   * @returns true если пользователь существует или это демо-пользователь, иначе false
    */
   private async userExists(userId: number): Promise<boolean> {
+    // Специальная обработка для демо-пользователя (ID 999)
+    if (userId === 999) {
+      console.log(`[DiagnosisService] Обнаружен демо-пользователь с ID 999, пропускаем проверку существования`);
+      return true;
+    }
+    
+    // Проверка существования обычного пользователя
     const userResults = await db.select().from(users).where(eq(users.id, userId));
     return userResults.length > 0;
   }
