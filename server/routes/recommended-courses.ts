@@ -73,6 +73,7 @@ router.get("/", async (req, res) => {
           
           return {
             ...course,
+            modelScore: relevanceScore, // добавляем modelScore для совместимости с тестами
             skillMatch: {
               percentage: scorePercentage,
               label: scorePercentage > 85 ? "Идеально для вас (AI)" : 
@@ -165,6 +166,7 @@ router.get("/", async (req, res) => {
             
             return {
               ...course,
+              modelScore: 0.9, // добавляем modelScore для совместимости с тестами
               skillMatch: {
                 percentage: 90,
                 label: "Рекомендовано для начинающих",
@@ -208,6 +210,7 @@ router.get("/", async (req, res) => {
           return {
             ...course,
             matchScore: matchScore,
+            modelScore: matchScore / 100, // добавляем modelScore от 0 до 1 для совместимости с тестами
             skillMatch: {
               percentage: matchScore,
               label: matchScore > 85 ? "Идеально подходит" : 
