@@ -435,6 +435,7 @@ export const userSkills = pgTable("user_skills", {
   userId: integer("user_id").notNull().references(() => users.id),
   skillId: integer("skill_id").notNull().references(() => skills.id),
   level: integer("level").default(0), // От 0 до 100 или другая шкала
+  xp: integer("xp").default(0), // Опыт, накопленный в навыке
   lastAssessedAt: timestamp("last_assessed_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 }, (table) => {
