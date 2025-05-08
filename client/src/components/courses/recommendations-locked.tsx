@@ -24,16 +24,16 @@ export function RecommendationsLocked({
   };
   
   return (
-    <Card className={`bg-space-800/70 border-blue-500/20 h-full ${className}`}>
+    <Card className={`bg-space-800/70 border-[#6E3AFF]/20 h-full ${className}`}>
       <CardHeader className="pb-2">
         <CardTitle className="text-white flex items-center justify-between">
           <div className="flex items-center">
-            <BookOpen className="h-5 w-5 mr-2" />
+            <BookOpen className="h-5 w-5 mr-2 text-[#6E3AFF]" />
             Рекомендуемые курсы
           </div>
           <Badge 
             variant="outline" 
-            className="bg-amber-500/20 border-amber-500/30 text-amber-300 text-xs"
+            className="bg-[#6E3AFF]/20 border-[#6E3AFF]/30 text-[#B28DFF] text-xs"
           >
             Доступно после диагностики
           </Badge>
@@ -55,7 +55,7 @@ export function RecommendationsLocked({
           
           <Button 
             variant="default" 
-            className="bg-gradient-to-r from-[#6E3AFF] to-indigo-500 hover:from-[#6E3AFF]/90 hover:to-indigo-600"
+            className="bg-gradient-to-r from-[#6E3AFF] to-[#B28DFF] hover:from-[#6E3AFF]/90 hover:to-[#B28DFF]/90"
             onClick={handleStartDiagnostics}
           >
             Пройти диагностику
