@@ -161,12 +161,23 @@ export default function useSkillsDna(userId?: number): SkillsDnaData {
           userId: currentUserId
         });
         
-        // Если у нас есть пользователь, но API возвращает 401,
-        // это означает, что токен авторизации недействителен, но мы не хотим показывать ошибку
-        // Включаем демо-режим, чтобы пользователь видел данные
+        // Для продакшена: вместо автоматического переключения в демо-режим,
+        // перенаправляем на страницу входа, если обнаружена ошибка аутентификации
         if (authUser || userProfile?.userId) {
-          console.log("[useSkillsDna] Переключение на демо-режим из-за проблем с аутентификацией при наличии пользователя");
-          setShouldUseDemoMode(true);
+          console.error("[useSkillsDna] Обнаружена проблема с аутентификацией при наличии пользователя в контексте.");
+          console.error("[useSkillsDna] Переход на страницу входа для повторной авторизации.");
+          
+          // Добавляем обработку для перенаправления на страницу логина
+          if (typeof window !== 'undefined') {
+            // Сохраняем текущий URL для возврата после авторизации
+            sessionStorage.setItem("redirectAfterAuth", window.location.pathname);
+            
+            // Диспатчим событие для глобальной обработки
+            const authErrorEvent = new CustomEvent('authenticationError');
+            window.dispatchEvent(authErrorEvent);
+            
+            // Не устанавливаем shouldUseDemoMode в true - это предотвращает автоматический переход в демо-режим
+          }
         } else {
           // Пользователь не авторизован - показываем сообщение о необходимости авторизации
           console.log("[useSkillsDna] Пользователь не авторизован, показываем сообщение об ошибке");

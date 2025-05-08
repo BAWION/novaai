@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 interface User {
   id: number;
@@ -12,6 +13,7 @@ interface AuthContextType {
   user: User | null;
   login: (user: User) => void;
   logout: () => void;
+  refreshAuth: () => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -19,39 +21,53 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   login: () => {},
   logout: () => {},
+  refreshAuth: async () => false,
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
+
+  // Функция для проверки аутентификации, может вызываться из компонентов
+  const refreshAuth = async (): Promise<boolean> => {
+    try {
+      console.log("AuthProvider: обновление статуса аутентификации...");
+      const response = await fetch("/api/auth/me", {
+        method: "GET",
+        credentials: "include", // Важно для работы с сессией
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        }
+      });
+      
+      // Проверяем ответ на успешность
+      if (response.ok) {
+        const userData = await response.json();
+        console.log("AuthProvider: пользователь авторизован:", userData);
+        setUser(userData);
+        return true;
+      } else {
+        console.log("AuthProvider: пользователь не авторизован, статус:", response.status);
+        setUser(null);
+        return false;
+      }
+    } catch (error) {
+      // Ошибка сервера или сети
+      console.error("AuthProvider: ошибка при проверке авторизации:", error);
+      setUser(null);
+      return false;
+    }
+  };
 
   useEffect(() => {
-    // Check if user is already logged in
+    // При старте приложения проверяем аутентификацию
     const checkAuth = async () => {
       try {
-        console.log("AuthProvider: проверка статуса аутентификации...");
-        const response = await fetch("/api/auth/me", {
-          method: "GET",
-          credentials: "include", // Важно для работы с сессией
-          headers: {
-            "Accept": "application/json",
-            "Content-Type": "application/json"
-          }
-        });
-        
-        // Проверяем ответ на успешность
-        if (response.ok) {
-          const userData = await response.json();
-          console.log("AuthProvider: пользователь авторизован:", userData);
-          setUser(userData);
-        } else {
-          console.log("AuthProvider: пользователь не авторизован, статус:", response.status);
-          setUser(null);
-        }
+        await refreshAuth();
       } catch (error) {
-        // Ошибка сервера или сети
-        console.error("AuthProvider: ошибка при проверке авторизации:", error);
-        setUser(null);
+        console.error("Ошибка при первичной проверке аутентификации:", error);
       } finally {
         setIsLoading(false);
       }
@@ -101,6 +117,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         user,
         login,
         logout,
+        refreshAuth,
       }}
     >
       {!isLoading && children}
