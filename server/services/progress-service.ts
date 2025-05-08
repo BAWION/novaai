@@ -69,7 +69,7 @@ class ProgressService {
           lessonId,
           userId,
           status: 'completed',
-          completedAt: existingProgress.completedAt
+          completedAt: existingProgress.completedAt || undefined
         };
       }
       

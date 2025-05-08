@@ -7,7 +7,7 @@ import express, { Request, Response } from 'express';
 import { skillGraphService } from '../services/skill-graph-service';
 import { db } from '../db';
 import { userSkills, skills } from '@shared/schema';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { z } from 'zod';
 
 const router = express.Router();
@@ -68,8 +68,8 @@ router.get('/radar', async (req: Request, res: Response) => {
     
     // Рассчитываем общую статистику
     const totalSkills = skillsWithLevels.length;
-    const skilledCount = skillsWithLevels.filter(s => s.level > 0).length;
-    const averageLevel = skillsWithLevels.reduce((sum, s) => sum + s.level, 0) / (totalSkills || 1);
+    const skilledCount = skillsWithLevels.filter(s => (s.level || 0) > 0).length;
+    const averageLevel = skillsWithLevels.reduce((sum, s) => sum + (s.level || 0), 0) / (totalSkills || 1);
     
     return res.json({
       skills: skillsWithLevels,
@@ -111,6 +111,17 @@ router.get('/updates', async (req: Request, res: Response) => {
     
     // Добавляем дополнительную информацию о навыках
     const skillIds = updatedSkills.map(skill => skill.skillId);
+    
+    // Если нет обновленных навыков, возвращаем пустой результат
+    if (skillIds.length === 0) {
+      return res.json({
+        timestamp: Date.now(),
+        updates: []
+      });
+    }
+    
+    // SQL уже импортирован в начале файла
+    
     const skillsInfo = await db
       .select()
       .from(skills)
