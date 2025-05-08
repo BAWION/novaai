@@ -84,9 +84,9 @@ export function CompactSkillsDnaCard({
   const shouldShowLocked = forceLocked || (user && (error || isEmpty));
   
   // Если нужно показать заблюренное состояние
-  if (shouldShowLocked) {
+  if (shouldShowLocked || error || isEmpty) {
     return (
-      <Card className={`bg-space-800/70 border-blue-500/20 ${className}`}>
+      <Card className={`bg-space-800/70 border-blue-500/20 h-full ${className}`}>
         <CardHeader className="pb-2">
           <CardTitle className="text-white flex items-center justify-between">
             <div className="flex items-center">
@@ -155,50 +155,6 @@ export function CompactSkillsDnaCard({
       </Card>
     );
   }
-  
-  // Если нет данных или есть ошибка (и не авторизован)
-  if (error || isEmpty) {
-    return (
-      <Card className={`bg-space-800/70 border-blue-500/20 ${className}`}>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-white flex items-center justify-between">
-            <div className="flex items-center">
-              <Brain className="h-5 w-5 mr-2 text-[#6E3AFF]" />
-              Skills DNA
-            </div>
-            <Badge 
-              variant="outline" 
-              className="bg-amber-500/20 border-amber-500/30 text-amber-300 text-xs animate-pulse"
-            >
-              Требуется диагностика
-            </Badge>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="pt-4">
-          <div className="flex flex-col items-center justify-center text-center">
-            <div className="bg-space-800/70 rounded-full p-4 mb-4 relative">
-              <Brain className="h-12 w-12 text-[#6E3AFF]/40" />
-            </div>
-            
-            <h3 className="text-white font-medium mb-2">
-              Необходима диагностика
-            </h3>
-            <p className="text-white/70 text-sm mb-5 max-w-xs text-center">
-              Пройдите единую диагностику из 15 вопросов для получения персональных рекомендаций
-            </p>
-            
-            <Button 
-              variant="default" 
-              className="bg-gradient-to-r from-[#6E3AFF] to-indigo-500 hover:from-[#6E3AFF]/90 hover:to-indigo-600"
-              onClick={handleStartDiagnostics}
-            >
-              Пройти диагностику
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
 
   // Извлекаем три ключевых навыка или используем значения по умолчанию
   const skillEntries = Object.entries(skills);
@@ -244,17 +200,17 @@ export function CompactSkillsDnaCard({
     <>
       <Card className={`bg-space-800/70 border-blue-500/20 h-full ${className}`}>
         <CardHeader className="pb-2">
-          <div className="flex justify-between items-center">
-            <CardTitle className="text-white flex items-center">
+          <CardTitle className="text-white flex items-center justify-between">
+            <div className="flex items-center">
               <Brain className="h-5 w-5 mr-2 text-[#6E3AFF]" />
               Skills DNA
-            </CardTitle>
+            </div>
             {isDemoMode && (
               <Badge variant="outline" className="bg-amber-500/10 border-amber-500/30 text-amber-300 text-xs">
                 Demo
               </Badge>
             )}
-          </div>
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Радарная диаграмма навыков */}
