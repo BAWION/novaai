@@ -177,7 +177,7 @@ export function CompactSkillsDnaCard({
         <CardContent className="pt-4">
           <div className="flex flex-col items-center justify-center text-center">
             <div className="bg-space-800/70 rounded-full p-4 mb-4 relative">
-              <Brain className="h-12 w-12 text-purple-400/40" />
+              <Brain className="h-12 w-12 text-[#6E3AFF]/40" />
             </div>
             
             <h3 className="text-white font-medium mb-2">
@@ -189,7 +189,7 @@ export function CompactSkillsDnaCard({
             
             <Button 
               variant="default" 
-              className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600"
+              className="bg-gradient-to-r from-[#6E3AFF] to-indigo-500 hover:from-[#6E3AFF]/90 hover:to-indigo-600"
               onClick={handleStartDiagnostics}
             >
               Пройти диагностику
