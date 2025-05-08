@@ -467,20 +467,15 @@ export default function DeepDiagnosisPage() {
       // Имитация последовательного анализа с задержками
       const updateUserProfileSafely = () => {
         try {
-          // Проверяем, находимся ли мы в демо-режиме
-          let isDemoMode = false;
-          const savedData = sessionStorage.getItem("onboardingData");
-          if (savedData) {
-            const parsedData = JSON.parse(savedData);
-            if (parsedData.isDemoMode) {
-              console.log("[DeepDiagnosis] Демо-режим: пропускаем обновление профиля пользователя");
-              isDemoMode = true;
-            }
-          }
+          // Используем состояние isDemoMode вместо повторной проверки
+          console.log(`[DeepDiagnosis] updateUserProfileSafely: демо-режим=${isDemoMode}`);
           
           // Для реальных пользователей обновляем профиль
-          if (!isDemoMode) {
+          if (!isDemoMode && userProfile?.userId) {
+            console.log("[DeepDiagnosis] Обновление профиля пользователя:", userProfile.userId);
             updateUserProfile(profileUpdate);
+          } else {
+            console.log("[DeepDiagnosis] Демо-режим: пропускаем обновление профиля пользователя");
           }
           
           toast({
@@ -492,15 +487,18 @@ export default function DeepDiagnosisPage() {
             variant: "default",
           });
           
-          // Отмечаем, что диагностика завершена
+          // Отмечаем, что диагностика завершена (для WelcomeModal)
           sessionStorage.setItem("diagnosticsCompleted", "true");
+          
+          // Также отмечаем, что это была глубокая диагностика
+          sessionStorage.setItem("deepDiagnosticsCompleted", "true");
           
           // Очищаем временные данные
           setTimeout(() => {
             sessionStorage.removeItem("diagnosisData");
           }, 5000);
         } catch (error) {
-          console.error("Ошибка при обновлении профиля:", error);
+          console.error("[DeepDiagnosis] Ошибка при обновлении профиля:", error);
         }
       };
       
@@ -524,8 +522,9 @@ export default function DeepDiagnosisPage() {
                 // Для демо-пользователя используем специальный userId=999
                 const fetchRecommendations = async () => {
                   try {
-                    const userId = userProfile?.userId || 999; // Для демо-режима
-                    const isDemoMode = userId === 999;
+                    // Используем состояние isDemoMode вместо повторной проверки
+                    // Для демо-режима всегда используем userId=999
+                    const userId = isDemoMode ? 999 : (userProfile?.userId || 999);
                     
                     console.log(`[DeepDiagnosis] Запрос рекомендаций для пользователя: ${userId}, демо-режим: ${isDemoMode}`);
                     
@@ -625,9 +624,9 @@ export default function DeepDiagnosisPage() {
                   } catch (error) {
                     console.error("Ошибка при сохранении результатов в Skills DNA:", error);
                     toast({
-                      title: "Предупреждение",
+                      title: "Внимание",
                       description: "Возникла проблема при сохранении результатов диагностики. Это не повлияет на ваши рекомендации.",
-                      variant: "warning",
+                      variant: "default",
                       duration: 5000
                     });
                   }
@@ -663,30 +662,22 @@ export default function DeepDiagnosisPage() {
   
   // Функция для перехода к профилю Skills DNA с результатами глубокой диагностики
   const handleViewSkillsDna = () => {
-    setLocation("/profile?section=skills-dna&deep=true");
+    // Для демо-режима добавляем специальный параметр demo=true
+    const profileUrl = isDemoMode 
+      ? "/profile?section=skills-dna&deep=true&demo=true" 
+      : "/profile?section=skills-dna&deep=true";
+    
+    console.log(`[DeepDiagnosis] handleViewSkillsDna: демо-режим=${isDemoMode}, перенаправляем на ${profileUrl}`);
+    setLocation(profileUrl);
   };
   
   // Функция для перехода к регистрации после завершения диагностики
   const handleContinueToDashboard = () => {
-    // Проверяем, есть ли данные из модального окна приветствия
-    let isDemoMode = false;
-    let redirectUrl = "/register-after-onboarding";
+    // Используем состояние isDemoMode вместо повторной проверки
+    // В демо-режиме возвращаемся сразу на дашборд, иначе идем на регистрацию
+    const redirectUrl = isDemoMode ? "/dashboard" : "/register-after-onboarding";
     
-    try {
-      const savedData = sessionStorage.getItem("onboardingData");
-      if (savedData) {
-        const parsedData = JSON.parse(savedData);
-        
-        // Проверяем, есть ли флаг демо-режима в данных
-        if (parsedData.isDemoMode) {
-          console.log("[DeepDiagnosis] Перенаправление в демо-режиме");
-          isDemoMode = true;
-          redirectUrl = "/dashboard"; // В демо-режиме возвращаемся сразу на дашборд
-        }
-      }
-    } catch (error) {
-      console.error("[DeepDiagnosis] Ошибка при чтении данных из sessionStorage:", error);
-    }
+    console.log(`[DeepDiagnosis] handleContinueToDashboard: демо-режим=${isDemoMode}, перенаправляем на ${redirectUrl}`);
     
     // Сохраняем результаты диагностики и рекомендации в sessionStorage
     try {
@@ -706,18 +697,25 @@ export default function DeepDiagnosisPage() {
         // Сохраняем результаты анализа
         skillProfile: userSkillProfile,
         recommendations: recommendations,
-        // Сохраняем флаг демо-режима, если он был установлен
-        isDemoMode: isDemoMode
+        // Используем состояние isDemoMode
+        isDemoMode: isDemoMode,
+        // Добавляем время завершения
+        completedAt: new Date().toISOString(),
+        // Флаг завершенной глубокой диагностики
+        isDeepDiagnosisCompleted: true
       }));
       
       // Отмечаем, что диагностика завершена (для WelcomeModal)
       sessionStorage.setItem("diagnosticsCompleted", "true");
       
+      // Также отмечаем, что это была глубокая диагностика
+      sessionStorage.setItem("deepDiagnosticsCompleted", "true");
+      
       // Перенаправляем пользователя на соответствующую страницу
       console.log(`[DeepDiagnosis] Перенаправление на ${redirectUrl} после завершения диагностики, демо-режим: ${isDemoMode}`);
       setLocation(redirectUrl);
     } catch (error) {
-      console.error("Ошибка при сохранении данных диагностики:", error);
+      console.error("[DeepDiagnosis] Ошибка при сохранении данных диагностики:", error);
       toast({
         title: "Ошибка",
         description: "Не удалось сохранить результаты диагностики. Попробуйте еще раз.",
