@@ -2,7 +2,8 @@ import { Router } from "express";
 import { db } from "../db";
 import { storage } from "../storage";
 import { eq } from "drizzle-orm";
-import { userProfiles, skillsDna, userSkillsDnaProgress, courseSkillRequirements } from "@shared/schema";
+import { userProfiles, skillsDna, userSkillsDnaProgress, courseSkillRequirements, featureFlags } from "@shared/schema";
+import { mlService } from "../services";
 
 const router = Router();
 
@@ -30,11 +31,90 @@ router.get("/", async (req, res) => {
       return res.status(404).json({ error: "Профиль пользователя не найден" });
     }
     
-    // Получаем рекомендованные курсы из профиля (если они уже сохранены)
+    // Проверяем, активирована ли функция S3 (SMART QUEST)
+    const [smartQuestFlag] = await db
+      .select()
+      .from(featureFlags)
+      .where(eq(featureFlags.name, "smart_quest"));
+    
+    const isSmartQuestEnabled = smartQuestFlag?.status === "enabled";
+    
+    console.log(`S3 (SMART QUEST) статус: ${isSmartQuestEnabled ? 'включен' : 'выключен'}`);
+    
+    // Получаем рекомендованные курсы из профиля (если они уже сохранены и функция не активирована)
     const recommendedCourseIds = userProfile.recommendedCourseIds;
     let coursesToReturn = [];
     
-    if (recommendedCourseIds && Array.isArray(recommendedCourseIds) && recommendedCourseIds.length > 0) {
+    // Если S3 (SMART QUEST) активирован, всегда генерируем новые рекомендации через модель LightGBM
+    if (isSmartQuestEnabled) {
+      console.log(`Запуск S3 (SMART QUEST) для пользователя ${userId} - получение рекомендаций с моделью LightGBM`);
+      
+      // Получаем все доступные курсы
+      const allCourses = await storage.getAllCourses();
+      
+      if (!allCourses || allCourses.length === 0) {
+        return res.status(404).json({ error: "Курсы не найдены" });
+      }
+      
+      // Используем MLService для генерации персонализированных рекомендаций
+      const recommendedCourses = await mlService.generateCourseRecommendations(userId, allCourses);
+      
+      // Преобразуем рекомендации в нужный формат
+      coursesToReturn = await Promise.all(
+        recommendedCourses.map(async (course) => {
+          // Получаем оценку релевантности для этого курса
+          const userSkills = await db
+            .select()
+            .from(userSkillsDnaProgress)
+            .where(eq(userSkillsDnaProgress.userId, userId));
+            
+          const relevanceScore = await mlService.predictCourseRelevance(userId, course, userSkills);
+          const scorePercentage = Math.round(relevanceScore * 100);
+          
+          return {
+            ...course,
+            skillMatch: {
+              percentage: scorePercentage,
+              label: scorePercentage > 85 ? "Идеально для вас (AI)" : 
+                     scorePercentage > 70 ? "Хорошее соответствие (AI)" : 
+                     scorePercentage > 50 ? "Рекомендовано ИИ" : 
+                     "Может быть полезно",
+              isRecommended: scorePercentage > 60,
+              aiGenerated: true
+            }
+          };
+        })
+      );
+      
+      // Сохраняем новые рекомендации в профиль пользователя
+      if (coursesToReturn.length > 0) {
+        const courseIds = coursesToReturn.map(course => course.id);
+        await db
+          .update(userProfiles)
+          .set({ 
+            recommendedCourseIds: courseIds,
+            recommendationUpdatedAt: new Date()
+          })
+          .where(eq(userProfiles.userId, userId));
+          
+        // Логируем событие генерации рекомендаций
+        await mlService.logUserActivity(
+          userId, 
+          "generate", 
+          "recommendation", 
+          0, 
+          { 
+            courseIds, 
+            method: "lightgbm", 
+            timestamp: new Date().toISOString() 
+          }
+        );
+      }
+    } 
+    // Используем сохраненные рекомендации, если они есть и S3 не активирован
+    else if (recommendedCourseIds && Array.isArray(recommendedCourseIds) && recommendedCourseIds.length > 0) {
+      console.log(`Использование сохраненных рекомендаций для пользователя ${userId}`);
+      
       // Используем сохраненные рекомендации
       coursesToReturn = await Promise.all(
         recommendedCourseIds.map(async (courseId) => {
@@ -55,8 +135,9 @@ router.get("/", async (req, res) => {
       // Фильтруем курсы, которые не были найдены
       coursesToReturn = coursesToReturn.filter(course => course !== null);
     } else {
-      // Генерируем рекомендации на основе навыков пользователя
+      console.log(`Генерация базовых рекомендаций для пользователя ${userId} (эвристический метод)`);
       
+      // Генерируем рекомендации на основе навыков пользователя
       // 1. Получаем прогресс пользователя по навыкам DNA
       const userSkills = await db
         .select()
@@ -151,6 +232,19 @@ router.get("/", async (req, res) => {
             .where(eq(userProfiles.userId, userId));
         }
       }
+      
+      // Логируем событие генерации рекомендаций
+      await mlService.logUserActivity(
+        userId, 
+        "generate", 
+        "recommendation", 
+        0, 
+        { 
+          courseIds: coursesToReturn.map(course => course.id), 
+          method: "heuristic", 
+          timestamp: new Date().toISOString() 
+        }
+      );
     }
     
     return res.json(coursesToReturn);
