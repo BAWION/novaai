@@ -77,35 +77,45 @@ router.get("/", async (req, res) => {
         .from(userSkillsDnaProgress)
         .where(eq(userSkillsDnaProgress.userId, userId));
       
-      // Если у пользователя нет определенных навыков, возвращаем базовые курсы
+      // Если у пользователя нет определенных навыков, 
+      // то пользователь не проходил диагностику, возвращаем пустой массив
       if (!userSkills || userSkills.length === 0) {
-        const basicCourses = await db
-          .select()
-          .from(courseSkillRequirements)
-          .where(eq(courseSkillRequirements.requiredLevel, 1))
-          .limit(3);
-        
-        // Собираем уникальные ID курсов
-        const courseIdSet = new Set<number>();
-        basicCourses.forEach(item => courseIdSet.add(item.courseId));
-        const courseIds = Array.from(courseIdSet);
-        
-        // Загружаем информацию о курсах
-        coursesToReturn = await Promise.all(
-          courseIds.map(async (courseId) => {
-            const course = await storage.getCourse(courseId);
-            if (!course) return null;
-            
-            return {
-              ...course,
-              skillMatch: {
-                percentage: 90,
-                label: "Рекомендовано для начинающих",
-                isRecommended: true
-              }
-            };
-          })
-        );
+        // Проверяем, является ли это запросом для демо-пользователя с ID 999
+        if (isDemoRequest) {
+          // Только для демо-пользователя показываем базовые курсы
+          const basicCourses = await db
+            .select()
+            .from(courseSkillRequirements)
+            .where(eq(courseSkillRequirements.requiredLevel, 1))
+            .limit(3);
+          
+          // Собираем уникальные ID курсов
+          const courseIdSet = new Set<number>();
+          basicCourses.forEach(item => courseIdSet.add(item.courseId));
+          const courseIds = Array.from(courseIdSet);
+          
+          // Загружаем информацию о курсах
+          coursesToReturn = await Promise.all(
+            courseIds.map(async (courseId) => {
+              const course = await storage.getCourse(courseId);
+              if (!course) return null;
+              
+              return {
+                ...course,
+                skillMatch: {
+                  percentage: 90,
+                  label: "Рекомендовано для начинающих",
+                  isRecommended: true
+                }
+              };
+            })
+          );
+        } else {
+          // Для реальных пользователей, которые не прошли диагностику,
+          // возвращаем пустой массив рекомендаций
+          console.log(`Пользователь ${userId} не проходил диагностику, рекомендации недоступны`);
+          return res.json([]);
+        }
         
         // Фильтруем курсы, которые не были найдены
         coursesToReturn = coursesToReturn.filter(course => course !== null);
