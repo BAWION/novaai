@@ -188,22 +188,13 @@ export const diagnosisApi = {
           }
         }
         
-        // Особая обработка для разных статусов ошибок
-        if (response.status === 401) {
-          console.warn('[API] Пользователь не авторизован для получения данных прогресса');
-          const error = new Error(`Требуется авторизация: ${errorMessage}`);
-          // Добавляем статус 401 к объекту ошибки для обнаружения в useSkillsDna
-          (error as any).status = 401;
-          (error as any).data = errorData;
-          throw error;
-        } else if (response.status === 403) {
-          console.warn('[API] Нет доступа для просмотра прогресса запрошенного пользователя');
-          const error = new Error(`Нет доступа: ${errorMessage}`);
-          (error as any).status = 403;
-          throw error;
-        } 
+        // Создаем соответствующую ошибку с деталями о статусе HTTP
+        const error = new Error(`Ошибка API: ${errorMessage}`);
+        (error as any).status = response.status;
+        (error as any).data = errorData;
         
-        return [];
+        // Для любого статуса ошибки просто пробрасываем её дальше
+        throw error;
       }
       
       const result = await response.json();
@@ -282,22 +273,20 @@ export const diagnosisApi = {
           }
         }
         
-        // Особая обработка для разных статусов ошибок
+        // Создаем соответствующую ошибку с деталями о статусе HTTP
+        const error = new Error(`Ошибка API: ${errorMessage}`);
+        (error as any).status = response.status;
+        (error as any).data = errorData;
+        
+        // Логируем дополнительную информацию для определенных типов ошибок
         if (response.status === 401) {
           console.warn('[API] Пользователь не авторизован для получения сводки');
-          const error = new Error(`Требуется авторизация: ${errorMessage}`);
-          // Добавляем статус 401 к объекту ошибки для обнаружения в useSkillsDna
-          (error as any).status = 401;
-          (error as any).data = errorData;
-          throw error;
         } else if (response.status === 403) {
           console.warn('[API] Нет доступа для просмотра сводки запрошенного пользователя');
-          const error = new Error(`Нет доступа: ${errorMessage}`);
-          (error as any).status = 403;
-          throw error;
-        } 
+        }
         
-        return {};
+        // Для любого статуса ошибки просто пробрасываем её дальше
+        throw error;
       }
       
       const result = await response.json();
