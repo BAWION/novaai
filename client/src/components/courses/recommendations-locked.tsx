@@ -1,6 +1,6 @@
 import React from "react";
 import { useLocation } from "wouter";
-import { Lock } from "lucide-react";
+import { Book, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -28,7 +28,7 @@ export function RecommendationsLocked({
       <CardHeader className="pb-2">
         <CardTitle className="text-white flex items-center justify-between">
           <div className="flex items-center">
-            <i className="fas fa-book mr-2 text-indigo-300 h-5 w-5 flex items-center justify-center"></i>
+            <Book className="h-5 w-5 mr-2 text-indigo-300" />
             Рекомендуемые курсы
           </div>
           <Badge 
@@ -43,7 +43,7 @@ export function RecommendationsLocked({
         {/* Заблюренное содержимое */}
         <div className="backdrop-blur-sm absolute inset-0 z-10 flex flex-col items-center justify-center">
           <div className="bg-space-900/80 rounded-full p-4 mb-4 relative">
-            <Lock className="h-10 w-10 text-indigo-400/70" />
+            <Lock className="h-10 w-10 text-[#6E3AFF]/70" />
           </div>
           
           <h3 className="text-white font-medium mb-2">
@@ -55,7 +55,7 @@ export function RecommendationsLocked({
           
           <Button 
             variant="default" 
-            className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600"
+            className="bg-gradient-to-r from-[#6E3AFF] to-indigo-500 hover:from-[#6E3AFF]/90 hover:to-indigo-600"
             onClick={handleStartDiagnostics}
           >
             Пройти диагностику
