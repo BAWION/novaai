@@ -1907,10 +1907,18 @@ export default function DeepDiagnosisPage() {
                   {step === totalSteps && analysisComplete && (
                     <div className="flex flex-col md:flex-row gap-4 justify-center items-center">
                       <Button 
+                        onClick={() => setLocation("/courses?filter=recommended")}
+                        className="bg-gradient-to-r from-green-500 to-emerald-600 hover:opacity-90 text-white"
+                      >
+                        Рекомендуемые курсы
+                        <Target className="h-4 w-4 ml-2" />
+                      </Button>
+                      
+                      <Button 
                         onClick={handleViewSkillsDna}
                         className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-90 text-white"
                       >
-                        Посмотреть ваш профиль Skills DNA
+                        Посмотреть Skills DNA
                         <FileText className="h-4 w-4 ml-2" />
                       </Button>
                       
