@@ -31,16 +31,29 @@ export default function Dashboard() {
   const [showOnboardingPrompt, setShowOnboardingPrompt] = useState(true);
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   
-  // Получение рекомендуемых курсов
+  // Определяем, находимся ли мы в демо-режиме
+  const isDemoMode = userProfile?.userId === 999 || !user; // Считаем неавторизованных пользователей как демо
+  const demoUserId = 999;
+  
+  // Получение рекомендуемых курсов с учетом демо-режима
   const { data: recommendedCourses = [] } = useQuery({
-    queryKey: ['/api/courses/recommended'],
+    queryKey: ['/api/courses/recommended', isDemoMode ? demoUserId : user?.id],
     queryFn: async () => {
       try {
-        const res = await apiRequest('GET', '/api/courses/recommended');
+        // Формируем URL с параметром userId для демо-режима
+        const endpoint = isDemoMode 
+          ? `/api/courses/recommended?userId=${demoUserId}` 
+          : '/api/courses/recommended';
+          
+        console.log(`[Dashboard] Запрос рекомендаций, демо-режим: ${isDemoMode}, endpoint: ${endpoint}`);
+        
+        const res = await apiRequest('GET', endpoint);
         if (!res.ok) {
+          console.error(`[Dashboard] Ошибка при загрузке рекомендуемых курсов: ${res.status}`);
           throw new Error('Ошибка при загрузке рекомендуемых курсов');
         }
         const data = await res.json();
+        console.log(`[Dashboard] Получены рекомендации: ${data.length} курсов`);
         return data;
       } catch (error) {
         console.error('Ошибка при загрузке рекомендуемых курсов:', error);

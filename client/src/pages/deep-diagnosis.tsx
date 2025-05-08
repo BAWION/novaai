@@ -457,9 +457,42 @@ export default function DeepDiagnosisPage() {
               setTimeout(() => {
                 setAnalysisStep(5); // Формируем карту навыков
                 
-                // Генерируем персонализированные рекомендации на основе профиля
-                const mockRecommendations = generateRecommendations();
-                setRecommendations(mockRecommendations);
+                // Запрашиваем персонализированные рекомендации с сервера
+                // Для демо-пользователя используем специальный userId=999
+                const fetchRecommendations = async () => {
+                  try {
+                    const userId = userProfile?.userId || 999; // Для демо-режима
+                    const isDemoMode = userId === 999;
+                    
+                    console.log(`[DeepDiagnosis] Запрос рекомендаций для пользователя: ${userId}, демо-режим: ${isDemoMode}`);
+                    
+                    // Для демо-пользователя добавляем параметр userId в запрос
+                    const endpoint = isDemoMode 
+                      ? `/api/courses/recommended?userId=999` 
+                      : `/api/courses/recommended`;
+                      
+                    const response = await fetch(endpoint);
+                    
+                    if (!response.ok) {
+                      console.error(`[DeepDiagnosis] Ошибка при получении рекомендаций: ${response.status} ${response.statusText}`);
+                      // В случае ошибки используем локально сгенерированные рекомендации
+                      const fallbackRecommendations = generateRecommendations();
+                      setRecommendations(fallbackRecommendations);
+                      return;
+                    }
+                    
+                    const data = await response.json();
+                    console.log(`[DeepDiagnosis] Получены рекомендации: ${data.length} курсов`);
+                    setRecommendations(data);
+                  } catch (error) {
+                    console.error("[DeepDiagnosis] Ошибка при получении рекомендаций:", error);
+                    // В случае ошибки используем локально сгенерированные рекомендации
+                    const fallbackRecommendations = generateRecommendations();
+                    setRecommendations(fallbackRecommendations);
+                  }
+                };
+                
+                fetchRecommendations();
                 
                 // Сохраняем результаты в Skills DNA
                 const saveSkillsToDna = async () => {
