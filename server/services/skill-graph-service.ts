@@ -57,13 +57,20 @@ class SkillGraphService {
     if (existingSkill) {
       // Обновляем существующий навык
       const previousLevel = existingSkill.level || 0;
-      const newLevel = Math.max(0, Math.min(100, previousLevel + deltaLevel)); // Ограничиваем значение от 0 до 100
+      const currentXp = existingSkill.xp || 0;
+      const newXp = currentXp + deltaXp;
+      
+      // Расчет нового уровня с учетом как прямого изменения deltaLevel, так и XP
+      // XP может также влиять на уровень по формуле (например, каждые 100 XP = 1 уровень)
+      const xpLevelBonus = Math.floor(newXp / 100) - Math.floor(currentXp / 100);
+      const newLevel = Math.max(0, Math.min(100, previousLevel + deltaLevel + xpLevelBonus)); // Ограничиваем значение от 0 до 100
       
       await db
         .update(userSkills)
         .set({ 
           level: newLevel,
-          // updatedAt автоматически обновляется через триггер в БД
+          xp: newXp,
+          updatedAt: new Date() // Явно указываем обновление времени
         })
         .where(
           and(
@@ -82,7 +89,9 @@ class SkillGraphService {
       };
     } else {
       // Создаем новую запись о навыке пользователя
-      const newLevel = Math.max(0, Math.min(100, deltaLevel)); // Ограничиваем значение от 0 до 100
+      // Когда создаем навык с нуля, применяем ту же логику рассчета уровня на основе XP
+      const xpLevelBonus = Math.floor(deltaXp / 100);
+      const newLevel = Math.max(0, Math.min(100, deltaLevel + xpLevelBonus)); // Ограничиваем значение от 0 до 100
       
       await db
         .insert(userSkills)
@@ -90,7 +99,9 @@ class SkillGraphService {
           userId,
           skillId,
           level: newLevel,
-          lastAssessedAt: new Date()
+          xp: deltaXp,
+          lastAssessedAt: new Date(),
+          updatedAt: new Date()
         });
       
       result = {
