@@ -501,6 +501,11 @@ export class MLService {
       // Проверяем, включена ли функция S3 (SMART QUEST) с LightGBM
       const isSmartQuestEnabled = await this.isFeatureEnabled("smart_quest", userId);
       
+      // 3. Проверка AB-тестирования для измерения CTR
+      // Если пользователь попадает в экспериментальную группу, используем улучшенный алгоритм
+      const isInExperimentGroup = await this.isUserInABTestGroup(userId, "enhanced_recommendations");
+      const shouldUseEnhancedAlgorithm = isInExperimentGroup || await this.isFeatureEnabled("enhanced_recommendations", userId);
+      
       if (isSmartQuestEnabled && this.recommendationModel) {
         console.log("S3 (SMART QUEST) is enabled, using LightGBM model for recommendations");
         
@@ -508,22 +513,109 @@ export class MLService {
         const userSkills = await this.mlStorage.getUserSkills(userId);
         
         // Массив для оценок курсов
-        const courseScores: { course: Course; score: number }[] = [];
+        const courseScores: { course: Course; score: number; primarySkill?: number }[] = [];
+        
+        // Определение основного навыка пользователя (с наивысшим уровнем)
+        let topSkillId = 0;
+        let maxLevel = 0;
+        
+        for (const skill of userSkills) {
+          if ((skill.currentLevel || 0) > maxLevel) {
+            maxLevel = skill.currentLevel || 0;
+            topSkillId = skill.dnaId;
+          }
+        }
         
         // Генерируем оценки для каждого курса с помощью модели LightGBM
         for (const course of courses) {
           const relevanceScore = await this.predictCourseRelevance(userId, course, userSkills);
-          courseScores.push({ course, score: relevanceScore });
+          
+          // Определение основного навыка для курса
+          const courseRequirements = await this.mlStorage.getCourseSkillRequirements(course.id);
+          let primarySkill = 0;
+          let highestRequirement = 0;
+          
+          for (const req of courseRequirements) {
+            if ((req.requiredLevel || 1) > highestRequirement) {
+              highestRequirement = req.requiredLevel || 1;
+              primarySkill = req.skillId;
+            }
+          }
+          
+          courseScores.push({ 
+            course, 
+            score: relevanceScore,
+            primarySkill 
+          });
         }
         
-        // Сортировка курсов по релевантности
-        courseScores.sort((a, b) => b.score - a.score);
+        // 1. Фильтрация по порогу modelScore < 0.4
+        // Если включен улучшенный алгоритм, отфильтровываем курсы с низкой релевантностью
+        let filteredScores = courseScores;
+        if (shouldUseEnhancedAlgorithm) {
+          console.log("Using enhanced algorithm with score threshold < 0.4");
+          filteredScores = courseScores.filter(item => item.score >= 0.4);
+          
+          // Если после фильтрации не осталось курсов, возвращаем исходный список
+          if (filteredScores.length === 0) {
+            console.log("No courses passed the threshold filter, using original list");
+            filteredScores = courseScores;
+          }
+        }
+        
+        // 2. Добавление разнообразия по первичному навыку
+        // Группируем курсы по основному навыку и обеспечиваем разнообразие в топ-рекомендациях
+        if (shouldUseEnhancedAlgorithm) {
+          console.log("Applying diversity by primary skill");
+          
+          // Сначала сортируем по релевантности
+          filteredScores.sort((a, b) => b.score - a.score);
+          
+          // Теперь применяем алгоритм разнообразия для топ-5 рекомендаций
+          const diversifiedTop = [];
+          const seenSkills = new Set<number>();
+          const remainingScores = [...filteredScores];
+          
+          // Выбираем топ-5 с разнообразием по навыкам
+          while (diversifiedTop.length < 5 && remainingScores.length > 0) {
+            // Находим следующий курс с наивысшим скором, чей основной навык еще не представлен
+            let bestIndex = -1;
+            
+            // Сначала ищем непредставленные навыки
+            for (let i = 0; i < remainingScores.length; i++) {
+              const skill = remainingScores[i].primarySkill || 0;
+              if (!seenSkills.has(skill) || skill === 0) {
+                bestIndex = i;
+                break;
+              }
+            }
+            
+            // Если все навыки уже представлены, берем курс с наивысшим скором
+            if (bestIndex === -1 && remainingScores.length > 0) {
+              bestIndex = 0;
+            }
+            
+            if (bestIndex >= 0) {
+              const selected = remainingScores.splice(bestIndex, 1)[0];
+              diversifiedTop.push(selected);
+              if (selected.primarySkill && selected.primarySkill > 0) {
+                seenSkills.add(selected.primarySkill);
+              }
+            }
+          }
+          
+          // Объединяем диверсифицированный топ с остальными рекомендациями
+          filteredScores = [...diversifiedTop, ...remainingScores];
+        } else {
+          // Обычная сортировка по релевантности, если не используется улучшенный алгоритм
+          filteredScores.sort((a, b) => b.score - a.score);
+        }
         
         // Сохраняем рекомендации в базе данных
-        await this.saveCourseRecommendations(userId, courseScores);
+        await this.saveCourseRecommendations(userId, filteredScores, isInExperimentGroup);
         
         // Возвращаем отсортированные курсы
-        return courseScores.map(item => item.course);
+        return filteredScores.map(item => item.course);
       } else {
         console.log("Using embeddings-based recommendations (S3 not enabled)");
         
@@ -582,7 +674,7 @@ export class MLService {
         courseScores.sort((a, b) => b.score - a.score);
         
         // Сохраняем рекомендации в базе данных
-        await this.saveCourseRecommendations(userId, courseScores);
+        await this.saveCourseRecommendations(userId, courseScores, isInExperimentGroup);
         
         // Возвращаем отсортированные курсы
         return courseScores.map(item => item.course);
@@ -594,11 +686,53 @@ export class MLService {
   }
   
   /**
+   * Проверяет, входит ли пользователь в экспериментальную группу для тестирования 
+   * AB-тестирования новых функций
+   * 
+   * @param userId ID пользователя
+   * @param experimentName Название эксперимента
+   * @returns true, если пользователь в экспериментальной группе, иначе false
+   */
+  async isUserInABTestGroup(userId: number, experimentName: string): Promise<boolean> {
+    try {
+      // Проверяем, включен ли вообще AB-тест
+      const isABTestingEnabled = await this.isFeatureEnabled("ab_testing", userId);
+      
+      if (!isABTestingEnabled) {
+        return false;
+      }
+      
+      // Получаем информацию об AB-эксперименте
+      const experimentInfo = await this.mlStorage.getABTestConfig(experimentName);
+      
+      if (!experimentInfo || !experimentInfo.isActive) {
+        return false;
+      }
+      
+      // Распределение пользователей по группам на основе хеша их userID
+      // Это обеспечивает стабильное распределение - один и тот же пользователь
+      // всегда попадает в одну и ту же группу
+      const hashSum = userId % 100; // Значение от 0 до 99
+      
+      // По умолчанию 50% пользователей в контрольной группе, 50% в экспериментальной
+      // но можно настроить через конфигурацию эксперимента
+      const experimentPercentage = experimentInfo.experimentGroupPercentage || 50;
+      
+      // Если хеш меньше процента для экспериментальной группы, пользователь в ней
+      return hashSum < experimentPercentage;
+    } catch (error) {
+      console.error(`Error checking AB test group for user ${userId}:`, error);
+      return false;
+    }
+  }
+
+  /**
    * Сохранение рекомендаций курсов в базе данных
    */
   private async saveCourseRecommendations(
     userId: number, 
-    courseScores: { course: Course; score: number }[]
+    courseScores: { course: Course; score: number; primarySkill?: number }[],
+    isInExperimentGroup: boolean = false
   ): Promise<void> {
     for (let i = 0; i < courseScores.length; i++) {
       const score = courseScores[i].score;
@@ -611,6 +745,7 @@ export class MLService {
         score: number;
         rankPosition: number;
         modelId?: number;
+        metaData?: any;
       } = {
         userId,
         entityType: "course",
@@ -622,6 +757,15 @@ export class MLService {
       // Если используется LightGBM модель, добавляем её ID
       if (this.recommendationModel) {
         recommendation.modelId = this.recommendationModel.id;
+      }
+      
+      // Добавляем метаданные для AB-тестирования
+      if (isInExperimentGroup) {
+        recommendation.metaData = {
+          isExperimentGroup: true,
+          experimentName: "enhanced_recommendations",
+          primarySkill: courseScores[i].primarySkill
+        };
       }
       
       // Сохраняем рекомендацию в базе данных
