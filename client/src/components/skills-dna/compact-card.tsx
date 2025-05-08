@@ -6,8 +6,15 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import useSkillsDna from "@/hooks/use-skills-dna";
-import SkillsRadarChart from "@/components/skills-radar-chart";
 import { SkillsDnaModal } from "./modal-dialog";
+import { 
+  ResponsiveContainer, 
+  RadarChart, 
+  PolarGrid, 
+  PolarAngleAxis, 
+  Radar, 
+  Tooltip 
+} from "recharts";
 
 interface CompactSkillsDnaCardProps {
   userId?: number;
@@ -178,12 +185,46 @@ export function CompactSkillsDnaCard({
         <CardContent className="space-y-4">
           {/* Радарная диаграмма навыков */}
           <div className="pt-2">
-            <SkillsRadarChart 
-              skills={skills}
-              showControls={false}
-              title=""
-              className="mx-auto h-[280px]"
-            />
+            <Card className="bg-transparent border-0 shadow-none">
+              <CardContent className="p-0">
+                <div className="w-full h-[280px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RadarChart 
+                      cx="50%" 
+                      cy="50%" 
+                      outerRadius="80%" 
+                      data={Object.entries(skills).map(([key, value]) => ({
+                        category: key,
+                        value: value as number,
+                        fullMark: 100
+                      }))}
+                    >
+                      <PolarGrid stroke="#ffffff20" />
+                      <PolarAngleAxis 
+                        dataKey="category" 
+                        tick={{ fill: "#ffffffaa", fontSize: 11 }} 
+                      />
+                      <Radar
+                        name="Уровень навыков"
+                        dataKey="value"
+                        stroke="#8884d8"
+                        fill="#8884d8"
+                        fillOpacity={0.6}
+                      />
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: "#191c29", 
+                          border: "1px solid #414868",
+                          borderRadius: "4px",
+                          color: "#fff"
+                        }} 
+                        formatter={(value: number) => [`${value}%`, "Уровень"]}
+                      />
+                    </RadarChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
           </div>
           
           {/* Общая картина */}
