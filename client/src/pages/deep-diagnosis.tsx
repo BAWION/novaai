@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from "wouter";
 import { useUserProfile } from "@/context/user-profile-context";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/context/auth-context";
 import { 
   UserRole, 
   AIExperience, 
@@ -136,6 +137,7 @@ interface CourseRecommendation {
 export default function DeepDiagnosisPage() {
   const { toast } = useToast();
   const { userProfile, updateUserProfile } = useUserProfile();
+  const { isAuthenticated, user } = useAuth();
   const [, setLocation] = useLocation();
   
   // Состояния
@@ -1906,29 +1908,45 @@ export default function DeepDiagnosisPage() {
                 <div className="w-full flex justify-center">
                   {step === totalSteps && analysisComplete && (
                     <div className="flex flex-col md:flex-row gap-4 justify-center items-center">
-                      <Button 
-                        onClick={() => setLocation("/courses?filter=recommended")}
-                        className="bg-gradient-to-r from-green-500 to-emerald-600 hover:opacity-90 text-white"
-                      >
-                        Рекомендуемые курсы
-                        <Target className="h-4 w-4 ml-2" />
-                      </Button>
-                      
-                      <Button 
-                        onClick={handleViewSkillsDna}
-                        className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-90 text-white"
-                      >
-                        Посмотреть Skills DNA
-                        <FileText className="h-4 w-4 ml-2" />
-                      </Button>
-                      
-                      <Button 
-                        onClick={handleContinueToDashboard}
-                        className="bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:opacity-90 text-white"
-                      >
-                        Перейти к обучению
-                        <Rocket className="h-4 w-4 ml-2" />
-                      </Button>
+                      {isAuthenticated ? (
+                        // Если пользователь уже авторизован, показываем кнопки для просмотра рекомендаций и Skills DNA
+                        <>
+                          <Button 
+                            onClick={() => setLocation("/courses?filter=recommended&deep=true")}
+                            className="bg-gradient-to-r from-green-500 to-emerald-600 hover:opacity-90 text-white"
+                          >
+                            Рекомендуемые курсы
+                            <Target className="h-4 w-4 ml-2" />
+                          </Button>
+                          
+                          <Button 
+                            onClick={handleViewSkillsDna}
+                            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-90 text-white"
+                          >
+                            Посмотреть Skills DNA
+                            <FileText className="h-4 w-4 ml-2" />
+                          </Button>
+                        </>
+                      ) : (
+                        // Если пользователь не авторизован, показываем кнопку для регистрации
+                        <>
+                          <Button 
+                            onClick={handleContinueToDashboard}
+                            className="bg-gradient-to-r from-green-500 to-emerald-600 hover:opacity-90 text-white"
+                          >
+                            Зарегистрироваться и увидеть рекомендации
+                            <User className="h-4 w-4 ml-2" />
+                          </Button>
+                          
+                          <Button 
+                            onClick={handleViewSkillsDna}
+                            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-90 text-white"
+                          >
+                            Посмотреть Skills DNA
+                            <FileText className="h-4 w-4 ml-2" />
+                          </Button>
+                        </>
+                      )}
                     </div>
                   )}
                 </div>
