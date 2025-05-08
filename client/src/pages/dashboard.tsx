@@ -614,10 +614,10 @@ export default function Dashboard() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="w-full"
           >
-            <Glassmorphism className="h-full rounded-xl overflow-hidden border border-purple-500/30 p-6">
+            <Glassmorphism className="h-full rounded-lg p-4">
               <div className="flex items-center mb-4">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600/40 to-purple-700/20 flex items-center justify-center">
-                  <i className="fas fa-brain text-purple-300"></i>
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#6E3AFF]/40 to-[#6E3AFF]/20 flex items-center justify-center">
+                  <i className="fas fa-brain text-[#6E3AFF]"></i>
                 </div>
                 <h2 className="font-orbitron text-xl font-semibold ml-3">
                   Skills DNA
@@ -634,7 +634,7 @@ export default function Dashboard() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="w-full"
           >
-            <Glassmorphism className="h-full rounded-xl overflow-hidden border border-indigo-500/30 p-6">
+            <Glassmorphism className="h-full rounded-lg p-4">
               <div className="flex items-center mb-4">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-600/40 to-indigo-700/20 flex items-center justify-center">
                   <i className="fas fa-book text-indigo-300"></i>
@@ -644,51 +644,43 @@ export default function Dashboard() {
                 </h2>
               </div>
               
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {recommendedCourses.slice(0, 2).map((course: any) => (
                   <div 
                     key={course.id}
-                    className="bg-space-900/50 hover:bg-space-900/70 border border-space-700 rounded-lg p-4 transition-all cursor-pointer"
+                    className="p-3 rounded-lg border-l-2 border-primary bg-space-900/50 hover:bg-space-900/70 transition-all cursor-pointer"
                     onClick={() => setLocation(`/courses/${course.id}`)}
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className={`px-2 py-0.5 text-xs rounded-md ${
-                            course.matchPercentage && course.matchPercentage > 90 
-                              ? 'bg-green-500/20 text-green-300' 
-                              : course.matchPercentage && course.matchPercentage > 75
-                                ? 'bg-yellow-500/20 text-yellow-300'
-                                : 'bg-blue-500/20 text-blue-300'
-                          }`}>
+                        <div className="flex items-center gap-1.5">
+                          <h3 className="font-medium">{course.title}</h3>
+                          <span className="bg-green-500/20 text-green-400 border-0 px-2 py-0.5 text-xs rounded-md">
                             {course.matchPercentage ? `${course.matchPercentage}% совпадение` : '95% совпадение'}
                           </span>
                         </div>
-                        <h3 className="text-lg font-medium mt-2">{course.title}</h3>
-                        <p className="text-white/60 text-sm mt-1">{course.description || 'Описание курса'}</p>
+                        <p className="text-white/70 text-sm mt-1">{course.description || 'Описание курса'}</p>
                         
-                        <div className="flex flex-wrap items-center gap-3 mt-3">
-                          <div className="flex items-center gap-1.5">
-                            <i className="fas fa-signal text-white/60"></i>
-                            <span className="text-white/60 text-xs">Сложность: {course.level}/5</span>
+                        <div className="mt-2 text-xs text-white/60 flex items-center gap-3">
+                          <div className="flex items-center gap-1">
+                            <i className="fas fa-signal"></i>
+                            <span>Сложность: {course.level}/5</span>
                           </div>
-                          <div className="flex items-center gap-1.5">
-                            <i className="fas fa-clock text-white/60"></i>
-                            <span className="text-white/60 text-xs">120 мин</span>
+                          <div className="flex items-center gap-1">
+                            <i className="fas fa-clock"></i>
+                            <span>120 мин</span>
                           </div>
-                          <div className="flex items-center gap-1.5">
-                            <i className="fas fa-layer-group text-white/60"></i>
-                            <span className="text-white/60 text-xs">5 модулей</span>
+                          <div className="flex items-center gap-1">
+                            <i className="fas fa-layer-group"></i>
+                            <span>5 модулей</span>
                           </div>
                         </div>
                         
-                        <div className="mt-3">
-                          <span className="text-purple-400 text-xs">Почему подходит:</span>
-                          <p className="text-white/80 text-xs mt-1">
-                            {course.id === 1 
-                              ? 'Идеально для начала обучения машинному обучению на вашем уровне' 
-                              : 'Поможет заполнить пробелы в математической подготовке'}
-                          </p>
+                        <div className="mt-2 text-xs p-1.5 bg-primary/10 rounded">
+                          <span className="text-primary font-medium">Почему подходит:</span>
+                          {course.id === 1 
+                            ? ' Идеально для начала обучения машинному обучению на вашем уровне' 
+                            : ' Поможет заполнить пробелы в математической подготовке'}
                         </div>
                       </div>
                     </div>
