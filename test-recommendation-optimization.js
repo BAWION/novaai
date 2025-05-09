@@ -4,6 +4,10 @@
  * 1. Фильтрация по порогу modelScore < 0.4
  * 2. Повышение разнообразия по первичному навыку
  * 3. AB-тестирование для измерения CTR
+ * 
+ * Запуск:
+ * export BASE_URL="http://localhost:3000" # или URL приложения в Replit
+ * node test-recommendation-optimization.js
  */
 
 import fetch from 'node-fetch';
@@ -18,18 +22,20 @@ async function makeRequest(method, path, data = null, cookies = '') {
     body: data ? JSON.stringify(data) : undefined
   };
 
-  // Determine the base URL based on environment
-  let baseUrl;
-  if (process.env.REPLIT_DEPLOYMENT) {
-    // Use Replit deployment URL
-    baseUrl = `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`;
-  } else if (process.env.REPL_SLUG && process.env.REPL_ID) {
-    // Use Replit dev URL
-    baseUrl = `https://${process.env.REPL_ID}-00-${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`;
-  } else {
-    // Default to localhost for local development
-    baseUrl = 'https://' + process.env.REPLIT_URL || 'http://localhost:3000';
+  // Use environment variable if provided or default to localhost
+  let baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+  
+  // Make sure URL is properly formatted with protocol
+  if (!baseUrl.startsWith('http://') && !baseUrl.startsWith('https://')) {
+    baseUrl = 'http://' + baseUrl;
   }
+  
+  // Ensure port is specified for localhost
+  if (baseUrl.includes('localhost') && !baseUrl.includes(':')) {
+    baseUrl += ':3000';
+  }
+  
+  console.log(`Подключение к API: ${baseUrl}`)
   const response = await fetch(`${baseUrl}${path}`, options);
   
   if (response.status >= 400) {
@@ -52,13 +58,30 @@ async function makeRequest(method, path, data = null, cookies = '') {
 }
 
 async function login(username, password) {
-  const { data, cookies } = await makeRequest('POST', '/api/auth/login', {
-    username,
-    password
-  });
-  
-  console.log(`Вход выполнен для пользователя: ${username}`);
-  return { user: data, cookies };
+  try {
+    console.log(`Попытка входа для пользователя: ${username}...`);
+    const { data, cookies } = await makeRequest('POST', '/api/login', {
+      username,
+      password
+    });
+    
+    console.log(`Вход выполнен успешно для: ${username}`);
+    return { user: data, cookies };
+  } catch (error) {
+    console.error(`Ошибка входа:`, error.message);
+    
+    // Если пользователя нет, попробуем зарегистрировать
+    console.log(`Попытка регистрации нового пользователя: ${username}...`);
+    const { data: newUser, cookies: newCookies } = await makeRequest('POST', '/api/register', {
+      username,
+      password,
+      email: `${username.toLowerCase()}@novai.test`,
+      displayName: username
+    });
+    
+    console.log(`Регистрация выполнена успешно для: ${username}`);
+    return { user: newUser, cookies: newCookies };
+  }
 }
 
 async function testRecommendationOptimization() {
