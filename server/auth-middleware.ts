@@ -38,7 +38,9 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
   
   // Проверяем наличие кук в запросе
   const hasCookies = !!req.headers.cookie;
-  const cookieInfo = hasCookies ? req.headers.cookie.substring(0, 80) + '...' : 'куки отсутствуют';
+  const cookieInfo = hasCookies && req.headers.cookie 
+    ? req.headers.cookie.substring(0, 80) + '...' 
+    : 'куки отсутствуют';
   console.log(`[Auth Debug] Cookies Present: ${hasCookies}, Value: ${cookieInfo}`);
   
   // Проверяем детали сессии
@@ -90,7 +92,8 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
       id: req.sessionID,
       authenticated: authenticated,
       hasUser: !!user,
-      cookies: req.headers.cookie?.substring(0, 50) + '...'
+      hasCookies: !!req.headers.cookie,
+      cookies: req.headers.cookie ? req.headers.cookie.substring(0, 50) + '...' : 'отсутствуют'
     });
     return res.status(401).json({ message: "Unauthorized - Not authenticated" });
   }

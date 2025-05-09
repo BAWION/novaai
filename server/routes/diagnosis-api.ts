@@ -6,15 +6,54 @@
 import express, { Request, Response } from "express";
 import { z } from "zod";
 import { diagnosisService } from "../services/diagnosis-service";
+import { authMiddleware, optionalAuthMiddleware } from "../auth-middleware";
 
 const router = express.Router();
 
-// Middleware для проверки аутентификации
-const authMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
-  const user = req.session.user;
-  if (!user) {
-    return res.status(401).json({ message: "Unauthorized" });
+// Специализированное middleware для проверки аутентификации с поддержкой демо-режима (ID 999)
+const demoAuthMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  // Для API диагностики проверяем специальный случай - демо-пользователь с ID 999
+  const isDemo = req.body?.userId === 999 || req.params?.userId === '999';
+
+  if (isDemo) {
+    console.log(`[DiagnosisAPI] Пропускаем проверку аутентификации для демо-режима (ID 999)`);
+    return next();
   }
+
+  // Обычная проверка аутентификации с расширенной обработкой сессии
+  const user = req.session.user;
+  const authenticated = req.session.authenticated;
+  const sessionId = req.sessionID ? req.sessionID.substring(0, 8) + '...' : 'none';
+  
+  console.log(`[DiagnosisAPI] Проверка аутентификации для сессии ${sessionId}:`, {
+    hasSession: !!req.session,
+    sessionId: req.session?.id,
+    hasUser: !!user,
+    authenticated: authenticated,
+    path: req.path,
+    method: req.method
+  });
+
+  if (!user || !authenticated) {
+    console.log(`[DiagnosisAPI] Отказ в доступе: пользователь не авторизован (сессия ${sessionId})`);
+    
+    // Сохраняем информацию об ошибке в сессию, чтобы клиент мог восстановить данные
+    if (req.session) {
+      req.session.authError = "diagnosis_api_auth_required";
+      req.session.save();
+    }
+    
+    return res.status(401).json({
+      message: "Необходима авторизация",
+      code: "AUTH_REQUIRED",
+      details: "Для доступа к API диагностики требуется авторизация"
+    });
+  }
+
+  // Пользователь аутентифицирован - обновляем информацию о времени последней активности
+  req.session.lastActivity = new Date().toISOString();
+  req.session.save();
+
   next();
 };
 
@@ -31,7 +70,7 @@ const diagnosisResultSchema = z.object({
  * Сохранение результатов диагностики в системе Skills DNA
  * Для пользователя с ID 999 (админ/демо) авторизация не требуется
  */
-router.post("/results", async (req: Request, res: Response) => {
+router.post("/results", demoAuthMiddleware, async (req: Request, res: Response) => {
   try {
     console.log("[API] POST /api/diagnosis/results - Начало обработки запроса");
     
@@ -139,7 +178,7 @@ router.post("/results", async (req: Request, res: Response) => {
  * Получение прогресса пользователя по компетенциям
  * Для пользователя с ID 999 (админ/демо) авторизация не требуется
  */
-router.get("/progress/:userId", async (req: Request, res: Response) => {
+router.get("/progress/:userId", demoAuthMiddleware, async (req: Request, res: Response) => {
   try {
     console.log(`[API] GET /api/diagnosis/progress/:userId - Начало обработки запроса`);
     
@@ -210,7 +249,7 @@ router.get("/progress/:userId", async (req: Request, res: Response) => {
  * Получение сводной информации о прогрессе пользователя
  * Для пользователя с ID 999 (админ/демо) авторизация не требуется
  */
-router.get("/summary/:userId", async (req: Request, res: Response) => {
+router.get("/summary/:userId", demoAuthMiddleware, async (req: Request, res: Response) => {
   try {
     console.log(`[API] GET /api/diagnosis/summary/:userId - Начало обработки запроса`);
     
@@ -283,9 +322,9 @@ router.get("/summary/:userId", async (req: Request, res: Response) => {
 /**
  * POST /api/diagnosis/initialize-demo
  * Инициализирует демо-данные для пользователя с ID 999
- * Этот эндпоинт предназначен для администратора системы
+ * Этот эндпоинт открыт без авторизации для демонстрационных целей
  */
-router.post("/initialize-demo", async (req: Request, res: Response) => {
+router.post("/initialize-demo", optionalAuthMiddleware, async (req: Request, res: Response) => {
   try {
     console.log(`[API] POST /api/diagnosis/initialize-demo - Начало обработки запроса`);
     
