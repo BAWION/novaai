@@ -20,6 +20,7 @@ interface UserProfileData {
   displayName?: string;
   streakDays: number;
   completedOnboarding: boolean;
+  hasCompletedDiagnostics?: boolean; // Флаг, указывающий что пользователь прошел диагностику
   userId?: number;
   metadata?: any; // Добавляем поле metadata для дополнительных данных диагностики
 }
