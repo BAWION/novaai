@@ -170,7 +170,8 @@ router.post("/results", demoAuthMiddleware, async (req: Request, res: Response) 
       });
       
       return res.status(403).json({ 
-        message: "Нет доступа для сохранения данных другого пользователя" 
+        message: "Нет доступа для сохранения данных другого пользователя",
+        code: "ID_CONFLICT" 
       });
     }
     
@@ -244,7 +245,10 @@ router.get("/progress/:userId", demoAuthMiddleware, async (req: Request, res: Re
         requestedUserId: userId
       });
       
-      return res.status(403).json({ message: "Недостаточно прав для просмотра прогресса другого пользователя" });
+      return res.status(403).json({ 
+        message: "Недостаточно прав для просмотра прогресса другого пользователя",
+        code: "ID_CONFLICT"
+      });
     }
     
     console.log(`[API] GET /api/diagnosis/progress/:userId - Передача запроса в сервис`);
@@ -315,7 +319,10 @@ router.get("/summary/:userId", demoAuthMiddleware, async (req: Request, res: Res
         requestedUserId: userId
       });
       
-      return res.status(403).json({ message: "Недостаточно прав для просмотра сводки другого пользователя" });
+      return res.status(403).json({ 
+        message: "Недостаточно прав для просмотра сводки другого пользователя",
+        code: "ID_CONFLICT"
+      });
     }
     
     console.log(`[API] GET /api/diagnosis/summary/:userId - Передача запроса в сервис`);
