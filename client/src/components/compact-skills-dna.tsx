@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Brain, ChevronRight, Award, Target, LineChart } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLocation } from "wouter";
-import useSkillsDna from "@/hooks/use-skills-dna";
+import { useSkillsDna } from "@/hooks/use-skills-dna";
 import { Button } from "@/components/ui/button";
 import SimpleRadarChart from "@/components/skills-radar-simple";
 import TriangleSkillsChart from "@/components/triangle-skills-chart";

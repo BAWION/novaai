@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { AdvancedRadarChart } from "./advanced-radar-chart";
 import { SkillsTriangleChart } from "./triangle-chart";
-import useSkillsDna from "@/hooks/use-skills-dna";
+import { useSkillsDna } from "@/hooks/use-skills-dna";
 import { useToast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Progress } from "@/components/ui/progress";
