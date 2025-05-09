@@ -21,6 +21,48 @@ export interface DiagnosisResult {
 }
 
 /**
+ * Пытается восстановить данные из резервных копий
+ */
+function tryRecoverFromBackup(): { results: DiagnosisResult, timestamp: string, from?: string } | null {
+  try {
+    // Сначала проверяем резервную копию
+    const backupDataString = localStorage.getItem('skillsDnaCachedResults_backup');
+    if (backupDataString) {
+      try {
+        const backupData = JSON.parse(backupDataString);
+        return {
+          results: backupData.results,
+          timestamp: backupData.timestamp,
+          from: 'backup_recovery'
+        };
+      } catch (parseError) {
+        console.error('[API] Ошибка при разборе резервной копии:', parseError);
+      }
+    }
+    
+    // Затем проверяем упрощенную копию
+    const simpleDataString = localStorage.getItem('skillsDnaCachedResults_simple');
+    if (simpleDataString) {
+      try {
+        const simpleData = JSON.parse(simpleDataString);
+        return {
+          results: simpleData.results,
+          timestamp: simpleData.timestamp,
+          from: 'simple_backup_recovery'
+        };
+      } catch (parseError) {
+        console.error('[API] Ошибка при разборе упрощенной копии:', parseError);
+      }
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('[API] Ошибка при восстановлении из резервных копий:', error);
+    return null;
+  }
+}
+
+/**
  * API-клиент для работы с диагностикой
  */
 export const diagnosisApi = {
@@ -208,14 +250,32 @@ export const diagnosisApi = {
    */
   async recoverCachedResults(userId: number): Promise<any> {
     try {
-      // Проверяем наличие кэшированных результатов
+      console.log('[API] Попытка восстановления кэшированных результатов диагностики для пользователя:', userId);
+      
+      // Проверяем наличие кэшированных результатов с расширенным логированием
       const cachedData = this.getCachedDiagnosticResults();
       if (!cachedData) {
-        console.log('[API] Кэшированные результаты диагностики не найдены');
+        console.log('[API] Кэшированные результаты диагностики не найдены в localStorage');
+        
+        // Проверяем локальное хранилище напрямую для дополнительной диагностики
+        try {
+          const keys = Object.keys(localStorage);
+          console.log('[API] Содержимое localStorage:', keys);
+          
+          // Пытаемся найти любые ключи связанные с диагностикой
+          const diagnosisKeys = keys.filter(key => key.includes('skills') || key.includes('diagnosis'));
+          if (diagnosisKeys.length > 0) {
+            console.log('[API] Найдены потенциальные ключи для восстановления:', diagnosisKeys);
+          }
+        } catch (storageErr) {
+          console.warn('[API] Не удалось проверить содержимое localStorage:', storageErr);
+        }
+        
         return null;
       }
       
       const startTime = Date.now();
+      const cacheSource = cachedData.from || 'primary_storage';
       
       // Добавляем ID пользователя к результатам
       const results = {
@@ -223,10 +283,16 @@ export const diagnosisApi = {
         userId
       };
       
+      // Рассчитываем возраст кэша
+      const cacheAgeMs = new Date().getTime() - new Date(cachedData.timestamp).getTime();
+      const cacheAgeMinutes = Math.round(cacheAgeMs / (1000 * 60));
+      
       console.log('[API] Восстановление кэшированных результатов диагностики:', {
         userId,
         skillsCount: Object.keys(results.skills).length,
-        cacheAge: new Date().getTime() - new Date(cachedData.timestamp).getTime()
+        cacheAgeMinutes,
+        cacheSource,
+        diagnosticType: results.diagnosticType
       });
       
       // Отправляем результаты на сервер
@@ -241,33 +307,54 @@ export const diagnosisApi = {
           diagnosticType: results.diagnosticType,
           skillCount: Object.keys(results.skills).length,
           userId,
-          cacheAge: new Date().getTime() - new Date(cachedData.timestamp).getTime(),
+          cacheAgeMinutes,
+          cacheSource,
           recoveryTimeMs,
           success: true,
           timestamp: new Date().toISOString()
         });
         
+        // При успешном восстановлении очищаем кэш
+        this.clearCachedDiagnosticResults();
+        console.log('[API] Кэш очищен после успешного восстановления');
+        
         return savedResults;
       } catch (err) {
         // Преобразуем ошибку в понятный формат
         const errorMessage = err instanceof Error ? err.message : 'Неизвестная ошибка';
+        const errorType = err instanceof Error ? err.constructor.name : 'Unknown';
+        
+        console.error('[API] Ошибка при восстановлении результатов из кэша:', {
+          errorType,
+          message: errorMessage
+        });
         
         // Логируем неудачное восстановление
-        this.logDiagnosticEvent('diagnosis_recovered', {
+        this.logDiagnosticEvent('diagnosis_recovery_failed', {
           diagnosticType: results.diagnosticType,
           skillCount: Object.keys(results.skills).length,
           userId,
-          cacheAge: new Date().getTime() - new Date(cachedData.timestamp).getTime(),
+          cacheAgeMinutes,
+          cacheSource,
           recoveryTimeMs: Date.now() - startTime,
-          success: false,
           error: errorMessage,
+          errorType,
           timestamp: new Date().toISOString()
         });
+        
+        // При ошибке авторизации сохраняем кэш для следующей попытки
+        if (errorMessage.includes('авторизация') || errorMessage.includes('unauthorized')) {
+          console.log('[API] Кэш сохранен для последующих попыток восстановления после авторизации');
+        } else {
+          // При других ошибках кэш лучше очистить, чтобы избежать повторений неудачных запросов
+          this.clearCachedDiagnosticResults();
+          console.log('[API] Кэш очищен из-за неустранимой ошибки восстановления');
+        }
         
         throw err;
       }
     } catch (error) {
-      console.error('[API] Ошибка восстановления кэшированных результатов диагностики:', error);
+      console.error('[API] Исключение при восстановлении кэшированных результатов диагностики:', error);
       throw error;
     }
   },
@@ -277,8 +364,23 @@ export const diagnosisApi = {
    */
   clearCachedDiagnosticResults(): void {
     try {
+      console.log('[API] Начинаем очистку всех кэшированных результатов диагностики');
+      
+      // Очищаем основное хранилище
       localStorage.removeItem('skillsDnaCachedResults');
-      console.log('[API] Кэшированные результаты диагностики очищены');
+      
+      // Очищаем резервную копию
+      localStorage.removeItem('skillsDnaCachedResults_backup');
+      
+      // Очищаем упрощенную копию
+      localStorage.removeItem('skillsDnaCachedResults_simple');
+      
+      // Логируем событие очистки для аналитики
+      this.logDiagnosticEvent('diagnosis_cache_cleared', {
+        timestamp: new Date().toISOString()
+      });
+      
+      console.log('[API] Все копии кэшированных результатов диагностики успешно очищены');
     } catch (error) {
       console.error('[API] Ошибка при очистке кэшированных результатов диагностики:', error);
     }
@@ -411,30 +513,72 @@ export const diagnosisApi = {
           // Кэшируем при 401, чтобы восстановить после авторизации
           this.cacheDiagnosticResults(results);
           
-          // Логируем событие потери сессии в API диагностики
+          // Получаем информацию о сессии из куки для лучшей отладки
+          let cookieInfo = 'no_cookies';
+          try {
+            cookieInfo = document.cookie ? 'cookies_present' : 'empty_cookies';
+          } catch (cookieErr) {
+            console.warn('[API] Ошибка при проверке cookies:', cookieErr);
+          }
+          
+          // Логируем детальное событие потери сессии в API диагностики
           this.logDiagnosticEvent('diagnosis_lost_session', {
             diagnosticType: results.diagnosticType,
             skillCount: Object.keys(results.skills).length,
             status: response.status,
             error: 'unauthorized',
-            timestamp: new Date().toISOString()
+            cookieInfo,
+            timestamp: new Date().toISOString(),
+            url: window.location.href,
+            referrer: document.referrer || 'no_referrer',
+            hasUserId: !!results.userId
           });
           
-          console.log('[API] Статус 401, результаты диагностики кэшированы для последующего воспроизведения');
+          console.log('[API] Статус 401, результаты диагностики кэшированы для последующего воспроизведения. Детали:', {
+            cookieInfo,
+            url: window.location.href,
+            hasUserId: !!results.userId
+          });
+          
           errorMessage = "Необходима авторизация для сохранения результатов диагностики";
         } else if (response.status === 403) {
           errorMessage = "Нет доступа для сохранения результатов диагностики";
           
           // Логируем событие отказа в доступе
-          this.logDiagnosticEvent('diagnosis_lost_session', {
+          this.logDiagnosticEvent('diagnosis_access_denied', {
             diagnosticType: results.diagnosticType,
             skillCount: Object.keys(results.skills).length,
             status: response.status,
             error: 'forbidden',
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            userId: results.userId
           });
         } else if (response.status === 400) {
           errorMessage = "Некорректные данные диагностики";
+          
+          // Для 400 ошибок логируем больше деталей, чтобы найти причину некорректных данных
+          this.logDiagnosticEvent('diagnosis_invalid_data', {
+            diagnosticType: results.diagnosticType,
+            skillCount: Object.keys(results.skills).length,
+            status: response.status,
+            error: 'bad_request',
+            timestamp: new Date().toISOString(),
+            hasUserId: !!results.userId,
+            hasSkills: !!results.skills
+          });
+        } else {
+          // Для других ошибок (500, 503 и т.д.) тоже кэшируем данные
+          this.cacheDiagnosticResults(results);
+          
+          this.logDiagnosticEvent('diagnosis_server_error', {
+            diagnosticType: results.diagnosticType,
+            skillCount: Object.keys(results.skills).length,
+            status: response.status,
+            error: 'server_error',
+            timestamp: new Date().toISOString()
+          });
+          
+          console.log(`[API] Статус ${response.status}, результаты диагностики кэшированы для последующего воспроизведения`);
         }
         
         throw new Error(`${errorMessage}. ${errorDetails}`);
