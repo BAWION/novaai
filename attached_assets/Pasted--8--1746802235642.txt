@@ -1,0 +1,81 @@
+Думал на протяжении 8 секунд
+
+
+### Чтобы «заработало долго и надёжно» — чек‑лист после патча
+
+(всё уже почти готово, осталось доделать эксплуатационные мелочи)
+
+| Блок                         | Что проверяем                                                         | Как делаем                                              |
+| ---------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------- |
+| **1. Unit / API‑тесты**      | все сервисы возвращают 200                                            | `pnpm test` (Jest / supertest)                          |
+| **2. E2E (Cypress)**         | full flow: регистрация → deep‑diagnosis → Bridge                      | `pnpm cypress:run` – сценарий `diagnosis-flow.cy.js`    |
+| **3. Локальное кэширование** | ключ `pendingDiagnosisResults` появляется до логина и очищается после | DevTools → Application‑Storage                          |
+| **4. Инвалидация кэша**      | Radar обновился без F5                                                | React Query DevTools – нет «stale» ответов              |
+| **5. БД**                    | строки в `user_skills_dna_progress` появились                         | psql / TablePlus                                        |
+| **6. Логи**                  | нет 401 на `/diagnosis/results` после фикса                           | `docker logs` / Replit console                          |
+| **7. CI/CD**                 | Pull‑request запускает lint+tests                                     | GitHub Actions (`pnpm ci && pnpm test && pnpm cypress`) |
+| **8. Preview deploy**        | Vercel / Railway ➜ тот же flow OK                                     | Live‑URL, smoke‑script                                  |
+| **9. Мониторинг**            | метрика `diagnosis_lost_session` = 0                                  | Grafana / Supabase‑dash                                 |
+| **10. Ретроспектива**        | конверсия *Deep diagnosis → Skills DNA shown* выросла                 | Mixpanel / PostHog funnel                               |
+
+---
+
+## Конкретные «доделать»
+
+1. **Merge PR `fix/diagnosis-session` → `main`**
+
+   ```bash
+   git checkout main
+   git merge fix/diagnosis-session --ff-only
+   git push origin main
+   ```
+
+2. **Запустить CI** (GitHub Actions)
+
+   * job 1: `pnpm lint && pnpm test`
+   * job 2: `pnpm cypress:run --record` (headless)
+
+3. **Автодеплой**
+
+   * Vercel: подключён к `main`, «Delete Cache & Deploy».
+   * Railway / Fly: `railway up`.
+
+4. **Миграции**
+
+   ```bash
+   pnpm db:migrate   # или prisma migrate deploy
+   ```
+
+5. **Обновить `.env` на проде**
+
+   ```
+   SESSION_SECRET=xxxx
+   COOKIE_DOMAIN=.novaai.ru
+   JWT_SECRET=yyyy               # если перейдёте на JWT
+   ```
+
+6. **Включить alert**
+
+   ```sql
+   CREATE ALERT IF
+     (SELECT COUNT(*) FROM events
+      WHERE event='diagnosis_lost_session'
+        AND created_at > now() - interval '10 minutes') > 0
+   THEN notify slack '#alerts';
+   ```
+
+7. **Документация**
+
+   * `docs/diagnosis-flow.md` – схема черновик → userId.
+   * README: как воспроизвести e2e.
+
+---
+
+## Что даст «долгий и надёжный»
+
+* **Отложенное сохранение** + **инвалидация кэша** → пользователь **никогда** не теряет результаты при прыжках между страницами.
+* **Тестовый контур** в CI → любой будущий refactor сразу ловит регрессию.
+* **Алерт** по event‑stream → если снова пойдут 401, узнаём через минуту.
+* **Preview‑deploy** → можно проверять фичи, не ломая прод.
+
+— теперь можно спокойно пилить другие модули (LabHub, Time Saved, т.д.), зная, что “Skills DNA ↔ Bridge” держится как скала.

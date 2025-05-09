@@ -25,6 +25,29 @@ export interface DiagnosisResult {
  */
 export const diagnosisApi = {
   /**
+   * Логирует событие диагностики для мониторинга
+   * @param eventType Тип события ('diagnosis_started', 'diagnosis_cached', etc.)
+   * @param data Дополнительные данные
+   */
+  async logDiagnosticEvent(eventType: string, data: Record<string, any> = {}): Promise<void> {
+    try {
+      const eventData = {
+        eventType,
+        data: {
+          ...data,
+          timestamp: new Date().toISOString()
+        }
+      };
+      
+      await apiRequest('POST', '/api/events', eventData)
+        .catch(error => {
+          console.warn('[API] Не удалось отправить событие диагностики:', error);
+        });
+    } catch (error) {
+      console.error('[API] Ошибка при логировании события диагностики:', error);
+    }
+  },
+  /**
    * Кэширует диагностические данные в localStorage для последующего воспроизведения
    * @param results Результаты диагностики 
    */
