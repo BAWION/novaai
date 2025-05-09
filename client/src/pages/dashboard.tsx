@@ -16,6 +16,9 @@ import { CompactSkillsDnaCard } from "@/components/skills-dna";
 import { SkillsDnaProfile } from "@/components/skills-dna-profile";
 import { CourseCard } from "@/components/courses/course-card";
 import { TimeSavedPage } from "@/components/time-saved/TimeSavedPage";
+import { diagnosisApi } from "@/api/diagnosis-api";
+import { queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Dialog,
   DialogContent,
@@ -174,6 +177,81 @@ export default function Dashboard() {
     progress: 72,
     description: "Подходит для всех пользователей от новичка до эксперта"
   });
+  // Состояние для работы с toast-сообщениями
+  const { toast } = useToast();
+  
+  // Эффект для проверки и применения кэшированных результатов диагностики
+  useEffect(() => {
+    // Проверяем, есть ли кэшированные результаты диагностики и авторизован ли пользователь
+    if (user && diagnosisApi.hasCachedDiagnosticResults()) {
+      console.log('[Dashboard] Обнаружены кэшированные результаты диагностики');
+      
+      const cachedData = diagnosisApi.getCachedDiagnosticResults();
+      if (cachedData) {
+        const { results, timestamp } = cachedData;
+        
+        // Добавляем ID пользователя к результатам
+        const resultsWithUserId = {
+          ...results,
+          userId: user.id
+        };
+        
+        // Возраст кэша в минутах
+        const cacheAgeMinutes = (new Date().getTime() - new Date(timestamp).getTime()) / (1000 * 60);
+        
+        // Применяем кэшированные результаты, если кэш не старше 30 минут
+        if (cacheAgeMinutes <= 30) {
+          console.log('[Dashboard] Отправляем кэшированные результаты диагностики на сервер', {
+            userId: user.id,
+            skillsCount: Object.keys(resultsWithUserId.skills).length,
+            diagnosticType: resultsWithUserId.diagnosticType,
+            cacheAge: `${cacheAgeMinutes.toFixed(1)} минут`
+          });
+          
+          // Отправляем результаты на сервер
+          diagnosisApi.saveResults(resultsWithUserId)
+            .then((response) => {
+              console.log('[Dashboard] Кэшированные результаты диагностики успешно отправлены', response);
+              
+              // Инвалидируем кэш Skills DNA, чтобы обновить данные
+              queryClient.invalidateQueries({ queryKey: [`/api/diagnosis/progress/${user.id}`] });
+              queryClient.invalidateQueries({ queryKey: [`/api/diagnosis/summary/${user.id}`] });
+              
+              toast({
+                title: "Результаты диагностики применены",
+                description: "Ваш профиль Skills DNA успешно обновлен на основе предыдущей диагностики",
+                variant: "default",
+              });
+              
+              // Обновляем профиль пользователя, чтобы отметить, что диагностика пройдена
+              if (userProfile) {
+                updateUserProfile({
+                  ...userProfile,
+                  hasCompletedDiagnostics: true
+                });
+              }
+            })
+            .catch((error) => {
+              console.error('[Dashboard] Ошибка при отправке кэшированных результатов диагностики', error);
+              
+              toast({
+                title: "Не удалось применить результаты диагностики",
+                description: "Произошла ошибка при обновлении профиля Skills DNA",
+                variant: "destructive",
+              });
+            });
+        } else {
+          // Кэш устарел, очищаем его
+          console.log('[Dashboard] Кэшированные результаты диагностики устарели', { 
+            cacheAge: `${cacheAgeMinutes.toFixed(1)} минут`,
+            maxAge: '30 минут'
+          });
+          diagnosisApi.clearCachedDiagnosticResults();
+        }
+      }
+    }
+  }, [user, userProfile, updateUserProfile, toast]);
+  
   const [adaptiveAIData, setAdaptiveAIData] = useState({
     currentTrajectory: {
       title: "Текущие рекомендации",
