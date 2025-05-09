@@ -464,7 +464,7 @@ export default function QuickDiagnosis() {
           
           try {
             // Отправляем результаты в систему Skills DNA
-            const result = await diagnosisApi.saveResults(finalDiagnosisResult);
+            const result = await diagnosisApi.saveResults(finalDiagnosisResult as DiagnosisResult);
             console.log("[SkillsDNA] Результаты диагностики успешно сохранены:", result);
             
             // После успешного сохранения также очищаем localStorage кэш
