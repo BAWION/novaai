@@ -33,7 +33,7 @@ export interface SkillsDnaData {
  * @param userId ID пользователя (если не указан, используется текущий пользователь)
  * @returns Объект с данными Skills DNA и состоянием запроса
  */
-export function useSkillsDna(userId?: number): SkillsDnaData {
+function useSkillsDnaInternal(userId?: number): SkillsDnaData {
   const { userProfile } = useUserProfile();
   
   // Безопасно получаем пользователя из контекста авторизации, если он доступен
@@ -218,3 +218,9 @@ export function useSkillsDna(userId?: number): SkillsDnaData {
     progressHistory
   };
 };
+
+// Экспортируем хук с именованной функцией
+// Этот подход более совместим с React Fast Refresh
+export function useSkillsDna(userId?: number): SkillsDnaData {
+  return useSkillsDnaInternal(userId);
+}
