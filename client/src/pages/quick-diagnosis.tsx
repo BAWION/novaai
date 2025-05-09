@@ -142,7 +142,7 @@ export default function QuickDiagnosis() {
             };
             
             // Отправляем результаты и очищаем кэш после успешного применения
-            diagnosisApi.saveResults(diagnosisResult)
+            diagnosisApi.saveResults(diagnosisResult as DiagnosisResult)
               .then(result => {
                 console.log("[SkillsDNA] Кэшированные результаты успешно применены:", result);
                 
@@ -206,7 +206,7 @@ export default function QuickDiagnosis() {
               console.log("[SkillsDNA] Отправляем восстановленные результаты:", diagnosisResult);
               
               // Отправляем результаты в систему Skills DNA
-              diagnosisApi.saveResults(diagnosisResult)
+              diagnosisApi.saveResults(diagnosisResult as DiagnosisResult)
                 .then(result => {
                   console.log("[SkillsDNA] Восстановленные результаты успешно сохранены:", result);
                   
@@ -409,7 +409,7 @@ export default function QuickDiagnosis() {
           
           // Если пользователь не авторизован, кэшируем для будущего воспроизведения
           if (!userId) {
-            diagnosisApi.cacheDiagnosticResults(diagnosisResult);
+            diagnosisApi.cacheDiagnosticResults(initialDiagnosisResult);
             console.log("[SkillsDNA] Результаты диагностики кэшированы в localStorage для будущего воспроизведения");
           }
           
@@ -437,7 +437,7 @@ export default function QuickDiagnosis() {
           
           // Только если пользователь авторизован
           // Импортируем тип DiagnosticType явно
-          const diagnosticType: import("@/api/diagnosis-api").DiagnosticType = 'quick';
+          const diagnosticType: DiagnosisResult["diagnosticType"] = 'quick';
           
           // Выводим информацию о навыках для отладки
           console.log("[SkillsDNA] Сформированный профиль навыков:", { 
@@ -445,11 +445,11 @@ export default function QuickDiagnosis() {
             skills: Object.entries(skillProfile).map(([k, v]) => `${k}: ${v}`).join(', ')
           });
           
-          // Подготавливаем данные для отправки
-          const diagnosisResult: import("@/api/diagnosis-api").DiagnosisResult = {
+          // Подготавливаем данные для отправки для авторизованных пользователей
+          const finalDiagnosisResult: DiagnosisResult = {
             userId,
             skills: skillProfile,
-            diagnosticType, // Теперь используем переменную с явным типом
+            diagnosticType,
             metadata: {
               specialization: formData.specialization,
               experience: formData.experience,
@@ -464,8 +464,11 @@ export default function QuickDiagnosis() {
           
           try {
             // Отправляем результаты в систему Skills DNA
-            const result = await diagnosisApi.saveResults(diagnosisResult);
+            const result = await diagnosisApi.saveResults(finalDiagnosisResult);
             console.log("[SkillsDNA] Результаты диагностики успешно сохранены:", result);
+            
+            // После успешного сохранения также очищаем localStorage кэш
+            diagnosisApi.clearCachedDiagnosticResults();
             
             // Очищаем временные данные после успешного сохранения
             sessionStorage.removeItem("diagnosticResults");
