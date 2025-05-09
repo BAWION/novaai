@@ -16,8 +16,16 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
   console.log(`[Auth Debug] Session ID: ${sessionId}`);
   console.log(`[Auth Debug] Session Content:`, req.session ? Object.keys(req.session) : 'null');
   
-  if (req.session && req.session.passport) {
-    console.log(`[Auth Debug] Passport Data:`, req.session.passport);
+  // Проверка на наличие данных Passport (может быть в разных местах)
+  if (req.session) {
+    if (req.session.passport) {
+      console.log(`[Auth Debug] Passport Data:`, req.session.passport);
+    }
+    
+    // Дополнительные проверки данных сессии
+    console.log(`[Auth Debug] Session User:`, req.session.user ? `ID: ${req.session.user.id}` : 'отсутствует');
+    console.log(`[Auth Debug] Session Auth:`, req.session.authenticated ? 'true' : 'false или отсутствует');
+    console.log(`[Auth Debug] Session Last Activity:`, req.session.lastActivity || 'отсутствует');
   }
   
   // Проверяем наличие сессии
