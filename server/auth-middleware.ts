@@ -7,8 +7,18 @@ import { Request, Response, NextFunction } from 'express';
  */
 export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
   // Выводим информацию о запросе
-  const requestPath = `${req.method} ${req.path}`;
-  const sessionId = req.sessionID ? req.sessionID.substring(0, 8) + '...' : 'none';
+  const requestPath = `${req.method} ${req.originalUrl || req.path}`;
+  const sessionId = req.sessionID ? req.sessionID : 'none';
+  
+  // Подробное логирование запроса для диагностики
+  console.log(`[Auth Debug] Request: ${requestPath}`);
+  console.log(`[Auth Debug] Cookies: ${req.headers.cookie || 'undefined'}`);
+  console.log(`[Auth Debug] Session ID: ${sessionId}`);
+  console.log(`[Auth Debug] Session Content:`, req.session ? Object.keys(req.session) : 'null');
+  
+  if (req.session && req.session.passport) {
+    console.log(`[Auth Debug] Passport Data:`, req.session.passport);
+  }
   
   // Проверяем наличие сессии
   if (!req.session) {
