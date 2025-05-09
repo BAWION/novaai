@@ -19,7 +19,7 @@ import {
   UserInterest, 
   UserGoal
 } from "@/lib/constants";
-import { diagnosisApi } from "@/api/diagnosis-api";
+import { diagnosisApi, DiagnosisResult } from "@/api/diagnosis-api";
 import { 
   Brain, 
   ArrowRight, 
@@ -113,16 +113,69 @@ export default function QuickDiagnosis() {
   useEffect(() => {
     const checkForSavedDiagnosticResults = () => {
       // Проверяем, авторизован ли пользователь и есть ли сохраненные результаты
-      if (user && sessionStorage.getItem("diagnosticResults")) {
+      // 1. Проверяем новый механизм с localStorage
+      if (user && diagnosisApi.hasCachedDiagnosticResults()) {
         try {
-          console.log("[SkillsDNA] Обнаружены сохраненные результаты диагностики");
+          console.log("[SkillsDNA] Обнаружены кэшированные результаты диагностики в localStorage");
+          
+          // Получаем сохраненные данные из нашего нового API
+          const cachedData = diagnosisApi.getCachedDiagnosticResults();
+          
+          if (cachedData && cachedData.results.skills) {
+            console.log("[SkillsDNA] Восстанавливаем данные диагностики из localStorage:", {
+              skillCount: Object.keys(cachedData.results.skills).length,
+              diagnosticType: cachedData.results.diagnosticType,
+              cacheAge: `${((new Date().getTime() - new Date(cachedData.timestamp).getTime()) / (1000 * 60)).toFixed(1)} минут`
+            });
+            
+            // Показываем уведомление пользователю
+            toast({
+              title: "Восстановлены результаты диагностики",
+              description: "Ваши предыдущие ответы были сохранены. Применяем результаты к вашему профилю.",
+              duration: 6000,
+            });
+            
+            // Применяем результаты диагностики с ID авторизованного пользователя
+            const diagnosisResult = {
+              ...cachedData.results,
+              userId: user.id
+            };
+            
+            // Отправляем результаты и очищаем кэш после успешного применения
+            diagnosisApi.saveResults(diagnosisResult)
+              .then(result => {
+                console.log("[SkillsDNA] Кэшированные результаты успешно применены:", result);
+                
+                // Перенаправляем пользователя на страницу мостика
+                setTimeout(() => {
+                  setLocation("/dashboard");
+                }, 2000);
+                
+                return true;
+              })
+              .catch(error => {
+                console.error("[SkillsDNA] Ошибка при применении кэшированных результатов:", error);
+                return false;
+              });
+              
+            return true;
+          }
+        } catch (error) {
+          console.error("[SkillsDNA] Ошибка при обработке кэшированных результатов:", error);
+        }
+      }
+      
+      // 2. Для обратной совместимости проверяем старый механизм с sessionStorage
+      else if (user && sessionStorage.getItem("diagnosticResults")) {
+        try {
+          console.log("[SkillsDNA] Обнаружены сохраненные результаты диагностики в sessionStorage");
           
           // Получаем сохраненные данные
           const savedData = JSON.parse(sessionStorage.getItem("diagnosticResults") || "{}");
           
           // Проверяем, что данные содержат необходимые поля
           if (savedData.formData && savedData.skillProfile) {
-            console.log("[SkillsDNA] Восстанавливаем данные диагностики:", {
+            console.log("[SkillsDNA] Восстанавливаем данные диагностики из sessionStorage:", {
               formData: savedData.formData,
               skillCount: Object.keys(savedData.skillProfile).length
             });
@@ -342,16 +395,23 @@ export default function QuickDiagnosis() {
           
           console.log("[SkillsDNA] Определен ID пользователя:", userId);
           
-          // Сохраняем данные диагностики в sessionStorage для возможного восстановления после авторизации
-          const diagnosticData = {
-            formData,
-            skillProfile,
-            profileUpdate,
-            timestamp: new Date().toISOString()
+          // Подготавливаем результаты диагностики для сохранения или кэширования
+          const initialDiagnosisResult: DiagnosisResult = {
+            userId: userId || 0, // Если пользователь не авторизован, будет 0
+            skills: skillProfile,
+            diagnosticType: 'quick',
+            metadata: {
+              formData,
+              profileUpdate,
+              timestamp: new Date().toISOString()
+            }
           };
           
-          sessionStorage.setItem("diagnosticResults", JSON.stringify(diagnosticData));
-          console.log("[SkillsDNA] Временно сохранены результаты диагностики в sessionStorage");
+          // Если пользователь не авторизован, кэшируем для будущего воспроизведения
+          if (!userId) {
+            diagnosisApi.cacheDiagnosticResults(diagnosisResult);
+            console.log("[SkillsDNA] Результаты диагностики кэшированы в localStorage для будущего воспроизведения");
+          }
           
           // Проверяем авторизацию
           if (!userId) {
