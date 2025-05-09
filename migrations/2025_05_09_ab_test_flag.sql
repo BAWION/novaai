@@ -1,47 +1,120 @@
--- AB Test Flags Table для хранения флагов экспериментов
-CREATE TABLE IF NOT EXISTS ab_test_flags (
+-- Миграция для добавления A/B тестирования в алгоритмы рекомендаций
+-- Создает флаг, который определяет, должен ли пользователь быть в группе тестирования
+
+-- Добавляем флаг для A/B тестирования в таблицу пользователей
+ALTER TABLE users ADD COLUMN IF NOT EXISTS recommendation_test_group BOOLEAN DEFAULT FALSE;
+
+-- Создаем таблицу для A/B метрик, если ее еще нет
+CREATE TABLE IF NOT EXISTS recommendation_ab_metrics (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  experiment_name VARCHAR(100) NOT NULL,
-  is_in_experiment BOOLEAN NOT NULL DEFAULT FALSE,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE(user_id, experiment_name)
+  metric_date DATE NOT NULL DEFAULT CURRENT_DATE,
+  test_group BOOLEAN NOT NULL,
+  impressions INTEGER NOT NULL DEFAULT 0,
+  clicks INTEGER NOT NULL DEFAULT 0,
+  completions INTEGER NOT NULL DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  UNIQUE (metric_date, test_group)
 );
 
--- AB Test Configurations Table для хранения конфигураций экспериментов
-CREATE TABLE IF NOT EXISTS ab_test_configs (
-  id SERIAL PRIMARY KEY,
-  name VARCHAR(100) NOT NULL UNIQUE,
-  description TEXT,
-  is_enabled BOOLEAN NOT NULL DEFAULT TRUE,
-  config JSONB DEFAULT '{}',
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
+-- Создаем индексы для быстрого доступа
+CREATE INDEX IF NOT EXISTS idx_metrics_date_group 
+  ON recommendation_ab_metrics (metric_date, test_group);
 
--- AB Test Events Table для хранения событий экспериментов
-CREATE TABLE IF NOT EXISTS ab_test_events (
-  id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  experiment_name VARCHAR(100) NOT NULL,
-  event_type VARCHAR(50) NOT NULL,
-  metadata JSONB DEFAULT '{}',
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
+-- Создаем функцию для распределения пользователей по группам тестирования
+CREATE OR REPLACE FUNCTION assign_recommendation_test_group()
+RETURNS TRIGGER AS $$
+BEGIN
+  -- Распределяем 50/50 между контрольной и тестовой группами
+  NEW.recommendation_test_group := (random() > 0.5);
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
--- Индексы для оптимизации запросов
-CREATE INDEX IF NOT EXISTS idx_ab_test_flags_user_id ON ab_test_flags(user_id);
-CREATE INDEX IF NOT EXISTS idx_ab_test_flags_experiment_name ON ab_test_flags(experiment_name);
-CREATE INDEX IF NOT EXISTS idx_ab_test_events_user_id ON ab_test_events(user_id);
-CREATE INDEX IF NOT EXISTS idx_ab_test_events_experiment_name ON ab_test_events(experiment_name);
-CREATE INDEX IF NOT EXISTS idx_ab_test_events_event_type ON ab_test_events(event_type);
+-- Создаем триггер для автоматического назначения группы при создании пользователя
+DO $$BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_trigger 
+    WHERE tgname = 'trg_assign_recommendation_test_group'
+  ) THEN
+    CREATE TRIGGER trg_assign_recommendation_test_group
+    BEFORE INSERT ON users
+    FOR EACH ROW
+    EXECUTE FUNCTION assign_recommendation_test_group();
+  END IF;
+END$$;
 
--- Вставка начальных экспериментов
-INSERT INTO ab_test_configs (name, description, is_enabled, config)
-VALUES 
-  ('recommendation_diversity', 'Эксперимент по повышению разнообразия рекомендаций с учетом первичного навыка', TRUE, '{"threshold": 0.4, "description": "Фильтрация рекомендаций с modelScore < 0.4 и повышение разнообразия по первичному навыку"}')
-ON CONFLICT (name) DO UPDATE 
-SET description = EXCLUDED.description,
-    is_enabled = EXCLUDED.is_enabled,
-    config = EXCLUDED.config,
-    updated_at = CURRENT_TIMESTAMP;
+-- Создаем функцию для обновления метрик
+CREATE OR REPLACE FUNCTION update_recommendation_metrics(
+  p_test_group BOOLEAN, 
+  p_impression_delta INTEGER DEFAULT 0,
+  p_click_delta INTEGER DEFAULT 0,
+  p_completion_delta INTEGER DEFAULT 0
+)
+RETURNS VOID AS $$
+BEGIN
+  INSERT INTO recommendation_ab_metrics (
+    metric_date, 
+    test_group, 
+    impressions, 
+    clicks, 
+    completions
+  )
+  VALUES (
+    CURRENT_DATE,
+    p_test_group,
+    p_impression_delta,
+    p_click_delta,
+    p_completion_delta
+  )
+  ON CONFLICT (metric_date, test_group) 
+  DO UPDATE SET 
+    impressions = recommendation_ab_metrics.impressions + p_impression_delta,
+    clicks = recommendation_ab_metrics.clicks + p_click_delta,
+    completions = recommendation_ab_metrics.completions + p_completion_delta,
+    updated_at = NOW();
+END;
+$$ LANGUAGE plpgsql;
+
+-- Создаем представление для расчета CTR по группам
+CREATE OR REPLACE VIEW recommendation_ab_metrics_summary AS
+SELECT 
+  metric_date,
+  test_group,
+  impressions,
+  clicks,
+  completions,
+  CASE 
+    WHEN impressions = 0 THEN 0
+    ELSE ROUND((clicks::FLOAT / impressions) * 100, 2)
+  END AS ctr,
+  CASE 
+    WHEN clicks = 0 THEN 0
+    ELSE ROUND((completions::FLOAT / clicks) * 100, 2)
+  END AS completion_rate
+FROM 
+  recommendation_ab_metrics
+ORDER BY 
+  metric_date DESC, 
+  test_group;
+
+-- Обновляем существующие записи пользователей для распределения по группам
+-- Только если группа еще не назначена (recommendation_test_group IS NULL)
+DO $$
+DECLARE
+    user_count INTEGER;
+    updated_count INTEGER;
+BEGIN
+    -- Проверяем, нужно ли обновлять существующих пользователей
+    SELECT COUNT(*) INTO user_count FROM users WHERE recommendation_test_group IS NULL;
+    
+    IF user_count > 0 THEN
+        -- Обновляем записи с NULL, устанавливая случайное значение
+        UPDATE users 
+        SET recommendation_test_group = (random() > 0.5)
+        WHERE recommendation_test_group IS NULL;
+        
+        GET DIAGNOSTICS updated_count = ROW_COUNT;
+        RAISE NOTICE 'Обновлено % пользователей с назначением групп A/B тестирования', updated_count;
+    END IF;
+END$$;
