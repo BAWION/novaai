@@ -33,7 +33,7 @@ export interface SkillsDnaData {
  * @param userId ID пользователя (если не указан, используется текущий пользователь)
  * @returns Объект с данными Skills DNA и состоянием запроса
  */
-export default function useSkillsDna(userId?: number): SkillsDnaData {
+export function useSkillsDna(userId?: number): SkillsDnaData {
   const { userProfile } = useUserProfile();
   
   // Безопасно получаем пользователя из контекста авторизации, если он доступен

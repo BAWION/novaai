@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import useSkillsDna from "@/hooks/use-skills-dna";
+import { useSkillsDna } from "@/hooks/use-skills-dna";
 import { SkillsTriangleChart } from "./triangle-chart";
 import { SkillsDnaModal } from "./modal-dialog";
 

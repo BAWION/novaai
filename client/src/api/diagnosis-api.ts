@@ -521,6 +521,13 @@ export const diagnosisApi = {
             console.warn('[API] Ошибка при проверке cookies:', cookieErr);
           }
           
+          // Сохраняем код ошибки в localStorage для обработки в хуке useSkillsDna
+          try {
+            localStorage.setItem('skillsDnaLastError', 'AUTH_REQUIRED');
+          } catch (storageErr) {
+            console.warn('[API] Ошибка при сохранении кода ошибки в localStorage:', storageErr);
+          }
+          
           // Логируем детальное событие потери сессии в API диагностики
           this.logDiagnosticEvent('diagnosis_lost_session', {
             diagnosticType: results.diagnosticType,
@@ -544,12 +551,26 @@ export const diagnosisApi = {
         } else if (response.status === 403) {
           errorMessage = "Нет доступа для сохранения результатов диагностики";
           
+          // Получаем детали ошибки, чтобы понять, является ли это конфликтом ID
+          let isIdConflict = false;
+          try {
+            const errorDetails = await response.json();
+            if (errorDetails.code === 'ID_CONFLICT') {
+              isIdConflict = true;
+              // Сохраняем код ошибки в localStorage для обработки в хуке useSkillsDna
+              localStorage.setItem('skillsDnaLastError', 'ID_CONFLICT');
+              console.log('[API] Обнаружен конфликт идентификации пользователя, переключаемся в демо-режим');
+            }
+          } catch (parseError) {
+            console.warn('[API] Ошибка при разборе ответа 403:', parseError);
+          }
+          
           // Логируем событие отказа в доступе
           this.logDiagnosticEvent('diagnosis_access_denied', {
             diagnosticType: results.diagnosticType,
             skillCount: Object.keys(results.skills).length,
             status: response.status,
-            error: 'forbidden',
+            error: isIdConflict ? 'id_conflict' : 'forbidden',
             timestamp: new Date().toISOString(),
             userId: results.userId
           });

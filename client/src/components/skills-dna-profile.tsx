@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import SkillsRadarChart from "@/components/skills-radar-chart";
 import { SkillsTriangleChart } from "@/components/skills-dna";
-import useSkillsDna from "@/hooks/use-skills-dna";
+import { useSkillsDna } from "@/hooks/use-skills-dna";
 import { useUserProfile } from "@/context/user-profile-context";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
