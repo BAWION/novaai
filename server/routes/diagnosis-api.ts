@@ -19,20 +19,38 @@ const demoAuthMiddleware = (req: express.Request, res: express.Response, next: e
     console.log(`[DiagnosisAPI] Пропускаем проверку аутентификации для демо-режима (ID 999)`);
     return next();
   }
-
-  // Обычная проверка аутентификации с расширенной обработкой сессии
-  const user = req.session.user;
-  const authenticated = req.session.authenticated;
+  
+  // Проверяем конфликты идентификации
+  const requestUserId = req.body?.userId || (req.params?.userId ? parseInt(req.params.userId) : null);
   const sessionId = req.sessionID ? req.sessionID.substring(0, 8) + '...' : 'none';
+  
+  // Обычная проверка аутентификации с расширенной обработкой сессии
+  const user = req.session?.user;
+  const authenticated = req.session?.authenticated;
   
   console.log(`[DiagnosisAPI] Проверка аутентификации для сессии ${sessionId}:`, {
     hasSession: !!req.session,
-    sessionId: req.session?.id,
+    sessionId: req.sessionID,
     hasUser: !!user,
-    authenticated: authenticated,
+    authenticated,
+    requestUserId,
+    sessionUserId: user?.id,
     path: req.path,
     method: req.method
   });
+
+  // Если в запросе указан userId и он не совпадает с ID пользователя в сессии
+  if (requestUserId && user && user.id !== requestUserId) {
+    console.log(`[DiagnosisAPI] Конфликт идентификации пользователя: ${user.id} (сессия) vs ${requestUserId} (запрос)`);
+    
+    // Предлагаем перейти в демо-режим
+    return res.status(403).json({
+      message: "Конфликт идентификации пользователя",
+      code: "ID_CONFLICT",
+      details: "ID пользователя в запросе не совпадает с ID пользователя в сессии",
+      suggestion: "Используйте userId=999 для работы в демо-режиме без авторизации"
+    });
+  }
 
   if (!user || !authenticated) {
     console.log(`[DiagnosisAPI] Отказ в доступе: пользователь не авторизован (сессия ${sessionId})`);
@@ -46,7 +64,8 @@ const demoAuthMiddleware = (req: express.Request, res: express.Response, next: e
     return res.status(401).json({
       message: "Необходима авторизация",
       code: "AUTH_REQUIRED",
-      details: "Для доступа к API диагностики требуется авторизация"
+      details: "Для доступа к API диагностики требуется авторизация",
+      suggestion: "Используйте userId=999 для работы в демо-режиме без авторизации"
     });
   }
 
