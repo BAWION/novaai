@@ -57,13 +57,15 @@ describe('Полный поток диагностики навыков', () => 
       const cache = win.localStorage.getItem('skillsDnaCachedResults');
       expect(cache).to.not.be.null;
       
-      // Проверяем структуру кэшированных данных
-      const cacheData = JSON.parse(cache);
-      expect(cacheData).to.have.property('results');
-      expect(cacheData.results).to.have.property('skills');
-      expect(cacheData.results).to.have.property('diagnosticType', 'quick');
+      if (cache) { // Это условие исправляет ошибку TypeScript
+        // Проверяем структуру кэшированных данных
+        const cacheData = JSON.parse(cache);
+        expect(cacheData).to.have.property('results');
+        expect(cacheData.results).to.have.property('skills');
+        expect(cacheData.results).to.have.property('diagnosticType', 'quick');
       
-      cy.log('Кэш диагностики успешно создан в localStorage');
+        cy.log('Кэш диагностики успешно создан в localStorage');
+      }
     });
     
     // 5. Переходим к авторизации

@@ -102,6 +102,77 @@ export const diagnosisApi = {
       return null;
     }
   },
+  
+  /**
+   * Восстанавливает результаты диагностики из кэша и отправляет на сервер
+   * @param userId ID пользователя для добавления к результатам
+   * @returns Результат операции восстановления
+   */
+  async recoverCachedResults(userId: number): Promise<any> {
+    try {
+      // Проверяем наличие кэшированных результатов
+      const cachedData = this.getCachedDiagnosticResults();
+      if (!cachedData) {
+        console.log('[API] Кэшированные результаты диагностики не найдены');
+        return null;
+      }
+      
+      const startTime = Date.now();
+      
+      // Добавляем ID пользователя к результатам
+      const results = {
+        ...cachedData.results,
+        userId
+      };
+      
+      console.log('[API] Восстановление кэшированных результатов диагностики:', {
+        userId,
+        skillsCount: Object.keys(results.skills).length,
+        cacheAge: new Date().getTime() - new Date(cachedData.timestamp).getTime()
+      });
+      
+      // Отправляем результаты на сервер
+      try {
+        const savedResults = await this.saveResults(results);
+        
+        // Вычисляем время восстановления
+        const recoveryTimeMs = Date.now() - startTime;
+        
+        // Логируем успешное восстановление
+        this.logDiagnosticEvent('diagnosis_recovered', {
+          diagnosticType: results.diagnosticType,
+          skillCount: Object.keys(results.skills).length,
+          userId,
+          cacheAge: new Date().getTime() - new Date(cachedData.timestamp).getTime(),
+          recoveryTimeMs,
+          success: true,
+          timestamp: new Date().toISOString()
+        });
+        
+        return savedResults;
+      } catch (err) {
+        // Преобразуем ошибку в понятный формат
+        const errorMessage = err instanceof Error ? err.message : 'Неизвестная ошибка';
+        
+        // Логируем неудачное восстановление
+        this.logDiagnosticEvent('diagnosis_recovered', {
+          diagnosticType: results.diagnosticType,
+          skillCount: Object.keys(results.skills).length,
+          userId,
+          cacheAge: new Date().getTime() - new Date(cachedData.timestamp).getTime(),
+          recoveryTimeMs: Date.now() - startTime,
+          success: false,
+          error: errorMessage,
+          timestamp: new Date().toISOString()
+        });
+        
+        throw err;
+      }
+    } catch (error) {
+      console.error('[API] Ошибка восстановления кэшированных результатов диагностики:', error);
+      throw error;
+    }
+  },
 
   /**
    * Очищает кэшированные результаты диагностики
@@ -164,6 +235,15 @@ export const diagnosisApi = {
       if (!results.userId) {
         // Кэшируем результаты при отсутствии userId для будущего воспроизведения после авторизации
         this.cacheDiagnosticResults(results);
+        
+        // Логируем событие кэширования диагностики для мониторинга
+        this.logDiagnosticEvent('diagnosis_cached', {
+          diagnosticType: results.diagnosticType,
+          skillCount: Object.keys(results.skills).length,
+          reason: 'no_user_id',
+          timestamp: new Date().toISOString()
+        });
+        
         const error = new Error("ID пользователя отсутствует. Необходима авторизация для сохранения результатов.");
         console.error('[API] Ошибка валидации запроса: отсутствует ID пользователя, результаты кэшированы');
         throw error;
@@ -220,10 +300,29 @@ export const diagnosisApi = {
         if (response.status === 401) {
           // Кэшируем при 401, чтобы восстановить после авторизации
           this.cacheDiagnosticResults(results);
+          
+          // Логируем событие потери сессии в API диагностики
+          this.logDiagnosticEvent('diagnosis_lost_session', {
+            diagnosticType: results.diagnosticType,
+            skillCount: Object.keys(results.skills).length,
+            status: response.status,
+            error: 'unauthorized',
+            timestamp: new Date().toISOString()
+          });
+          
           console.log('[API] Статус 401, результаты диагностики кэшированы для последующего воспроизведения');
           errorMessage = "Необходима авторизация для сохранения результатов диагностики";
         } else if (response.status === 403) {
           errorMessage = "Нет доступа для сохранения результатов диагностики";
+          
+          // Логируем событие отказа в доступе
+          this.logDiagnosticEvent('diagnosis_lost_session', {
+            diagnosticType: results.diagnosticType,
+            skillCount: Object.keys(results.skills).length,
+            status: response.status,
+            error: 'forbidden',
+            timestamp: new Date().toISOString()
+          });
         } else if (response.status === 400) {
           errorMessage = "Некорректные данные диагностики";
         }
@@ -236,6 +335,19 @@ export const diagnosisApi = {
       
       const data = await response.json();
       console.log('[API] Успешный ответ от сервера:', data);
+      
+      // Логируем успешное завершение диагностики
+      this.logDiagnosticEvent('diagnosis_completed', {
+        diagnosticType: results.diagnosticType,
+        skillCount: Object.keys(results.skills).length,
+        primarySkills: Object.entries(results.skills)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 3)
+          .map(([name]) => name),
+        userId: results.userId,
+        timestamp: new Date().toISOString()
+      });
+      
       return data;
     } catch (error) {
       console.error('[API] Исключение при сохранении результатов диагностики:', error);
