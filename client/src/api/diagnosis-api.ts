@@ -53,19 +53,60 @@ export const diagnosisApi = {
    */
   cacheDiagnosticResults(results: DiagnosisResult): void {
     try {
+      // Детальное логирование для отладки
+      console.log('[API] Начинаем кэширование результатов диагностики:', {
+        hasResults: !!results,
+        skillsCount: results.skills ? Object.keys(results.skills).length : 0,
+        type: results.diagnosticType,
+        browser: navigator.userAgent
+      });
+      
       // Сохраняем полную копию результатов диагностики в localStorage
       const cacheData = {
         timestamp: new Date().toISOString(),
         results: { ...results },
         cachingReason: "pending_auth",
-        cached: true
+        cached: true,
+        from: window.location.pathname // Добавляем информацию о странице, с которой кэшировались данные
       };
       
       // Используем специальный ключ, который будет проверяться после успешной авторизации
       localStorage.setItem('skillsDnaCachedResults', JSON.stringify(cacheData));
-      console.log('[API] Результаты диагностики кэшированы в localStorage для будущего воспроизведения');
+      
+      // Добавляем дополнительную надежность с дублирующим ключом
+      try {
+        localStorage.setItem('skillsDnaCachedResults_backup', JSON.stringify(cacheData));
+      } catch (backupError) {
+        console.warn('[API] Не удалось создать резервную копию кэшированных результатов:', backupError);
+      }
+      
+      // Логируем событие кэширования для аналитики
+      this.logDiagnosticEvent('diagnosis_cached', {
+        diagnosticType: results.diagnosticType,
+        skillCount: Object.keys(results.skills).length,
+        page: window.location.pathname,
+        timestamp: new Date().toISOString()
+      });
+      
+      console.log('[API] Результаты диагностики успешно кэшированы в localStorage для будущего воспроизведения');
     } catch (error) {
       console.error('[API] Ошибка при кэшировании результатов диагностики:', error);
+      
+      // Пытаемся использовать упрощенный вариант в случае ошибки
+      try {
+        const simplifiedData = {
+          timestamp: new Date().toISOString(),
+          results: {
+            userId: results.userId,
+            skills: { ...results.skills },
+            diagnosticType: results.diagnosticType
+          }
+        };
+        localStorage.setItem('skillsDnaCachedResults_simple', JSON.stringify(simplifiedData));
+        console.log('[API] Создана упрощенная резервная копия результатов диагностики');
+      } catch (fallbackError) {
+        console.error('[API] Не удалось создать даже упрощенную копию:', fallbackError);
+      }
     }
   },
 
@@ -87,16 +128,73 @@ export const diagnosisApi = {
    * Получает кэшированные результаты диагностики
    * @returns Кэшированные результаты или null
    */
-  getCachedDiagnosticResults(): { results: DiagnosisResult, timestamp: string } | null {
+  getCachedDiagnosticResults(): { results: DiagnosisResult, timestamp: string, from?: string } | null {
     try {
+      // Попытка получить данные из основного хранилища
       const cachedDataString = localStorage.getItem('skillsDnaCachedResults');
-      if (!cachedDataString) return null;
       
-      const cachedData = JSON.parse(cachedDataString);
-      return {
-        results: cachedData.results,
-        timestamp: cachedData.timestamp
-      };
+      // Если основное хранилище не содержит данных, проверяем резервную копию
+      if (!cachedDataString) {
+        console.log('[API] Основное хранилище не содержит кэшированных результатов, проверяем резервное...');
+        
+        // Проверяем резервную копию
+        const backupDataString = localStorage.getItem('skillsDnaCachedResults_backup');
+        if (backupDataString) {
+          console.log('[API] Найдена резервная копия кэшированных результатов');
+          
+          try {
+            const backupData = JSON.parse(backupDataString);
+            
+            // Восстанавливаем основную копию из резервной
+            localStorage.setItem('skillsDnaCachedResults', backupDataString);
+            console.log('[API] Основное хранилище восстановлено из резервной копии');
+            
+            return {
+              results: backupData.results,
+              timestamp: backupData.timestamp,
+              from: backupData.from
+            };
+          } catch (parseError) {
+            console.error('[API] Ошибка при разборе резервной копии:', parseError);
+          }
+        }
+        
+        // Если резервная копия не помогла, проверяем упрощенную копию
+        const simpleDataString = localStorage.getItem('skillsDnaCachedResults_simple');
+        if (simpleDataString) {
+          console.log('[API] Найдена упрощенная копия кэшированных результатов');
+          
+          try {
+            const simpleData = JSON.parse(simpleDataString);
+            return {
+              results: simpleData.results,
+              timestamp: simpleData.timestamp,
+              from: 'simplified_backup'
+            };
+          } catch (parseError) {
+            console.error('[API] Ошибка при разборе упрощенной копии:', parseError);
+          }
+        }
+        
+        return null;
+      }
+      
+      // Основное хранилище содержит данные
+      try {
+        const cachedData = JSON.parse(cachedDataString);
+        console.log('[API] Успешно получены кэшированные результаты диагностики');
+        
+        return {
+          results: cachedData.results,
+          timestamp: cachedData.timestamp,
+          from: cachedData.from
+        };
+      } catch (parseError) {
+        console.error('[API] Ошибка при разборе данных из основного хранилища:', parseError);
+        
+        // Пробуем восстановить из резервной копии
+        return tryRecoverFromBackup();
+      }
     } catch (error) {
       console.error('[API] Ошибка при получении кэшированных результатов диагностики:', error);
       return null;
