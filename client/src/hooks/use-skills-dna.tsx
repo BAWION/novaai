@@ -58,11 +58,34 @@ export default function useSkillsDna(userId?: number): SkillsDnaData {
     console.log("[useSkillsDna] AuthContext недоступен:", error.message);
   }
   
-  // Приоритет: переданный userId -> ID из контекста auth -> ID из профиля -> демо-пользователь (999)
-  let currentUserId = userId || authUser?.id || userProfile?.userId;
+  // Получаем ID пользователя с учетом различных приоритетов
+  const providedUserId = userId;
+  const authUserId = authUser?.id;
+  const profileUserId = userProfile?.userId;
   
-  // Если пользователь не определен, включаем демо-режим с userId = 999
-  const demoMode = !currentUserId;
+  // Проверяем наличие конфликтов идентификации
+  let isConflictingIds = false;
+  if (providedUserId && authUserId && providedUserId !== authUserId) {
+    console.warn("[useSkillsDna] Конфликт ID пользователя: переданный ID не соответствует ID в контексте авторизации");
+    isConflictingIds = true;
+  }
+  
+  // Определяем приоритет: переданный userId -> ID из контекста auth -> ID из профиля -> демо-пользователь (999)
+  let currentUserId = providedUserId || authUserId || profileUserId;
+  
+  // Если пользователь не определен или есть конфликт ID, включаем демо-режим с userId = 999
+  let demoMode = !currentUserId || isConflictingIds;
+  
+  // Принудительный переход в демо-режим также происходит, если мы получили ошибку 403 (ID_CONFLICT)
+  // или 401 (AUTH_REQUIRED) при последнем запросе данных
+  const lastError = localStorage.getItem('skillsDnaLastError');
+  if (lastError && (lastError === 'ID_CONFLICT' || lastError === 'AUTH_REQUIRED')) {
+    console.log("[useSkillsDna] Переключение в демо-режим из-за предыдущей ошибки:", lastError);
+    demoMode = true;
+    // Сбрасываем ошибку, чтобы не входить в бесконечный цикл
+    localStorage.removeItem('skillsDnaLastError');
+  }
+  
   if (demoMode) {
     currentUserId = 999; // ID для демо-пользователя/администратора
   }
