@@ -276,8 +276,16 @@ export const diagnosisApi = {
       
       // Более детальное логирование при успешном получении данных
       if (result.data && result.data.length > 0) {
+        // Получаем уникальные категории с помощью объекта для избежания проблем с Set
+        const uniqueCategories: {[key: string]: boolean} = {};
+        result.data.forEach((item: any) => {
+          if (item && item.category) {
+            uniqueCategories[item.category] = true;
+          }
+        });
+        
         console.log('[API] Категории навыков в профиле:', 
-          [...new Set(result.data.map((item: any) => item.category))].join(', '));
+          Object.keys(uniqueCategories).join(', '));
         
         // Логируем несколько навыков с наивысшим прогрессом
         const topSkills = result.data
