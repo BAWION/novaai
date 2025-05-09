@@ -231,8 +231,18 @@ export const diagnosisApi = {
    */
   async saveResults(results: DiagnosisResult): Promise<any> {
     try {
+      console.log('[API-DEBUG] Вызов saveResults с данными:', {
+        hasUserId: !!results.userId,
+        userId: results.userId,
+        skillsCount: results.skills ? Object.keys(results.skills).length : 0,
+        diagnosticType: results.diagnosticType,
+        timestamp: new Date().toISOString()
+      });
+    
       // Проверяем, что у нас есть ID пользователя
       if (!results.userId) {
+        console.warn('[API-DEBUG] ID пользователя отсутствует при сохранении результатов, кэширование...');
+        
         // Кэшируем результаты при отсутствии userId для будущего воспроизведения после авторизации
         this.cacheDiagnosticResults(results);
         
@@ -248,6 +258,8 @@ export const diagnosisApi = {
         console.error('[API] Ошибка валидации запроса: отсутствует ID пользователя, результаты кэшированы');
         throw error;
       }
+      
+      console.log('[API-DEBUG] ID пользователя присутствует:', results.userId);
       
       // Проверяем, что у нас есть навыки для сохранения
       if (!results.skills || Object.keys(results.skills).length === 0) {

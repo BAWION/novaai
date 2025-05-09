@@ -15,14 +15,19 @@ export async function apiRequest(
   console.log(`API Request: ${method} ${url}`, data || '');
   
   try {
+    // Расширенное логирование состояния документа и кук для отладки проблем аутентификации
+    console.log(`[API-DEBUG] Cookies при отправке запроса:`, document.cookie ? document.cookie : 'нет кук');
+    
     const res = await fetch(url, {
       method,
       headers: data ? { "Content-Type": "application/json" } : {},
       body: data ? JSON.stringify(data) : undefined,
-      credentials: "include",
+      credentials: "include", // Всегда включаем куки в запросы
     });
 
     console.log(`API Response: ${method} ${url} - Status: ${res.status} ${res.statusText}`);
+    console.log(`[API-DEBUG] Заголовки ответа для ${method} ${url}:`, 
+      Array.from(res.headers.entries()).map(([key, value]) => `${key}: ${value}`).join(', '));
     
     if (!res.ok) {
       console.error(`API Error: ${method} ${url} - Status: ${res.status} ${res.statusText}`);
