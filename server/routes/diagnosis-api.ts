@@ -38,15 +38,22 @@ router.post("/results", async (req: Request, res: Response) => {
     // Проверка является ли запрос для специального пользователя с ID 999 (админ/демо)
     const isDemo = req.body.userId === 999;
     
-    // Проверка аутентификации с исчерпывающим выводом информации
-    const user = req.session.user;
+    // Улучшенная проверка аутентификации с исчерпывающим выводом информации
+    const user = req.session?.user;
+    
+    // Расширенное логирование всей сессии для отладки
+    console.log("[API] POST /api/diagnosis/results - Детали сессии:", {
+      hasSession: !!req.session,
+      sessionId: req.session?.id,
+      authenticated: req.session?.authenticated,
+      sessionKeys: req.session ? Object.keys(req.session) : [],
+      cookiePresent: !!req.headers.cookie,
+      cookieHeader: req.headers.cookie?.substring(0, 50) + '...',
+      isDemo
+    });
+    
     if (!user && !isDemo) {
-      console.error("[API] POST /api/diagnosis/results - Отказ: пользователь не авторизован", {
-        sessionId: req.session.id,
-        hasSession: !!req.session,
-        sessionKeys: req.session ? Object.keys(req.session) : [],
-        isDemo
-      });
+      console.error("[API] POST /api/diagnosis/results - Отказ: пользователь не авторизован");
       
       return res.status(401).json({ 
         message: "Необходима авторизация для сохранения результатов диагностики",
