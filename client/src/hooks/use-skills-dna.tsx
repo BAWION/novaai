@@ -75,6 +75,13 @@ export function useSkillsDna(userId?: number): SkillsDnaData {
   
   // Если пользователь не определен или есть конфликт ID, включаем демо-режим с userId = 999
   let demoMode = !currentUserId || isConflictingIds;
+  let demoReason = '';
+  
+  if (!currentUserId) {
+    demoReason = 'пользователь не определен';
+  } else if (isConflictingIds) {
+    demoReason = 'конфликт идентификаторов пользователя';
+  }
   
   // Принудительный переход в демо-режим также происходит, если мы получили ошибку 403 (ID_CONFLICT)
   // или 401 (AUTH_REQUIRED) при последнем запросе данных
@@ -82,12 +89,17 @@ export function useSkillsDna(userId?: number): SkillsDnaData {
   if (lastError && (lastError === 'ID_CONFLICT' || lastError === 'AUTH_REQUIRED')) {
     console.log("[useSkillsDna] Переключение в демо-режим из-за предыдущей ошибки:", lastError);
     demoMode = true;
+    demoReason = lastError === 'ID_CONFLICT' 
+      ? 'конфликт ID на сервере'
+      : 'требуется авторизация';
+    
     // Сбрасываем ошибку, чтобы не входить в бесконечный цикл
     localStorage.removeItem('skillsDnaLastError');
   }
   
   if (demoMode) {
     currentUserId = 999; // ID для демо-пользователя/администратора
+    console.log(`[useSkillsDna] Активирован демо-режим (userId=999). Причина: ${demoReason}`);
   }
   
   // Выводим отладочную информацию
