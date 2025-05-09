@@ -25,6 +25,73 @@ export interface DiagnosisResult {
  */
 export const diagnosisApi = {
   /**
+   * Кэширует диагностические данные в localStorage для последующего воспроизведения
+   * @param results Результаты диагностики 
+   */
+  cacheDiagnosticResults(results: DiagnosisResult): void {
+    try {
+      // Сохраняем полную копию результатов диагностики в localStorage
+      const cacheData = {
+        timestamp: new Date().toISOString(),
+        results: { ...results },
+        cachingReason: "pending_auth",
+        cached: true
+      };
+      
+      // Используем специальный ключ, который будет проверяться после успешной авторизации
+      localStorage.setItem('skillsDnaCachedResults', JSON.stringify(cacheData));
+      console.log('[API] Результаты диагностики кэшированы в localStorage для будущего воспроизведения');
+    } catch (error) {
+      console.error('[API] Ошибка при кэшировании результатов диагностики:', error);
+    }
+  },
+
+  /**
+   * Проверяет наличие кэшированных результатов диагностики
+   * @returns Наличие кэшированных результатов
+   */
+  hasCachedDiagnosticResults(): boolean {
+    try {
+      const cachedData = localStorage.getItem('skillsDnaCachedResults');
+      return !!cachedData;
+    } catch (error) {
+      console.error('[API] Ошибка при проверке кэшированных результатов диагностики:', error);
+      return false;
+    }
+  },
+
+  /**
+   * Получает кэшированные результаты диагностики
+   * @returns Кэшированные результаты или null
+   */
+  getCachedDiagnosticResults(): { results: DiagnosisResult, timestamp: string } | null {
+    try {
+      const cachedDataString = localStorage.getItem('skillsDnaCachedResults');
+      if (!cachedDataString) return null;
+      
+      const cachedData = JSON.parse(cachedDataString);
+      return {
+        results: cachedData.results,
+        timestamp: cachedData.timestamp
+      };
+    } catch (error) {
+      console.error('[API] Ошибка при получении кэшированных результатов диагностики:', error);
+      return null;
+    }
+  },
+
+  /**
+   * Очищает кэшированные результаты диагностики
+   */
+  clearCachedDiagnosticResults(): void {
+    try {
+      localStorage.removeItem('skillsDnaCachedResults');
+      console.log('[API] Кэшированные результаты диагностики очищены');
+    } catch (error) {
+      console.error('[API] Ошибка при очистке кэшированных результатов диагностики:', error);
+    }
+  },
+  /**
    * Инициализирует демо-данные для пользователя с ID 999
    * @returns Результат инициализации
    */
@@ -72,8 +139,10 @@ export const diagnosisApi = {
     try {
       // Проверяем, что у нас есть ID пользователя
       if (!results.userId) {
+        // Кэшируем результаты при отсутствии userId для будущего воспроизведения после авторизации
+        this.cacheDiagnosticResults(results);
         const error = new Error("ID пользователя отсутствует. Необходима авторизация для сохранения результатов.");
-        console.error('[API] Ошибка валидации запроса: отсутствует ID пользователя');
+        console.error('[API] Ошибка валидации запроса: отсутствует ID пользователя, результаты кэшированы');
         throw error;
       }
       
@@ -126,6 +195,9 @@ export const diagnosisApi = {
         
         // Особая обработка для разных статусов ошибок
         if (response.status === 401) {
+          // Кэшируем при 401, чтобы восстановить после авторизации
+          this.cacheDiagnosticResults(results);
+          console.log('[API] Статус 401, результаты диагностики кэшированы для последующего воспроизведения');
           errorMessage = "Необходима авторизация для сохранения результатов диагностики";
         } else if (response.status === 403) {
           errorMessage = "Нет доступа для сохранения результатов диагностики";
@@ -135,6 +207,9 @@ export const diagnosisApi = {
         
         throw new Error(`${errorMessage}. ${errorDetails}`);
       }
+      
+      // При успешном сохранении очищаем кэш
+      this.clearCachedDiagnosticResults();
       
       const data = await response.json();
       console.log('[API] Успешный ответ от сервера:', data);
