@@ -1,4 +1,27 @@
 import { Request, Response, NextFunction } from 'express';
+import { Session } from 'express-session';
+
+/**
+ * Расширяем типы сессии для наших дополнительных полей
+ */
+declare module 'express-session' {
+  interface Session {
+    user?: {
+      id: number;
+      username: string;
+      email?: string;
+      role?: string;
+    };
+    authenticated?: boolean;
+    authError?: string;
+    lastActivity?: string;
+    createdAt?: string;
+    userAgent?: string;
+    passport?: {
+      user: number;
+    };
+  }
+}
 
 /**
  * Middleware для аутентификации пользователей
@@ -10,22 +33,40 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
   const requestPath = `${req.method} ${req.originalUrl || req.path}`;
   const sessionId = req.sessionID ? req.sessionID : 'none';
   
-  // Подробное логирование запроса для диагностики
+  // Подробное логирование запроса для диагностики с улучшенной информацией о куках
   console.log(`[Auth Debug] Request: ${requestPath}`);
-  console.log(`[Auth Debug] Cookies: ${req.headers.cookie || 'undefined'}`);
+  
+  // Проверяем наличие кук в запросе
+  const hasCookies = !!req.headers.cookie;
+  const cookieInfo = hasCookies ? req.headers.cookie.substring(0, 80) + '...' : 'куки отсутствуют';
+  console.log(`[Auth Debug] Cookies Present: ${hasCookies}, Value: ${cookieInfo}`);
+  
+  // Проверяем детали сессии
   console.log(`[Auth Debug] Session ID: ${sessionId}`);
-  console.log(`[Auth Debug] Session Content:`, req.session ? Object.keys(req.session) : 'null');
+  console.log(`[Auth Debug] Session Keys:`, req.session ? Object.keys(req.session) : 'null');
+  
+  // Добавляем информацию о заголовках запроса для диагностики проблем с куками
+  console.log(`[Auth Debug] Headers: ${JSON.stringify({
+    origin: req.headers.origin || 'none',
+    referer: req.headers.referer || 'none',
+    userAgent: req.headers['user-agent'] || 'none'
+  })}`);
   
   // Проверка на наличие данных Passport (может быть в разных местах)
   if (req.session) {
-    if (req.session.passport) {
+    // Проверка passport данных
+    const hasPassport = !!req.session.passport;
+    if (hasPassport) {
       console.log(`[Auth Debug] Passport Data:`, req.session.passport);
+    } else {
+      console.log(`[Auth Debug] Passport Data: отсутствует`);
     }
     
     // Дополнительные проверки данных сессии
     console.log(`[Auth Debug] Session User:`, req.session.user ? `ID: ${req.session.user.id}` : 'отсутствует');
     console.log(`[Auth Debug] Session Auth:`, req.session.authenticated ? 'true' : 'false или отсутствует');
     console.log(`[Auth Debug] Session Last Activity:`, req.session.lastActivity || 'отсутствует');
+    console.log(`[Auth Debug] Session Created:`, req.session.createdAt || 'отсутствует');
   }
   
   // Проверяем наличие сессии
@@ -72,15 +113,40 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
   // При каждом запросе обновляем сессию для продления срока действия
   req.session.touch();
   
-  // Дополняем данные сессии временем последнего использования
-  req.session.lastActivity = new Date().toISOString();
+  // Дополняем данные сессии временем последнего использования и другой полезной информацией
+  const now = new Date();
+  req.session.lastActivity = now.toISOString();
   
-  // Сохраняем сессию асинхронно, не блокируя основной поток
-  req.session.save((err) => {
-    if (err) {
-      console.error(`[Auth] Ошибка при обновлении сессии для ${user.username}:`, err);
-    }
-  });
+  // Добавляем дополнительные данные при первом обращении
+  if (!req.session.createdAt) {
+    req.session.createdAt = now.toISOString();
+    req.session.userAgent = req.headers['user-agent'] || 'unknown';
+    console.log(`[Auth] Создана новая запись в сессии для пользователя ${user.username}`);
+  }
+  
+  // Обеспечиваем наличие флага аутентификации
+  req.session.authenticated = true;
+  
+  // Сохраняем сессию асинхронно, не блокируя основной поток, с повторными попытками
+  const saveSession = (attempt = 1) => {
+    req.session.save((err) => {
+      if (err) {
+        console.error(`[Auth] Ошибка при обновлении сессии для ${user.username} (попытка ${attempt}):`, err);
+        
+        // Повторяем попытку максимум 3 раза
+        if (attempt < 3) {
+          console.log(`[Auth] Повторная попытка сохранения сессии ${attempt+1}/3...`);
+          setTimeout(() => saveSession(attempt + 1), 100 * attempt);
+        } else {
+          console.error(`[Auth] Не удалось сохранить сессию после 3 попыток`);
+        }
+      } else {
+        console.log(`[Auth] Сессия успешно обновлена для ${user.username} (ID: ${user.id})`);
+      }
+    });
+  };
+  
+  saveSession();
   
   // Логируем успешную аутентификацию
   console.log(`[Auth] Пользователь ${user.username} (ID: ${user.id}) успешно аутентифицирован для ${requestPath}`);
@@ -106,17 +172,49 @@ export const optionalAuthMiddleware = (req: Request, res: Response, next: NextFu
     // Обновляем сессию для продления срока действия только если аутентифицирован
     if (authenticated && hasUser) {
       req.session.touch();
-      req.session.lastActivity = new Date().toISOString();
       
-      req.session.save((err) => {
-        if (err) {
-          console.error(`[OptionalAuth] Ошибка при обновлении сессии:`, err);
-        } else {
-          console.log(`[OptionalAuth] Сессия ${sessionId} обновлена успешно для пользователя ${req.session.user?.username}`);
-        }
-      });
+      // Обновляем временные метки и важную информацию для диагностики
+      const now = new Date();
+      req.session.lastActivity = now.toISOString();
+      
+      // Добавляем дополнительные данные при первом обращении
+      if (!req.session.createdAt) {
+        req.session.createdAt = now.toISOString();
+        req.session.userAgent = req.headers['user-agent'] || 'unknown';
+        console.log(`[OptionalAuth] Создана новая запись в сессии для пользователя ${req.session.user?.username}`);
+      }
+      
+      // Используем тот же механизм повторных попыток как в основном middleware
+      const saveSession = (attempt = 1) => {
+        req.session.save((err) => {
+          if (err) {
+            console.error(`[OptionalAuth] Ошибка при обновлении сессии (попытка ${attempt}):`, err);
+            
+            // Повторяем попытку максимум 3 раза
+            if (attempt < 3) {
+              console.log(`[OptionalAuth] Повторная попытка сохранения сессии ${attempt+1}/3...`);
+              setTimeout(() => saveSession(attempt + 1), 100 * attempt);
+            } else {
+              console.error(`[OptionalAuth] Не удалось сохранить сессию после 3 попыток`);
+            }
+          } else {
+            console.log(`[OptionalAuth] Сессия ${sessionId} обновлена успешно для пользователя ${req.session.user?.username}`);
+          }
+        });
+      };
+      
+      saveSession();
     } else {
       console.log(`[OptionalAuth] Сессия ${sessionId} существует, но пользователь не аутентифицирован (auth: ${authenticated}, user: ${hasUser})`);
+      
+      // Логируем детали неаутентифицированной сессии
+      console.log(`[OptionalAuth] Детали неаутентифицированной сессии:`, {
+        sessionId,
+        keys: Object.keys(req.session),
+        authenticated,
+        hasUser,
+        hasCookies: !!req.headers.cookie
+      });
     }
   } else {
     console.log(`[OptionalAuth] Сессия отсутствует для запроса ${req.method} ${req.path}`);
