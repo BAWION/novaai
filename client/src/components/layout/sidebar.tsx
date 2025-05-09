@@ -148,7 +148,6 @@ export function Sidebar() {
     { icon: "fa-book", label: "Курсы", to: "/courses" },
     { icon: "fa-save", label: "Хранилище знаний", to: "/knowledge-vault" },
     { icon: "fa-brain", label: "Gap-анализ", to: "/gap-analysis" },
-    { icon: "fa-clock", label: "Экономия времени", to: "/time-saved" },
     { icon: "fa-robot", label: "AI-ассистент", to: "/ai-assistant" },
     { icon: "fa-users", label: "Сообщество", to: "/community" },
     { icon: "fa-briefcase", label: "Business AI", to: "/business" },

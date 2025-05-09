@@ -15,6 +15,7 @@ import { WelcomeModal } from "@/components/onboarding/welcome-modal";
 import { CompactSkillsDnaCard } from "@/components/skills-dna";
 import { SkillsDnaProfile } from "@/components/skills-dna-profile";
 import { CourseCard } from "@/components/courses/course-card";
+import { TimeSavedPage } from "@/components/time-saved/TimeSavedPage";
 import { 
   Dialog,
   DialogContent,
@@ -1578,6 +1579,23 @@ export default function Dashboard() {
               </button>
             </motion.div>
           </div>
+        </div>
+        
+        {/* Раздел Экономия времени, перенесенный из сайдбара */}
+        <div className="mt-16 border-t border-white/10 pt-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className="text-2xl font-bold mb-6 text-white flex items-center">
+              <i className="fas fa-clock mr-3 text-primary/80"></i>
+              Экономия времени
+            </h2>
+            <div className="bg-space-800/50 backdrop-blur-sm border border-white/10 p-6 rounded-xl">
+              <TimeSavedPage />
+            </div>
+          </motion.div>
         </div>
       </div>
     </DashboardLayout>
