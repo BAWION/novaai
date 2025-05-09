@@ -11,6 +11,7 @@ import {
   UserGoal 
 } from "@/lib/constants";
 import { diagnosisApi } from "@/api/diagnosis-api";
+import { queryClient } from "@/lib/queryClient";
 import SkillsRadarChart from "@/components/skills-radar-chart";
 import SimpleRadarChart from "@/components/skills-radar-simple";
 
@@ -504,6 +505,10 @@ export default function DeepDiagnosisPage() {
                       // Отправляем результаты в систему Skills DNA
                       const result = await diagnosisApi.saveResults(diagnosisResult);
                       console.log("Результаты глубокой диагностики сохранены в Skills DNA:", result);
+                      
+                      // Инвалидируем кэш React Query для обновления данных SkillsDNA на мостике
+                      queryClient.invalidateQueries({ queryKey: ['skillsDna', 'progress', userProfile.userId] });
+                      queryClient.invalidateQueries({ queryKey: ['skillsDna', 'summary', userProfile.userId] });
                     } else {
                       console.warn("Пользователь не авторизован, результаты не будут сохранены в Skills DNA");
                     }
