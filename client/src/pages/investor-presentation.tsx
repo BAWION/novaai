@@ -206,58 +206,66 @@ export default function InvestorPresentation() {
       component: (
         <div className="grid grid-cols-2 gap-8 h-full">
           <div className="space-y-6">
-            <h3 className="text-3xl font-bold text-red-600">Текущие проблемы рынка</h3>
+            <h3 className="text-3xl font-bold text-red-600 mb-6">Текущие проблемы рынка</h3>
             
             <div className="space-y-4">
               <motion.div 
-                className="flex items-start space-x-4"
+                className="p-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg"
                 initial={{ x: -50, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: 0.2 }}
               >
-                <AlertCircle className="w-6 h-6 text-red-500 mt-1" />
-                <div>
-                  <h4 className="font-semibold">Отсутствие персонализации</h4>
-                  <p className="text-gray-600">Один курс для всех уровней подготовки</p>
+                <div className="flex items-start space-x-3">
+                  <AlertCircle className="w-6 h-6 text-red-500 mt-1" />
+                  <div>
+                    <h4 className="font-bold text-red-800 text-lg">Отсутствие персонализации</h4>
+                    <p className="text-red-700 mt-1">Один курс для всех уровней подготовки</p>
+                  </div>
                 </div>
               </motion.div>
               
               <motion.div 
-                className="flex items-start space-x-4"
+                className="p-4 bg-orange-50 border-l-4 border-orange-500 rounded-r-lg"
                 initial={{ x: -50, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: 0.4 }}
               >
-                <AlertCircle className="w-6 h-6 text-red-500 mt-1" />
-                <div>
-                  <h4 className="font-semibold">Высокий барьер входа</h4>
-                  <p className="text-gray-600">Сложно понять с чего начать изучение ИИ</p>
+                <div className="flex items-start space-x-3">
+                  <AlertCircle className="w-6 h-6 text-orange-500 mt-1" />
+                  <div>
+                    <h4 className="font-bold text-orange-800 text-lg">Высокий барьер входа</h4>
+                    <p className="text-orange-700 mt-1">Сложно понять с чего начать изучение ИИ</p>
+                  </div>
                 </div>
               </motion.div>
               
               <motion.div 
-                className="flex items-start space-x-4"
+                className="p-4 bg-yellow-50 border-l-4 border-yellow-500 rounded-r-lg"
                 initial={{ x: -50, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: 0.6 }}
               >
-                <AlertCircle className="w-6 h-6 text-red-500 mt-1" />
-                <div>
-                  <h4 className="font-semibold">Отсутствие практики</h4>
-                  <p className="text-gray-600">Теория без реальных проектов</p>
+                <div className="flex items-start space-x-3">
+                  <AlertCircle className="w-6 h-6 text-yellow-600 mt-1" />
+                  <div>
+                    <h4 className="font-bold text-yellow-800 text-lg">Отсутствие практики</h4>
+                    <p className="text-yellow-700 mt-1">Теория без реальных проектов</p>
+                  </div>
                 </div>
               </motion.div>
               
               <motion.div 
-                className="flex items-start space-x-4"
+                className="p-4 bg-pink-50 border-l-4 border-pink-500 rounded-r-lg"
                 initial={{ x: -50, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: 0.8 }}
               >
-                <AlertCircle className="w-6 h-6 text-red-500 mt-1" />
-                <div>
-                  <h4 className="font-semibold">Дорогие курсы</h4>
-                  <p className="text-gray-600">$2000+ за специализированное обучение</p>
+                <div className="flex items-start space-x-3">
+                  <AlertCircle className="w-6 h-6 text-pink-500 mt-1" />
+                  <div>
+                    <h4 className="font-bold text-pink-800 text-lg">Дорогие курсы</h4>
+                    <p className="text-pink-700 mt-1">$2000+ за специализированное обучение</p>
+                  </div>
                 </div>
               </motion.div>
             </div>
@@ -299,19 +307,28 @@ export default function InvestorPresentation() {
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.2 }}
           >
-            <Card className="p-6 h-full bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
+            <Card className="p-6 h-full bg-gradient-to-br from-purple-50 to-purple-100 border-l-4 border-purple-500 shadow-lg">
               <div className="text-center space-y-4">
-                <div className="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center mx-auto">
+                <div className="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center mx-auto shadow-md">
                   <Brain className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-purple-800">Skills DNA</h3>
-                <p className="text-purple-700">
+                <h3 className="text-xl font-bold text-purple-900">Skills DNA</h3>
+                <p className="text-purple-800 font-medium">
                   Глубокая диагностика навыков и построение персонального профиля компетенций
                 </p>
-                <ul className="text-sm text-purple-600 space-y-1">
-                  <li>• 40+ параметров оценки</li>
-                  <li>• Визуализация навыков</li>
-                  <li>• Отслеживание прогресса</li>
+                <ul className="text-sm text-purple-700 space-y-2 font-medium">
+                  <li className="flex items-center justify-center">
+                    <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+                    40+ параметров оценки
+                  </li>
+                  <li className="flex items-center justify-center">
+                    <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+                    Визуализация навыков
+                  </li>
+                  <li className="flex items-center justify-center">
+                    <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+                    Отслеживание прогресса
+                  </li>
                 </ul>
               </div>
             </Card>
@@ -323,19 +340,28 @@ export default function InvestorPresentation() {
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.4 }}
           >
-            <Card className="p-6 h-full bg-gradient-to-br from-cyan-50 to-cyan-100 border-cyan-200">
+            <Card className="p-6 h-full bg-gradient-to-br from-cyan-50 to-cyan-100 border-l-4 border-cyan-500 shadow-lg">
               <div className="text-center space-y-4">
-                <div className="w-16 h-16 bg-cyan-500 rounded-full flex items-center justify-center mx-auto">
+                <div className="w-16 h-16 bg-cyan-500 rounded-full flex items-center justify-center mx-auto shadow-md">
                   <Target className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-cyan-800">Адаптивные курсы</h3>
-                <p className="text-cyan-700">
+                <h3 className="text-xl font-bold text-cyan-900">Адаптивные курсы</h3>
+                <p className="text-cyan-800 font-medium">
                   ИИ создает уникальную образовательную траекторию для каждого студента
                 </p>
-                <ul className="text-sm text-cyan-600 space-y-1">
-                  <li>• Динамическая сложность</li>
-                  <li>• Персональные рекомендации</li>
-                  <li>• Микро-обучение</li>
+                <ul className="text-sm text-cyan-700 space-y-2 font-medium">
+                  <li className="flex items-center justify-center">
+                    <span className="w-2 h-2 bg-cyan-500 rounded-full mr-2"></span>
+                    Динамическая сложность
+                  </li>
+                  <li className="flex items-center justify-center">
+                    <span className="w-2 h-2 bg-cyan-500 rounded-full mr-2"></span>
+                    Персональные рекомендации
+                  </li>
+                  <li className="flex items-center justify-center">
+                    <span className="w-2 h-2 bg-cyan-500 rounded-full mr-2"></span>
+                    Микро-обучение
+                  </li>
                 </ul>
               </div>
             </Card>
@@ -347,19 +373,28 @@ export default function InvestorPresentation() {
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.6 }}
           >
-            <Card className="p-6 h-full bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+            <Card className="p-6 h-full bg-gradient-to-br from-green-50 to-green-100 border-l-4 border-green-500 shadow-lg">
               <div className="text-center space-y-4">
-                <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto">
+                <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto shadow-md">
                   <Rocket className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-green-800">AI-ассистент</h3>
-                <p className="text-green-700">
+                <h3 className="text-xl font-bold text-green-900">AI-ассистент</h3>
+                <p className="text-green-800 font-medium">
                   Персональный наставник, доступный 24/7 для поддержки и ответов
                 </p>
-                <ul className="text-sm text-green-600 space-y-1">
-                  <li>• Мгновенные ответы</li>
-                  <li>• Объяснение концепций</li>
-                  <li>• Помощь с проектами</li>
+                <ul className="text-sm text-green-700 space-y-2 font-medium">
+                  <li className="flex items-center justify-center">
+                    <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                    Мгновенные ответы
+                  </li>
+                  <li className="flex items-center justify-center">
+                    <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                    Объяснение концепций
+                  </li>
+                  <li className="flex items-center justify-center">
+                    <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                    Помощь с проектами
+                  </li>
                 </ul>
               </div>
             </Card>
@@ -662,12 +697,21 @@ export default function InvestorPresentation() {
             <div className="w-32 h-32 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full mx-auto mb-4 flex items-center justify-center">
               <span className="text-3xl font-bold text-white">CEO</span>
             </div>
-            <h3 className="text-xl font-bold">Основатель & CEO</h3>
-            <p className="text-gray-600 mb-4">Ex-Google AI, Stanford PhD</p>
-            <div className="space-y-2 text-sm text-gray-600">
-              <p>• 10+ лет в Machine Learning</p>
-              <p>• Автор 20+ научных публикаций</p>
-              <p>• Руководил командой из 50+ инженеров</p>
+            <h3 className="text-xl font-bold text-gray-900">Основатель & CEO</h3>
+            <p className="text-gray-700 mb-4 font-medium">Ex-Google AI, Stanford PhD</p>
+            <div className="space-y-2 text-sm text-gray-800 font-medium">
+              <p className="flex items-center justify-center">
+                <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+                10+ лет в Machine Learning
+              </p>
+              <p className="flex items-center justify-center">
+                <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+                Автор 20+ научных публикаций
+              </p>
+              <p className="flex items-center justify-center">
+                <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+                Руководил командой из 50+ инженеров
+              </p>
             </div>
           </motion.div>
 
@@ -680,12 +724,21 @@ export default function InvestorPresentation() {
             <div className="w-32 h-32 bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-full mx-auto mb-4 flex items-center justify-center">
               <span className="text-3xl font-bold text-white">CTO</span>
             </div>
-            <h3 className="text-xl font-bold">Технический директор</h3>
-            <p className="text-gray-600 mb-4">Ex-Yandex, MIT MS</p>
-            <div className="space-y-2 text-sm text-gray-600">
-              <p>• Архитектор поисковых систем</p>
-              <p>• Эксперт по масштабируемости</p>
-              <p>• 15+ лет в разработке</p>
+            <h3 className="text-xl font-bold text-gray-900">Технический директор</h3>
+            <p className="text-gray-700 mb-4 font-medium">Ex-Yandex, MIT MS</p>
+            <div className="space-y-2 text-sm text-gray-800 font-medium">
+              <p className="flex items-center justify-center">
+                <span className="w-2 h-2 bg-cyan-500 rounded-full mr-2"></span>
+                Архитектор поисковых систем
+              </p>
+              <p className="flex items-center justify-center">
+                <span className="w-2 h-2 bg-cyan-500 rounded-full mr-2"></span>
+                Эксперт по масштабируемости
+              </p>
+              <p className="flex items-center justify-center">
+                <span className="w-2 h-2 bg-cyan-500 rounded-full mr-2"></span>
+                15+ лет в разработке
+              </p>
             </div>
           </motion.div>
 
@@ -698,12 +751,21 @@ export default function InvestorPresentation() {
             <div className="w-32 h-32 bg-gradient-to-br from-green-400 to-green-600 rounded-full mx-auto mb-4 flex items-center justify-center">
               <span className="text-3xl font-bold text-white">CPO</span>
             </div>
-            <h3 className="text-xl font-bold">Продуктовый директор</h3>
-            <p className="text-gray-600 mb-4">Ex-Coursera, Wharton MBA</p>
-            <div className="space-y-2 text-sm text-gray-600">
-              <p>• Создал 5+ EdTech продуктов</p>
-              <p>• 1M+ активных пользователей</p>
-              <p>• Эксперт по UX в образовании</p>
+            <h3 className="text-xl font-bold text-gray-900">Продуктовый директор</h3>
+            <p className="text-gray-700 mb-4 font-medium">Ex-Coursera, Wharton MBA</p>
+            <div className="space-y-2 text-sm text-gray-800 font-medium">
+              <p className="flex items-center justify-center">
+                <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                Создал 5+ EdTech продуктов
+              </p>
+              <p className="flex items-center justify-center">
+                <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                1M+ активных пользователей
+              </p>
+              <p className="flex items-center justify-center">
+                <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                Эксперт по UX в образовании
+              </p>
             </div>
           </motion.div>
         </div>
