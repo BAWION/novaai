@@ -973,7 +973,7 @@ export default function InvestorPresentation() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
+    <div className="min-h-screen bg-white">
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-6 py-4">
@@ -995,7 +995,7 @@ export default function InvestorPresentation() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="bg-gray-50 hover:bg-gray-100"
+                  className="bg-white hover:bg-gray-50 border-gray-300 text-gray-700 font-medium"
                 >
                   <Home className="w-4 h-4 mr-2" />
                   На главную
@@ -1088,18 +1088,18 @@ export default function InvestorPresentation() {
             transition={{ duration: 0.5, ease: "easeInOut" }}
             className="min-h-[600px]"
           >
-            <Card className="h-full">
-              <CardHeader className="text-center pb-6">
-                <CardTitle className="text-4xl font-bold text-gray-900">
+            <Card className="h-full bg-white shadow-lg border border-gray-200">
+              <CardHeader className="text-center pb-6 bg-white border-b border-gray-100">
+                <CardTitle className="text-4xl font-bold text-gray-900 mb-4">
                   {slides[currentSlide].title}
                 </CardTitle>
                 {slides[currentSlide].subtitle && (
-                  <p className="text-xl text-gray-600 mt-2">
+                  <p className="text-xl text-gray-800 mt-2 font-medium">
                     {slides[currentSlide].subtitle}
                   </p>
                 )}
               </CardHeader>
-              <CardContent className="pb-8">
+              <CardContent className="pb-8 bg-white">
                 {slides[currentSlide].component}
               </CardContent>
             </Card>
