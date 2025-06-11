@@ -98,9 +98,6 @@ export default function HomePage() {
           <nav className="hidden md:flex gap-6 items-center">
             <a href="#features" className="text-white/70 hover:text-white transition-colors">Возможности</a>
             <a href="#courses" className="text-white/70 hover:text-white transition-colors">Курсы</a>
-            <Link href="/investor-presentation" className="text-purple-300 hover:text-purple-200 transition-colors font-medium">
-              Для инвесторов
-            </Link>
             <a href="#screenshots" className="text-white/70 hover:text-white transition-colors">Платформа</a>
             <a href="#testimonials" className="text-white/70 hover:text-white transition-colors">Отзывы</a>
           </nav>
