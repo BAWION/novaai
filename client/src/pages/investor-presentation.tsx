@@ -832,27 +832,27 @@ export default function InvestorPresentation() {
             <h3 className="text-2xl font-bold">Milestone и метрики</h3>
             
             <div className="space-y-4">
-              <Card className="p-4 border-l-4 border-l-green-500">
-                <h4 className="font-bold text-green-800">6 месяцев</h4>
-                <ul className="text-sm text-gray-600 space-y-1">
+              <Card className="p-4 bg-green-500 border-l-4 border-l-green-700 text-white">
+                <h4 className="font-bold text-white text-lg">6 месяцев</h4>
+                <ul className="text-sm text-white space-y-2 font-medium">
                   <li>• 10,000 активных пользователей</li>
                   <li>• Запуск корпоративной версии</li>
                   <li>• Интеграция с крупными университетами</li>
                 </ul>
               </Card>
               
-              <Card className="p-4 border-l-4 border-l-blue-500">
-                <h4 className="font-bold text-blue-800">12 месяцев</h4>
-                <ul className="text-sm text-gray-600 space-y-1">
+              <Card className="p-4 bg-blue-500 border-l-4 border-l-blue-700 text-white">
+                <h4 className="font-bold text-white text-lg">12 месяцев</h4>
+                <ul className="text-sm text-white space-y-2 font-medium">
                   <li>• 50,000 активных пользователей</li>
                   <li>• $2M ARR</li>
                   <li>• Выход на самоокупаемость</li>
                 </ul>
               </Card>
               
-              <Card className="p-4 border-l-4 border-l-purple-500">
-                <h4 className="font-bold text-purple-800">18 месяцев</h4>
-                <ul className="text-sm text-gray-600 space-y-1">
+              <Card className="p-4 bg-purple-500 border-l-4 border-l-purple-700 text-white">
+                <h4 className="font-bold text-white text-lg">18 месяцев</h4>
+                <ul className="text-sm text-white space-y-2 font-medium">
                   <li>• 100,000 активных пользователей</li>
                   <li>• Экспансия в СНГ</li>
                   <li>• Подготовка к Series A</li>
