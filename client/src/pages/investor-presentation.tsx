@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -50,7 +51,9 @@ import {
   BarChart3,
   PieChart as PieChartIcon,
   Activity,
-  Briefcase
+  Briefcase,
+  Home,
+  X
 } from "lucide-react";
 
 interface Slide {
@@ -976,16 +979,31 @@ export default function InvestorPresentation() {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-lg flex items-center justify-center">
-                <Brain className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">NovaAI University</h1>
-                <p className="text-sm text-gray-600">Презентация для инвесторов</p>
-              </div>
+              <Link href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-lg flex items-center justify-center">
+                  <Brain className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-xl font-bold text-gray-900">NovaAI University</h1>
+                  <p className="text-sm text-gray-600">Презентация для инвесторов</p>
+                </div>
+              </Link>
             </div>
             
             <div className="flex items-center space-x-4">
+              <Link href="/">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="bg-gray-50 hover:bg-gray-100"
+                >
+                  <Home className="w-4 h-4 mr-2" />
+                  На главную
+                </Button>
+              </Link>
+              
+              <div className="h-6 w-px bg-gray-300"></div>
+              
               <Button
                 variant="outline"
                 size="sm"
