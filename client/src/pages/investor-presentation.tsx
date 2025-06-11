@@ -281,13 +281,13 @@ export default function InvestorPresentation() {
             </Card>
             
             <div className="mt-8 grid grid-cols-2 gap-4">
-              <Card className="p-4 text-center">
-                <h5 className="font-bold text-gray-700">85%</h5>
-                <p className="text-sm text-gray-600">недовольны темпом обучения</p>
+              <Card className="p-4 text-center bg-orange-50 border-l-4 border-orange-500 shadow-md">
+                <h5 className="font-bold text-orange-800 text-xl">85%</h5>
+                <p className="text-sm text-orange-700 font-medium">недовольны темпом обучения</p>
               </Card>
-              <Card className="p-4 text-center">
-                <h5 className="font-bold text-gray-700">78%</h5>
-                <p className="text-sm text-gray-600">хотят персонализацию</p>
+              <Card className="p-4 text-center bg-purple-50 border-l-4 border-purple-500 shadow-md">
+                <h5 className="font-bold text-purple-800 text-xl">78%</h5>
+                <p className="text-sm text-purple-700 font-medium">хотят персонализацию</p>
               </Card>
             </div>
           </div>
