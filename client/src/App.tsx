@@ -42,6 +42,7 @@ import PersonalDashboardPage from "@/pages/personal-dashboard";
 import SimulatorDemoPage from "@/pages/simulator-demo-page";
 import SkillsDnaPage from "@/pages/skills-dna";
 import TimeSavedPageRoute from "@/pages/time-saved-page";
+import InvestorPresentation from "@/pages/investor-presentation";
 
 interface ProtectedRouteProps {
   component: React.ComponentType;
@@ -95,7 +96,7 @@ function Router() {
   const isPublicPage = location === "/" || location === "/login" || location === "/register" || 
     location === "/onboarding" || location === "/onboarding-page" || location === "/quick-diagnosis" ||
     location === "/deep-diagnosis" || location === "/onboarding-intro" || location === "/register-after-onboarding" ||
-    location === "/skills-dna";
+    location === "/skills-dna" || location === "/investor-presentation";
   
   return (
     <div className="flex flex-col min-h-screen">
@@ -118,6 +119,7 @@ function Router() {
           <Route path="/quick-diagnosis" component={QuickDiagnosis} />
           <Route path="/deep-diagnosis" component={DeepDiagnosis} />
           <Route path="/skills-dna" component={SkillsDnaPage} />
+          <Route path="/investor-presentation" component={InvestorPresentation} />
           
           {/* Protected Routes */}
           <ProtectedRoute path="/dashboard" component={Dashboard} />

@@ -109,6 +109,11 @@ export function Footer() {
                     <a className="hover:text-white transition">Контакты</a>
                   </Link>
                 </li>
+                <li>
+                  <Link href="/investor-presentation">
+                    <a className="hover:text-white transition font-medium text-purple-300">Для инвесторов</a>
+                  </Link>
+                </li>
               </ul>
             </div>
           </div>
