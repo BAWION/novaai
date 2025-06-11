@@ -181,16 +181,16 @@ export default function InvestorPresentation() {
             </p>
           </div>
           
-          <div className="flex space-x-6 text-sm text-gray-500">
-            <Badge variant="outline" className="px-4 py-2">
+          <div className="flex space-x-6">
+            <Badge className="px-4 py-2 bg-purple-100 text-purple-800 border-purple-300 shadow-sm">
               <Users className="w-4 h-4 mr-2" />
               5K+ пользователей
             </Badge>
-            <Badge variant="outline" className="px-4 py-2">
+            <Badge className="px-4 py-2 bg-cyan-100 text-cyan-800 border-cyan-300 shadow-sm">
               <BookOpen className="w-4 h-4 mr-2" />
               50+ курсов
             </Badge>
-            <Badge variant="outline" className="px-4 py-2">
+            <Badge className="px-4 py-2 bg-green-100 text-green-800 border-green-300 shadow-sm">
               <Star className="w-4 h-4 mr-2" />
               95% удовлетворенность
             </Badge>
@@ -594,54 +594,62 @@ export default function InvestorPresentation() {
               
               <div className="space-y-4">
                 <motion.div 
-                  className="flex items-start space-x-4"
+                  className="p-4 bg-green-50 border-l-4 border-green-500 rounded-r-lg"
                   initial={{ x: -50, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
                   transition={{ delay: 0.2 }}
                 >
-                  <CheckCircle className="w-6 h-6 text-green-500 mt-1" />
-                  <div>
-                    <h4 className="font-semibold text-green-800">AI-первый подход</h4>
-                    <p className="text-gray-600">Единственная платформа, где ИИ создает контент</p>
+                  <div className="flex items-start space-x-3">
+                    <CheckCircle className="w-6 h-6 text-green-500 mt-1" />
+                    <div>
+                      <h4 className="font-bold text-green-800 text-lg">AI-первый подход</h4>
+                      <p className="text-green-700 mt-1">Единственная платформа, где ИИ создает контент</p>
+                    </div>
                   </div>
                 </motion.div>
                 
                 <motion.div 
-                  className="flex items-start space-x-4"
+                  className="p-4 bg-purple-50 border-l-4 border-purple-500 rounded-r-lg"
                   initial={{ x: -50, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
                   transition={{ delay: 0.4 }}
                 >
-                  <CheckCircle className="w-6 h-6 text-green-500 mt-1" />
-                  <div>
-                    <h4 className="font-semibold text-green-800">Глубокая персонализация</h4>
-                    <p className="text-gray-600">Skills DNA анализирует 40+ параметров</p>
+                  <div className="flex items-start space-x-3">
+                    <CheckCircle className="w-6 h-6 text-purple-500 mt-1" />
+                    <div>
+                      <h4 className="font-bold text-purple-800 text-lg">Глубокая персонализация</h4>
+                      <p className="text-purple-700 mt-1">Skills DNA анализирует 40+ параметров</p>
+                    </div>
                   </div>
                 </motion.div>
                 
                 <motion.div 
-                  className="flex items-start space-x-4"
+                  className="p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg"
                   initial={{ x: -50, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
                   transition={{ delay: 0.6 }}
                 >
-                  <CheckCircle className="w-6 h-6 text-green-500 mt-1" />
-                  <div>
-                    <h4 className="font-semibold text-green-800">Российский фокус</h4>
-                    <p className="text-gray-600">Контент на русском языке с учетом локальных особенностей</p>
+                  <div className="flex items-start space-x-3">
+                    <CheckCircle className="w-6 h-6 text-blue-500 mt-1" />
+                    <div>
+                      <h4 className="font-bold text-blue-800 text-lg">Российский фокус</h4>
+                      <p className="text-blue-700 mt-1">Контент на русском языке с учетом локальных особенностей</p>
+                    </div>
                   </div>
                 </motion.div>
                 
                 <motion.div 
-                  className="flex items-start space-x-4"
+                  className="p-4 bg-orange-50 border-l-4 border-orange-500 rounded-r-lg"
                   initial={{ x: -50, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
                   transition={{ delay: 0.8 }}
                 >
-                  <CheckCircle className="w-6 h-6 text-green-500 mt-1" />
-                  <div>
-                    <h4 className="font-semibold text-green-800">Доступная цена</h4>
-                    <p className="text-gray-600">В 5-10 раз дешевле международных конкурентов</p>
+                  <div className="flex items-start space-x-3">
+                    <CheckCircle className="w-6 h-6 text-orange-500 mt-1" />
+                    <div>
+                      <h4 className="font-bold text-orange-800 text-lg">Доступная цена</h4>
+                      <p className="text-orange-700 mt-1">В 5-10 раз дешевле международных конкурентов</p>
+                    </div>
                   </div>
                 </motion.div>
               </div>
