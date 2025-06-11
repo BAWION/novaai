@@ -98,6 +98,9 @@ export default function HomePage() {
           <nav className="hidden md:flex gap-6 items-center">
             <a href="#features" className="text-white/70 hover:text-white transition-colors">Возможности</a>
             <a href="#courses" className="text-white/70 hover:text-white transition-colors">Курсы</a>
+            <Link href="/investor-presentation" className="text-purple-300 hover:text-purple-200 transition-colors font-medium">
+              Для инвесторов
+            </Link>
             <a href="#screenshots" className="text-white/70 hover:text-white transition-colors">Платформа</a>
             <a href="#testimonials" className="text-white/70 hover:text-white transition-colors">Отзывы</a>
           </nav>
@@ -718,6 +721,11 @@ export default function HomePage() {
                 <li><i className="fas fa-envelope mr-2"></i> support@novai.edu</li>
                 <li><i className="fas fa-phone mr-2"></i> +7 (800) 555-35-35</li>
                 <li><i className="fas fa-map-marker-alt mr-2"></i> Москва, Инновационный центр Сколково</li>
+                <li>
+                  <Link href="/investor-presentation" className="hover:text-white text-purple-300 font-medium">
+                    <i className="fas fa-chart-line mr-2"></i>Для инвесторов
+                  </Link>
+                </li>
               </ul>
             </div>
           </div>
