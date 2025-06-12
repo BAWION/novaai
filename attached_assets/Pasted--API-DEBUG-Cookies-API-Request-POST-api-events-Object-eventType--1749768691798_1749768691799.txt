@@ -1,0 +1,22 @@
+[API-DEBUG] Cookies при отправке запроса: нет кук
+API Request: POST /api/events 
+Object {eventType: "page_view", data: {…}, userId: 37}
+[API-DEBUG] Cookies при отправке запроса: нет кук
+API Request: POST /api/events 
+Object {eventType: "page_view", data: {…}, userId: 37}
+[API-DEBUG] Cookies при отправке запроса: нет кук
+[useSkillsDna] Источники userId: 
+Object {providedUserId: undefined, authUserId: 37, profileUserId: 37, resultUserId: 37, demoMode: false}
+API Response: GET /api/diagnosis/progress/37 - Status: 200 OK
+[API-DEBUG] Заголовки ответа для GET /api/diagnosis/progress/37: access-control-allow-credentials: true, access-control-allow-headers: Origin, X-Requested-With, Content-Type, Accept, Authorization, access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, access-control-allow-origin: *, content-length: 11, content-type: application/json; charset=utf-8, date: Thu, 12 Jun 2025 22:51:07 GMT, etag: W/"b-EFAlOux7Kcr/ZEgGkn2r+oFAbu4", replit-cluster: janeway, x-powered-by: Express, x-robots-tag: none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex, none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex
+API Response: GET /api/diagnosis/summary/37 - Status: 200 OK
+[API-DEBUG] Заголовки ответа для GET /api/diagnosis/summary/37: access-control-allow-credentials: true, access-control-allow-headers: Origin, X-Requested-With, Content-Type, Accept, Authorization, access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, access-control-allow-origin: *, content-length: 11, content-type: application/json; charset=utf-8, date: Thu, 12 Jun 2025 22:51:07 GMT, etag: W/"b-fhQcczzxGwaoxmXpXwnFoXY79UQ", replit-cluster: janeway, x-powered-by: Express, x-robots-tag: none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex, none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex
+[API] Получен прогресс пользователя: 0 записей
+[API] Данные о прогрессе отсутствуют для пользователя 37
+[API] Данные о сводке отсутствуют для пользователя 37
+API Response: POST /api/events - Status: 201 Created
+[API-DEBUG] Заголовки ответа для POST /api/events: access-control-allow-credentials: true, access-control-allow-headers: Origin, X-Requested-With, Content-Type, Accept, Authorization, access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, access-control-allow-origin: https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev, content-length: 463, content-type: application/json; charset=utf-8, date: Thu, 12 Jun 2025 22:51:07 GMT, etag: W/"1cf-Axx5uw6B8BIe6TTerVv+qGG1K/4", replit-cluster: janeway, x-powered-by: Express, x-robots-tag: none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex, none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex
+API Response: POST /api/events - Status: 201 Created
+[API-DEBUG] Заголовки ответа для POST /api/events: access-control-allow-credentials: true, access-control-allow-headers: Origin, X-Requested-With, Content-Type, Accept, Authorization, access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, access-control-allow-origin: https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev, content-length: 431, content-type: application/json; charset=utf-8, date: Thu, 12 Jun 2025 22:51:07 GMT, etag: W/"1af-k6KJUM9zjJUDR+nT01M6a90r2IQ", replit-cluster: janeway, x-powered-by: Express, x-robots-tag: none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex, none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex
+[useSkillsDna] Источники userId: 
+Object {providedUserId: undefined, authUserId: 37, profileUserId: 37, resultUserId: 37, demoMode: false}
