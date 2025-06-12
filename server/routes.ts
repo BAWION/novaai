@@ -558,8 +558,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Enhanced auth middleware for profile routes with session recovery
+  const enhancedAuthMiddleware = async (req: any, res: any, next: any) => {
+    // Проверяем наличие сессии
+    if (!req.session) {
+      return res.status(401).json({ message: "Unauthorized - Not authenticated" });
+    }
+
+    let authenticated = !!req.session.authenticated;
+    const user = req.session.user;
+
+    // Попытка восстановления сессии если есть userId но нет данных пользователя
+    if ((!user || !authenticated) && req.session.user?.id) {
+      try {
+        const userData = await storage.getUser(req.session.user.id);
+        
+        if (userData) {
+          console.log(`[ProfileAuth] Восстанавливаем сессию для пользователя ${req.session.user.id}`);
+          
+          req.session.user = {
+            id: userData.id,
+            username: userData.username,
+            email: userData.email || undefined,
+            displayName: userData.displayName || undefined,
+            role: userData.role || undefined
+          };
+          req.session.authenticated = true;
+          req.session.lastActivity = new Date().toISOString();
+          authenticated = true;
+        } else {
+          req.session.user = undefined;
+          req.session.authenticated = false;
+        }
+      } catch (error) {
+        console.error("[ProfileAuth] Ошибка при восстановлении сессии:", error);
+      }
+    }
+
+    if (!authenticated || !req.session.user) {
+      return res.status(401).json({ message: "Unauthorized - Not authenticated" });
+    }
+
+    next();
+  };
+
   // User profile routes
-  app.get("/api/profile", authMiddleware, async (req, res) => {
+  app.get("/api/profile", enhancedAuthMiddleware, async (req, res) => {
     try {
       const userId = req.session.user!.id;
       let profile = await storage.getUserProfile(userId);
@@ -632,7 +676,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  app.patch("/api/profile", authMiddleware, async (req, res) => {
+  app.patch("/api/profile", enhancedAuthMiddleware, async (req, res) => {
     try {
       const userId = req.session.user!.id;
       const updateData = req.body;
