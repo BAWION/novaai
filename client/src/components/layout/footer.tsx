@@ -110,7 +110,7 @@ export function Footer() {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/investor-presentation">
+                  <Link href="/presentation-selector">
                     <a className="hover:text-white transition font-medium text-purple-300">Для инвесторов</a>
                   </Link>
                 </li>

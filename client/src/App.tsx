@@ -43,6 +43,8 @@ import SimulatorDemoPage from "@/pages/simulator-demo-page";
 import SkillsDnaPage from "@/pages/skills-dna";
 import TimeSavedPageRoute from "@/pages/time-saved-page";
 import InvestorPresentation from "@/pages/investor-presentation";
+import PresentationSelector from "@/pages/presentation-selector";
+import ProductDemo from "@/pages/product-demo";
 
 interface ProtectedRouteProps {
   component: React.ComponentType;
@@ -120,6 +122,8 @@ function Router() {
           <Route path="/deep-diagnosis" component={DeepDiagnosis} />
           <Route path="/skills-dna" component={SkillsDnaPage} />
           <Route path="/investor-presentation" component={InvestorPresentation} />
+          <Route path="/presentation-selector" component={PresentationSelector} />
+          <Route path="/product-demo" component={ProductDemo} />
           
           {/* Protected Routes */}
           <ProtectedRoute path="/dashboard" component={Dashboard} />
