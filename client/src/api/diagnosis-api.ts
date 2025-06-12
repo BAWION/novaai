@@ -510,6 +510,8 @@ export const diagnosisApi = {
         
         // Особая обработка для разных статусов ошибок
         if (response.status === 401) {
+          console.log('[API] Получена ошибка 401, начинаем процедуру кэширования результатов диагностики');
+          
           // Кэшируем при 401, чтобы восстановить после авторизации
           this.cacheDiagnosticResults(results);
           
@@ -521,19 +523,27 @@ export const diagnosisApi = {
             console.warn('[API] Ошибка при проверке cookies:', cookieErr);
           }
           
-          // Сохраняем код ошибки в localStorage для обработки в хуке useSkillsDna
+          // Сохраняем расширенную информацию об ошибке для последующего восстановления
           try {
-            localStorage.setItem('skillsDnaLastError', 'AUTH_REQUIRED');
+            const errorInfo = {
+              code: 'AUTH_REQUIRED',
+              timestamp: new Date().toISOString(),
+              userId: results.userId,
+              url: window.location.href,
+              cookieInfo
+            };
+            localStorage.setItem('skillsDnaLastError', JSON.stringify(errorInfo));
           } catch (storageErr) {
-            console.warn('[API] Ошибка при сохранении кода ошибки в localStorage:', storageErr);
+            console.warn('[API] Ошибка при сохранении информации об ошибке в localStorage:', storageErr);
           }
           
           // Логируем детальное событие потери сессии в API диагностики
-          this.logDiagnosticEvent('diagnosis_lost_session', {
+          this.logDiagnosticEvent('diagnosis_session_lost_cached', {
             diagnosticType: results.diagnosticType,
             skillCount: Object.keys(results.skills).length,
+            userId: results.userId,
             status: response.status,
-            error: 'unauthorized',
+            error: 'session_lost_but_cached',
             cookieInfo,
             timestamp: new Date().toISOString(),
             url: window.location.href,
@@ -541,13 +551,14 @@ export const diagnosisApi = {
             hasUserId: !!results.userId
           });
           
-          console.log('[API] Статус 401, результаты диагностики кэшированы для последующего воспроизведения. Детали:', {
+          console.log('[API] Результаты диагностики кэшированы для восстановления после повторной авторизации. Детали:', {
+            userId: results.userId,
+            skillsCount: Object.keys(results.skills).length,
             cookieInfo,
-            url: window.location.href,
-            hasUserId: !!results.userId
+            url: window.location.href
           });
           
-          errorMessage = "Необходима авторизация для сохранения результатов диагностики";
+          errorMessage = "Сессия потеряна. Результаты диагностики сохранены для восстановления после авторизации";
         } else if (response.status === 403) {
           errorMessage = "Нет доступа для сохранения результатов диагностики";
           

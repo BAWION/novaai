@@ -11,7 +11,7 @@ import { authMiddleware, optionalAuthMiddleware } from "../auth-middleware";
 const router = express.Router();
 
 // Специализированное middleware для проверки аутентификации с поддержкой демо-режима (ID 999)
-const demoAuthMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+const demoAuthMiddleware = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
   // Для API диагностики проверяем специальный случай - демо-пользователь с ID 999
   const isDemo = req.body?.userId === 999 || req.params?.userId === '999';
 
@@ -25,8 +25,8 @@ const demoAuthMiddleware = (req: express.Request, res: express.Response, next: e
   const sessionId = req.sessionID ? req.sessionID.substring(0, 8) + '...' : 'none';
   
   // Обычная проверка аутентификации с расширенной обработкой сессии
-  const user = req.session?.user;
-  const authenticated = req.session?.authenticated;
+  let user = req.session?.user;
+  let authenticated = req.session?.authenticated;
   
   console.log(`[DiagnosisAPI] Проверка аутентификации для сессии ${sessionId}:`, {
     hasSession: !!req.session,
@@ -38,6 +38,30 @@ const demoAuthMiddleware = (req: express.Request, res: express.Response, next: e
     path: req.path,
     method: req.method
   });
+
+  // Попытка восстановления сессии если есть userId но нет данных пользователя
+  if ((!user || !authenticated) && requestUserId && req.session) {
+    try {
+      const storage = req.app.get('storage');
+      const userData = await storage.getUserById(requestUserId);
+      
+      if (userData) {
+        console.log(`[DiagnosisAPI] Восстанавливаем сессию для пользователя ${requestUserId}`);
+        
+        req.session.user = userData;
+        req.session.authenticated = true;
+        req.session.lastActivity = new Date().toISOString();
+        
+        console.log(`[DiagnosisAPI] Сессия успешно восстановлена`);
+        
+        // Обновляем локальные переменные после восстановления
+        user = req.session.user;
+        authenticated = req.session.authenticated;
+      }
+    } catch (recoveryError) {
+      console.warn(`[DiagnosisAPI] Ошибка восстановления сессии:`, recoveryError);
+    }
+  }
 
   // Если в запросе указан userId и он не совпадает с ID пользователя в сессии
   if (requestUserId && user && user.id !== requestUserId) {
@@ -55,9 +79,10 @@ const demoAuthMiddleware = (req: express.Request, res: express.Response, next: e
   if (!user || !authenticated) {
     console.log(`[DiagnosisAPI] Отказ в доступе: пользователь не авторизован (сессия ${sessionId})`);
     
-    // Сохраняем информацию об ошибке в сессию, чтобы клиент мог восстановить данные
+    // Сохраняем информацию об ошибке в сессию для клиента
     if (req.session) {
       req.session.authError = "diagnosis_api_auth_required";
+      req.session.lastFailedUserId = requestUserId;
       req.session.save();
     }
     
@@ -65,7 +90,8 @@ const demoAuthMiddleware = (req: express.Request, res: express.Response, next: e
       message: "Необходима авторизация",
       code: "AUTH_REQUIRED",
       details: "Для доступа к API диагностики требуется авторизация",
-      suggestion: "Используйте userId=999 для работы в демо-режиме без авторизации"
+      suggestion: "Используйте userId=999 для работы в демо-режиме без авторизации",
+      cachedData: true // Указываем что данные нужно кэшировать
     });
   }
 
