@@ -119,9 +119,9 @@ export function createSessionOptions(sessionStore: session.Store) {
     rolling: true, // Обновляет cookie при каждом запросе
     proxy: true, // Доверие прокси для использования с Replit
     cookie: {
-      httpOnly: true, // Запрещаем доступ к cookie через JavaScript
-      secure: false, // Отключаем secure для работы в Replit development
-      sameSite: 'lax' as const, // Используем lax для всех окружений
+      httpOnly: true, // Безопасность: cookie недоступен через JavaScript
+      secure: false, // false для HTTP в development
+      sameSite: 'lax' as const, // lax для совместимости с браузерами
       maxAge: 14 * 24 * 60 * 60 * 1000, // 14 дней
       path: '/',
       domain: getCookieDomain() 
