@@ -7,7 +7,7 @@ import {
 } from 'react';
 import { useLocation } from 'wouter';
 import { useEventLogging } from '@/hooks/use-event-logging';
-import { useAuth } from '@/context/auth-context';
+
 
 interface TrackingContextType {
   trackEvent: (eventType: string, data?: Record<string, any>) => void;
@@ -27,7 +27,6 @@ const TrackingContext = createContext<TrackingContextType | null>(null);
 
 export const TrackingProvider = ({ children }: { children: ReactNode }) => {
   const { logEvent } = useEventLogging();
-  const { user } = useAuth();
   const [location] = useLocation();
   const [previousLocation, setPreviousLocation] = useState<string | null>(null);
   
@@ -64,7 +63,7 @@ export const TrackingProvider = ({ children }: { children: ReactNode }) => {
       url: window.location.href,
       userAgent: navigator.userAgent,
       // Добавляем информацию о пользователе (если доступна)
-      userRole: user?.role || 'anonymous'
+      userRole: 'anonymous' // Упрощено для избежания циклических зависимостей
     });
   };
   
