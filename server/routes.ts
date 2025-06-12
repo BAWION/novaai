@@ -89,6 +89,9 @@ const trackUserMiddleware = (req: express.Request, res: express.Response, next: 
 };
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Attach storage to app for middleware access
+  app.set('storage', storage);
+  
   // Импортируем и используем маршрутизаторы для различных API
   app.use('/api/check-secrets', checkSecrets);
   app.use('/api/ml', mlApiRouter);
