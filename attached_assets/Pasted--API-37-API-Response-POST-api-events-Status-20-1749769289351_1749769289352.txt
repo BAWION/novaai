@@ -1,0 +1,37 @@
+[API] Данные о прогрессе отсутствуют для пользователя 37
+API Response: POST /api/events - Status: 201 Created
+[API-DEBUG] Заголовки ответа для POST /api/events: access-control-allow-credentials: true, access-control-allow-headers: Origin, X-Requested-With, Content-Type, Accept, Authorization, access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, access-control-allow-origin: https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev, content-length: 431, content-type: application/json; charset=utf-8, date: Thu, 12 Jun 2025 23:00:37 GMT, etag: W/"1af-F4S5CD3N9TEcnEZC5vMbJajBCS8", replit-cluster: janeway, x-powered-by: Express, x-robots-tag: none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex, none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex
+API Response: GET /api/courses/recommended - Status: 401 Unauthorized
+[API-DEBUG] Заголовки ответа для GET /api/courses/recommended: access-control-allow-credentials: true, access-control-allow-headers: Origin, X-Requested-With, Content-Type, Accept, Authorization, access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, access-control-allow-origin: *, content-length: 53, content-type: application/json; charset=utf-8, date: Thu, 12 Jun 2025 23:00:37 GMT, etag: W/"35-xsibCXugYtPV3Yd4Ldv8ADt09ec", replit-cluster: janeway, x-powered-by: Express, x-robots-tag: none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex, none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex
+API Error: GET /api/courses/recommended - Status: 401 Unauthorized
+at t.value (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
+[useSkillsDna] Источники userId: 
+Object {providedUserId: undefined, authUserId: 37, profileUserId: 37, resultUserId: 37, demoMode: false}
+Error body: {"error":"Требуется авторизация"}
+at t.value (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
+API Request Failed: GET /api/courses/recommended 
+Error {}
+
+at t.value (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
+Ошибка при загрузке рекомендуемых курсов: 
+Error {}
+
+at t.value (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
+[useSkillsDna] Источники userId: 
+Object {providedUserId: undefined, authUserId: 37, profileUserId: 37, resultUserId: 37, demoMode: false}
+[useSkillsDna] Источники userId: 
+Object {providedUserId: undefined, authUserId: 37, profileUserId: 37, resultUserId: 37, demoMode: false}
+[useSkillsDna] Источники userId: 
+Object {providedUserId: undefined, authUserId: 37, profileUserId: 37, resultUserId: 37, demoMode: false}

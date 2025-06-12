@@ -160,8 +160,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Создаем базовый профиль для нового пользователя
       await storage.createUserProfile({
         userId: newUser.id,
-        role: 'student', // Обязательное поле по умолчанию
-        pythonLevel: 0 // Обязательное поле по умолчанию
+        role: 'student',
+        pythonLevel: 0
       });
       
       // Записываем пользователя в сессию
