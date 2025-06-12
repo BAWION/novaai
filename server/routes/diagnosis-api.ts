@@ -7,6 +7,7 @@ import express, { Request, Response } from "express";
 import { z } from "zod";
 import { diagnosisService } from "../services/diagnosis-service";
 import { authMiddleware, optionalAuthMiddleware } from "../auth-middleware";
+import { storage } from "../storage";
 
 const router = express.Router();
 
@@ -42,7 +43,6 @@ const demoAuthMiddleware = async (req: express.Request, res: express.Response, n
   // Попытка восстановления сессии если есть userId но нет данных пользователя
   if ((!user || !authenticated) && requestUserId && req.session) {
     try {
-      const storage = req.app.get('storage');
       const userData = await storage.getUserById(requestUserId);
       
       if (userData) {
