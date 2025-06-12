@@ -43,7 +43,7 @@ const demoAuthMiddleware = async (req: express.Request, res: express.Response, n
   // Попытка восстановления сессии если есть userId но нет данных пользователя
   if ((!user || !authenticated) && requestUserId && req.session) {
     try {
-      const userData = await storage.getUserById(requestUserId);
+      const userData = await storage.getUser(requestUserId);
       
       if (userData) {
         console.log(`[DiagnosisAPI] Восстанавливаем сессию для пользователя ${requestUserId}`);
