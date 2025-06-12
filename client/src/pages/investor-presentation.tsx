@@ -53,7 +53,9 @@ import {
   Activity,
   Briefcase,
   Home,
-  X
+  X,
+  Search,
+  GraduationCap
 } from "lucide-react";
 
 interface Slide {
@@ -475,6 +477,161 @@ export default function InvestorPresentation() {
 
     {
       id: 5,
+      title: "Презентация продукта",
+      subtitle: "NovaAI University: Интеллектуальная образовательная экосистема",
+      component: (
+        <div className="space-y-8 h-full">
+          {/* Заголовок продукта */}
+          <div className="text-center mb-8">
+            <motion.div 
+              className="inline-block p-6 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-xl text-white mb-4"
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.6 }}
+            >
+              <Brain className="w-16 h-16 mx-auto mb-4" />
+              <h3 className="text-3xl font-bold">NovaAI University</h3>
+              <p className="text-xl text-white/90">Первая AI-driven образовательная платформа в России</p>
+            </motion.div>
+          </div>
+
+          {/* Основные компоненты продукта */}
+          <div className="grid grid-cols-3 gap-6">
+            <motion.div
+              initial={{ y: 50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.2 }}
+            >
+              <Card className="p-6 h-full bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Target className="w-8 h-8 text-white" />
+                  </div>
+                  <h4 className="text-xl font-bold text-purple-800 mb-3">Skills DNA Navigator</h4>
+                  <p className="text-purple-700 text-sm mb-4">Глубокая диагностика компетенций через 4-этапное тестирование</p>
+                  <div className="space-y-2 text-xs text-purple-600">
+                    <div>• Анализ текущих навыков</div>
+                    <div>• Когнитивные способности</div>
+                    <div>• Цели и предпочтения</div>
+                    <div>• Персональный профиль</div>
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
+
+            <motion.div
+              initial={{ y: 50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.4 }}
+            >
+              <Card className="p-6 h-full bg-gradient-to-br from-cyan-50 to-cyan-100 border-cyan-200">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-cyan-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Zap className="w-8 h-8 text-white" />
+                  </div>
+                  <h4 className="text-xl font-bold text-cyan-800 mb-3">Adaptive Learning Engine</h4>
+                  <p className="text-cyan-700 text-sm mb-4">ИИ создает персональные траектории обучения в реальном времени</p>
+                  <div className="space-y-2 text-xs text-cyan-600">
+                    <div>• Динамический контент</div>
+                    <div>• Адаптивная сложность</div>
+                    <div>• Умные рекомендации</div>
+                    <div>• Прогнозирование успеха</div>
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
+
+            <motion.div
+              initial={{ y: 50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.6 }}
+            >
+              <Card className="p-6 h-full bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Code className="w-8 h-8 text-white" />
+                  </div>
+                  <h4 className="text-xl font-bold text-green-800 mb-3">Micro-Learning Labs</h4>
+                  <p className="text-green-700 text-sm mb-4">Интерактивные практические задания с мгновенной обратной связью</p>
+                  <div className="space-y-2 text-xs text-green-600">
+                    <div>• Код-песочницы</div>
+                    <div>• Реальные проекты</div>
+                    <div>• AI-ментор 24/7</div>
+                    <div>• Геймификация</div>
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
+          </div>
+
+          {/* Уникальные возможности */}
+          <div className="grid grid-cols-2 gap-8 mt-8">
+            <div>
+              <h4 className="text-2xl font-bold mb-4 text-gray-800">Ключевые особенности</h4>
+              <div className="space-y-3">
+                <div className="flex items-start space-x-3">
+                  <CheckCircle className="w-6 h-6 text-green-500 mt-1 flex-shrink-0" />
+                  <div>
+                    <span className="font-semibold text-gray-800">AI-First архитектура:</span>
+                    <span className="text-gray-600 ml-1">Каждый элемент создается ИИ под конкретного пользователя</span>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <CheckCircle className="w-6 h-6 text-green-500 mt-1 flex-shrink-0" />
+                  <div>
+                    <span className="font-semibold text-gray-800">Живой контент:</span>
+                    <span className="text-gray-600 ml-1">Материалы обновляются в реальном времени</span>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <CheckCircle className="w-6 h-6 text-green-500 mt-1 flex-shrink-0" />
+                  <div>
+                    <span className="font-semibold text-gray-800">Мгновенное применение:</span>
+                    <span className="text-gray-600 ml-1">Теория сразу закрепляется практикой</span>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <CheckCircle className="w-6 h-6 text-green-500 mt-1 flex-shrink-0" />
+                  <div>
+                    <span className="font-semibold text-gray-800">Демократизация ИИ:</span>
+                    <span className="text-gray-600 ml-1">Преимущественно бесплатный доступ для всех</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="text-2xl font-bold mb-4 text-gray-800">Целевая аудитория</h4>
+              <div className="grid grid-cols-2 gap-4">
+                <Card className="p-4 bg-blue-50 border-blue-200 text-center">
+                  <BookOpen className="w-10 h-10 text-blue-500 mx-auto mb-2" />
+                  <h5 className="font-bold text-blue-800">Студенты</h5>
+                  <p className="text-xs text-blue-600">Школьники и студенты вузов</p>
+                </Card>
+                <Card className="p-4 bg-purple-50 border-purple-200 text-center">
+                  <Users className="w-10 h-10 text-purple-500 mx-auto mb-2" />
+                  <h5 className="font-bold text-purple-800">Специалисты</h5>
+                  <p className="text-xs text-purple-600">Переквалификация в ИИ</p>
+                </Card>
+                <Card className="p-4 bg-green-50 border-green-200 text-center">
+                  <Briefcase className="w-10 h-10 text-green-500 mx-auto mb-2" />
+                  <h5 className="font-bold text-green-800">Бизнес</h5>
+                  <p className="text-xs text-green-600">Корпоративное обучение</p>
+                </Card>
+                <Card className="p-4 bg-orange-50 border-orange-200 text-center">
+                  <Star className="w-10 h-10 text-orange-500 mx-auto mb-2" />
+                  <h5 className="font-bold text-orange-800">Senior Dev</h5>
+                  <p className="text-xs text-orange-600">Углубление в ML/AI</p>
+                </Card>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    },
+
+    {
+      id: 6,
       title: "Бизнес-модель",
       subtitle: "Freemium с высокой конверсией",
       component: (
