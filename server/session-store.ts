@@ -113,15 +113,15 @@ export function createSessionOptions(sessionStore: session.Store) {
   return {
     name: "nova_session_v3", // Обновление имени cookie для текущей версии
     secret: generateStrongSecret(),
-    resave: false, // Не сохраняем сессию, если она не была изменена
-    saveUninitialized: false, // Не создаем сессию до тех пор, пока что-то не сохраним
+    resave: true, // Принудительно сохраняем сессию для надежности
+    saveUninitialized: true, // Создаем сессию сразу для каждого пользователя
     store: sessionStore,
     rolling: true, // Обновляет cookie при каждом запросе
     proxy: true, // Доверие прокси для использования с Replit
     cookie: {
-      httpOnly: true, // Безопасность: cookie недоступен через JavaScript
+      httpOnly: false, // Разрешаем доступ через JavaScript для отладки
       secure: false, // false для HTTP в development
-      sameSite: false, // Отключаем sameSite для совместимости с Replit
+      sameSite: 'none' as const, // none для cross-origin requests в Replit
       maxAge: 14 * 24 * 60 * 60 * 1000, // 14 дней
       path: '/'
       // domain не устанавливаем - пусть браузер сам определяет
