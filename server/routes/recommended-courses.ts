@@ -4,6 +4,7 @@ import { storage } from "../storage";
 import { eq } from "drizzle-orm";
 import { userProfiles, skillsDna, userSkillsDnaProgress, courseSkillRequirements, featureFlags } from "@shared/schema";
 import { mlService } from "../services";
+import { enhancedAuthMiddleware } from "../auth-middleware";
 
 const router = Router();
 
@@ -11,51 +12,9 @@ const router = Router();
  * GET /api/courses/recommended
  * Получение списка рекомендованных курсов для пользователя на основе его профиля Skills DNA
  */
-router.get("/", async (req, res) => {
+router.get("/", enhancedAuthMiddleware, async (req, res) => {
   try {
-    // Улучшенная проверка авторизации с восстановлением сессии
-    if (!req.session) {
-      console.log("Отсутствует сессия для /api/courses/recommended");
-      return res.status(401).json({ error: "Требуется авторизация" });
-    }
-
-    let authenticated = !!req.session.authenticated;
-    let user = req.session.user;
-
-    // Попытка восстановления сессии если есть userId но нет данных пользователя
-    if ((!user || !authenticated) && req.session.user?.id) {
-      try {
-        const userData = await storage.getUser(req.session.user.id);
-        
-        if (userData) {
-          console.log(`[RecommendationsAuth] Восстанавливаем сессию для пользователя ${req.session.user.id}`);
-          
-          req.session.user = {
-            id: userData.id,
-            username: userData.username,
-            email: userData.email || undefined,
-            displayName: userData.displayName || undefined,
-            role: userData.role || undefined
-          };
-          req.session.authenticated = true;
-          req.session.lastActivity = new Date().toISOString();
-          authenticated = true;
-          user = req.session.user;
-        } else {
-          req.session.user = undefined;
-          req.session.authenticated = false;
-        }
-      } catch (error) {
-        console.error("[RecommendationsAuth] Ошибка при восстановлении сессии:", error);
-      }
-    }
-
-    if (!authenticated || !user) {
-      console.log("Неавторизованный доступ к /api/courses/recommended");
-      return res.status(401).json({ error: "Требуется авторизация" });
-    }
-    
-    const userId = user.id;
+    const userId = req.session!.user!.id;
     
     // Получаем профиль пользователя
     const [userProfile] = await db
@@ -129,8 +88,7 @@ router.get("/", async (req, res) => {
         await db
           .update(userProfiles)
           .set({ 
-            recommendedCourseIds: courseIds,
-            recommendationUpdatedAt: new Date()
+            recommendedCourseIds: courseIds
           })
           .where(eq(userProfiles.userId, userId));
           

@@ -25,6 +25,54 @@ declare module 'express-session' {
 }
 
 /**
+ * Унифицированный middleware с автоматическим восстановлением сессий
+ */
+export const enhancedAuthMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const requestPath = `${req.method} ${req.originalUrl || req.path}`;
+    
+    // Проверяем наличие сессии
+    if (!req.session) {
+      return res.status(401).json({ message: "Unauthorized - No session" });
+    }
+
+    let authenticated = !!req.session.authenticated;
+    let user = req.session.user;
+
+    // Автоматическое восстановление сессии если есть userId
+    if ((!user || !authenticated) && req.session.user?.id) {
+      try {
+        const userData = await storage.getUser(req.session.user.id);
+        
+        if (userData) {
+          req.session.user = {
+            id: userData.id,
+            username: userData.username,
+            email: userData.email || undefined,
+            role: userData.role || undefined
+          };
+          req.session.authenticated = true;
+          req.session.lastActivity = new Date().toISOString();
+          authenticated = true;
+          user = req.session.user;
+        }
+      } catch (error) {
+        console.error(`[EnhancedAuth] Ошибка восстановления сессии:`, error);
+      }
+    }
+
+    if (!authenticated || !user || !user.id) {
+      return res.status(401).json({ message: "Unauthorized - Not authenticated" });
+    }
+
+    next();
+  } catch (error) {
+    console.error(`[EnhancedAuth] Middleware error:`, error);
+    return res.status(500).json({ message: "Authentication error" });
+  }
+};
+
+/**
  * Middleware для аутентификации пользователей
  * Проверяет наличие сессии и пользовательских данных
  * Включает расширенную диагностику и улучшенную обработку ошибок
