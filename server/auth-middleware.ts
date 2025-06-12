@@ -78,10 +78,24 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
   }
   
   // Проверяем статус аутентификации
-  const authenticated = !!req.session.authenticated;
+  let authenticated = !!req.session.authenticated;
   
   // Проверяем наличие пользователя в сессии
   const user = req.session.user;
+  
+  // Автоматическое восстановление сессии: если есть user но нет authenticated флага
+  if (!authenticated && user && user.id && user.username) {
+    console.log(`[Auth] Обнаружена сессия с пользователем но без флага аутентификации. Восстанавливаем...`);
+    req.session.authenticated = true;
+    req.session.lastActivity = new Date().toISOString();
+    authenticated = true;
+    
+    // Сохраняем сессию асинхронно
+    req.session.save((err) => {
+      if (err) console.error("[Auth] Ошибка при восстановлении сессии:", err);
+      else console.log(`[Auth] Сессия успешно восстановлена для пользователя ${user.username}`);
+    });
+  }
   
   // Расширенное логирование для отладки
   console.log(`[Auth] Сессия ${sessionId} для запроса ${requestPath} | Аутентифицирован: ${authenticated}`);
@@ -95,7 +109,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
       hasCookies: !!req.headers.cookie,
       cookies: req.headers.cookie ? req.headers.cookie.substring(0, 50) + '...' : 'отсутствуют'
     });
-    return res.status(401).json({ message: "Unauthorized - Not authenticated" });
+    return res.status(401).json({ message: "Not authenticated" });
   }
   
   // Проверяем полноту пользовательских данных

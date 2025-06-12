@@ -244,6 +244,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       console.log("Сессия создана и сохранена для пользователя:", newUser.username);
+      console.log("Данные сессии после сохранения:", {
+        sessionId: req.sessionID,
+        hasUser: !!req.session.user,
+        authenticated: req.session.authenticated,
+        userId: req.session.user?.id,
+        lastActivity: req.session.lastActivity
+      });
       
       // Возвращаем данные нового пользователя
       return res.status(201).json({
