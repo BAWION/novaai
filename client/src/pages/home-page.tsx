@@ -719,7 +719,7 @@ export default function HomePage() {
                 <li><i className="fas fa-phone mr-2"></i> +7 (800) 555-35-35</li>
                 <li><i className="fas fa-map-marker-alt mr-2"></i> Москва, Инновационный центр Сколково</li>
                 <li>
-                  <Link href="/investor-presentation" className="hover:text-white text-purple-300 font-medium">
+                  <Link href="/presentation-selector" className="hover:text-white text-purple-300 font-medium">
                     <i className="fas fa-chart-line mr-2"></i>Для инвесторов
                   </Link>
                 </li>
