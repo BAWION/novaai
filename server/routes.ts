@@ -682,11 +682,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const updateData = req.body;
       const { completeOnboarding } = updateData;
       
+      console.log(`[ProfileUpdate] Обновление профиля для пользователя ${userId}`);
+      console.log(`[ProfileUpdate] Исходные данные:`, JSON.stringify(updateData, null, 2));
+      
       // Удаляем флаг завершения онбординга из данных обновления
       // так как он не входит в схему обновления профиля
       if (updateData.completeOnboarding !== undefined) {
         delete updateData.completeOnboarding;
       }
+      
+      console.log(`[ProfileUpdate] Данные после очистки:`, JSON.stringify(updateData, null, 2));
       
       // Check if profile exists
       let profile = await storage.getUserProfile(userId);

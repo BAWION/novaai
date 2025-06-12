@@ -137,7 +137,7 @@ async function testComprehensiveFlow() {
       // Update profile
       const profileUpdate = {
         pythonLevel: 3,
-        goal: 'skill_advancement',
+        goal: 'practice-skills',
         availableTimePerWeek: 15
       };
       
