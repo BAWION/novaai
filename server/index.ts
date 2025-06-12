@@ -12,12 +12,24 @@ const app = express();
 // Включаем доверие к прокси для корректной работы за реверс-прокси
 app.set('trust proxy', 1);
 
-// Настраиваем CORS для работы cookie в браузере (монолит - упрощенная версия)
+// Настраиваем CORS для работы cookie в браузере с правильным протоколом
 app.use((req, res, next) => {
-  // Для монолита отражаем origin из запроса (trusted proxy обеспечивает безопасность)
-  const origin = req.headers.origin || req.headers.host;
+  // Получаем правильный origin с протоколом для browser requests
+  let origin = req.headers.origin;
   
-  // Настраиваем CORS заголовки согласно рекомендациям чек-листа
+  // Если origin отсутствует, формируем его из host с https протоколом
+  if (!origin && req.headers.host) {
+    origin = `https://${req.headers.host}`;
+  }
+  
+  // Fallback для development
+  if (!origin) {
+    origin = req.protocol + '://' + req.get('host');
+  }
+  
+  console.log(`[CORS Debug] Request origin: ${req.headers.origin}, Host: ${req.headers.host}, Final origin: ${origin}`);
+  
+  // Настраиваем CORS заголовки с правильным origin
   res.header('Access-Control-Allow-Origin', origin);
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
