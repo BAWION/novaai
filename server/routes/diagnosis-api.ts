@@ -48,7 +48,13 @@ const demoAuthMiddleware = async (req: express.Request, res: express.Response, n
       if (userData) {
         console.log(`[DiagnosisAPI] Восстанавливаем сессию для пользователя ${requestUserId}`);
         
-        req.session.user = userData;
+        req.session.user = {
+          id: userData.id,
+          username: userData.username,
+          email: userData.email || undefined,
+          displayName: userData.displayName || undefined,
+          role: userData.role || undefined
+        };
         req.session.authenticated = true;
         req.session.lastActivity = new Date().toISOString();
         

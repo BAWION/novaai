@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { storage } from './storage';
 import { Session } from 'express-session';
 
 /**
@@ -28,7 +29,7 @@ declare module 'express-session' {
  * Проверяет наличие сессии и пользовательских данных
  * Включает расширенную диагностику и улучшенную обработку ошибок
  */
-export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
+export const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
   // Выводим информацию о запросе
   const requestPath = `${req.method} ${req.originalUrl || req.path}`;
   const sessionId = req.sessionID ? req.sessionID : 'none';
@@ -86,15 +87,39 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
   // Автоматическое восстановление сессии: если есть user но нет authenticated флага
   if (!authenticated && user && user.id && user.username) {
     console.log(`[Auth] Обнаружена сессия с пользователем но без флага аутентификации. Восстанавливаем...`);
-    req.session.authenticated = true;
-    req.session.lastActivity = new Date().toISOString();
-    authenticated = true;
     
-    // Сохраняем сессию асинхронно
-    req.session.save((err) => {
-      if (err) console.error("[Auth] Ошибка при восстановлении сессии:", err);
-      else console.log(`[Auth] Сессия успешно восстановлена для пользователя ${user.username}`);
-    });
+    try {
+      // Проверяем существование пользователя в базе данных
+      const userData = await storage.getUser(user.id);
+      
+      if (userData) {
+        console.log(`[Auth] Пользователь ${user.id} найден в базе данных. Восстанавливаем сессию...`);
+        
+        // Обновляем данные сессии с актуальными данными из БД
+        req.session.user = {
+          id: userData.id,
+          username: userData.username,
+          email: userData.email || undefined,
+          displayName: userData.displayName || undefined,
+          role: userData.role || undefined
+        };
+        req.session.authenticated = true;
+        req.session.lastActivity = new Date().toISOString();
+        authenticated = true;
+        
+        // Сохраняем сессию асинхронно
+        req.session.save((err) => {
+          if (err) console.error("[Auth] Ошибка при восстановлении сессии:", err);
+          else console.log(`[Auth] Сессия успешно восстановлена для пользователя ${userData.username}`);
+        });
+      } else {
+        console.log(`[Auth] Пользователь ${user.id} не найден в базе данных. Очищаем сессию...`);
+        req.session.user = undefined;
+        req.session.authenticated = false;
+      }
+    } catch (error) {
+      console.error("[Auth] Ошибка при проверке пользователя в базе данных:", error);
+    }
   }
   
   // Расширенное логирование для отладки
