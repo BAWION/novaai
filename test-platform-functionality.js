@@ -3,8 +3,8 @@
  * Проверяет все ключевые API эндпоинты и функции для учащихся
  */
 
-const http = require('http');
-const querystring = require('querystring');
+import http from 'http';
+import querystring from 'querystring';
 
 const BASE_URL = 'http://localhost:3000';
 
