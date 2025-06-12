@@ -228,6 +228,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         username: newUser.username,
         displayName: newUser.displayName || undefined
       };
+      req.session.authenticated = true;
+      req.session.lastActivity = new Date().toISOString();
       
       // Принудительно сохраняем сессию перед отправкой ответа
       await new Promise<void>((resolve, reject) => {
