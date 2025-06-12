@@ -79,6 +79,95 @@ export default function Login() {
     }
   };
 
+  const handleQuickTestLogin = async () => {
+    setIsLoggingIn(true);
+    setError("");
+
+    try {
+      // Автоматический вход с тестовыми данными
+      const testCredentials = {
+        username: "demo_user",
+        password: "demo123"
+      };
+
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(testCredentials),
+        credentials: "include"
+      });
+
+      if (!response.ok) {
+        // Если пользователь не существует, создаем его
+        if (response.status === 401) {
+          console.log("Создаем тестового пользователя...");
+          
+          const registerResponse = await fetch("/api/auth/register-with-profile", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              username: "demo_user",
+              password: "demo123",
+              email: "demo@novaai.ru",
+              displayName: "Демо пользователь",
+              profileData: {
+                role: "student",
+                pythonLevel: 2,
+                experience: "beginner",
+                interest: "machine-learning",
+                goal: "career-change",
+                industry: "technology",
+                jobTitle: "Студент",
+                specificGoals: ["Изучить основы машинного обучения"],
+                preferredLearningStyle: "interactive",
+                availableTimePerWeek: 10,
+                preferredDifficulty: "beginner"
+              }
+            }),
+            credentials: "include"
+          });
+
+          if (registerResponse.ok) {
+            const userData = await registerResponse.json();
+            login(userData);
+            
+            toast({
+              title: "Тестовый пользователь создан",
+              description: "Добро пожаловать в демо-режим NovaAI University!",
+            });
+            
+            setTimeout(() => navigate("/dashboard"), 1000);
+            return;
+          }
+        }
+        
+        throw new Error("Ошибка входа в тестовый режим");
+      }
+
+      const userData = await response.json();
+      login(userData);
+      
+      toast({
+        title: "Быстрый вход выполнен",
+        description: "Добро пожаловать в NovaAI University!",
+      });
+      
+      setTimeout(() => navigate("/dashboard"), 1000);
+      
+    } catch (error) {
+      console.error("Quick test login error:", error);
+      setError("Ошибка быстрого входа. Попробуйте обычный вход.");
+      
+      toast({
+        variant: "destructive",
+        title: "Ошибка быстрого входа",
+        description: "Попробуйте войти через форму входа",
+      });
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+
   const handleStartJourney = () => {
     // Перенаправляем на страницу расширенного онбординга
     navigate("/onboarding");
@@ -266,6 +355,14 @@ export default function Login() {
                 </div>
 
                 <div className="space-y-4">
+                  <button
+                    onClick={handleQuickTestLogin}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg font-medium transition duration-300 flex items-center justify-center tap-highlight-none btn-mobile"
+                  >
+                    <i className="fas fa-flask mr-2"></i>
+                    <span>Быстрый тестовый вход</span>
+                  </button>
+
                   <button
                     onClick={toggleLoginForm}
                     className="w-full bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:from-[#4922B2] hover:to-[#1682A1] text-white py-3 px-4 rounded-lg font-medium transition duration-300 flex items-center justify-center tap-highlight-none btn-mobile"
