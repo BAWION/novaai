@@ -121,10 +121,10 @@ export function createSessionOptions(sessionStore: session.Store) {
     cookie: {
       httpOnly: true, // Безопасность: cookie недоступен через JavaScript
       secure: false, // false для HTTP в development
-      sameSite: 'lax' as const, // lax для совместимости с браузерами
+      sameSite: false, // Отключаем sameSite для совместимости с Replit
       maxAge: 14 * 24 * 60 * 60 * 1000, // 14 дней
-      path: '/',
-      domain: getCookieDomain() 
+      path: '/'
+      // domain не устанавливаем - пусть браузер сам определяет
     },
     // Обработчик события "touch" для отладки
     touchAfter: 1 * 60 // Обновление сессии не чаще чем раз в минуту
