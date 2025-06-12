@@ -98,7 +98,8 @@ function Router() {
   const isPublicPage = location === "/" || location === "/login" || location === "/register" || 
     location === "/onboarding" || location === "/onboarding-page" || location === "/quick-diagnosis" ||
     location === "/deep-diagnosis" || location === "/onboarding-intro" || location === "/register-after-onboarding" ||
-    location === "/skills-dna" || location === "/investor-presentation";
+    location === "/skills-dna" || location === "/investor-presentation" || location === "/presentation-selector" ||
+    location === "/product-demo";
   
   return (
     <div className="flex flex-col min-h-screen">
