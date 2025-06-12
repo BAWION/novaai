@@ -93,11 +93,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             console.error("[Auth] Ошибка при восстановлении кэшированных результатов:", error);
             
             // Логируем ошибку восстановления
-            await diagnosisApi.logDiagnosticEvent('diagnosis_cache_restore_failed', {
-              userId: userData.id,
-              error: error.message,
-              failedAt: new Date().toISOString()
-            });
+            try {
+              await diagnosisApi.logDiagnosticEvent('diagnosis_cache_restore_failed', {
+                userId: userData.id,
+                error: error instanceof Error ? error.message : String(error),
+                failedAt: new Date().toISOString()
+              });
+            } catch (logError) {
+              console.error("[Auth] Не удалось залогировать ошибку восстановления:", logError);
+            }
           }
         }, 1000);
       }

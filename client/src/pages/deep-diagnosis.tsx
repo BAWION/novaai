@@ -540,7 +540,7 @@ export default function DeepDiagnosisPage() {
                         metadata: {
                           completedAt: new Date().toISOString(),
                           error: 'Saved as fallback due to server error',
-                          originalError: error.message,
+                          originalError: error instanceof Error ? error.message : String(error),
                           formData
                         }
                       };
