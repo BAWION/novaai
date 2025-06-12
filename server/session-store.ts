@@ -119,7 +119,7 @@ export function createSessionOptions(sessionStore: session.Store) {
     rolling: true, // Обновляет cookie при каждом запросе
     cookie: {
       httpOnly: true, // Безопасность: cookie недоступен через JavaScript
-      secure: true, // true для HTTPS на Replit (trust proxy включен)
+      secure: process.env.NODE_ENV === 'production', // secure только в продакшене
       sameSite: 'lax' as const, // lax для same-origin requests
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 дней
       path: '/'
