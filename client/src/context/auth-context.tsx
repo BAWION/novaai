@@ -67,6 +67,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // При этом мы НЕ синхронизируем с сервером здесь:
     // синхронизация с сервером происходит в самом компоненте Login,
     // который вызывает API и только после успешного ответа вызывает login()
+    
+    // Проверяем наличие кэшированных результатов диагностики и восстанавливаем их
+    try {
+      // Динамический импорт для избежания циклических зависимостей
+      const { diagnosisApi } = await import("@/api/diagnosis-api");
+      
+      if (diagnosisApi.hasCachedDiagnosticResults()) {
+        console.log("[Auth] Обнаружены кэшированные результаты диагностики, начинаем восстановление...");
+        
+        // Небольшая задержка для завершения процесса авторизации
+        setTimeout(async () => {
+          try {
+            const result = await diagnosisApi.recoverCachedResults(userData.id);
+            if (result) {
+              console.log("[Auth] Кэшированные результаты диагностики успешно восстановлены");
+              
+              // Логируем событие успешного восстановления
+              await diagnosisApi.logDiagnosticEvent('diagnosis_cache_restored', {
+                userId: userData.id,
+                restoredAt: new Date().toISOString()
+              });
+            }
+          } catch (error) {
+            console.error("[Auth] Ошибка при восстановлении кэшированных результатов:", error);
+            
+            // Логируем ошибку восстановления
+            await diagnosisApi.logDiagnosticEvent('diagnosis_cache_restore_failed', {
+              userId: userData.id,
+              error: error.message,
+              failedAt: new Date().toISOString()
+            });
+          }
+        }, 1000);
+      }
+    } catch (error) {
+      console.error("[Auth] Ошибка при проверке кэшированных результатов:", error);
+    }
   };
 
   const logout = async () => {
