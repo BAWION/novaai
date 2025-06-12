@@ -13,13 +13,49 @@ const router = Router();
  */
 router.get("/", async (req, res) => {
   try {
-    // Проверка авторизации - используем сессию для получения пользователя
-    if (!req.session || !req.session.user) {
+    // Улучшенная проверка авторизации с восстановлением сессии
+    if (!req.session) {
+      console.log("Отсутствует сессия для /api/courses/recommended");
+      return res.status(401).json({ error: "Требуется авторизация" });
+    }
+
+    let authenticated = !!req.session.authenticated;
+    let user = req.session.user;
+
+    // Попытка восстановления сессии если есть userId но нет данных пользователя
+    if ((!user || !authenticated) && req.session.user?.id) {
+      try {
+        const userData = await storage.getUser(req.session.user.id);
+        
+        if (userData) {
+          console.log(`[RecommendationsAuth] Восстанавливаем сессию для пользователя ${req.session.user.id}`);
+          
+          req.session.user = {
+            id: userData.id,
+            username: userData.username,
+            email: userData.email || undefined,
+            displayName: userData.displayName || undefined,
+            role: userData.role || undefined
+          };
+          req.session.authenticated = true;
+          req.session.lastActivity = new Date().toISOString();
+          authenticated = true;
+          user = req.session.user;
+        } else {
+          req.session.user = undefined;
+          req.session.authenticated = false;
+        }
+      } catch (error) {
+        console.error("[RecommendationsAuth] Ошибка при восстановлении сессии:", error);
+      }
+    }
+
+    if (!authenticated || !user) {
       console.log("Неавторизованный доступ к /api/courses/recommended");
       return res.status(401).json({ error: "Требуется авторизация" });
     }
     
-    const userId = req.session.user.id;
+    const userId = user.id;
     
     // Получаем профиль пользователя
     const [userProfile] = await db
