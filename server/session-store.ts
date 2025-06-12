@@ -122,8 +122,8 @@ export function createSessionOptions(sessionStore: session.Store) {
       secure: true, // true для HTTPS на Replit (trust proxy обеспечивает корректность)
       sameSite: 'none' as const, // none для cross-origin в Replit среде
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 дней
-      path: '/'
-      // domain НЕ устанавливаем для монолита на одном домене
+      path: '/',
+      domain: '.replit.dev' // Критически важно для работы с внешним доменом Replit
     }
   };
 }
