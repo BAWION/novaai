@@ -101,7 +101,7 @@ async function testComprehensiveFlow() {
         specificGoals: ['learn_python', 'build_ai_apps'],
         preferredLearningStyle: 'visual',
         availableTimePerWeek: 10,
-        preferredDifficulty: 'beginner'
+        preferredDifficulty: 'easy'
       }
     };
     
