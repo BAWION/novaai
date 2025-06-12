@@ -347,10 +347,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       try {
         console.log(`[Login] Вход пользователя ${user.username} методом ${method}`);
         
-        // Регенерируем сессию для безопасности
-        await regenerateSession();
+        // НЕ регенерируем сессию - используем существующую для сохранения cookie
+        // await regenerateSession();
         
-        // Устанавливаем данные в сессию
+        // Устанавливаем данные в существующую сессию
         req.session.user = {
           id: user.id,
           username: user.username,

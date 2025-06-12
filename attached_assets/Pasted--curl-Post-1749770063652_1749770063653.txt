@@ -1,0 +1,125 @@
+Ниже ― «чек-лист» + конкретные пункты, которые почти всегда решают ситуацию, когда:
+
+* **curl / Postman** видят сессию,
+* а **браузер** каждый раз стартует новую (`[API-DEBUG] Cookies: нет кук`).
+
+---
+
+## 1  Проверьте, что кука **вообще** летит из сервера
+
+1. Откройте вкладку **Network ⇒ login / signup** → `Response Headers`.
+   Должно быть **хотя бы** одно из:
+
+   ```
+   Set-Cookie: connect.sid=s%3A…; Path=/; HttpOnly; SameSite=Lax; Secure
+   ```
+2. Если **нет `Set-Cookie`** → Express-session «не трогал» сессию.
+   Убедитесь, что в роуте / middleware вы реально пишете что-нибудь вроде:
+
+   ```ts
+   req.session.userId = user.id;   // ← иначе кука не выставится
+   ```
+
+---
+
+## 2  `trust proxy` (главная ловушка на Replit)
+
+Replit ставит TLS-прокси **перед** вашим Express-процессом.
+Если `cookie.secure = true`, а `app.set('trust proxy')` НЕ включён,
+Express думает, что запрос пришёл по **HTTP** и **НЕ** шлёт Secure-куку.
+
+```ts
+app.set('trust proxy', 1);   // обязательно до app.use(session())
+```
+
+---
+
+## 3  Правильные опции `express-session`
+
+```ts
+import session from 'express-session';
+import connectPgSimple from 'connect-pg-simple';
+
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET!,
+    store : new (connectPgSimple(session))({ pool }),
+    resave           : false,
+    saveUninitialized: false,
+    cookie: {
+      sameSite: 'lax',   // same host  ⇒ Lax достаточно
+      secure  : true,    // Replit всегда отдаёт https
+      maxAge  : 1000 * 60 * 60 * 24 * 30, // 30 дней
+    },
+  }),
+);
+```
+
+> **⚠️ Не выставляйте** `cookie.domain` пока фронт и бэкенд на одном
+> `*.replit.app` — лишний домен ломает привязку куки.
+
+---
+
+## 4  CORS
+
+Для монолита CORS можно вообще убрать.
+Если оставляете — разрешите credentials и отражайте Origin:
+
+```ts
+import cors from 'cors';
+app.use(cors({ origin: true, credentials: true }));
+```
+
+Заголовки, которые должен вернуть сервер:
+
+```
+access-control-allow-origin: https://<same-repl>.replit.app
+access-control-allow-credentials: true
+```
+
+---
+
+## 5  fetch / axios на фронте
+
+```ts
+await fetch('/api/profile', {
+  method       : 'GET',
+  credentials  : 'include',              // иначе кука не прикрепится!
+  headers      : { 'Content-Type': 'application/json' },
+});
+```
+
+Проверьте в DevTools → Network → Request Headers:
+должно появиться `Cookie: connect.sid=…`.
+
+---
+
+## 6  Отладка «по шагам»
+
+| Шаг   | Что смотрим                 | Ожидаем                             |
+| ----- | --------------------------- | ----------------------------------- |
+| **1** | Запрос / login              | `Set-Cookie` в **Response Headers** |
+| **2** | Application → Cookies       | появилась `connect.sid`             |
+| **3** | Любой запрос `/api/*`       | `Cookie:` в **Request Headers**     |
+| **4** | Серверный лог `req.session` | содержит `userId`                   |
+
+*Если на каком-то шаге «пусто» — виноват предыдущий.*
+
+---
+
+## 7  Что будет, когда вынесете фронт на Vercel
+
+1. В CORS → `origin: 'https://novaacademy.vercel.app'`.
+2. `cookie.sameSite: 'none'`, `secure: true`.
+3. `cookie.domain = '.novaacademy.vercel.app'`
+   (или `.novaacademy.ai`, когда подключите свой домен).
+
+---
+
+### TL;DR
+
+1. `app.set('trust proxy', 1);`
+2. `sameSite:'lax'` + `secure:true` (пока всё на Replit).
+3. `credentials:'include'` во всех fetch/axios вызовах.
+
+После этих трёх строк кука начинает жить в браузере, а все `401` уходят. Если какой-то из пунктов всё ещё «красный» — пришлите конкретный шаг из таблицы, на котором пропадает кука, и мы докопаемся дальше.
