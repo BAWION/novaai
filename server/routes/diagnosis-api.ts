@@ -55,8 +55,8 @@ const demoAuthMiddleware = async (req: express.Request, res: express.Response, n
         console.log(`[DiagnosisAPI] Сессия успешно восстановлена`);
         
         // Обновляем локальные переменные после восстановления
-        user = req.session.user;
-        authenticated = req.session.authenticated;
+        user = userData;
+        authenticated = true;
       }
     } catch (recoveryError) {
       console.warn(`[DiagnosisAPI] Ошибка восстановления сессии:`, recoveryError);
@@ -82,7 +82,6 @@ const demoAuthMiddleware = async (req: express.Request, res: express.Response, n
     // Сохраняем информацию об ошибке в сессию для клиента
     if (req.session) {
       req.session.authError = "diagnosis_api_auth_required";
-      req.session.lastFailedUserId = requestUserId;
       req.session.save();
     }
     
