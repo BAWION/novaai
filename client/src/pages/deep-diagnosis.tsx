@@ -465,42 +465,45 @@ export default function DeepDiagnosisPage() {
                 // Сохраняем результаты в Skills DNA
                 const saveSkillsToDna = async () => {
                   try {
-                    // Только если пользователь авторизован
+                    // Подготавливаем данные для отправки
+                    const diagnosisResult = {
+                      userId: userProfile?.userId || 0, // Временный ID, будет заменен при восстановлении
+                      skills: skillProfile,
+                      diagnosticType: 'deep' as 'deep', // явное приведение типа для TypeScript
+                      metadata: {
+                        completedAt: new Date().toISOString(),
+                        profileData: {
+                          role: formData.role,
+                          experience: formData.experience,
+                          pythonLevel: formData.pythonLevel,
+                          interest: formData.interest,
+                          goal: formData.goal
+                        },
+                        demographic: {
+                          ageGroup: formData.ageGroup,
+                          education: formData.education
+                        },
+                        technicalBackground: {
+                          programmingLanguages: formData.programmingLanguages,
+                          dataAnalysisLevel: formData.dataAnalysisLevel,
+                          mathBackground: formData.mathBackground
+                        },
+                        cognitiveProfile: {
+                          analyticalThinking: formData.analyticalThinking,
+                          creativeProblemSolving: formData.creativeProblemSolving,
+                          attentionToDetail: formData.attentionToDetail
+                        },
+                        interests: {
+                          primary: formData.interest,
+                          subdomains: formData.subdomains
+                        },
+                        formData // полные данные формы
+                      }
+                    };
+
+                    // Если пользователь авторизован - сохраняем непосредственно
                     if (userProfile?.userId) {
-                      // Подготавливаем данные для отправки
-                      const diagnosisResult = {
-                        userId: userProfile.userId,
-                        skills: skillProfile,
-                        diagnosticType: 'deep' as 'deep', // явное приведение типа для TypeScript
-                        metadata: {
-                          profileData: {
-                            role: formData.role,
-                            experience: formData.experience,
-                            pythonLevel: formData.pythonLevel,
-                            interest: formData.interest,
-                            goal: formData.goal
-                          },
-                          demographic: {
-                            ageGroup: formData.ageGroup,
-                            education: formData.education
-                          },
-                          technicalBackground: {
-                            programmingLanguages: formData.programmingLanguages,
-                            dataAnalysisLevel: formData.dataAnalysisLevel,
-                            mathBackground: formData.mathBackground
-                          },
-                          cognitiveProfile: {
-                            analyticalThinking: formData.analyticalThinking,
-                            creativeProblemSolving: formData.creativeProblemSolving,
-                            attentionToDetail: formData.attentionToDetail
-                          },
-                          interests: {
-                            primary: formData.interest,
-                            subdomains: formData.subdomains
-                          },
-                          formData // полные данные формы
-                        }
-                      };
+                      console.log("Пользователь авторизован, сохраняем результаты диагностики в Skills DNA");
                       
                       // Отправляем результаты в систему Skills DNA
                       const result = await diagnosisApi.saveResults(diagnosisResult);
@@ -510,10 +513,43 @@ export default function DeepDiagnosisPage() {
                       queryClient.invalidateQueries({ queryKey: ['skillsDna', 'progress', userProfile.userId] });
                       queryClient.invalidateQueries({ queryKey: ['skillsDna', 'summary', userProfile.userId] });
                     } else {
-                      console.warn("Пользователь не авторизован, результаты не будут сохранены в Skills DNA");
+                      // Пользователь не авторизован - кэшируем для последующего восстановления
+                      console.log("Пользователь не авторизован, кэшируем результаты диагностики для последующего восстановления");
+                      
+                      // Кэшируем результаты
+                      diagnosisApi.cacheDiagnosticResults(diagnosisResult);
+                      
+                      // Логируем событие кэширования
+                      await diagnosisApi.logDiagnosticEvent('diagnosis_cached_for_recovery', {
+                        diagnosticType: 'deep',
+                        skillsCount: Object.keys(diagnosisResult.skills).length,
+                        cachedAt: new Date().toISOString()
+                      });
+                      
+                      console.log("Результаты диагностики сохранены в локальном кэше и будут восстановлены после авторизации");
                     }
                   } catch (error) {
                     console.error("Ошибка при сохранении результатов в Skills DNA:", error);
+                    
+                    // В случае ошибки также кэшируем результаты как резервную копию
+                    try {
+                      const fallbackResult = {
+                        userId: 0,
+                        skills: skillProfile,
+                        diagnosticType: 'deep' as 'deep',
+                        metadata: {
+                          completedAt: new Date().toISOString(),
+                          error: 'Saved as fallback due to server error',
+                          originalError: error.message,
+                          formData
+                        }
+                      };
+                      
+                      diagnosisApi.cacheDiagnosticResults(fallbackResult);
+                      console.log("Результаты диагностики сохранены как резервная копия из-за ошибки сервера");
+                    } catch (cacheError) {
+                      console.error("Критическая ошибка: не удалось сохранить результаты даже в кэш:", cacheError);
+                    }
                   }
                 };
                 
