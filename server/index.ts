@@ -14,10 +14,23 @@ app.set('trust proxy', 1);
 
 // Настраиваем CORS для работы в development среде
 app.use((req, res, next) => {
-  // Определяем origin для разных сред
-  const origin = process.env.NODE_ENV === 'production' 
-    ? 'https://novaai-university.replit.app' 
-    : req.headers.origin || '*';
+  // Определяем origin для разных сред с фиксированными значениями
+  let origin;
+  if (process.env.NODE_ENV === 'production') {
+    origin = 'https://novaai-university.replit.app';
+  } else {
+    // В development используем origin из заголовка, но с валидацией
+    const requestOrigin = req.headers.origin;
+    if (requestOrigin && (
+      requestOrigin.includes('replit.dev') || 
+      requestOrigin.includes('localhost') ||
+      requestOrigin.includes('127.0.0.1')
+    )) {
+      origin = requestOrigin;
+    } else {
+      origin = '*';
+    }
+  }
 
   // Настраиваем CORS заголовки
   res.header('Access-Control-Allow-Origin', origin);

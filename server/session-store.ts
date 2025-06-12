@@ -90,10 +90,8 @@ export async function createSessionStore() {
 export function createSessionOptions(sessionStore: session.Store) {
   // Функция для определения домена cookie в зависимости от окружения
   const getCookieDomain = () => {
-    if (process.env.NODE_ENV === 'production') {
-      return '.replit.app'; // Общий домен для всех replit приложений
-    }
-    return undefined; // В development режиме домен не задаем
+    // Всегда возвращаем undefined для упрощения настроек в Replit
+    return undefined; // Позволяем браузеру автоматически определить домен
   };
 
   // Генерируем сложный секретный ключ, если не задан в переменных окружения

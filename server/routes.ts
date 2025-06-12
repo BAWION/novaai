@@ -562,43 +562,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const enhancedAuthMiddleware = async (req: any, res: any, next: any) => {
     // Проверяем наличие сессии
     if (!req.session) {
+      console.log("[ProfileAuth] Отсутствует объект сессии");
       return res.status(401).json({ message: "Unauthorized - Not authenticated" });
     }
 
     let authenticated = !!req.session.authenticated;
-    const user = req.session.user;
+    let user = req.session.user;
 
-    // Попытка восстановления сессии если есть userId но нет данных пользователя
-    if ((!user || !authenticated) && req.session.user?.id) {
-      try {
-        const userData = await storage.getUser(req.session.user.id);
-        
-        if (userData) {
-          console.log(`[ProfileAuth] Восстанавливаем сессию для пользователя ${req.session.user.id}`);
+    console.log(`[ProfileAuth] Проверка сессии: auth=${authenticated}, user=${!!user}, userId=${user?.id}`);
+
+    // Попытка восстановления сессии из контекста или по ID
+    if (!authenticated || !user) {
+      // Ищем ID пользователя в различных местах сессии
+      let userId = user?.id || req.session.userId;
+      
+      if (userId) {
+        try {
+          console.log(`[ProfileAuth] Попытка восстановления сессии для пользователя ${userId}`);
+          const userData = await storage.getUser(userId);
           
-          req.session.user = {
-            id: userData.id,
-            username: userData.username,
-            email: userData.email || undefined,
-            displayName: userData.displayName || undefined,
-            role: userData.role || undefined
-          };
-          req.session.authenticated = true;
-          req.session.lastActivity = new Date().toISOString();
-          authenticated = true;
-        } else {
-          req.session.user = undefined;
-          req.session.authenticated = false;
+          if (userData) {
+            console.log(`[ProfileAuth] Сессия успешно восстановлена для пользователя ${userId}`);
+            
+            req.session.user = {
+              id: userData.id,
+              username: userData.username,
+              email: userData.email || undefined,
+              displayName: userData.displayName || undefined,
+              role: userData.role || undefined
+            };
+            req.session.authenticated = true;
+            req.session.lastActivity = new Date().toISOString();
+            authenticated = true;
+            user = req.session.user;
+          } else {
+            console.log(`[ProfileAuth] Пользователь ${userId} не найден в базе данных`);
+            req.session.user = undefined;
+            req.session.authenticated = false;
+          }
+        } catch (error) {
+          console.error("[ProfileAuth] Ошибка при восстановлении сессии:", error);
         }
-      } catch (error) {
-        console.error("[ProfileAuth] Ошибка при восстановлении сессии:", error);
       }
     }
 
-    if (!authenticated || !req.session.user) {
+    if (!authenticated || !user) {
+      console.log("[ProfileAuth] Аутентификация не удалась");
       return res.status(401).json({ message: "Unauthorized - Not authenticated" });
     }
 
+    console.log(`[ProfileAuth] Аутентификация успешна для пользователя ${user.id}`);
     next();
   };
 
