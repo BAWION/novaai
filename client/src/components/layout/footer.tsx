@@ -22,18 +22,18 @@ export function Footer() {
               <h4 className="font-medium mb-2">Платформа</h4>
               <ul className="space-y-1 text-sm text-white/60">
                 <li>
-                  <Link href="/about">
-                    <a className="hover:text-white transition">О проекте</a>
+                  <Link href="/about" className="hover:text-white transition">
+                    О проекте
                   </Link>
                 </li>
                 <li>
-                  <Link href="/courses">
-                    <a className="hover:text-white transition">Каталог курсов</a>
+                  <Link href="/courses" className="hover:text-white transition">
+                    Каталог курсов
                   </Link>
                 </li>
                 <li>
-                  <Link href="/teachers">
-                    <a className="hover:text-white transition">Преподаватели</a>
+                  <Link href="/teachers" className="hover:text-white transition">
+                    Преподаватели
                   </Link>
                 </li>
               </ul>
@@ -43,18 +43,18 @@ export function Footer() {
               <h4 className="font-medium mb-2">Ресурсы</h4>
               <ul className="space-y-1 text-sm text-white/60">
                 <li>
-                  <Link href="/blog">
-                    <a className="hover:text-white transition">Блог</a>
+                  <Link href="/blog" className="hover:text-white transition">
+                    Блог
                   </Link>
                 </li>
                 <li>
-                  <Link href="/tracks">
-                    <a className="hover:text-white transition">Учебные треки</a>
+                  <Link href="/tracks" className="hover:text-white transition">
+                    Учебные треки
                   </Link>
                 </li>
                 <li>
-                  <Link href="/faq">
-                    <a className="hover:text-white transition">FAQ</a>
+                  <Link href="/faq" className="hover:text-white transition">
+                    FAQ
                   </Link>
                 </li>
               </ul>
@@ -95,23 +95,23 @@ export function Footer() {
               <h4 className="font-medium mb-2">Правовое</h4>
               <ul className="space-y-1 text-sm text-white/60">
                 <li>
-                  <Link href="/terms">
-                    <a className="hover:text-white transition">Условия</a>
+                  <Link href="/terms" className="hover:text-white transition">
+                    Условия
                   </Link>
                 </li>
                 <li>
-                  <Link href="/privacy">
-                    <a className="hover:text-white transition">Конфиденциальность</a>
+                  <Link href="/privacy" className="hover:text-white transition">
+                    Конфиденциальность
                   </Link>
                 </li>
                 <li>
-                  <Link href="/contacts">
-                    <a className="hover:text-white transition">Контакты</a>
+                  <Link href="/contacts" className="hover:text-white transition">
+                    Контакты
                   </Link>
                 </li>
                 <li>
-                  <Link href="/presentation-selector">
-                    <a className="hover:text-white transition font-medium text-purple-300">Для инвесторов</a>
+                  <Link href="/presentation-selector" className="hover:text-white transition font-medium text-purple-300">
+                    Для инвесторов
                   </Link>
                 </li>
               </ul>
