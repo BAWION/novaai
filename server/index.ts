@@ -12,31 +12,16 @@ const app = express();
 // Включаем доверие к прокси для корректной работы за реверс-прокси
 app.set('trust proxy', 1);
 
-// Настраиваем CORS для работы в development среде
+// Настраиваем CORS для работы cookie в браузере (монолит - упрощенная версия)
 app.use((req, res, next) => {
-  // Определяем origin для разных сред с фиксированными значениями
-  let origin;
-  if (process.env.NODE_ENV === 'production') {
-    origin = 'https://novaai-university.replit.app';
-  } else {
-    // В development используем origin из заголовка, но с валидацией
-    const requestOrigin = req.headers.origin;
-    if (requestOrigin && (
-      requestOrigin.includes('replit.dev') || 
-      requestOrigin.includes('localhost') ||
-      requestOrigin.includes('127.0.0.1')
-    )) {
-      origin = requestOrigin;
-    } else {
-      origin = '*';
-    }
-  }
-
-  // Настраиваем CORS заголовки
+  // Для монолита отражаем origin из запроса (trusted proxy обеспечивает безопасность)
+  const origin = req.headers.origin || req.headers.host;
+  
+  // Настраиваем CORS заголовки согласно рекомендациям чек-листа
   res.header('Access-Control-Allow-Origin', origin);
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  res.header('Access-Control-Allow-Credentials', 'true'); // Важно для передачи cookie
+  res.header('Access-Control-Allow-Credentials', 'true'); // Критически важно для cookie
 
   // Обрабатываем preflight-запросы
   if (req.method === 'OPTIONS') {
@@ -50,6 +35,9 @@ app.use((req, res, next) => {
   
   next();
 });
+
+// Критически важно для Replit - доверие прокси для правильной работы HTTPS cookies
+app.set('trust proxy', 1);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

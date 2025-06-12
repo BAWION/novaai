@@ -111,23 +111,20 @@ export function createSessionOptions(sessionStore: session.Store) {
   };
 
   return {
-    name: "nova_session_v3", // Обновление имени cookie для текущей версии
+    name: "connect.sid", // Стандартное имя cookie для совместимости
     secret: generateStrongSecret(),
-    resave: true, // Принудительно сохраняем сессию для надежности
-    saveUninitialized: true, // Создаем сессию сразу для каждого пользователя
+    resave: false, // Не сохраняем сессию, если она не была изменена
+    saveUninitialized: false, // Не создаем сессию до авторизации
     store: sessionStore,
     rolling: true, // Обновляет cookie при каждом запросе
-    proxy: true, // Доверие прокси для использования с Replit
     cookie: {
-      httpOnly: false, // Разрешаем доступ через JavaScript для отладки
-      secure: false, // false для HTTP в development
-      sameSite: 'none' as const, // none для cross-origin requests в Replit
-      maxAge: 14 * 24 * 60 * 60 * 1000, // 14 дней
+      httpOnly: true, // Безопасность: cookie недоступен через JavaScript
+      secure: true, // true для HTTPS на Replit (trust proxy включен)
+      sameSite: 'lax' as const, // lax для same-origin requests
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 дней
       path: '/'
-      // domain не устанавливаем - пусть браузер сам определяет
-    },
-    // Обработчик события "touch" для отладки
-    touchAfter: 1 * 60 // Обновление сессии не чаще чем раз в минуту
+      // domain НЕ устанавливаем для монолита на одном домене
+    }
   };
 }
 
