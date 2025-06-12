@@ -120,8 +120,8 @@ export function createSessionOptions(sessionStore: session.Store) {
     proxy: true, // Доверие прокси для использования с Replit
     cookie: {
       httpOnly: true, // Запрещаем доступ к cookie через JavaScript
-      secure: process.env.NODE_ENV === 'production', // HTTPS только в продакшене
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' as const : 'lax' as const,
+      secure: false, // Отключаем secure для работы в Replit development
+      sameSite: 'lax' as const, // Используем lax для всех окружений
       maxAge: 14 * 24 * 60 * 60 * 1000, // 14 дней
       path: '/',
       domain: getCookieDomain() 
