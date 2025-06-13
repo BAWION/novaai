@@ -234,55 +234,16 @@ export function SkillsDnaProfile({
                   maxValue={100}
                 />
                 
-                {/* Общая картина - Analysis Summary */}
+                {/* Analysis Button */}
                 <div className="bg-space-900/50 border border-purple-500/20 rounded-lg p-6">
-                  <h3 className="text-white font-medium text-lg mb-4">Общая картина</h3>
-                  
-                  {/* Compact Radar Chart */}
-                  <div className="w-full h-64 mb-4">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <RadarChart 
-                        cx="50%" 
-                        cy="50%" 
-                        outerRadius="65%" 
-                        data={Object.entries(skills).map(([name, value]) => ({
-                          category: name.length > 15 ? name.substring(0, 12) + '...' : name,
-                          value: value
-                        }))}
-                        margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
-                      >
-                        <PolarGrid stroke="#ffffff20" />
-                        <PolarAngleAxis 
-                          dataKey="category" 
-                          tick={{ fill: "#ffffffaa", fontSize: 10 }} 
-                        />
-                        <Radar
-                          name="Уровень навыков"
-                          dataKey="value"
-                          stroke="#B28DFF"
-                          fill="#B28DFF"
-                          fillOpacity={0.3}
-                          strokeWidth={2}
-                        />
-                        <Tooltip 
-                          contentStyle={{ 
-                            backgroundColor: "#191c29", 
-                            border: "1px solid #414868",
-                            borderRadius: "4px",
-                            color: "#fff"
-                          }} 
-                          formatter={(value) => [`${value}%`, "Уровень"]}
-                        />
-                        <Legend />
-                      </RadarChart>
-                    </ResponsiveContainer>
-                  </div>
-                  
-                  <p className="text-white/80 mb-4 leading-relaxed">
-                    Вы находитесь на начальном этапе обучения. Ваш профиль показывает хороший потенциал для роста. 
-                    Рекомендуем сначала укрепить фундаментальные основы.
-                  </p>
-
+                  <Button 
+                    onClick={() => setLocation("/dashboard?analysis=detailed")}
+                    variant="outline" 
+                    className="w-full border-blue-500/30 text-blue-300 hover:bg-blue-500/10"
+                  >
+                    Подробный анализ Skills DNA
+                    <ChevronRight className="h-4 w-4 ml-2" />
+                  </Button>
                 </div>
               </div>
             )}
