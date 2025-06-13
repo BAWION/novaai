@@ -271,30 +271,7 @@ export function SkillsDnaResultsWidget({ userId }: SkillsDnaResultsWidgetProps) 
             </div>
           </div>
 
-          {/* Recommended Courses based on Skills */}
-          <div className="space-y-3">
-            <h3 className="text-white font-medium">Рекомендуемые курсы</h3>
-            {coursesToDisplay.slice(0, 3).map((course: any, index: number) => (
-              <div key={course.id} className="bg-gradient-to-r from-purple-500/10 to-indigo-500/10 border border-purple-500/20 rounded-lg p-3">
-                <div className="flex items-center justify-between mb-1">
-                  <h4 className="text-white font-medium text-sm">{course.title}</h4>
-                  <Badge className="bg-green-500/20 text-green-300 border-green-500/30 text-xs">
-                    {course.matchPercentage || Math.round((course.modelScore || 0.85 + index * 0.05) * 100)}% совпадение
-                  </Badge>
-                </div>
-                <p className="text-white/70 text-xs mb-2">{course.description}</p>
-                <div className="flex items-center text-xs text-white/60 space-x-3">
-                  <span>Сложность: {course.difficulty || (index === 0 ? '2/5' : index === 1 ? '4/5' : '3/5')}</span>
-                  <span>{course.modules || (5 + index)} модулей</span>
-                </div>
-                <div className="mt-2 text-xs text-purple-300">
-                  Почему подходит: {index === 0 ? 'Укрепит ваши знания в машинном обучении' : 
-                                   index === 1 ? 'Развитие навыков программирования' : 
-                                   'Важная область для комплексного понимания ИИ'}
-                </div>
-              </div>
-            ))}
-          </div>
+
 
           {/* Areas for Development */}
           <div className="space-y-2">
