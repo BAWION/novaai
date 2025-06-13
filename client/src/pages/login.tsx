@@ -360,10 +360,6 @@ export default function Login() {
                     )}
                   </button>
                 </div>
-                
-                <div className="text-center text-white/50 text-xs">
-                  Подсказка: Логин - админ13, Пароль - 54321
-                </div>
               </div>
             )}
 
