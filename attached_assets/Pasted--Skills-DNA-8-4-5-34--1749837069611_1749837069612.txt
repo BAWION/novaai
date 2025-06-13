@@ -1,0 +1,52 @@
+### Итоговый словарь Skills DNA (8 категорий × 4–5 компетенций = 34 единицы)
+
+| #                                | Категория (DNA Category) | Код компетенции (dnaId)                         | Название компетенции |
+| -------------------------------- | ------------------------ | ----------------------------------------------- | -------------------- |
+| **A. AI Foundations**            |                          |                                                 |                      |
+| A1                               | `ai_literacy`            | Базовая грамотность в ИИ                        |                      |
+| A2                               | `ai_math_basics`         | Линейная алгебра & статистика для ИИ            |                      |
+| A3                               | `ml_algorithms`          | Классические ML-алгоритмы                       |                      |
+| A4                               | `deep_learning_core`     | Базовая нейросетвая архитектура                 |                      |
+| **B. Programming & Data**        |                          |                                                 |                      |
+| B1                               | `python_basics`          | Python: синтаксис и структуры данных            |                      |
+| B2                               | `data_wrangling`         | Pandas / SQL обработка данных                   |                      |
+| B3                               | `python_adv`             | Асинхронность, типизация, testing               |                      |
+| B4                               | `data_visualization`     | Matplotlib / Plotly, storytelling               |                      |
+| **C. Generative AI & Prompting** |                          |                                                 |                      |
+| C1                               | `prompt_thinking`        | Техники системного промптинга                   |                      |
+| C2                               | `gen_ai_text`            | LLM-инструменты (ChatGPT, Llama 2)              |                      |
+| C3                               | `gen_ai_image`           | Diffusion-модели, Midjourney, SDXL              |                      |
+| C4                               | `rag_arch`               | Retrieval-Augmented Generation                  |                      |
+| C5                               | `llm_tuning`             | Fine-tuning, LoRA, QLoRA                        |                      |
+| **D. MLOps & Deployment**        |                          |                                                 |                      |
+| D1                               | `mlops_foundations`      | CI/CD, DVC, модельные реестры                   |                      |
+| D2                               | `containerization`       | Docker + K8s для ML                             |                      |
+| D3                               | `serving_scaling`        | FastAPI, Triton, горизонтальное масштабирование |                      |
+| D4                               | `ai_security`            | Безопасность моделей, jailbreak-защита          |                      |
+| **E. Business & Strategy**       |                          |                                                 |                      |
+| E1                               | `ai_strategy`            | AI-дорожные карты и ROI                         |                      |
+| E2                               | `genai_use_cases`        | Каталог бизнес-кейсов ген-ИИ                    |                      |
+| E3                               | `workflow_automation`    | Low-/No-code интеграции (Zapier, Make)          |                      |
+| E4                               | `decision_frameworks`    | Cost-benefit, cNPS, OKR для AI-проектов         |                      |
+| **F. Productivity Copilots**     |                          |                                                 |                      |
+| F1                               | `office_copilots`        | MS 365 / Google Workspace Copilot-шаблоны       |                      |
+| F2                               | `code_copilots`          | GitHub Copilot, Code LLM IDE плагины            |                      |
+| F3                               | `ai_study_buddy`         | AI-ассистенты для учёбы и ресёрча               |                      |
+| F4                               | `personal_automation`    | Скрипты-боты для рутинных задач                 |                      |
+| **G. Ethics & Compliance**       |                          |                                                 |                      |
+| G1                               | `ai_ethics`              | Принципы справедливости и прозрачности          |                      |
+| G2                               | `privacy_gdpr`           | GDPR/FZ-152, обработка ПД                       |                      |
+| G3                               | `responsible_ai`         | Responsible AI lifecycle & ESG                  |                      |
+| G4                               | `reg_compliance`         | Отраслевые стандарты (финансы, медтех)          |                      |
+| **H. Industry Verticals**        |                          |                                                 |                      |
+| H1                               | `fintech_ai`             | Скоринг, анти-фрод, чат-боты                    |                      |
+| H2                               | `retail_ai`              | Персонализация витрин, спрос-прогноз            |                      |
+| H3                               | `manufacturing_ai`       | Predictive Maintenance, визуальный QC           |                      |
+| H4                               | `healthcare_ai`          | Диагностика изображений, LLM-EHR                |                      |
+| H5                               | `gov_ai`                 | GovTech-решения, открытые данные                |                      |
+
+#### Как пользоваться
+
+* **`dnaId`** — ключ в таблицах `skills_dna`, `skill_to_dna_mapping`.
+* Диагностика возвращает пары `{dnaId, score}`; рекомендуемый курс хранит поле `dnaTargets: string[]`.
+* Если понадобится сузить словарь (например, для MVP) — временно «гасим» единицы, не удаляя из базы.

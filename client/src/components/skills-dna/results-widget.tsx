@@ -362,7 +362,11 @@ export function SkillsDnaResultsWidget({ userId }: SkillsDnaResultsWidgetProps) 
                 <div className="text-xs text-purple-300 mb-3">
                   Почему подходит: {index === 0 ? 'Укрепит ваши знания в машинном обучении' : 'Развитие навыков программирования'}
                 </div>
-                <Button size="sm" className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600">
+                <Button 
+                  size="sm" 
+                  className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600"
+                  onClick={() => setLocation(`/courses/${course.slug || course.id}`)}
+                >
                   Начать изучение
                 </Button>
               </div>
