@@ -40,7 +40,10 @@ export function SkillsDnaResultsWidget({ userId }: SkillsDnaResultsWidgetProps) 
       if (!userId) return null;
       const res = await apiRequest('GET', `/api/diagnosis/summary/${userId}`);
       if (!res.ok) return null;
-      return res.json();
+      const data = await res.json();
+      console.log('[SkillsDnaResultsWidget] Получены данные диагностики:', data);
+      console.log('[SkillsDnaResultsWidget] Структура данных:', data?.data ? Object.keys(data.data) : 'нет данных');
+      return data;
     },
     enabled: !!userId
   });
@@ -128,7 +131,7 @@ export function SkillsDnaResultsWidget({ userId }: SkillsDnaResultsWidgetProps) 
     );
   }
 
-  if (!skillsData || !skillsData.skills) {
+  if (!skillsData || !skillsData.data || Object.keys(skillsData.data).length === 0) {
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Skills DNA Section - Empty State */}
@@ -216,11 +219,17 @@ export function SkillsDnaResultsWidget({ userId }: SkillsDnaResultsWidgetProps) 
   }
 
   // Данные есть - показываем полный профиль
-  const skills = Object.entries(skillsData.skills || {}).map(([name, value]) => ({
-    name,
-    value: value as number,
-    category: 'general'
-  }));
+  const skillsDataObj = skillsData.data || {};
+  const skills = Object.entries(skillsDataObj).flatMap(([category, categoryData]: [string, any]) => {
+    if (categoryData && typeof categoryData === 'object' && categoryData.skills) {
+      return Object.entries(categoryData.skills).map(([name, value]) => ({
+        name,
+        value: value as number,
+        category
+      }));
+    }
+    return [];
+  });
 
   const topSkills = skills.sort((a, b) => b.value - a.value).slice(0, 3);
   const weakSkills = skills.sort((a, b) => a.value - b.value).slice(0, 2);
