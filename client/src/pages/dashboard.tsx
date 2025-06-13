@@ -684,24 +684,14 @@ export default function Dashboard() {
         
         {/* Main Content - Skills DNA and Recommended Courses */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Skills DNA Card - Left side */}
+          {/* Diagnosis Results Widget - Left side */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
             className="w-full"
           >
-            <Glassmorphism className="h-full rounded-xl overflow-hidden border border-purple-500/30 p-6">
-              <div className="flex items-center mb-4">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600/40 to-purple-700/20 flex items-center justify-center">
-                  <i className="fas fa-brain text-purple-300"></i>
-                </div>
-                <h2 className="font-orbitron text-xl font-semibold ml-3">
-                  Skills DNA
-                </h2>
-              </div>
-              <CompactSkillsDnaCard showHeader={false} className="bg-transparent border-0" />
-            </Glassmorphism>
+            <DiagnosisResultsWidget userId={user?.id} />
           </motion.div>
 
           {/* Recommended Courses - Right side */}
