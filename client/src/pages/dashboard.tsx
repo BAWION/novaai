@@ -12,12 +12,10 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { LearningTimeline } from "@/components/progress/learning-timeline";
 import { default as SkillProgress } from "@/components/progress/skill-progress";
 import { WelcomeModal } from "@/components/onboarding/welcome-modal";
-import { CompactSkillsDnaCard } from "@/components/skills-dna";
-import { SkillsDnaProfile } from "@/components/skills-dna-profile";
 import { SkillsDnaResultsWidget } from "@/components/skills-dna/results-widget";
+import { SkillsDnaProfile } from "@/components/skills-dna-profile";
 import { CourseCard } from "@/components/courses/course-card";
 import { TimeSavedPage } from "@/components/time-saved/TimeSavedPage";
-import { DiagnosisResultsWidget } from "@/components/diagnosis-results-widget";
 import { diagnosisApi } from "@/api/diagnosis-api";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -27,7 +25,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { useQuery } from "@tanstack/react-query";
 
@@ -684,77 +681,14 @@ export default function Dashboard() {
         </motion.div>
         
         {/* Main Content - Skills DNA and Recommended Courses */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Diagnosis Results Widget - Left side */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="w-full"
-          >
-            <DiagnosisResultsWidget userId={user?.id} />
-          </motion.div>
-
-          {/* Recommended Courses - Right side */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="w-full"
-          >
-            <Glassmorphism className="h-full rounded-xl overflow-hidden border border-indigo-500/30 p-6">
-              <div className="flex items-center mb-4">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-600/40 to-indigo-700/20 flex items-center justify-center">
-                  <i className="fas fa-book text-indigo-300"></i>
-                </div>
-                <h2 className="font-orbitron text-xl font-semibold ml-3">
-                  Рекомендуемые курсы
-                </h2>
-              </div>
-              
-              <div className="space-y-4">
-                {recommendedCourses.length === 0 && (
-                  <div className="bg-space-900/50 border border-space-700 rounded-lg p-6 text-center">
-                    <i className="fas fa-lightbulb text-2xl text-indigo-300/40 mb-3"></i>
-                    <h3 className="font-medium text-lg mb-1">Рекомендации скоро появятся</h3>
-                    <p className="text-white/60">
-                      Пройдите диагностику навыков, чтобы получить персонализированные рекомендации курсов
-                    </p>
-                  </div>
-                )}
-                {recommendedCourses.slice(0, 3).map((course: any) => (
-                  <CourseCard
-                    key={course.id}
-                    id={course.id}
-                    slug={course.slug || `${course.id}`}
-                    title={course.title}
-                    description={course.description || "Описание курса временно недоступно"}
-                    icon={course.icon || 'book'}
-                    modules={course.modules || 5}
-                    level={course.level || 'intermediate'}
-                    color="primary"
-                    difficulty={course.difficulty || 2}
-                    progress={course.progress || 0}
-                    variant="compact"
-                    estimatedDuration={course.estimatedDuration || 120}
-                    skillMatch={{
-                      percentage: course.matchPercentage || Math.round((course.modelScore || 0.75) * 100),
-                      label: (course.matchPercentage || Math.round((course.modelScore || 0.75) * 100)) >= 90 
-                        ? "Отличное совпадение" 
-                        : (course.matchPercentage || Math.round((course.modelScore || 0.75) * 100)) >= 70 
-                          ? "Хорошее совпадение" 
-                          : (course.matchPercentage || Math.round((course.modelScore || 0.75) * 100)) >= 50 
-                            ? "Среднее совпадение" 
-                            : "Базовое совпадение",
-                      isRecommended: course.isRecommended || (course.modelScore > 0.75)
-                    }}
-                  />
-                ))}
-              </div>
-              
-            </Glassmorphism>
-          </motion.div>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="mb-8"
+        >
+          <SkillsDnaResultsWidget userId={user?.id} />
+        </motion.div>
 
         {/* Additional Content Columns */}
         <div className="grid grid-cols-1 lg:grid-cols-7 gap-6">
