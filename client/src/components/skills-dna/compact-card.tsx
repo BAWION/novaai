@@ -178,10 +178,7 @@ export function CompactSkillsDnaCard({
           {/* Радарная диаграмма навыков */}
           <div className="pt-2">
             <SkillsRadarChart 
-              skills={skillsDnaProgress?.reduce((acc, skill) => {
-                acc[skill.skillName] = skill.level;
-                return acc;
-              }, {} as Record<string, number>) || {}}
+              skills={skills || {}}
               userId={userId}
               title=""
               showControls={false}

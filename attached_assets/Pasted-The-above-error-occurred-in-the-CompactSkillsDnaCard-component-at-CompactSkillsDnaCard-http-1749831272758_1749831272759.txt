@@ -1,0 +1,46 @@
+The above error occurred in the <CompactSkillsDnaCard> component:
+
+    at CompactSkillsDnaCard (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/src/components/skills-dna/compact-card.tsx:29:3)
+    at div
+    at Glassmorphism (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/src/components/ui/glassmorphism.tsx:19:3)
+    at div
+    at MotionComponent (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/framer-motion.js?v=867cdecc:945:40)
+    at div
+    at div
+    at div
+    at MotionComponent (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/framer-motion.js?v=867cdecc:945:40)
+    at div
+    at main
+    at div
+    at DashboardLayout (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/src/components/layout/dashboard-layout.tsx:25:35)
+    at Dashboard (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/src/pages/dashboard.tsx:49:46)
+    at Route (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=867cdecc:323:16)
+    at ProtectedRoute (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/src/App.tsx?v=Y3Be3--g5WRiaZk2xx0FV:65:38)
+    at Switch (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=867cdecc:379:17)
+    at main
+    at div
+    at Router (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/src/App.tsx?v=Y3Be3--g5WRiaZk2xx0FV:110:31)
+    at Provider (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=867cdecc:38:15)
+    at TooltipProvider (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=867cdecc:64:5)
+    at SidebarProvider (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/src/components/layout/sidebar.tsx:32:35)
+    at AppProvider (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/src/context/app-context.tsx:26:31)
+    at TrackingProvider (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/src/context/tracking-context.tsx:27:36)
+    at UserProfileProvider (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/src/context/user-profile-context.tsx:26:39)
+    at AuthProvider (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/src/context/auth-context.tsx:27:32)
+    at QueryClientProvider (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=867cdecc:2805:3)
+    at Providers (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/src/context/providers.tsx:24:29)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+skillsDnaProgress is not defined
+at CompactSkillsDnaCard (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/src/components/skills-dna/compact-card.tsx:254:19)
+at renderWithHooks (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=867cdecc:11548:26)
+at updateFunctionComponent (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=867cdecc:14582:28)
+at beginWork (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=867cdecc:15924:22)
+at beginWork$1 (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=867cdecc:19753:22)
+at performUnitOfWork (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=867cdecc:19198:20)
+at workLoopSync (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=867cdecc:19137:13)
+at renderRootSync (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=867cdecc:19116:15)
+at recoverFromConcurrentError (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=867cdecc:18736:28)
+at performSyncWorkOnRoot (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=867cdecc:18879:28)
