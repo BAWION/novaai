@@ -233,13 +233,14 @@ export default function SkillsRadarChart({
           className="w-full"
         >
           <TabsContent value="radar" className="mt-0">
-            <div className="w-full h-64 md:h-80">
+            <div className="w-full h-80 md:h-96">
               <ResponsiveContainer width="100%" height="100%">
                 <RadarChart 
                   cx="50%" 
                   cy="50%" 
-                  outerRadius="80%" 
+                  outerRadius="70%" 
                   data={filteredData}
+                  margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
                 >
                   <PolarGrid stroke="#ffffff20" />
                   <PolarAngleAxis 
@@ -249,9 +250,10 @@ export default function SkillsRadarChart({
                   <Radar
                     name="Уровень навыков"
                     dataKey="value"
-                    stroke="#8884d8"
-                    fill="#8884d8"
-                    fillOpacity={0.6}
+                    stroke="#B28DFF"
+                    fill="#B28DFF"
+                    fillOpacity={0.3}
+                    strokeWidth={2}
                   />
                   <Tooltip 
                     contentStyle={{ 
