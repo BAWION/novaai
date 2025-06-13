@@ -1956,14 +1956,6 @@ export default function DeepDiagnosisPage() {
                       </Button>
                       
                       <Button 
-                        onClick={handleViewSkillsDna}
-                        className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-90 text-white"
-                      >
-                        Посмотреть Skills DNA
-                        <FileText className="h-4 w-4 ml-2" />
-                      </Button>
-                      
-                      <Button 
                         onClick={handleContinueToDashboard}
                         className="bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:opacity-90 text-white"
                       >
