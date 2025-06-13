@@ -16,6 +16,7 @@ import { CompactSkillsDnaCard } from "@/components/skills-dna";
 import { SkillsDnaProfile } from "@/components/skills-dna-profile";
 import { CourseCard } from "@/components/courses/course-card";
 import { TimeSavedPage } from "@/components/time-saved/TimeSavedPage";
+import { DiagnosisResultsWidget } from "@/components/diagnosis-results-widget";
 import { diagnosisApi } from "@/api/diagnosis-api";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
