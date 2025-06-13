@@ -45,16 +45,45 @@ export function SkillsDnaResultsWidget({ userId }: SkillsDnaResultsWidgetProps) 
     enabled: !!userId
   });
 
-  // Получение рекомендуемых курсов
+  // Получение рекомендуемых курсов (только для авторизованных пользователей)
   const { data: recommendedCourses = [], isLoading: coursesLoading } = useQuery({
     queryKey: ['/api/courses/recommended'],
     queryFn: async () => {
       const res = await apiRequest('GET', '/api/courses/recommended');
-      if (!res.ok) return [];
+      if (!res.ok) {
+        throw new Error('Failed to fetch recommended courses');
+      }
       return res.json();
     },
-    enabled: !!user
+    enabled: !!user, // Запрос выполняется только для авторизованных пользователей
+    retry: false
   });
+
+  // Демо-данные для неавторизованных пользователей
+  const demoRecommendedCourses = [
+    {
+      id: 1,
+      title: "AI Literacy 101",
+      description: "Базовый курс по основам ИИ и его применению",
+      matchPercentage: 95,
+      difficulty: "2/5",
+      modules: 8,
+      duration: "120 мин"
+    },
+    {
+      id: 2,
+      title: "Математика для ИИ", 
+      description: "Основы математики, необходимые для понимания алгоритмов ИИ",
+      matchPercentage: 85,
+      difficulty: "4/5",
+      modules: 12,
+      duration: "180 мин"
+    }
+  ];
+
+  // Используем демо-данные для неавторизованных пользователей
+  const coursesToDisplay = user ? recommendedCourses : demoRecommendedCourses;
+  const isCoursesLoading = user ? coursesLoading : false;
 
   const handleStartDiagnosis = () => {
     setLocation("/deep-diagnosis");
@@ -144,7 +173,7 @@ export function SkillsDnaResultsWidget({ userId }: SkillsDnaResultsWidgetProps) 
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            {coursesLoading ? (
+            {isCoursesLoading ? (
               <div className="space-y-3">
                 {[1, 2].map((i) => (
                   <div key={i} className="animate-pulse">
@@ -152,8 +181,8 @@ export function SkillsDnaResultsWidget({ userId }: SkillsDnaResultsWidgetProps) 
                   </div>
                 ))}
               </div>
-            ) : recommendedCourses.length > 0 ? (
-              recommendedCourses.slice(0, 2).map((course: any) => (
+            ) : coursesToDisplay.length > 0 ? (
+              coursesToDisplay.slice(0, 2).map((course: any) => (
                 <div key={course.id} className="bg-space-900/50 border border-purple-500/20 rounded-lg p-4">
                   <div className="flex items-start justify-between mb-2">
                     <h4 className="text-white font-medium">{course.title}</h4>
@@ -236,7 +265,7 @@ export function SkillsDnaResultsWidget({ userId }: SkillsDnaResultsWidgetProps) 
           {/* Recommended Courses based on Skills */}
           <div className="space-y-3">
             <h3 className="text-white font-medium">Рекомендуемые курсы</h3>
-            {recommendedCourses.slice(0, 3).map((course: any, index: number) => (
+            {coursesToDisplay.slice(0, 3).map((course: any, index: number) => (
               <div key={course.id} className="bg-gradient-to-r from-purple-500/10 to-indigo-500/10 border border-purple-500/20 rounded-lg p-3">
                 <div className="flex items-center justify-between mb-1">
                   <h4 className="text-white font-medium text-sm">{course.title}</h4>
@@ -305,8 +334,8 @@ export function SkillsDnaResultsWidget({ userId }: SkillsDnaResultsWidgetProps) 
                 </div>
               ))}
             </div>
-          ) : recommendedCourses.length > 0 ? (
-            recommendedCourses.slice(0, 2).map((course: any, index: number) => (
+          ) : coursesToDisplay.length > 0 ? (
+            coursesToDisplay.slice(0, 2).map((course: any, index: number) => (
               <div key={course.id} className="bg-space-900/50 border border-purple-500/20 rounded-lg p-4 hover:border-purple-500/40 transition-colors">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
