@@ -306,13 +306,7 @@ export function SkillsDnaResultsWidget({ userId }: SkillsDnaResultsWidgetProps) 
               ))}
             </div>
             
-            {/* Overall Progress */}
-            <div className="mb-2">
-              <div className="flex justify-between text-sm mb-2">
-                <span className="text-white/70">Общий прогресс: {Math.round(overallProgress)}%</span>
-              </div>
-              <Progress value={overallProgress} className="h-2" />
-            </div>
+
           </div>
 
 
