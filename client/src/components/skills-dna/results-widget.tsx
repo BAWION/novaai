@@ -8,6 +8,7 @@ import { Brain, ChevronRight, Target, TrendingUp, Book } from "lucide-react";
 import { useLocation } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/context/auth-context";
+import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar, Tooltip, Legend } from "recharts";
 
 interface SkillsData {
   name: string;
@@ -252,20 +253,63 @@ export function SkillsDnaResultsWidget({ userId }: SkillsDnaResultsWidgetProps) 
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Profile Overview */}
+          {/* Radar Chart Visualization */}
           <div className="bg-space-900/50 border border-purple-500/20 rounded-lg p-4">
-            <h3 className="text-white font-medium mb-2">Профиль навыков</h3>
+            <h3 className="text-white font-medium mb-4">Профиль навыков</h3>
+            
+            {/* Radar Chart */}
+            <div className="w-full h-64 mb-4">
+              <ResponsiveContainer width="100%" height="100%">
+                <RadarChart 
+                  cx="50%" 
+                  cy="50%" 
+                  outerRadius="70%" 
+                  data={skills.map(skill => ({
+                    category: skill.name.length > 15 ? skill.name.substring(0, 12) + '...' : skill.name,
+                    value: skill.value
+                  }))}
+                  margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+                >
+                  <PolarGrid stroke="#ffffff20" />
+                  <PolarAngleAxis 
+                    dataKey="category" 
+                    tick={{ fill: "#ffffffaa", fontSize: 10 }} 
+                  />
+                  <Radar
+                    name="Уровень навыков"
+                    dataKey="value"
+                    stroke="#B28DFF"
+                    fill="#B28DFF"
+                    fillOpacity={0.3}
+                    strokeWidth={2}
+                  />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: "#191c29", 
+                      border: "1px solid #414868",
+                      borderRadius: "4px",
+                      color: "#fff"
+                    }} 
+                    formatter={(value) => [`${value}%`, "Уровень"]}
+                  />
+                </RadarChart>
+              </ResponsiveContainer>
+            </div>
+            
+            {/* Top Skills Summary */}
             <div className="grid grid-cols-2 gap-4 mb-4">
               {topSkills.map((skill, index) => (
                 <div key={skill.name} className="text-center">
-                  <div className="text-2xl font-bold text-white mb-1">{skill.value}%</div>
+                  <div className="text-lg font-bold text-white mb-1">{skill.value}%</div>
                   <div className="text-xs text-white/70">{skill.name}</div>
                 </div>
               ))}
             </div>
-            <div className="mb-4">
+            
+            {/* Overall Progress */}
+            <div className="mb-2">
               <div className="flex justify-between text-sm mb-2">
-                <span className="text-white/70">Работа с данными: {Math.round(overallProgress)}%</span>
+                <span className="text-white/70">Общий прогресс: {Math.round(overallProgress)}%</span>
               </div>
               <Progress value={overallProgress} className="h-2" />
             </div>
