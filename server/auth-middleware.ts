@@ -10,6 +10,7 @@ declare module 'express-session' {
     user?: {
       id: number;
       username: string;
+      displayName?: string;
       email?: string;
       role?: string;
     };
@@ -18,6 +19,8 @@ declare module 'express-session' {
     lastActivity?: string;
     createdAt?: string;
     userAgent?: string;
+    loginTime?: string;
+    loginMethod?: string;
     passport?: {
       user: number;
     };
@@ -48,6 +51,7 @@ export const enhancedAuthMiddleware = async (req: Request, res: Response, next: 
           req.session.user = {
             id: userData.id,
             username: userData.username,
+            displayName: userData.displayName || undefined,
             email: userData.email || undefined,
             role: userData.role || undefined
           };

@@ -360,8 +360,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         req.session.loginTime = new Date().toISOString();
         req.session.loginMethod = method;
         
+        // Детальное логирование перед сохранением
+        console.log(`[Login] Данные сессии перед сохранением:`, {
+          sessionId: req.sessionID,
+          userId: req.session.user.id,
+          username: req.session.user.username,
+          authenticated: req.session.authenticated,
+          keys: Object.keys(req.session)
+        });
+        
         // Сохраняем сессию
         await saveSession();
+        
+        // Проверяем сессию после сохранения
+        console.log(`[Login] Данные сессии после сохранения:`, {
+          sessionId: req.sessionID,
+          userId: req.session.user?.id,
+          username: req.session.user?.username,
+          authenticated: req.session.authenticated
+        });
         
         console.log(`[Login] Пользователь ${user.username} успешно вошел, sessionID:`, req.sessionID);
         res.json({
