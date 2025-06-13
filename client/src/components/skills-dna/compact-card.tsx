@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSkillsDna } from "@/hooks/use-skills-dna";
-import { SkillsTriangleChart } from "./triangle-chart";
+import SkillsRadarChart from "../skills-radar-chart";
 import { SkillsDnaModal } from "./modal-dialog";
 
 interface CompactSkillsDnaCardProps {
@@ -175,13 +175,17 @@ export function CompactSkillsDnaCard({
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Треугольная диаграмма навыков */}
+          {/* Радарная диаграмма навыков */}
           <div className="pt-2">
-            <SkillsTriangleChart 
-              skills={triangleSkills}
-              height={280}
-              width={280}
-              className="mx-auto"
+            <SkillsRadarChart 
+              skills={skillsDnaProgress?.reduce((acc, skill) => {
+                acc[skill.skillName] = skill.level;
+                return acc;
+              }, {} as Record<string, number>) || {}}
+              userId={userId}
+              title=""
+              showControls={false}
+              className="border-0 bg-transparent p-0"
             />
           </div>
           
