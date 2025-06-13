@@ -4,6 +4,7 @@
  */
 
 import { db } from "../db";
+import { sql } from "drizzle-orm";
 import { 
   skillsDna, 
   userSkillsDnaProgress, 
@@ -56,11 +57,26 @@ class DiagnosisService {
         throw new Error("Не найдены компетенции Skills DNA в системе");
       }
 
-      // 3. Получаем мэппинг навыков на компетенции
-      const skillsMappings = await db.select().from(skillToDnaMapping);
-      if (!skillsMappings.length) {
-        console.warn("Не найдены мэппинги навыков на компетенции");
-      }
+      // 3. Получаем мэппинг навыков на компетенции по именам (простой подход)
+      const skillNameMappings: Array<{skill_name: string, dna_id: number, weight: number}> = [
+        // Быстрая диагностика
+        {skill_name: 'Программирование AI', dna_id: 5, weight: 1.0},
+        {skill_name: 'Машинное обучение', dna_id: 4, weight: 1.0},
+        {skill_name: 'Работа с данными', dna_id: 7, weight: 1.0},
+        {skill_name: 'Нейросети', dna_id: 9, weight: 1.0},
+        {skill_name: 'Алгоритмы', dna_id: 6, weight: 1.0},
+        {skill_name: 'Исследования', dna_id: 15, weight: 1.0},
+        {skill_name: 'Практические навыки', dna_id: 10, weight: 1.0},
+        // Глубокая диагностика
+        {skill_name: 'Аналитическое мышление', dna_id: 6, weight: 1.0},
+        {skill_name: 'Решение проблем', dna_id: 10, weight: 1.0},
+        {skill_name: 'Внимание к деталям', dna_id: 11, weight: 1.0},
+        {skill_name: 'Применение в бизнесе', dna_id: 14, weight: 1.0},
+        {skill_name: 'Исследовательские навыки', dna_id: 15, weight: 1.0},
+        {skill_name: 'Этика и право в ИИ', dna_id: 16, weight: 1.0}
+      ];
+
+      console.log(`[DiagnosisService] Загружены ${skillNameMappings.length} мэппингов навыков`);
 
       // 4. Вычисляем прогресс для каждой компетенции DNA на основе диагностики
       const competencyProgress: Record<number, { 
@@ -73,34 +89,33 @@ class DiagnosisService {
       for (const skillName in skills) {
         const skillValue = skills[skillName];
         
-        // Находим подходящие компетенции для навыка через связи в БД
-        // Если точного мэппинга нет, используем приблизительное соответствие по названию
-        const skillDnaMappings = skillsMappings.filter(mapping => {
-          const matchingDna = allSkillsDna.find(dna => dna.id === mapping.dnaId);
-          // Проверяем на точное соответствие по мэппингу или приблизительное по названию
-          return matchingDna && 
-            (matchingDna.name.toLowerCase().includes(skillName.toLowerCase()) || 
-             skillName.toLowerCase().includes(matchingDna.name.toLowerCase()));
-        });
+        // Находим подходящие компетенции для навыка через мэппинги
+        const directMappings = skillNameMappings.filter(mapping => 
+          mapping.skill_name === skillName
+        );
 
-        // Если нашли мэппинги, рассчитываем прогресс для соответствующих компетенций
-        if (skillDnaMappings.length > 0) {
-          for (const mapping of skillDnaMappings) {
-            if (!competencyProgress[mapping.dnaId]) {
+        // Если нашли прямые мэппинги, рассчитываем прогресс для соответствующих компетенций
+        if (directMappings.length > 0) {
+          for (const mapping of directMappings) {
+            const dnaId = mapping.dna_id;
+            const weight = mapping.weight || 1.0;
+            const adjustedValue = Math.min(100, skillValue * weight); // Ограничиваем максимум 100
+            
+            if (!competencyProgress[dnaId]) {
               // Определяем уровень на основе значения навыка
-              const level = this.calculateSkillLevel(skillValue);
-              competencyProgress[mapping.dnaId] = {
+              const level = this.calculateSkillLevel(adjustedValue);
+              competencyProgress[dnaId] = {
                 level,
-                progress: skillValue,
+                progress: adjustedValue,
                 source: `diagnostic-${diagnosticType}`
               };
             } else {
               // Если компетенция уже есть в результатах, берем максимальное значение
-              const currentProgress = competencyProgress[mapping.dnaId].progress;
-              if (skillValue > currentProgress) {
-                competencyProgress[mapping.dnaId] = {
-                  level: this.calculateSkillLevel(skillValue),
-                  progress: skillValue,
+              const currentProgress = competencyProgress[dnaId].progress;
+              if (adjustedValue > currentProgress) {
+                competencyProgress[dnaId] = {
+                  level: this.calculateSkillLevel(adjustedValue),
+                  progress: adjustedValue,
                   source: `diagnostic-${diagnosticType}`
                 };
               }
