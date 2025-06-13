@@ -1,6 +1,9 @@
 import React, { useEffect } from "react";
 import SkillsRadarChart from "@/components/skills-radar-chart";
 import { SkillsTriangleChart } from "@/components/skills-dna";
+import { ProgressTimeline } from "@/components/skills-dna/progress-timeline";
+import { CategoryAnalysis } from "@/components/skills-dna/category-analysis";
+import { GoalsInsights } from "@/components/skills-dna/goals-insights";
 import { useSkillsDna } from "@/hooks/use-skills-dna";
 import { useUserProfile } from "@/context/user-profile-context";
 import { Button } from "@/components/ui/button";
@@ -191,64 +194,70 @@ export function SkillsDnaProfile({
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Основной профиль навыков */}
-        <div className="lg:col-span-2">
-          <div className="bg-space-800/70 border-blue-500/20 rounded-md p-4">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-medium text-white">Skills DNA</h3>
-              {!isLoading && !error && (
-                <Button variant="ghost" size="icon" onClick={refetch} title="Обновить данные" className="h-8 w-8">
-                  <RefreshCw className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
-            
-            {isLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <Skeleton className="w-64 h-64 rounded-md bg-white/5" />
-              </div>
-            ) : error ? (
-              <div className="flex flex-col items-center justify-center text-center py-8">
-                <AlertTriangle className="h-10 w-10 text-red-400 mb-2" />
-                <p className="text-red-300 mb-1">Ошибка загрузки данных</p>
-                <p className="text-white/60 text-sm mb-3">
-                  {error instanceof Error ? error.message : 'Неизвестная ошибка'}
-                </p>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={refetch}
-                  className="border-white/20 hover:border-white/40"
-                >
-                  Попробовать снова
-                </Button>
-              </div>
-            ) : (
-              <div className="flex flex-col">
-                <SkillsRadarChart 
-                  skills={skills}
-                  title=""
-                  className="mb-6"
-                  showControls={false}
-                  maxValue={100}
-                />
-                
-                {/* Analysis Button */}
-                <div className="bg-space-900/50 border border-purple-500/20 rounded-lg p-6">
-                  <Button 
-                    onClick={() => setLocation("/dashboard?analysis=detailed")}
-                    variant="outline" 
-                    className="w-full border-blue-500/30 text-blue-300 hover:bg-blue-500/10"
-                  >
-                    Подробный анализ Skills DNA
-                    <ChevronRight className="h-4 w-4 ml-2" />
-                  </Button>
+      {/* Comprehensive Analysis with Tabs */}
+      <div className="mb-8">
+        <Tabs defaultValue="overview" className="w-full">
+          <TabsList className="grid w-full grid-cols-4 mb-6 bg-space-900/50 border border-white/10">
+            <TabsTrigger value="overview" className="data-[state=active]:bg-purple-500/20">
+              Обзор
+            </TabsTrigger>
+            <TabsTrigger value="progress" className="data-[state=active]:bg-purple-500/20">
+              Динамика
+            </TabsTrigger>
+            <TabsTrigger value="categories" className="data-[state=active]:bg-purple-500/20">
+              Категории
+            </TabsTrigger>
+            <TabsTrigger value="goals" className="data-[state=active]:bg-purple-500/20">
+              Цели
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Overview Tab */}
+          <TabsContent value="overview">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Main Skills Profile */}
+              <div className="lg:col-span-2">
+                <div className="bg-space-800/70 border-blue-500/20 rounded-md p-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-medium text-white">Skills DNA</h3>
+                    {!isLoading && !error && (
+                      <Button variant="ghost" size="icon" onClick={refetch} title="Обновить данные" className="h-8 w-8">
+                        <RefreshCw className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                  
+                  {isLoading ? (
+                    <div className="flex items-center justify-center py-12">
+                      <Skeleton className="w-64 h-64 rounded-md bg-white/5" />
+                    </div>
+                  ) : error ? (
+                    <div className="flex flex-col items-center justify-center text-center py-8">
+                      <AlertTriangle className="h-10 w-10 text-red-400 mb-2" />
+                      <p className="text-red-300 mb-1">Ошибка загрузки данных</p>
+                      <p className="text-white/60 text-sm mb-3">
+                        {error instanceof Error ? error.message : 'Неизвестная ошибка'}
+                      </p>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={refetch}
+                        className="border-white/20 hover:border-white/40"
+                      >
+                        Попробовать снова
+                      </Button>
+                    </div>
+                  ) : (
+                    <SkillsRadarChart 
+                      skills={skills}
+                      title=""
+                      className="mb-6"
+                      showControls={false}
+                      maxValue={100}
+                    />
+                  )}
                 </div>
               </div>
-            )}
-          </div>
-        </div>
 
         {/* Сводная информация */}
         <div className="lg:col-span-1">
