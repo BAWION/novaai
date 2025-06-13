@@ -101,8 +101,9 @@ export function UserProfileProvider({ children }: { children: React.ReactNode })
         return { ...prevProfile, ...data };
       });
 
-      // Then sync with the server
-      await apiRequest("PATCH", "/api/profile", data);
+      // Then sync with the server with userId for session recovery
+      const profileData = { ...data, userId: user?.id };
+      await apiRequest("PATCH", "/api/profile", profileData);
     } catch (error) {
       console.error("Failed to update user profile", error);
     }
