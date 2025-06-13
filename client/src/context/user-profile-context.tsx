@@ -50,7 +50,8 @@ export function UserProfileProvider({ children }: { children: React.ReactNode })
 
   const fetchUserProfile = async () => {
     try {
-      const response = await apiRequest("GET", "/api/profile");
+      const url = user?.id ? `/api/profile?userId=${user.id}` : "/api/profile";
+      const response = await apiRequest("GET", url);
       const profileData = await response.json();
       setUserProfile(profileData);
     } catch (error) {
