@@ -183,14 +183,13 @@ export function SkillsDnaProfile({
       {showHeader && (
         <div className="mb-6">
           <div className="flex items-center justify-between">
-
+            <div></div>
             {isDemoMode && (
               <Badge variant="outline" className="bg-amber-500/10 border-amber-500/30 text-amber-300">
                 Демо-режим
               </Badge>
             )}
           </div>
-
         </div>
       )}
 
@@ -259,189 +258,230 @@ export function SkillsDnaProfile({
                 </div>
               </div>
 
-        {/* Сводная информация */}
-        <div className="lg:col-span-1">
-          <Card className="bg-space-800/70 border-blue-500/20 h-full">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center justify-between">
-                <span>Компетенции</span>
-                {!isLoading && !error && (
-                  <Button variant="ghost" size="icon" onClick={refetch} title="Обновить данные">
-                    <RefreshCw className="h-4 w-4" />
-                  </Button>
-                )}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {isLoading ? (
-                <div className="space-y-3">
-                  <Skeleton className="w-full h-6 bg-white/5" />
-                  <Skeleton className="w-full h-6 bg-white/5" />
-                  <Skeleton className="w-full h-6 bg-white/5" />
-                  <Skeleton className="w-full h-6 bg-white/5" />
-                </div>
-              ) : error ? (
-                <div className="flex flex-col items-center justify-center text-center py-4">
-                  <AlertTriangle className="h-10 w-10 text-red-400 mb-2" />
-                  <p className="text-red-300 mb-1">Ошибка загрузки данных</p>
-                  <p className="text-white/60 text-sm mb-3">
-                    {error instanceof Error ? error.message : 'Неизвестная ошибка'}
-                  </p>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={refetch}
-                    className="border-white/20 hover:border-white/40"
-                  >
-                    Попробовать снова
-                  </Button>
-                </div>
-              ) : Object.keys(skills).length > 0 ? (
-                <div className="space-y-4">
-                  {/* Сильные навыки */}
-                  <div>
-                    <h3 className="text-white font-medium mb-2 flex items-center">
-                      <Award className="h-4 w-4 mr-1 text-yellow-400" />
-                      Сильные стороны
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                      {Object.entries(skills)
-                        .filter(([_, value]) => value >= 70)
-                        .sort(([_, a], [__, b]) => b - a)
-                        .slice(0, 3)
-                        .map(([skill, value]) => (
-                          <Badge 
-                            key={skill} 
-                            variant="outline"
-                            className="bg-yellow-500/10 border-yellow-500/30 text-yellow-300"
-                          >
-                            {skill} ({value}%)
-                          </Badge>
-                        ))}
-                      {Object.entries(skills).filter(([_, value]) => value >= 70).length === 0 && (
-                        <p className="text-white/60 text-sm">
-                          Пока нет сильных сторон. Продолжайте обучение!
-                        </p>
+              {/* Сводная информация */}
+              <div className="lg:col-span-1">
+                <Card className="bg-space-800/70 border-blue-500/20 h-full">
+                  <CardHeader>
+                    <CardTitle className="text-white flex items-center justify-between">
+                      <span>Компетенции</span>
+                      {!isLoading && !error && (
+                        <Button variant="ghost" size="icon" onClick={refetch} title="Обновить данные">
+                          <RefreshCw className="h-4 w-4" />
+                        </Button>
                       )}
-                    </div>
-                  </div>
-
-                  {/* Навыки для развития */}
-                  <div>
-                    <h3 className="text-white font-medium mb-2 flex items-center">
-                      <Target className="h-4 w-4 mr-1 text-blue-400" />
-                      Области для развития
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                      {Object.entries(skills)
-                        .filter(([_, value]) => value < 50)
-                        .sort(([_, a], [__, b]) => a - b)
-                        .slice(0, 3)
-                        .map(([skill, value]) => (
-                          <Badge 
-                            key={skill} 
-                            variant="outline"
-                            className="bg-blue-500/10 border-blue-500/30 text-blue-300"
-                          >
-                            {skill} ({value}%)
-                          </Badge>
-                        ))}
-                      {Object.entries(skills).filter(([_, value]) => value < 50).length === 0 && (
-                        <p className="text-white/60 text-sm">
-                          Отлично! У вас нет явных слабых сторон.
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {isLoading ? (
+                      <div className="space-y-3">
+                        <Skeleton className="w-full h-6 bg-white/5" />
+                        <Skeleton className="w-full h-6 bg-white/5" />
+                        <Skeleton className="w-full h-6 bg-white/5" />
+                        <Skeleton className="w-full h-6 bg-white/5" />
+                      </div>
+                    ) : error ? (
+                      <div className="flex flex-col items-center justify-center text-center py-4">
+                        <AlertTriangle className="h-10 w-10 text-red-400 mb-2" />
+                        <p className="text-red-300 mb-1">Ошибка загрузки данных</p>
+                        <p className="text-white/60 text-sm mb-3">
+                          {error instanceof Error ? error.message : 'Неизвестная ошибка'}
                         </p>
-                      )}
-                    </div>
-                  </div>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={refetch}
+                          className="border-white/20 hover:border-white/40"
+                        >
+                          Попробовать снова
+                        </Button>
+                      </div>
+                    ) : Object.keys(skills).length > 0 ? (
+                      <div className="space-y-4">
+                        {/* Сильные навыки */}
+                        <div>
+                          <h3 className="text-white font-medium mb-2 flex items-center">
+                            <Award className="h-4 w-4 mr-1 text-yellow-400" />
+                            Сильные стороны
+                          </h3>
+                          <div className="flex flex-wrap gap-2">
+                            {Object.entries(skills)
+                              .filter(([_, value]) => value >= 70)
+                              .sort(([_, a], [__, b]) => b - a)
+                              .slice(0, 3)
+                              .map(([skill, value]) => (
+                                <Badge 
+                                  key={skill} 
+                                  variant="outline"
+                                  className="bg-yellow-500/10 border-yellow-500/30 text-yellow-300"
+                                >
+                                  {skill} ({value}%)
+                                </Badge>
+                              ))}
+                            {Object.entries(skills).filter(([_, value]) => value >= 70).length === 0 && (
+                              <p className="text-white/60 text-sm">
+                                Пока нет сильных сторон. Продолжайте обучение!
+                              </p>
+                            )}
+                          </div>
+                        </div>
 
-                  {/* Общий прогресс */}
-                  <div>
-                    <h3 className="text-white font-medium mb-2 flex items-center">
-                      <LineChart className="h-4 w-4 mr-1 text-green-400" />
-                      Общий прогресс
-                    </h3>
-                    {summary ? (
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                          <span className="text-white text-sm">Общий уровень</span>
-                          <span className="text-white/80 text-sm font-medium">
-                            {summary.overallLevel || 0}%
-                          </span>
+                        {/* Навыки для развития */}
+                        <div>
+                          <h3 className="text-white font-medium mb-2 flex items-center">
+                            <Target className="h-4 w-4 mr-1 text-blue-400" />
+                            Области для развития
+                          </h3>
+                          <div className="flex flex-wrap gap-2">
+                            {Object.entries(skills)
+                              .filter(([_, value]) => value < 50)
+                              .sort(([_, a], [__, b]) => a - b)
+                              .slice(0, 3)
+                              .map(([skill, value]) => (
+                                <Badge 
+                                  key={skill} 
+                                  variant="outline"
+                                  className="bg-blue-500/10 border-blue-500/30 text-blue-300"
+                                >
+                                  {skill} ({value}%)
+                                </Badge>
+                              ))}
+                            {Object.entries(skills).filter(([_, value]) => value < 50).length === 0 && (
+                              <p className="text-white/60 text-sm">
+                                Отлично! У вас нет явных слабых сторон.
+                              </p>
+                            )}
+                          </div>
                         </div>
-                        <div className="w-full h-2 bg-white/10 rounded-full">
-                          <div 
-                            className="h-full bg-gradient-to-r from-green-400 to-emerald-400 rounded-full"
-                            style={{ width: `${summary.overallLevel || 0}%` }}
-                          />
+
+                        {/* Общий прогресс */}
+                        <div>
+                          <h3 className="text-white font-medium mb-2 flex items-center">
+                            <LineChart className="h-4 w-4 mr-1 text-green-400" />
+                            Общий прогресс
+                          </h3>
+                          {summary ? (
+                            <div className="space-y-2">
+                              <div className="flex justify-between items-center">
+                                <span className="text-white text-sm">Общий уровень</span>
+                                <span className="text-white/80 text-sm font-medium">
+                                  {summary.overallLevel || 0}%
+                                </span>
+                              </div>
+                              <div className="w-full h-2 bg-white/10 rounded-full">
+                                <div 
+                                  className="h-full bg-gradient-to-r from-green-400 to-emerald-400 rounded-full"
+                                  style={{ width: `${summary.overallLevel || 0}%` }}
+                                />
+                              </div>
+                            </div>
+                          ) : (
+                            <p className="text-white/60 text-sm">
+                              Информация о прогрессе недоступна.
+                            </p>
+                          )}
                         </div>
+
+                        {/* Рекомендации для улучшения */}
+                        {summary?.recommendations && (
+                          <div>
+                            <h3 className="text-white font-medium mb-2 flex items-center">
+                              <Zap className="h-4 w-4 mr-1 text-purple-400" />
+                              Рекомендации
+                            </h3>
+                            <ul className="text-white/80 text-sm space-y-1 list-disc list-inside">
+                              {summary.recommendations.map((rec: string, index: number) => (
+                                <li key={index}>{rec}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
                       </div>
                     ) : (
-                      <p className="text-white/60 text-sm">
-                        Информация о прогрессе недоступна.
-                      </p>
+                      <div className="flex flex-col items-center justify-center text-center py-4">
+                        <FileText className="h-10 w-10 text-white/30 mb-2" />
+                        <p className="text-white/80 mb-1">Нет данных о навыках</p>
+                        <p className="text-white/60 text-sm mb-3">
+                          Пройдите диагностику, чтобы получить карту ваших навыков
+                        </p>
+                        <Button 
+                          variant="default" 
+                          size="sm" 
+                          onClick={() => setLocation("/deep-diagnosis")}
+                        >
+                          Пройти глубокую диагностику
+                        </Button>
+                      </div>
                     )}
-                  </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </TabsContent>
 
-                  {/* Рекомендации для улучшения */}
-                  {summary?.recommendations && (
-                    <div>
-                      <h3 className="text-white font-medium mb-2 flex items-center">
-                        <Zap className="h-4 w-4 mr-1 text-purple-400" />
-                        Рекомендации
-                      </h3>
-                      <ul className="text-white/80 text-sm space-y-1 list-disc list-inside">
-                        {summary.recommendations.map((rec: string, index: number) => (
-                          <li key={index}>{rec}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center text-center py-4">
-                  <FileText className="h-10 w-10 text-white/30 mb-2" />
-                  <p className="text-white/80 mb-1">Нет данных о навыках</p>
-                  <p className="text-white/60 text-sm mb-3">
-                    Пройдите диагностику, чтобы получить карту ваших навыков
-                  </p>
-                  <Button 
-                    variant="default" 
-                    size="sm" 
-                    onClick={() => setLocation("/deep-diagnosis")}
-                  >
-                    Пройти глубокую диагностику
-                  </Button>
-                </div>
-              )}
+          {/* Progress Timeline Tab */}
+          <TabsContent value="progress">
+            {!isLoading && !error && skills && Object.keys(skills).length > 0 && (
+              <ProgressTimeline skillsData={Object.entries(skills).map(([name, progress]) => ({ 
+                name, 
+                progress, 
+                category: 'general',
+                assessmentHistory: []
+              }))} />
+            )}
+          </TabsContent>
+
+          {/* Category Analysis Tab */}
+          <TabsContent value="categories">
+            {!isLoading && !error && skills && Object.keys(skills).length > 0 && (
+              <CategoryAnalysis skillsData={Object.entries(skills).map(([name, progress]) => ({ 
+                name, 
+                progress, 
+                category: 'general',
+                assessmentHistory: []
+              }))} summaryData={summary} />
+            )}
+          </TabsContent>
+
+          {/* Goals & Insights Tab */}
+          <TabsContent value="goals">
+            {!isLoading && !error && skills && Object.keys(skills).length > 0 && (
+              <GoalsInsights skillsData={Object.entries(skills).map(([name, progress]) => ({ 
+                name, 
+                progress, 
+                category: 'general',
+                assessmentHistory: []
+              }))} summaryData={summary} />
+            )}
+          </TabsContent>
+
+        </Tabs>
+      </div>
+
+      {/* Кнопка для рекомендуемых курсов (только после глубокой диагностики) */}
+      {isDeepdDiagnosis && !isEmpty && !isLoading && !error && (
+        <div className="col-span-1 lg:col-span-3 mt-4">
+          <Card className="bg-gradient-to-r from-emerald-900/30 to-green-900/30 border-emerald-500/20">
+            <CardContent className="flex flex-col items-center justify-center py-5">
+              <div className="flex items-center mb-3">
+                <Target className="h-5 w-5 text-emerald-400 mr-2" />
+                <h3 className="text-lg font-medium text-white">Персональные рекомендации</h3>
+              </div>
+              <p className="text-white/70 mb-4 text-center max-w-lg">
+                На основе вашего Skills DNA профиля мы подготовили персонализированные рекомендации курсов, 
+                которые помогут вам развить необходимые навыки.
+              </p>
+              <Button 
+                variant="default" 
+                className="bg-gradient-to-r from-green-500 to-emerald-600 hover:opacity-90 text-white"
+                onClick={() => setLocation("/courses?filter=recommended")}
+              >
+                Посмотреть рекомендуемые курсы
+                <Target className="h-4 w-4 ml-2" />
+              </Button>
             </CardContent>
           </Card>
         </div>
-        {/* Кнопка для рекомендуемых курсов (только после глубокой диагностики) */}
-        {isDeepdDiagnosis && !isEmpty && !isLoading && !error && (
-          <div className="col-span-1 lg:col-span-3 mt-4">
-            <Card className="bg-gradient-to-r from-emerald-900/30 to-green-900/30 border-emerald-500/20">
-              <CardContent className="flex flex-col items-center justify-center py-5">
-                <div className="flex items-center mb-3">
-                  <Target className="h-5 w-5 text-emerald-400 mr-2" />
-                  <h3 className="text-lg font-medium text-white">Персональные рекомендации</h3>
-                </div>
-                <p className="text-white/70 mb-4 text-center max-w-lg">
-                  На основе вашего Skills DNA профиля мы подготовили персонализированные рекомендации курсов, 
-                  которые помогут вам развить необходимые навыки.
-                </p>
-                <Button 
-                  variant="default" 
-                  className="bg-gradient-to-r from-green-500 to-emerald-600 hover:opacity-90 text-white"
-                  onClick={() => setLocation("/courses?filter=recommended")}
-                >
-                  Посмотреть рекомендуемые курсы
-                  <Target className="h-4 w-4 ml-2" />
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-      </div>
+      )}
     </div>
   );
 }

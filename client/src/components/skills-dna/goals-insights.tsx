@@ -90,7 +90,7 @@ export function GoalsInsights({ skillsData, summaryData }: GoalsInsightsProps) {
     }
     
     // Анализ баланса навыков
-    const categories = [...new Set(skillsData.map(skill => skill.category))];
+    const categories = Array.from(new Set(skillsData.map(skill => skill.category)));
     const unbalancedCategories = categories.filter(category => {
       const categorySkills = skillsData.filter(skill => skill.category === category);
       const avgProgress = categorySkills.reduce((sum, skill) => sum + skill.progress, 0) / categorySkills.length;
