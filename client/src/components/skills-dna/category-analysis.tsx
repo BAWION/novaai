@@ -10,6 +10,13 @@ interface CategoryAnalysisProps {
   summaryData?: any;
 }
 
+interface SkillData {
+  name: string;
+  progress: number;
+  category: string;
+  assessmentHistory?: any[];
+}
+
 const categoryIcons = {
   'ml': Brain,
   'programming': Code,
