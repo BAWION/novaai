@@ -11,8 +11,37 @@ const router = Router();
 /**
  * GET /api/courses/recommended
  * Получение списка рекомендованных курсов для пользователя на основе его профиля Skills DNA
+ * Для неавторизованных пользователей возвращает базовые курсы
  */
-router.get("/", enhancedAuthMiddleware, async (req, res) => {
+router.get("/", async (req, res) => {
+  // Проверяем авторизацию без принудительного требования
+  const isAuthenticated = req.session?.user?.id;
+  
+  if (!isAuthenticated) {
+    // Для гостей возвращаем базовые популярные курсы
+    try {
+      const allCourses = await storage.getAllCourses();
+      const basicCourses = allCourses
+        .filter(course => course.difficulty <= 2) // Только простые курсы
+        .slice(0, 3)
+        .map(course => ({
+          ...course,
+          modelScore: 0.8,
+          skillMatch: {
+            percentage: 85,
+            label: "Подходит для начинающих",
+            isRecommended: true
+          }
+        }));
+      
+      return res.json(basicCourses);
+    } catch (error) {
+      console.error("Ошибка при загрузке базовых курсов для гостей:", error);
+      return res.status(500).json({ error: "Ошибка сервера" });
+    }
+  }
+
+  // Продолжаем с авторизованной логикой
   try {
     const userId = req.session!.user!.id;
     
