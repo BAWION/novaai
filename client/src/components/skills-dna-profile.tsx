@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlertTriangle, Award, Book, Brain, ChartBar, FileText, LineChart, RefreshCw, Star, Target, Zap } from "lucide-react";
+import { AlertTriangle, Award, Book, Brain, ChartBar, ChevronRight, FileText, LineChart, RefreshCw, Star, Target, Zap } from "lucide-react";
 import { useLocation } from "wouter";
 import { diagnosisApi } from "@/api/diagnosis-api";
 
