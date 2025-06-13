@@ -547,7 +547,7 @@ export default function QuickDiagnosis() {
                 // Сохраняем результаты в профиль пользователя
                 updateUserProfileSafely();
                 
-                // Сохраняем результаты в Skills DNA
+                // Автоматически сохраняем результаты в Skills DNA
                 saveSkillsToDna();
                 
               }, 1500);
