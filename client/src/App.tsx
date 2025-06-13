@@ -121,7 +121,7 @@ function Router() {
           </Route>
           <Route path="/quick-diagnosis" component={QuickDiagnosis} />
           <Route path="/deep-diagnosis" component={DeepDiagnosis} />
-          <Route path="/skills-dna" component={SkillsDnaPage} />
+          <ProtectedRoute path="/skills-dna" component={SkillsDnaPage} />
           <Route path="/investor-presentation" component={InvestorPresentation} />
           <Route path="/presentation-selector" component={PresentationSelector} />
           <Route path="/product-demo" component={ProductDemo} />
