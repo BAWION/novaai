@@ -240,15 +240,7 @@ export function SkillsDnaProfile({
                     Вы находитесь на начальном этапе обучения. Ваш профиль показывает хороший потенциал для роста. 
                     Рекомендуем сначала укрепить фундаментальные основы.
                   </p>
-                  
-                  <Button 
-                    onClick={() => setLocation('/skills-dna?section=skills-dna&deep=true')}
-                    variant="outline" 
-                    className="w-full border-blue-500/30 text-blue-300 hover:bg-blue-500/10"
-                  >
-                    <span>Подробный анализ Skills DNA</span>
-                    <ChevronRight className="h-4 w-4 ml-2" />
-                  </Button>
+
                 </div>
               </div>
             )}
