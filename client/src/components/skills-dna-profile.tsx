@@ -232,29 +232,32 @@ export function SkillsDnaProfile({
                 </Button>
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center">
-                <SkillsTriangleChart 
-                  skills={{
-                    top: { 
-                      name: "Понимание основ ИИ", 
-                      value: skills["Понимание основ ИИ"] || skills["Основы ИИ"] || 
-                             skills["Машинное обучение"] || skills["Программирование"] || 40 
-                    },
-                    bottomLeft: { 
-                      name: "Этические аспекты использования ИИ", 
-                      value: skills["Этические аспекты использования ИИ"] || skills["Этика и право в ИИ"] || 
-                             skills["Этика ИИ"] || skills["Применение в бизнесе"] || 25 
-                    },
-                    bottomRight: { 
-                      name: "Критическое мышление в контексте ИИ", 
-                      value: skills["Критическое мышление в контексте ИИ"] || skills["Аналитическое мышление"] || 
-                             skills["Решение проблем"] || skills["Анализ данных"] || 65 
-                    }
-                  }}
-                  height={350}
-                  width={350}
-                  className="mx-auto my-4"
+              <div className="flex flex-col">
+                <SkillsRadarChart 
+                  skills={skills}
+                  title=""
+                  className="mb-6"
+                  showControls={false}
+                  maxValue={100}
                 />
+                
+                {/* Общая картина - Analysis Summary */}
+                <div className="bg-space-900/50 border border-purple-500/20 rounded-lg p-6">
+                  <h3 className="text-white font-medium text-lg mb-4">Общая картина</h3>
+                  <p className="text-white/80 mb-4 leading-relaxed">
+                    Вы находитесь на начальном этапе обучения. Ваш профиль показывает хороший потенциал для роста. 
+                    Рекомендуем сначала укрепить фундаментальные основы.
+                  </p>
+                  
+                  <Button 
+                    onClick={() => setLocation('/skills-dna?section=skills-dna&deep=true')}
+                    variant="outline" 
+                    className="w-full border-blue-500/30 text-blue-300 hover:bg-blue-500/10"
+                  >
+                    <span>Подробный анализ Skills DNA</span>
+                    <ChevronRight className="h-4 w-4 ml-2" />
+                  </Button>
+                </div>
               </div>
             )}
           </div>
