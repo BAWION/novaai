@@ -1,7 +1,6 @@
 import React, { ReactNode } from "react";
 import { Sidebar, useSidebarContext } from "./sidebar";
 import { BottomNavigation } from "./bottom-navigation";
-import { ParticlesBackground } from "@/components/particles-background";
 import { motion } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Glassmorphism } from "@/components/ui/glassmorphism";
@@ -24,8 +23,6 @@ export function DashboardLayout({ children, title, subtitle }: DashboardLayoutPr
   
   return (
     <div className="min-h-screen w-full flex flex-col bg-space-900">
-      {!isBusinessSection && <ParticlesBackground />}
-      
       {!isMobile && <Sidebar />}
       <BottomNavigation />
 
