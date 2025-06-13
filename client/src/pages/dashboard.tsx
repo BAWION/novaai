@@ -16,7 +16,6 @@ import { CompactSkillsDnaCard } from "@/components/skills-dna";
 import { SkillsDnaProfile } from "@/components/skills-dna-profile";
 import { CourseCard } from "@/components/courses/course-card";
 import { TimeSavedPage } from "@/components/time-saved/TimeSavedPage";
-import { DiagnosisResultsWidget } from "@/components/diagnosis-results-widget";
 import { diagnosisApi } from "@/api/diagnosis-api";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -684,14 +683,24 @@ export default function Dashboard() {
         
         {/* Main Content - Skills DNA and Recommended Courses */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Diagnosis Results Widget - Left side */}
+          {/* Skills DNA Card - Left side */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
             className="w-full"
           >
-            <DiagnosisResultsWidget userId={user?.id} />
+            <Glassmorphism className="h-full rounded-xl overflow-hidden border border-purple-500/30 p-6">
+              <div className="flex items-center mb-4">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600/40 to-purple-700/20 flex items-center justify-center">
+                  <i className="fas fa-brain text-purple-300"></i>
+                </div>
+                <h2 className="font-orbitron text-xl font-semibold ml-3">
+                  Skills DNA
+                </h2>
+              </div>
+              <CompactSkillsDnaCard showHeader={false} className="bg-transparent border-0" />
+            </Glassmorphism>
           </motion.div>
 
           {/* Recommended Courses - Right side */}
