@@ -146,7 +146,7 @@ export function Sidebar() {
     { icon: "fa-route", label: "Дорожная карта", to: "/roadmap" },
     { icon: "fa-flask", label: "Лаборатория", to: "/labhub" },
     { icon: "fa-book", label: "Курсы", to: "/courses" },
-    { icon: "fa-save", label: "Хранилище знаний", to: "/knowledge-vault" },
+    { icon: "fa-save", label: "Архив знаний", to: "/knowledge-vault" },
     { icon: "fa-brain", label: "Gap-анализ", to: "/gap-analysis" },
     { icon: "fa-robot", label: "AI-ассистент", to: "/ai-assistant" },
     { icon: "fa-users", label: "Сообщество", to: "/community" },
