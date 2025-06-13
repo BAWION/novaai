@@ -372,94 +372,44 @@ export default function Dashboard() {
           <SkillsDnaResultsWidget userId={user?.id} />
         </motion.div>
 
-        {/* Additional Content Columns */}
-        <div className="grid grid-cols-1 lg:grid-cols-7 gap-6">
-          {/* Left column - Main orbital view (70%) */}
-          <div className="lg:col-span-5 flex flex-col gap-6">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="bg-space-800/50 rounded-xl p-4"
-            >
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="font-orbitron text-xl font-semibold">
-                  Все курсы
-                </h2>
-                <div className="flex items-center bg-space-900/50 rounded-lg overflow-hidden">
-                  <button 
-                    onClick={() => setViewMode('orbital')}
-                    className={`px-3 py-1.5 text-sm ${viewMode === 'orbital' ? 'bg-primary/30 text-white' : 'text-white/60'}`}
-                  >
-                    <i className="fas fa-globe-americas mr-1"></i>
-                    Орбиты
-                  </button>
-                  <button 
-                    onClick={() => setViewMode('tracks')}
-                    className={`px-3 py-1.5 text-sm ${viewMode === 'tracks' ? 'bg-primary/30 text-white' : 'text-white/60'}`}
-                  >
-                    <i className="fas fa-road mr-1"></i>
-                    По навыкам
-                  </button>
-                </div>
-              </div>
-              <OrbitalLayout />
-              <div className="flex justify-end mt-2">
-                <Link href="/courses">
-                  <div className="text-sm text-white/70 hover:text-white transition inline-flex items-center">
-                    Смотреть все курсы
-                    <i className="fas fa-chevron-right ml-1.5 text-xs"></i>
-                  </div>
-                </Link>
-              </div>
-            </motion.div>
-            
-            {/* Learning Timeline */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.5 }}
-            >
-              <h2 className="font-orbitron text-xl font-semibold mb-4">
-                История обучения
-              </h2>
-              <div className="bg-space-800/50 backdrop-blur-sm border border-white/10 p-6 rounded-xl">
-                <LearningTimeline />
-              </div>
-            </motion.div>
+        {/* All Courses Section */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="bg-space-800/50 rounded-xl p-4"
+        >
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="font-orbitron text-xl font-semibold">
+              Все курсы
+            </h2>
+            <div className="flex items-center bg-space-900/50 rounded-lg overflow-hidden">
+              <button 
+                onClick={() => setViewMode('orbital')}
+                className={`px-3 py-1.5 text-sm ${viewMode === 'orbital' ? 'bg-primary/30 text-white' : 'text-white/60'}`}
+              >
+                <i className="fas fa-globe-americas mr-1"></i>
+                Орбиты
+              </button>
+              <button 
+                onClick={() => setViewMode('tracks')}
+                className={`px-3 py-1.5 text-sm ${viewMode === 'tracks' ? 'bg-primary/30 text-white' : 'text-white/60'}`}
+              >
+                <i className="fas fa-road mr-1"></i>
+                По навыкам
+              </button>
+            </div>
           </div>
-
-          {/* Right column - Analytics and Stats (30%) */}
-          <div className="lg:col-span-2 flex flex-col gap-6">
-            {/* Skills Progress */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.6 }}
-            >
-              <h2 className="font-orbitron text-xl font-semibold mb-4">
-                Прогресс навыков
-              </h2>
-              <div className="bg-space-800/50 backdrop-blur-sm border border-white/10 p-6 rounded-xl">
-                <SkillProgress />
+          <OrbitalLayout />
+          <div className="flex justify-end mt-2">
+            <Link href="/courses">
+              <div className="text-sm text-white/70 hover:text-white transition inline-flex items-center">
+                Смотреть все курсы
+                <i className="fas fa-chevron-right ml-1.5 text-xs"></i>
               </div>
-            </motion.div>
-
-            {/* Time Saved Analytics */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.7 }}
-            >
-              <h2 className="font-orbitron text-xl font-semibold mb-4">
-                Экономия времени
-              </h2>
-              <div className="bg-space-800/50 backdrop-blur-sm border border-white/10 p-6 rounded-xl">
-                <TimeSavedPage />
-              </div>
-            </motion.div>
+            </Link>
           </div>
-        </div>
+        </motion.div>
       </div>
     </DashboardLayout>
   );
