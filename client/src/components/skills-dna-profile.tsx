@@ -179,10 +179,7 @@ export function SkillsDnaProfile({
       {showHeader && (
         <div className="mb-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#B28DFF] via-[#8BE0F7] to-[#B28DFF] flex items-center">
-              <Brain className="h-6 w-6 mr-2 text-current opacity-80" />
-              Skills DNA
-            </h2>
+
             {isDemoMode && (
               <Badge variant="outline" className="bg-amber-500/10 border-amber-500/30 text-amber-300">
                 Демо-режим
