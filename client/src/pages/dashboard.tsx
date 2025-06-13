@@ -118,6 +118,7 @@ export default function Dashboard() {
               
               queryClient.invalidateQueries({ queryKey: [`/api/diagnosis/progress/${user.id}`] });
               queryClient.invalidateQueries({ queryKey: [`/api/diagnosis/summary/${user.id}`] });
+              queryClient.invalidateQueries({ queryKey: ['/api/courses/recommended'] });
               
               toast({
                 title: "Результаты диагностики применены",
