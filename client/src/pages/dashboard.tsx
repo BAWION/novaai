@@ -14,6 +14,7 @@ import { default as SkillProgress } from "@/components/progress/skill-progress";
 import { WelcomeModal } from "@/components/onboarding/welcome-modal";
 import { CompactSkillsDnaCard } from "@/components/skills-dna";
 import { SkillsDnaProfile } from "@/components/skills-dna-profile";
+import { SkillsDnaResultsWidget } from "@/components/skills-dna/results-widget";
 import { CourseCard } from "@/components/courses/course-card";
 import { TimeSavedPage } from "@/components/time-saved/TimeSavedPage";
 import { DiagnosisResultsWidget } from "@/components/diagnosis-results-widget";
