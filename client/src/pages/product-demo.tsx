@@ -47,6 +47,29 @@ export default function ProductDemo() {
       subtitle: "Интерактивная демонстрация продукта",
       component: (
         <div className="h-full flex flex-col justify-center items-center text-center space-y-8">
+          {/* Intro Video */}
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 1, delay: 0.2 }}
+            className="w-full max-w-4xl mb-8"
+          >
+            <div className="relative rounded-xl overflow-hidden border border-purple-500/30 shadow-2xl">
+              <video
+                className="w-full h-auto"
+                autoPlay
+                muted
+                loop
+                playsInline
+                controls
+              >
+                <source src="/attached_assets/8_seconds__202506122300_1749847207365.mp4" type="video/mp4" />
+                Ваш браузер не поддерживает видео элемент.
+              </video>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none"></div>
+            </div>
+          </motion.div>
+
           <motion.div
             initial={{ scale: 0.5, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
