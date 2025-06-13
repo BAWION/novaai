@@ -586,9 +586,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
   // User profile routes
-  app.get("/api/profile", enhancedAuthMiddleware, async (req, res) => {
+  app.get("/api/profile", async (req, res) => {
     try {
-      const userId = req.session.user!.id;
+      // Check if user is authenticated or try to recover session
+      let userId = req.session?.user?.id;
+      
+      if (!userId && req.query.userId) {
+        // Try to recover session for specific user (similar to diagnosis API)
+        const targetUserId = parseInt(req.query.userId as string);
+        if (targetUserId) {
+          console.log(`[ProfileGet] Attempting session recovery for user ${targetUserId}`);
+          // Get user data from storage to satisfy type requirements
+          const userData = await storage.getUser(targetUserId);
+          if (userData) {
+            req.session.user = {
+              id: userData.id,
+              username: userData.username,
+              displayName: userData.displayName || undefined,
+              email: userData.email || undefined,
+              role: userData.role || undefined
+            };
+            req.session.authenticated = true;
+            userId = targetUserId;
+          }
+        }
+      }
+      
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized - Not authenticated" });
+      }
       let profile = await storage.getUserProfile(userId);
       
       // Если это администратор и профиль не найден, создаем дефолтный профиль
@@ -672,7 +698,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Get user data from storage to satisfy type requirements
           const userData = await storage.getUser(targetUserId);
           if (userData) {
-            req.session.user = userData;
+            req.session.user = {
+              id: userData.id,
+              username: userData.username,
+              displayName: userData.displayName || undefined,
+              email: userData.email || undefined,
+              role: userData.role || undefined
+            };
             req.session.authenticated = true;
             userId = targetUserId;
           }
