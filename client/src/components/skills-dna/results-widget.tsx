@@ -34,16 +34,15 @@ export function SkillsDnaResultsWidget({ userId }: SkillsDnaResultsWidgetProps) 
   const { user } = useAuth();
   const [, setLocation] = useLocation();
 
-  // Получение данных Skills DNA
+  // Получение детальных данных Skills DNA для радар-чарта
   const { data: skillsData, isLoading: skillsLoading } = useQuery({
-    queryKey: [`/api/diagnosis/summary/${userId}`],
+    queryKey: [`/api/diagnosis/progress/${userId}`],
     queryFn: async () => {
       if (!userId) return null;
-      const res = await apiRequest('GET', `/api/diagnosis/summary/${userId}`);
+      const res = await apiRequest('GET', `/api/diagnosis/progress/${userId}`);
       if (!res.ok) return null;
       const data = await res.json();
-      console.log('[SkillsDnaResultsWidget] Получены данные диагностики:', data);
-      console.log('[SkillsDnaResultsWidget] Структура данных:', data?.data ? Object.keys(data.data) : 'нет данных');
+      console.log('[SkillsDnaResultsWidget] Получены детальные данные диагностики:', data);
       return data;
     },
     enabled: !!userId
@@ -132,7 +131,7 @@ export function SkillsDnaResultsWidget({ userId }: SkillsDnaResultsWidgetProps) 
     );
   }
 
-  if (!skillsData || !skillsData.data || Object.keys(skillsData.data).length === 0) {
+  if (!skillsData || !skillsData.data || !Array.isArray(skillsData.data) || skillsData.data.length === 0) {
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Skills DNA Section - Empty State */}
@@ -220,17 +219,13 @@ export function SkillsDnaResultsWidget({ userId }: SkillsDnaResultsWidgetProps) 
   }
 
   // Данные есть - показываем полный профиль
-  const skillsDataObj = skillsData.data || {};
-  const skills = Object.entries(skillsDataObj).flatMap(([category, categoryData]: [string, any]) => {
-    if (categoryData && typeof categoryData === 'object' && categoryData.skills) {
-      return Object.entries(categoryData.skills).map(([name, value]) => ({
-        name,
-        value: value as number,
-        category
-      }));
-    }
-    return [];
-  });
+  const skillsArray = skillsData.data || [];
+  
+  const skills = skillsArray.map((skill: any) => ({
+    name: skill.name,
+    value: skill.progress,
+    category: skill.category
+  }));
 
   const topSkills = skills.sort((a, b) => b.value - a.value).slice(0, 3);
   const weakSkills = skills.sort((a, b) => a.value - b.value).slice(0, 2);
@@ -259,41 +254,50 @@ export function SkillsDnaResultsWidget({ userId }: SkillsDnaResultsWidgetProps) 
             
             {/* Radar Chart */}
             <div className="w-full h-64 mb-4">
-              <ResponsiveContainer width="100%" height="100%">
-                <RadarChart 
-                  cx="50%" 
-                  cy="50%" 
-                  outerRadius="70%" 
-                  data={skills.map(skill => ({
-                    category: skill.name.length > 15 ? skill.name.substring(0, 12) + '...' : skill.name,
-                    value: skill.value
-                  }))}
-                  margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
-                >
-                  <PolarGrid stroke="#ffffff20" />
-                  <PolarAngleAxis 
-                    dataKey="category" 
-                    tick={{ fill: "#ffffffaa", fontSize: 10 }} 
-                  />
-                  <Radar
-                    name="Уровень навыков"
-                    dataKey="value"
-                    stroke="#B28DFF"
-                    fill="#B28DFF"
-                    fillOpacity={0.3}
-                    strokeWidth={2}
-                  />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: "#191c29", 
-                      border: "1px solid #414868",
-                      borderRadius: "4px",
-                      color: "#fff"
-                    }} 
-                    formatter={(value) => [`${value}%`, "Уровень"]}
-                  />
-                </RadarChart>
-              </ResponsiveContainer>
+              {skills.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadarChart 
+                    cx="50%" 
+                    cy="50%" 
+                    outerRadius="70%" 
+                    data={skills.map(skill => ({
+                      category: skill.name.length > 15 ? skill.name.substring(0, 12) + '...' : skill.name,
+                      value: skill.value
+                    }))}
+                    margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+                  >
+                    <PolarGrid stroke="#ffffff20" />
+                    <PolarAngleAxis 
+                      dataKey="category" 
+                      tick={{ fill: "#ffffffaa", fontSize: 10 }} 
+                    />
+                    <Radar
+                      name="Уровень навыков"
+                      dataKey="value"
+                      stroke="#B28DFF"
+                      fill="#B28DFF"
+                      fillOpacity={0.3}
+                      strokeWidth={2}
+                    />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: "#191c29", 
+                        border: "1px solid #414868",
+                        borderRadius: "4px",
+                        color: "#fff"
+                      }} 
+                      formatter={(value: any) => [`${value}%`, "Уровень"]}
+                    />
+                  </RadarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex items-center justify-center h-full text-white/60">
+                  <div className="text-center">
+                    <Brain className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                    <p>Нет данных для отображения</p>
+                  </div>
+                </div>
+              )}
             </div>
             
             {/* Top Skills Summary */}
