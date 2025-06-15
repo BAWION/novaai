@@ -241,6 +241,81 @@ export default function DeepDiagnosisPage() {
       "liability", "compliance", "safety-standards"
     ]
   };
+
+  // Полный словарь меток для всех поддоменов
+  const getSubdomainLabel = (subdomain: string): string => {
+    const labels: { [key: string]: string } = {
+      // Machine Learning
+      "supervised-learning": "Обучение с учителем",
+      "unsupervised-learning": "Обучение без учителя", 
+      "reinforcement-learning": "Обучение с подкреплением",
+      "feature-engineering": "Инженерия признаков",
+      "model-evaluation": "Оценка моделей",
+      "model-deployment": "Развертывание моделей",
+      
+      // Neural Networks
+      "neural-networks": "Нейронные сети",
+      "cnn": "Сверточные сети (CNN)",
+      "rnn": "Рекуррентные сети (RNN)",
+      "lstm": "LSTM сети",
+      "gans": "Генеративные состязательные сети (GAN)",
+      "autoencoders": "Автоэнкодеры",
+      "transfer-learning": "Трансферное обучение",
+      "transformers": "Трансформеры",
+      "generative-models": "Генеративные модели",
+      "attention-mechanisms": "Механизмы внимания",
+      
+      // Data Science
+      "data-exploration": "Разведочный анализ данных",
+      "data-cleaning": "Очистка данных",
+      "data-visualization": "Визуализация данных",
+      "statistical-analysis": "Статистический анализ",
+      "big-data": "Большие данные",
+      "predictive-modeling": "Предиктивное моделирование",
+      
+      // NLP (если добавятся)
+      "text-classification": "Классификация текста",
+      "named-entity-recognition": "Распознавание именованных сущностей",
+      "sentiment-analysis": "Анализ тональности",
+      "machine-translation": "Машинный перевод",
+      "question-answering": "Вопросно-ответные системы",
+      "text-generation": "Генерация текста",
+      
+      // Computer Vision
+      "image-classification": "Классификация изображений",
+      "object-detection": "Обнаружение объектов",
+      "image-segmentation": "Сегментация изображений",
+      "face-recognition": "Распознавание лиц",
+      "video-analysis": "Анализ видео",
+      "generative-vision": "Генеративные модели для изображений",
+      
+      // AI Applications (если добавятся)
+      "recommendation-systems": "Рекомендательные системы",
+      "chatbots": "Чат-боты",
+      "fraud-detection": "Обнаружение мошенничества",
+      "predictive-maintenance": "Предиктивное обслуживание",
+      "healthcare-ai": "ИИ в здравоохранении",
+      "fintech-ai": "ИИ в финтехе",
+      
+      // Ethics
+      "bias-fairness": "Предвзятость и справедливость",
+      "transparency": "Прозрачность AI-систем",
+      "privacy": "Приватность данных",
+      "accountability": "Ответственность за AI-решения",
+      "social-impact": "Социальные последствия AI",
+      "governance": "Управление AI-системами",
+      
+      // Law
+      "ai-regulation": "Регулирование ИИ",
+      "intellectual-property": "Интеллектуальная собственность",
+      "privacy-law": "Законы о приватности",
+      "liability": "Ответственность",
+      "compliance": "Соответствие требованиям",
+      "safety-standards": "Стандарты безопасности"
+    };
+    
+    return labels[subdomain] || subdomain;
+  };
   
   const goals = [
     { id: "practice-skills", title: "Развить навыки", description: "Хочу глубже изучить теорию и концепции AI/ML" },
@@ -1327,48 +1402,7 @@ export default function DeepDiagnosisPage() {
                                 }}
                               />
                               <Label htmlFor={`subdomain-${subdomain}`} className="text-sm cursor-pointer">
-                                {subdomain === "supervised-learning" && "Обучение с учителем"}
-                                {subdomain === "unsupervised-learning" && "Обучение без учителя"}
-                                {subdomain === "reinforcement-learning" && "Обучение с подкреплением"}
-                                {subdomain === "feature-engineering" && "Инженерия признаков"}
-                                {subdomain === "model-evaluation" && "Оценка моделей"}
-                                {subdomain === "model-deployment" && "Развертывание моделей"}
-                                {subdomain === "neural-networks" && "Нейронные сети"}
-                                {subdomain === "cnn" && "Сверточные сети (CNN)"}
-                                {subdomain === "rnn" && "Рекуррентные сети (RNN)"}
-                                {subdomain === "transformers" && "Трансформеры"}
-                                {subdomain === "generative-models" && "Генеративные модели"}
-                                {subdomain === "attention-mechanisms" && "Механизмы внимания"}
-                                {subdomain === "data-exploration" && "Разведочный анализ данных"}
-                                {subdomain === "data-cleaning" && "Очистка данных"}
-                                {subdomain === "data-visualization" && "Визуализация данных"}
-                                {subdomain === "statistical-analysis" && "Статистический анализ"}
-                                {subdomain === "big-data" && "Большие данные"}
-                                {subdomain === "predictive-modeling" && "Предиктивное моделирование"}
-                                {subdomain === "text-classification" && "Классификация текста"}
-                                {subdomain === "named-entity-recognition" && "Распознавание именованных сущностей"}
-                                {subdomain === "sentiment-analysis" && "Анализ тональности"}
-                                {subdomain === "machine-translation" && "Машинный перевод"}
-                                {subdomain === "question-answering" && "Вопросно-ответные системы"}
-                                {subdomain === "text-generation" && "Генерация текста"}
-                                {subdomain === "image-classification" && "Классификация изображений"}
-                                {subdomain === "object-detection" && "Обнаружение объектов"}
-                                {subdomain === "image-segmentation" && "Сегментация изображений"}
-                                {subdomain === "face-recognition" && "Распознавание лиц"}
-                                {subdomain === "video-analysis" && "Анализ видео"}
-                                {subdomain === "generative-vision" && "Генеративные модели для изображений"}
-                                {subdomain === "recommendation-systems" && "Рекомендательные системы"}
-                                {subdomain === "chatbots" && "Чат-боты"}
-                                {subdomain === "fraud-detection" && "Обнаружение мошенничества"}
-                                {subdomain === "predictive-maintenance" && "Предиктивное обслуживание"}
-                                {subdomain === "healthcare-ai" && "ИИ в здравоохранении"}
-                                {subdomain === "fintech-ai" && "ИИ в финтехе"}
-                                {subdomain === "bias-fairness" && "Предвзятость и справедливость"}
-                                {subdomain === "transparency" && "Прозрачность AI-систем"}
-                                {subdomain === "privacy" && "Приватность данных"}
-                                {subdomain === "accountability" && "Ответственность за AI-решения"}
-                                {subdomain === "social-impact" && "Социальные последствия AI"}
-                                {subdomain === "governance" && "Управление AI-системами"}
+                                {getSubdomainLabel(subdomain)}
                               </Label>
                             </div>
                           ))}
