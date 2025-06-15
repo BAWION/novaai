@@ -438,23 +438,24 @@ export class CourseManagementService {
 
     const courseProgress = courseProgressQuery[0];
 
-    // Получаем прогресс по урокам
+    // Получаем все уроки курса с их статусом прогресса
     const lessonsProgressQuery = await db
       .select({
-        lessonId: userLessonProgress.lessonId,
-        status: userLessonProgress.status,
-        completedAt: userLessonProgress.completedAt,
+        lessonId: lessons.id,
         lessonTitle: lessons.title,
         moduleId: lessons.moduleId,
-        moduleTitle: courseModules.title
+        moduleTitle: courseModules.title,
+        status: sql<string>`COALESCE(${userLessonProgress.status}, 'not_started')`,
+        completedAt: userLessonProgress.completedAt
       })
-      .from(userLessonProgress)
-      .innerJoin(lessons, eq(userLessonProgress.lessonId, lessons.id))
+      .from(lessons)
       .innerJoin(courseModules, eq(lessons.moduleId, courseModules.id))
-      .where(and(
-        eq(userLessonProgress.userId, userId),
-        eq(courseModules.courseId, courseId)
-      ));
+      .leftJoin(userLessonProgress, and(
+        eq(userLessonProgress.lessonId, lessons.id),
+        eq(userLessonProgress.userId, userId)
+      ))
+      .where(eq(courseModules.courseId, courseId))
+      .orderBy(courseModules.orderIndex, lessons.orderIndex);
 
     // Считаем статистику
     const totalLessonsQuery = await db
