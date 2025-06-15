@@ -1190,8 +1190,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Подключаем маршруты для ML-API
   app.use("/api/ml", mlApiRouter);
   
-  // Подключаем маршруты для Gap-анализа
-  app.use("/api/gap-analysis", gapAnalysisRouter);
   
   // Подключаем маршруты для AI-ассистента
   app.use("/api/ai-assistant", aiAssistantRouter);
