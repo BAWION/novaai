@@ -19,6 +19,7 @@ import { TimeSavedPage } from "@/components/time-saved/TimeSavedPage";
 import { diagnosisApi } from "@/api/diagnosis-api";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { RoadmapWidget } from "@/components/roadmap/roadmap-widget";
 import { 
   Dialog,
   DialogContent,
@@ -410,6 +411,24 @@ export default function Dashboard() {
               </div>
             </Link>
           </div>
+        </motion.div>
+
+        {/* Roadmap Section */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+          className="mt-8"
+        >
+          <div className="mb-6">
+            <h2 className="font-orbitron text-xl font-semibold mb-2">
+              Дорожная карта
+            </h2>
+            <p className="text-white/70 text-sm">
+              Ваш персональный путь обучения в NovaAI University
+            </p>
+          </div>
+          <RoadmapWidget />
         </motion.div>
       </div>
     </DashboardLayout>
