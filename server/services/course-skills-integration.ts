@@ -196,11 +196,48 @@ export class CourseSkillsIntegrationService {
         .limit(1);
 
       if (!currentProgress[0]) {
-        console.log(`[CourseSkillsIntegration] Навык ${dnaId} не найден для пользователя ${userId}`);
-        return false;
+        // Создаем новую запись прогресса для пользователя
+        console.log(`[CourseSkillsIntegration] Создание нового прогресса навыка ${dnaId} для пользователя ${userId}`);
+        
+        await db.insert(userSkillsDnaProgress).values({
+          userId: userId,
+          dnaId: dnaId,
+          currentLevel: 'awareness',
+          targetLevel: 'application',
+          progress: 0,
+          lastAssessmentDate: new Date(),
+          nextAssessmentDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // через 30 дней
+          assessmentHistory: JSON.stringify([]),
+          updatedAt: new Date()
+        });
+
+        // Получаем только что созданную запись
+        const newProgress = await db
+          .select()
+          .from(userSkillsDnaProgress)
+          .where(and(
+            eq(userSkillsDnaProgress.userId, userId),
+            eq(userSkillsDnaProgress.dnaId, dnaId)
+          ))
+          .limit(1);
+
+        if (!newProgress[0]) {
+          console.log(`[CourseSkillsIntegration] Ошибка создания записи навыка ${dnaId} для пользователя ${userId}`);
+          return false;
+        }
       }
 
-      const current = currentProgress[0];
+      // Получаем актуальную запись (существующую или только что созданную)
+      const actualProgress = currentProgress[0] || await db
+        .select()
+        .from(userSkillsDnaProgress)
+        .where(and(
+          eq(userSkillsDnaProgress.userId, userId),
+          eq(userSkillsDnaProgress.dnaId, dnaId)
+        ))
+        .limit(1);
+
+      const current = actualProgress[0] || actualProgress;
       const currentProgressValue = current.progress || 0;
       
       // Корректируем прирост в зависимости от текущего уровня
