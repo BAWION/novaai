@@ -74,51 +74,55 @@ export default function AILiteracyCoursePage() {
     }
   }, [user, isAuthenticated, navigate]);
 
-  // Запрос информации о курсе с использованием slug
-  const { data: course, isLoading: courseLoading } = useQuery<Course>({
-    queryKey: ["/api/courses/ai-literacy-101"],
+  // Запрос информации о курсе через новое API
+  const { data: courseData, isLoading: courseLoading } = useQuery({
+    queryKey: ["/api/course-management/course/2"],
     enabled: !!user,
   });
 
-  // Запрос модулей курса с использованием того же slug
-  const { data: modules, isLoading: modulesLoading } = useQuery<Module[]>({
-    queryKey: ["/api/courses/ai-literacy-101/modules"],
-    enabled: !!course?.id,
-  });
-
-  // Запрос прогресса пользователя
-  const { data: progress, isLoading: progressLoading } = useQuery({
-    queryKey: ["/api/courses/progress/user"],
+  // Запрос прогресса пользователя через новое API
+  const { data: progressData, isLoading: progressLoading } = useQuery({
+    queryKey: ["/api/course-management/user-progress/2"],
     enabled: !!user,
   });
 
-  // Мутация для обновления прогресса
-  const updateProgressMutation = useMutation({
-    mutationFn: async ({ courseId, data }: { courseId: number, data: any }) => {
-      const res = await fetch(`/api/courses/${courseId}/progress`, {
+  // Извлекаем данные курса из ответа API
+  const course = courseData?.success ? courseData.course : null;
+  const modules = course?.modules || [];
+  const progress = progressData?.success ? progressData.progress : null;
+
+  // Мутация для завершения урока
+  const completeLessonMutation = useMutation({
+    mutationFn: async (lessonId: number) => {
+      const res = await fetch(`/api/course-management/complete-lesson/${lessonId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify({}),
       });
       
       if (!res.ok) {
-        throw new Error("Не удалось обновить прогресс");
+        throw new Error("Не удалось завершить урок");
       }
       
       return res.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/courses/progress/user"] });
+    onSuccess: (data) => {
+      // Обновляем данные курса и прогресса
+      queryClient.invalidateQueries({ queryKey: ["/api/course-management/course/2"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/course-management/user-progress/2"] });
+      
       toast({
-        title: "Прогресс обновлен",
-        description: "Ваш прогресс по курсу успешно сохранен",
+        title: "Урок завершен!",
+        description: data.skillsUpdated ? 
+          "Урок завершен. Skills DNA обновлен!" : 
+          "Урок успешно завершен",
         variant: "default",
       });
     },
-    onError: (err) => {
+    onError: (err: Error) => {
       toast({
         title: "Ошибка",
-        description: "Не удалось обновить прогресс: " + err.message,
+        description: "Не удалось завершить урок: " + err.message,
         variant: "destructive",
       });
     },
@@ -132,33 +136,7 @@ export default function AILiteracyCoursePage() {
 
   // Обработка завершения урока
   const handleLessonComplete = (lessonId: number) => {
-    if (!course) return;
-    
-    updateProgressMutation.mutate({
-      courseId: course.id,
-      data: {
-        progress: calculateNewProgress(),
-        completedModules: calculateCompletedModules(),
-      }
-    });
-    
-    toast({
-      title: "Урок завершен",
-      description: "Поздравляем с завершением урока!",
-      variant: "default",
-    });
-  };
-
-  // Вычисление прогресса курса на основе завершенных уроков
-  const calculateNewProgress = () => {
-    // Здесь должна быть логика вычисления прогресса
-    return 25; // Пример значения
-  };
-
-  // Вычисление количества завершенных модулей
-  const calculateCompletedModules = () => {
-    // Здесь должна быть логика подсчета завершенных модулей
-    return 1; // Пример значения
+    completeLessonMutation.mutate(lessonId);
   };
 
   // Загрузка данных

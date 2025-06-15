@@ -423,6 +423,100 @@ export class CourseManagementService {
   }
 
   /**
+   * Получает прогресс пользователя по курсу
+   */
+  async getUserCourseProgress(userId: number, courseId: number) {
+    // Получаем общий прогресс курса
+    const courseProgressQuery = await db
+      .select()
+      .from(userCourseProgress)
+      .where(and(
+        eq(userCourseProgress.userId, userId),
+        eq(userCourseProgress.courseId, courseId)
+      ))
+      .limit(1);
+
+    const courseProgress = courseProgressQuery[0];
+
+    // Получаем прогресс по урокам
+    const lessonsProgressQuery = await db
+      .select({
+        lessonId: userLessonProgress.lessonId,
+        status: userLessonProgress.status,
+        progress: userLessonProgress.progress,
+        completedAt: userLessonProgress.completedAt,
+        lessonTitle: lessons.title,
+        moduleId: lessons.moduleId,
+        moduleTitle: courseModules.title
+      })
+      .from(userLessonProgress)
+      .innerJoin(lessons, eq(userLessonProgress.lessonId, lessons.id))
+      .innerJoin(courseModules, eq(lessons.moduleId, courseModules.id))
+      .where(and(
+        eq(userLessonProgress.userId, userId),
+        eq(courseModules.courseId, courseId)
+      ));
+
+    // Считаем статистику
+    const totalLessonsQuery = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(lessons)
+      .innerJoin(courseModules, eq(lessons.moduleId, courseModules.id))
+      .where(eq(courseModules.courseId, courseId));
+
+    const completedLessonsQuery = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(userLessonProgress)
+      .innerJoin(lessons, eq(userLessonProgress.lessonId, lessons.id))
+      .innerJoin(courseModules, eq(lessons.moduleId, courseModules.id))
+      .where(and(
+        eq(userLessonProgress.userId, userId),
+        eq(courseModules.courseId, courseId),
+        eq(userLessonProgress.status, 'completed')
+      ));
+
+    const totalLessons = totalLessonsQuery[0]?.count || 0;
+    const completedLessons = completedLessonsQuery[0]?.count || 0;
+    const overallProgress = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+
+    // Группируем прогресс по модулям
+    const moduleProgress = new Map();
+    lessonsProgressQuery.forEach(lesson => {
+      if (!moduleProgress.has(lesson.moduleId)) {
+        moduleProgress.set(lesson.moduleId, {
+          moduleId: lesson.moduleId,
+          moduleTitle: lesson.moduleTitle,
+          lessons: [],
+          completed: 0,
+          total: 0
+        });
+      }
+      
+      const module = moduleProgress.get(lesson.moduleId);
+      module.lessons.push({
+        lessonId: lesson.lessonId,
+        title: lesson.lessonTitle,
+        status: lesson.status || 'not_started',
+        progress: lesson.progress || 0,
+        completedAt: lesson.completedAt
+      });
+      module.total++;
+      if (lesson.status === 'completed') {
+        module.completed++;
+      }
+    });
+
+    return {
+      overallProgress,
+      completedLessons,
+      totalLessons,
+      courseProgress: courseProgress || null,
+      modules: Array.from(moduleProgress.values()),
+      lessons: lessonsProgressQuery
+    };
+  }
+
+  /**
    * Сохраняет результат выполнения задания
    */
   async saveAssignmentResult(
