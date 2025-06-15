@@ -4,6 +4,7 @@
 
 import express, { Request, Response } from "express";
 import { courseManagementService, CourseTemplate } from "../services/course-management-service";
+import { courseSkillsIntegration } from "../services/course-skills-integration";
 import { enhancedAuthMiddleware } from "../auth-middleware";
 
 const router = express.Router();
@@ -149,6 +150,98 @@ router.get('/progress/:courseId', enhancedAuthMiddleware, async (req: Request, r
 });
 
 /**
+ * Настройка навыков для курса
+ * POST /api/course-management/configure-skills/:courseId
+ */
+router.post('/configure-skills/:courseId', enhancedAuthMiddleware, async (req: Request, res: Response) => {
+  try {
+    const courseId = parseInt(req.params.courseId);
+    const { skills } = req.body;
+
+    if (isNaN(courseId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Некорректный ID курса'
+      });
+    }
+
+    courseSkillsIntegration.configureCourseSkills(courseId, skills);
+    
+    res.json({
+      success: true,
+      message: 'Навыки курса настроены'
+    });
+  } catch (error) {
+    console.error('Ошибка настройки навыков:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Ошибка настройки навыков'
+    });
+  }
+});
+
+/**
+ * Настройка навыков для урока
+ * POST /api/course-management/configure-lesson-skills/:lessonId
+ */
+router.post('/configure-lesson-skills/:lessonId', enhancedAuthMiddleware, async (req: Request, res: Response) => {
+  try {
+    const lessonId = parseInt(req.params.lessonId);
+    const { skills } = req.body;
+
+    if (isNaN(lessonId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Некорректный ID урока'
+      });
+    }
+
+    courseSkillsIntegration.configureLessonSkills(lessonId, skills);
+    
+    res.json({
+      success: true,
+      message: 'Навыки урока настроены'
+    });
+  } catch (error) {
+    console.error('Ошибка настройки навыков урока:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Ошибка настройки навыков урока'
+    });
+  }
+});
+
+/**
+ * Получение сводки навыков пользователя
+ * GET /api/course-management/skills-summary
+ */
+router.get('/skills-summary', enhancedAuthMiddleware, async (req: Request, res: Response) => {
+  try {
+    const userId = req.session.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Требуется авторизация'
+      });
+    }
+
+    const summary = await courseSkillsIntegration.getSkillsProgressSummary(userId);
+    
+    res.json({
+      success: true,
+      summary
+    });
+  } catch (error) {
+    console.error('Ошибка получения сводки навыков:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Ошибка получения сводки навыков'
+    });
+  }
+});
+
+/**
  * Отмечает урок как завершенный
  * POST /api/course-management/complete-lesson/:lessonId
  */
@@ -173,9 +266,13 @@ router.post('/complete-lesson/:lessonId', enhancedAuthMiddleware, async (req: Re
 
     await courseManagementService.completeLesson(userId, lessonId);
     
+    // Обновляем Skills DNA после завершения урока
+    const skillsUpdated = await courseSkillsIntegration.updateSkillsAfterLesson(userId, lessonId);
+    
     res.json({
       success: true,
-      message: 'Урок завершен'
+      message: skillsUpdated ? 'Урок завершен. Skills DNA обновлен!' : 'Урок завершен',
+      skillsUpdated
     });
   } catch (error) {
     console.error('Ошибка при завершении урока:', error);
