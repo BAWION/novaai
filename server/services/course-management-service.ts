@@ -246,7 +246,7 @@ export class CourseManagementService {
       .from(courses)
       .where(eq(courses.id, courseId));
 
-    const estimatedTimeRemaining = courseDuration 
+    const estimatedTimeRemaining = courseDuration && courseDuration.estimatedDuration
       ? Math.round(courseDuration.estimatedDuration * (1 - overallProgress / 100))
       : 0;
 
@@ -254,12 +254,12 @@ export class CourseManagementService {
       courseId,
       userId,
       overallProgress,
-      completedModules: courseProgress.completedModules,
+      completedModules: courseProgress.completedModules || 0,
       totalModules,
       completedLessons,
       totalLessons,
-      startedAt: courseProgress.startedAt,
-      lastAccessedAt: courseProgress.lastAccessedAt,
+      startedAt: courseProgress.startedAt || new Date(),
+      lastAccessedAt: courseProgress.lastAccessedAt || new Date(),
       estimatedTimeRemaining,
     };
   }
@@ -268,8 +268,6 @@ export class CourseManagementService {
    * Начинает прохождение курса пользователем
    */
   async startCourse(userId: number, courseId: number): Promise<void> {
-    const db = storage.db;
-
     // Проверяем, не начат ли уже курс
     const existingProgress = await db
       .select()
@@ -293,7 +291,6 @@ export class CourseManagementService {
    * Отмечает урок как завершенный
    */
   async completeLesson(userId: number, lessonId: number): Promise<void> {
-    const db = storage.db;
 
     // Обновляем прогресс урока
     await db
@@ -321,7 +318,6 @@ export class CourseManagementService {
    * Обновляет позицию в уроке
    */
   async updateLessonPosition(userId: number, lessonId: number, position: number): Promise<void> {
-    const db = storage.db;
 
     await db
       .insert(userLessonProgress)
@@ -345,7 +341,6 @@ export class CourseManagementService {
    * Получает прогресс пользователя по урокам
    */
   async getUserLessonProgress(userId: number, courseId: number): Promise<LessonProgress[]> {
-    const db = storage.db;
 
     const progress = await db
       .select({
@@ -371,7 +366,6 @@ export class CourseManagementService {
    * Обновляет общий прогресс по курсу
    */
   private async updateCourseProgress(userId: number, lessonId: number): Promise<void> {
-    const db = storage.db;
 
     // Получаем courseId из lessonId
     const [lessonInfo] = await db
@@ -429,7 +423,6 @@ export class CourseManagementService {
     answers: any,
     score: number
   ): Promise<void> {
-    const db = storage.db;
 
     await db
       .insert(userAssignmentResults)
