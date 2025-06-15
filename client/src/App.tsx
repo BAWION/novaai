@@ -31,7 +31,6 @@ import CourseAI from "@/pages/course-ai";
 import CoursePage from "@/pages/course-page";
 import KnowledgeVault from "@/pages/knowledge-vault";
 import SkillsPage from "@/pages/skills-page";
-import GapAnalysisPage from "@/pages/gap-analysis-page";
 import AIAssistantPage from "@/pages/ai-assistant-page";
 import AILiteracyCoursePage from "@/pages/ai-literacy-course";
 import LessonPage from "@/pages/lesson-page";
@@ -153,9 +152,6 @@ function Router() {
           
           {/* Карта навыков и учебный прогресс */}
           <Route path="/skills" component={SkillsPage} />
-          
-          {/* Gap-анализ навыков */}
-          <ProtectedRoute path="/gap-analysis" component={GapAnalysisPage} />
           
           {/* Страница экономии времени (S4 Time-Saved) */}
           <ProtectedRoute path="/time-saved" component={TimeSavedPageRoute} />
