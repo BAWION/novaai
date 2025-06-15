@@ -1142,37 +1142,47 @@ export default function DeepDiagnosisPage() {
             {step === 2 && (
               <div className="space-y-6">
                 <div className="space-y-4">
-                  <Label>Уровень знания Python</Label>
-                  <div className="space-y-3">
-                    <Slider
-                      value={[formData.pythonLevel]}
-                      min={0}
-                      max={5}
-                      step={1}
-                      onValueChange={(value) => setFormData({ ...formData, pythonLevel: value[0] })}
-                      className="py-4"
-                    />
-                    <div className="flex justify-between text-xs text-white/60">
-                      <span>Не знаком</span>
-                      <span>Начинающий</span>
-                      <span>Средний</span>
-                      <span>Хороший</span>
-                      <span>Продвинутый</span>
-                      <span>Эксперт</span>
+                  <div className="flex justify-between items-center">
+                    <Label className="text-base font-medium">Уровень знания Python</Label>
+                    <div className="text-lg font-bold text-purple-400">
+                      {formData.pythonLevel}/5
                     </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-medium">
-                        {formData.pythonLevel}
-                      </div>
-                      <div className="text-sm">
-                        {formData.pythonLevel === 0 && "Не знаком с Python"}
-                        {formData.pythonLevel === 1 && "Базовые знания синтаксиса"}
-                        {formData.pythonLevel === 2 && "Могу писать простые скрипты"}
-                        {formData.pythonLevel === 3 && "Уверенное использование библиотек"}
-                        {formData.pythonLevel === 4 && "Продвинутые навыки разработки"}
-                        {formData.pythonLevel === 5 && "Экспертный уровень"}
-                      </div>
-                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 md:grid-cols-6 gap-2">
+                    {[
+                      { level: 0, label: "Не знаком" },
+                      { level: 1, label: "Начинающий" },
+                      { level: 2, label: "Базовый" },
+                      { level: 3, label: "Средний" },
+                      { level: 4, label: "Продвинутый" },
+                      { level: 5, label: "Эксперт" }
+                    ].map(({ level, label }) => (
+                      <button
+                        key={level}
+                        type="button"
+                        onClick={() => setFormData({ ...formData, pythonLevel: level })}
+                        className={`py-3 px-3 text-sm font-medium rounded-lg border transition-all duration-200 ${
+                          formData.pythonLevel === level
+                            ? "bg-gradient-to-r from-purple-500 to-indigo-500 border-purple-400 text-white shadow-lg"
+                            : "bg-white/5 border-white/20 text-white/60 hover:bg-white/10 hover:border-white/40"
+                        }`}
+                      >
+                        <div className="text-center">
+                          <div className="font-bold">{level}</div>
+                          <div className="text-xs mt-1">{label}</div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                  
+                  <div className="text-sm text-white/70 bg-white/5 rounded-lg p-3">
+                    {formData.pythonLevel === 0 && "Не знаком с Python"}
+                    {formData.pythonLevel === 1 && "Базовые знания синтаксиса"}
+                    {formData.pythonLevel === 2 && "Могу писать простые скрипты"}
+                    {formData.pythonLevel === 3 && "Уверенное использование библиотек"}
+                    {formData.pythonLevel === 4 && "Продвинутые навыки разработки"}
+                    {formData.pythonLevel === 5 && "Экспертный уровень"}
                   </div>
                 </div>
                 
@@ -1200,24 +1210,47 @@ export default function DeepDiagnosisPage() {
                 </div>
                 
                 <div className="space-y-4">
-                  <Label>Уровень навыков анализа данных</Label>
-                  <div className="space-y-3">
-                    <Slider
-                      value={[formData.dataAnalysisLevel]}
-                      min={0}
-                      max={5}
-                      step={1}
-                      onValueChange={(value) => setFormData({ ...formData, dataAnalysisLevel: value[0] })}
-                      className="py-4"
-                    />
-                    <div className="flex justify-between text-xs text-white/60">
-                      <span>Нет опыта</span>
-                      <span>Базовый</span>
-                      <span>Средний</span>
-                      <span>Хороший</span>
-                      <span>Продвинутый</span>
-                      <span>Эксперт</span>
+                  <div className="flex justify-between items-center">
+                    <Label className="text-base font-medium">Уровень навыков анализа данных</Label>
+                    <div className="text-lg font-bold text-purple-400">
+                      {formData.dataAnalysisLevel}/5
                     </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 md:grid-cols-6 gap-2">
+                    {[
+                      { level: 0, label: "Нет опыта" },
+                      { level: 1, label: "Базовый" },
+                      { level: 2, label: "Начальный" },
+                      { level: 3, label: "Средний" },
+                      { level: 4, label: "Продвинутый" },
+                      { level: 5, label: "Эксперт" }
+                    ].map(({ level, label }) => (
+                      <button
+                        key={level}
+                        type="button"
+                        onClick={() => setFormData({ ...formData, dataAnalysisLevel: level })}
+                        className={`py-3 px-3 text-sm font-medium rounded-lg border transition-all duration-200 ${
+                          formData.dataAnalysisLevel === level
+                            ? "bg-gradient-to-r from-purple-500 to-indigo-500 border-purple-400 text-white shadow-lg"
+                            : "bg-white/5 border-white/20 text-white/60 hover:bg-white/10 hover:border-white/40"
+                        }`}
+                      >
+                        <div className="text-center">
+                          <div className="font-bold">{level}</div>
+                          <div className="text-xs mt-1">{label}</div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                  
+                  <div className="text-sm text-white/70 bg-white/5 rounded-lg p-3">
+                    {formData.dataAnalysisLevel === 0 && "Нет опыта работы с данными"}
+                    {formData.dataAnalysisLevel === 1 && "Базовые знания Excel, простая статистика"}
+                    {formData.dataAnalysisLevel === 2 && "Работа с базами данных, простые запросы"}
+                    {formData.dataAnalysisLevel === 3 && "Владение Python/R для анализа данных"}
+                    {formData.dataAnalysisLevel === 4 && "Продвинутая аналитика, машинное обучение"}
+                    {formData.dataAnalysisLevel === 5 && "Экспертный уровень, большие данные"}
                   </div>
                 </div>
                 
@@ -1254,91 +1287,105 @@ export default function DeepDiagnosisPage() {
                 
                 <div className="space-y-6">
                   <h3 className="text-lg font-medium">Оцените свои когнитивные способности</h3>
+                  <p className="text-sm text-white/70">Нажимайте на кнопки для изменения уровня</p>
                   
-                  <div className="space-y-5">
-                    <div className="space-y-5">
-                      <div className="space-y-3">
-                        <div className="flex justify-between items-center">
-                          <Label>Аналитическое мышление</Label>
-                          <div className="text-sm font-medium text-purple-400">
-                            {formData.analyticalThinking}/5
-                          </div>
-                        </div>
-                        <div className="relative h-2.5 bg-gray-200/10 rounded-full overflow-hidden">
-                          <div 
-                            className="absolute top-0 left-0 h-full bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full"
-                            style={{ width: `${(formData.analyticalThinking / 5) * 100}%` }}
-                          ></div>
-                          <Slider
-                            value={[formData.analyticalThinking]}
-                            min={1}
-                            max={5}
-                            step={1}
-                            onValueChange={(value) => setFormData({ ...formData, analyticalThinking: value[0] })}
-                            className="relative z-10"
-                          />
-                        </div>
-                        <div className="flex justify-between text-xs text-white/60">
-                          <span>Базовое</span>
-                          <span className="mx-auto">Среднее</span>
-                          <span>Экспертное</span>
+                  <div className="space-y-8">
+                    {/* Аналитическое мышление */}
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <Label className="text-base font-medium">Аналитическое мышление</Label>
+                        <div className="text-lg font-bold text-purple-400">
+                          {formData.analyticalThinking}/5
                         </div>
                       </div>
                       
-                      <div className="space-y-3">
-                        <div className="flex justify-between items-center">
-                          <Label>Творческий подход к решению проблем</Label>
-                          <div className="text-sm font-medium text-purple-400">
-                            {formData.creativeProblemSolving}/5
-                          </div>
-                        </div>
-                        <div className="relative h-2.5 bg-gray-200/10 rounded-full overflow-hidden">
-                          <div 
-                            className="absolute top-0 left-0 h-full bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full"
-                            style={{ width: `${(formData.creativeProblemSolving / 5) * 100}%` }}
-                          ></div>
-                          <Slider
-                            value={[formData.creativeProblemSolving]}
-                            min={1}
-                            max={5}
-                            step={1}
-                            onValueChange={(value) => setFormData({ ...formData, creativeProblemSolving: value[0] })}
-                            className="relative z-10"
-                          />
-                        </div>
-                        <div className="flex justify-between text-xs text-white/60">
-                          <span>Базовое</span>
-                          <span className="mx-auto">Среднее</span>
-                          <span>Экспертное</span>
+                      <div className="flex justify-between gap-2">
+                        {[1, 2, 3, 4, 5].map((level) => (
+                          <button
+                            key={level}
+                            type="button"
+                            onClick={() => setFormData({ ...formData, analyticalThinking: level })}
+                            className={`flex-1 py-3 px-2 text-sm font-medium rounded-lg border transition-all duration-200 ${
+                              formData.analyticalThinking >= level
+                                ? "bg-gradient-to-r from-purple-500 to-indigo-500 border-purple-400 text-white shadow-lg"
+                                : "bg-white/5 border-white/20 text-white/60 hover:bg-white/10 hover:border-white/40"
+                            }`}
+                          >
+                            {level}
+                          </button>
+                        ))}
+                      </div>
+                      
+                      <div className="flex justify-between text-xs text-white/60 px-1">
+                        <span>Базовое</span>
+                        <span>Среднее</span>
+                        <span>Экспертное</span>
+                      </div>
+                    </div>
+                    
+                    {/* Творческий подход к решению проблем */}
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <Label className="text-base font-medium">Творческий подход к решению проблем</Label>
+                        <div className="text-lg font-bold text-purple-400">
+                          {formData.creativeProblemSolving}/5
                         </div>
                       </div>
                       
-                      <div className="space-y-3">
-                        <div className="flex justify-between items-center">
-                          <Label>Внимание к деталям</Label>
-                          <div className="text-sm font-medium text-purple-400">
-                            {formData.attentionToDetail}/5
-                          </div>
+                      <div className="flex justify-between gap-2">
+                        {[1, 2, 3, 4, 5].map((level) => (
+                          <button
+                            key={level}
+                            type="button"
+                            onClick={() => setFormData({ ...formData, creativeProblemSolving: level })}
+                            className={`flex-1 py-3 px-2 text-sm font-medium rounded-lg border transition-all duration-200 ${
+                              formData.creativeProblemSolving >= level
+                                ? "bg-gradient-to-r from-purple-500 to-indigo-500 border-purple-400 text-white shadow-lg"
+                                : "bg-white/5 border-white/20 text-white/60 hover:bg-white/10 hover:border-white/40"
+                            }`}
+                          >
+                            {level}
+                          </button>
+                        ))}
+                      </div>
+                      
+                      <div className="flex justify-between text-xs text-white/60 px-1">
+                        <span>Базовое</span>
+                        <span>Среднее</span>
+                        <span>Экспертное</span>
+                      </div>
+                    </div>
+                    
+                    {/* Внимание к деталям */}
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <Label className="text-base font-medium">Внимание к деталям</Label>
+                        <div className="text-lg font-bold text-purple-400">
+                          {formData.attentionToDetail}/5
                         </div>
-                        <div className="relative h-2.5 bg-gray-200/10 rounded-full overflow-hidden">
-                          <div 
-                            className="absolute top-0 left-0 h-full bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full"
-                            style={{ width: `${(formData.attentionToDetail / 5) * 100}%` }}
-                          ></div>
-                          <Slider
-                            value={[formData.attentionToDetail]}
-                            min={1}
-                            max={5}
-                            step={1}
-                            onValueChange={(value) => setFormData({ ...formData, attentionToDetail: value[0] })}
-                            className="relative z-10"
-                          />
-                        </div>
-                        <div className="flex justify-between text-xs text-white/60">
-                          <span>Базовое</span>
-                          <span className="mx-auto">Среднее</span>
-                          <span>Экспертное</span>
-                        </div>
+                      </div>
+                      
+                      <div className="flex justify-between gap-2">
+                        {[1, 2, 3, 4, 5].map((level) => (
+                          <button
+                            key={level}
+                            type="button"
+                            onClick={() => setFormData({ ...formData, attentionToDetail: level })}
+                            className={`flex-1 py-3 px-2 text-sm font-medium rounded-lg border transition-all duration-200 ${
+                              formData.attentionToDetail >= level
+                                ? "bg-gradient-to-r from-purple-500 to-indigo-500 border-purple-400 text-white shadow-lg"
+                                : "bg-white/5 border-white/20 text-white/60 hover:bg-white/10 hover:border-white/40"
+                            }`}
+                          >
+                            {level}
+                          </button>
+                        ))}
+                      </div>
+                      
+                      <div className="flex justify-between text-xs text-white/60 px-1">
+                        <span>Базовое</span>
+                        <span>Среднее</span>
+                        <span>Экспертное</span>
                       </div>
                     </div>
                   </div>
