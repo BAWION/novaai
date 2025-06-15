@@ -443,7 +443,6 @@ export class CourseManagementService {
       .select({
         lessonId: userLessonProgress.lessonId,
         status: userLessonProgress.status,
-        progress: userLessonProgress.progress,
         completedAt: userLessonProgress.completedAt,
         lessonTitle: lessons.title,
         moduleId: lessons.moduleId,

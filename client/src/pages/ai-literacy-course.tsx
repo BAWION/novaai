@@ -140,7 +140,7 @@ export default function AILiteracyCoursePage() {
   };
 
   // Загрузка данных
-  if (courseLoading || modulesLoading || progressLoading) {
+  if (courseLoading || progressLoading) {
     return (
       <DashboardLayout title="AI Literacy 101">
         <div className="flex items-center justify-center min-h-screen">
@@ -203,10 +203,15 @@ export default function AILiteracyCoursePage() {
                   <CardTitle className="text-lg">Прогресс курса</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <Progress value={25} className="h-2 mb-2" />
+                  <Progress value={progress?.overallProgress || 0} className="h-2 mb-2" />
                   <div className="text-sm text-muted-foreground">
-                    Завершено 25% курса
+                    Завершено {progress?.overallProgress || 0}% курса
                   </div>
+                  {progress && (
+                    <div className="text-xs text-muted-foreground mt-1">
+                      {progress.completedLessons} из {progress.totalLessons} уроков
+                    </div>
+                  )}
                 </CardContent>
                 <CardFooter>
                   <Button 
