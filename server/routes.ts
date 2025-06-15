@@ -726,6 +726,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         delete updateData.completeOnboarding;
       }
       
+      // Исправляем уровень опыта для совместимости с enum базы данных
+      if (updateData.experience) {
+        const experienceMapping: { [key: string]: string } = {
+          'intermediate': 'practical-experience', // Исправляем старое значение
+          'advanced': 'professional',
+          'beginner': 'beginner',
+          'learning-basics': 'learning-basics',
+          'practical-experience': 'practical-experience',
+          'professional': 'professional',
+          'expert': 'expert'
+        };
+        
+        const mappedExperience = experienceMapping[updateData.experience];
+        if (mappedExperience) {
+          updateData.experience = mappedExperience;
+          console.log(`[ProfileUpdate] Опыт сопоставлен: ${updateData.experience} -> ${mappedExperience}`);
+        }
+      }
+      
       console.log(`[ProfileUpdate] Данные после очистки:`, JSON.stringify(updateData, null, 2));
       
       // Check if profile exists

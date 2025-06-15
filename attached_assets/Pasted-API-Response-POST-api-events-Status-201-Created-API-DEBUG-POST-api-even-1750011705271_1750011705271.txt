@@ -1,0 +1,31 @@
+API Response: POST /api/events - Status: 201 Created
+[API-DEBUG] Заголовки ответа для POST /api/events: access-control-allow-credentials: true, access-control-allow-headers: Origin, X-Requested-With, Content-Type, Accept, Authorization, access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, access-control-allow-origin: https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev, content-length: 235, content-type: application/json; charset=utf-8, date: Sun, 15 Jun 2025 18:21:04 GMT, etag: W/"eb-JBpQG57LclIgAPAEHSxvjcekLDY", replit-cluster: janeway, x-powered-by: Express, x-robots-tag: none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex, none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex
+Результаты диагностики сохранены в локальном кэше и будут восстановлены после авторизации
+API Response: POST /api/events - Status: 201 Created
+[API-DEBUG] Заголовки ответа для POST /api/events: access-control-allow-credentials: true, access-control-allow-headers: Origin, X-Requested-With, Content-Type, Accept, Authorization, access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, access-control-allow-origin: https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev, content-length: 208, content-type: application/json; charset=utf-8, date: Sun, 15 Jun 2025 18:21:05 GMT, etag: W/"d0-ppryejMhmWfQs5VSXFleNOYAUjs", replit-cluster: janeway, x-powered-by: Express, x-robots-tag: none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex, none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex
+API Response: PATCH /api/profile - Status: 500 Internal Server Error
+[API-DEBUG] Заголовки ответа для PATCH /api/profile: access-control-allow-credentials: true, access-control-allow-headers: Origin, X-Requested-With, Content-Type, Accept, Authorization, access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, access-control-allow-origin: https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev, content-length: 38, content-type: application/json; charset=utf-8, date: Sun, 15 Jun 2025 18:21:05 GMT, etag: W/"26-GI4maY+bi4TpgHIpEexZPfLXIww", replit-cluster: janeway, x-powered-by: Express, x-robots-tag: none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex, none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex
+API Error: PATCH /api/profile - Status: 500 Internal Server Error
+at t.value (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
+Error body: {"message":"Failed to update profile"}
+at t.value (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
+API Request Failed: PATCH /api/profile 
+Error {}
+
+at t.value (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
+Failed to update user profile 
+Error {}
+
+at t.value (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400

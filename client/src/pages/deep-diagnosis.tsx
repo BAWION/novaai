@@ -201,8 +201,10 @@ export default function DeepDiagnosisPage() {
   
   const experienceLevels = [
     { id: "beginner", title: "Новичок", description: "Только начинаю знакомство с искусственным интеллектом" },
-    { id: "intermediate", title: "Средний уровень", description: "Имею базовые знания и некоторый практический опыт" },
-    { id: "advanced", title: "Продвинутый", description: "Хорошо разбираюсь и имею опыт работы над проектами" }
+    { id: "learning-basics", title: "Изучаю основы", description: "Изучаю базовые концепции и теорию" },
+    { id: "practical-experience", title: "Практический опыт", description: "Имею некоторый практический опыт работы" },
+    { id: "professional", title: "Профессиональный", description: "Работаю в области ИИ или активно применяю знания" },
+    { id: "expert", title: "Эксперт", description: "Глубокие знания и значительный опыт в области ИИ" }
   ];
   
   // Используем id, которые соответствуют типу UserInterest из констант
