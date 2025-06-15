@@ -44,6 +44,7 @@ import TimeSavedPageRoute from "@/pages/time-saved-page";
 import InvestorPresentation from "@/pages/investor-presentation";
 import PresentationSelector from "@/pages/presentation-selector";
 import ProductDemo from "@/pages/product-demo";
+import CourseManagement from "@/pages/course-management";
 
 interface ProtectedRouteProps {
   component: React.ComponentType;
@@ -146,6 +147,9 @@ function Router() {
           
           {/* Детальная страница курса */}
           <ProtectedRoute path="/courses/:slug" component={CoursePage} />
+          
+          {/* Управление курсами */}
+          <ProtectedRoute path="/course-management" component={CourseManagement} />
           
           {/* Knowledge Vault - Хранилище знаний */}
           <ProtectedRoute path="/knowledge-vault" component={KnowledgeVault} />
