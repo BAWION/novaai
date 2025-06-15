@@ -412,4 +412,42 @@ router.post('/assignment-result/:assignmentId', enhancedAuthMiddleware, async (r
   }
 });
 
+/**
+ * Получает прогресс пользователя по курсу
+ * GET /api/course-management/user-progress/:courseId
+ */
+router.get('/user-progress/:courseId', enhancedAuthMiddleware, async (req: Request, res: Response) => {
+  try {
+    const courseId = parseInt(req.params.courseId);
+    const userId = req.session.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Требуется авторизация'
+      });
+    }
+
+    if (isNaN(courseId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Некорректный ID курса'
+      });
+    }
+
+    const progress = await courseManagementService.getUserCourseProgress(userId, courseId);
+    
+    res.json({
+      success: true,
+      progress
+    });
+  } catch (error) {
+    console.error('Ошибка при получении прогресса пользователя:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Ошибка при получении прогресса пользователя'
+    });
+  }
+});
+
 export default router;
