@@ -139,6 +139,22 @@ export default function DeepDiagnosisPage() {
   const { userProfile, updateUserProfile } = useUserProfile();
   const [, setLocation] = useLocation();
   
+  // Clear any cached data with invalid enum values on component mount
+  useEffect(() => {
+    try {
+      const cachedData = localStorage.getItem("pendingDiagnosisResults");
+      if (cachedData) {
+        const parsed = JSON.parse(cachedData);
+        if (parsed?.metadata?.profileData?.experience === "intermediate") {
+          console.log("[DeepDiagnosis] Clearing cached data with invalid enum values");
+          localStorage.removeItem("pendingDiagnosisResults");
+        }
+      }
+    } catch (error) {
+      console.warn("[DeepDiagnosis] Error checking cached data:", error);
+    }
+  }, []);
+  
   // Состояния
   const [step, setStep] = useState(1);
   const [totalSteps] = useState(4);
