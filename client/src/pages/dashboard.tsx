@@ -363,12 +363,22 @@ export default function Dashboard() {
           </div>
         </motion.div>
         
+        {/* Main Content - Skills DNA and Recommended Courses */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="mb-8"
+        >
+          <SkillsDnaResultsWidget userId={user?.id} />
+        </motion.div>
+
         {/* All Courses Section */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="bg-space-800/50 rounded-xl p-4 mb-8"
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="bg-space-800/50 rounded-xl p-4"
         >
           <div className="flex justify-between items-center mb-4">
             <h2 className="font-orbitron text-xl font-semibold">
@@ -400,16 +410,6 @@ export default function Dashboard() {
               </div>
             </Link>
           </div>
-        </motion.div>
-
-        {/* Skills DNA Section - moved after All Courses */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-          className="mb-8"
-        >
-          <SkillsDnaResultsWidget userId={user?.id} />
         </motion.div>
       </div>
     </DashboardLayout>
