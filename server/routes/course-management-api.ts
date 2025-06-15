@@ -269,16 +269,67 @@ router.post('/complete-lesson/:lessonId', enhancedAuthMiddleware, async (req: Re
     // Обновляем Skills DNA после завершения урока
     const skillsUpdated = await courseSkillsIntegration.updateSkillsAfterLesson(userId, lessonId);
     
+    // Получаем обновленную сводку навыков для отображения изменений
+    const skillsSummary = skillsUpdated ? await courseSkillsIntegration.getSkillsProgressSummary(userId) : null;
+    
     res.json({
       success: true,
       message: skillsUpdated ? 'Урок завершен. Skills DNA обновлен!' : 'Урок завершен',
-      skillsUpdated
+      skillsUpdated,
+      skillsSummary
     });
   } catch (error) {
     console.error('Ошибка при завершении урока:', error);
     res.status(500).json({
       success: false,
       message: 'Ошибка при завершении урока'
+    });
+  }
+});
+
+/**
+ * Завершает курс с бонусным обновлением Skills DNA
+ * POST /api/course-management/complete-course/:courseId
+ */
+router.post('/complete-course/:courseId', enhancedAuthMiddleware, async (req: Request, res: Response) => {
+  try {
+    const courseId = parseInt(req.params.courseId);
+    const userId = req.session.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Требуется авторизация'
+      });
+    }
+
+    if (isNaN(courseId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Некорректный ID курса'
+      });
+    }
+
+    // Отмечаем курс как завершенный
+    await courseManagementService.startCourse(userId, courseId); // Убеждаемся, что прогресс существует
+    
+    // Применяем бонусные навыки за завершение курса
+    const skillsUpdated = await courseSkillsIntegration.updateSkillsAfterCourse(userId, courseId);
+    
+    // Получаем обновленную сводку навыков
+    const skillsSummary = skillsUpdated ? await courseSkillsIntegration.getSkillsProgressSummary(userId) : null;
+    
+    res.json({
+      success: true,
+      message: skillsUpdated ? 'Курс завершен! Получен бонус к Skills DNA!' : 'Курс завершен!',
+      skillsUpdated,
+      skillsSummary
+    });
+  } catch (error) {
+    console.error('Ошибка при завершении курса:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Ошибка при завершении курса'
     });
   }
 });
