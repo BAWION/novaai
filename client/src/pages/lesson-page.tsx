@@ -118,30 +118,33 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
     }
   });
 
-  // Мутация для обновления прогресса
+  // Мутация для обновления прогресса через новую систему управления курсами
   const completeLessonMutation = useMutation({
     mutationFn: async () => {
       if (!lesson) throw new Error("Урок не найден");
       
-      const res = await fetch(`/api/lessons/${lessonId}/complete`, {
+      const res = await fetch(`/api/course-management/complete-lesson/${lessonId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({})
       });
       
       if (!res.ok) {
-        throw new Error("Не удалось отметить урок как завершенный");
+        throw new Error("Не удалось завершить урок");
       }
       
       return res.json();
     },
-    onSuccess: () => {
-      // Инвалидируем все запросы, связанные с данными курса и прогрессом
+    onSuccess: (data) => {
+      // Инвалидируем запросы курса и прогресса
       queryClient.invalidateQueries({ queryKey: [`/api/modules/${moduleId}/lessons`] });
       queryClient.invalidateQueries({ queryKey: [`/api/lessons/${lessonId}`] });
       queryClient.invalidateQueries({ queryKey: [`/api/modules/${moduleId}`] });
       queryClient.invalidateQueries({ queryKey: ["/api/learning/progress"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/course-management/user-progress/2"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/course-management/course/2"] });
       
-      // Вручную обновляем текущий урок в кэше, чтобы сразу показать изменения
+      // Вручную обновляем текущий урок в кэше
       const currentLessonKey = [`/api/lessons/${lessonId}`];
       const currentLesson = queryClient.getQueryData<Lesson>(currentLessonKey);
       
@@ -167,7 +170,9 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
       
       toast({
         title: "Урок завершен!",
-        description: "Ваш прогресс сохранен. Переходим к следующему уроку.",
+        description: data.skillsUpdated ? 
+          "Урок завершен. Skills DNA обновлен!" : 
+          "Ваш прогресс сохранен. Переходим к следующему уроку.",
         variant: "default",
       });
 
