@@ -42,6 +42,7 @@ import { timeSavedRouter } from "./routes/time-saved-api";
 import { skillsRouter } from "./routes/skills-api";
 // Импортируем маршрутизатор для AB-тестирования
 import { abTestRouter } from "./routes/ab-test";
+import courseManagementRouter from "./routes/course-management-api";
 
 // Add any middleware needed
 const authMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
