@@ -143,6 +143,14 @@ export class CourseManagementService {
   }
 
   /**
+   * Получает курс по slug
+   */
+  async getCourseBySlug(slug: string): Promise<any> {
+    const [course] = await db.select().from(courses).where(eq(courses.slug, slug));
+    return course || null;
+  }
+
+  /**
    * Получает полную информацию о курсе с модулями и уроками
    */
   async getCourseWithContent(courseId: number): Promise<any> {

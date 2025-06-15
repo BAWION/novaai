@@ -43,6 +43,7 @@ import { skillsRouter } from "./routes/skills-api";
 // Импортируем маршрутизатор для AB-тестирования
 import { abTestRouter } from "./routes/ab-test";
 import courseManagementRouter from "./routes/course-management-api";
+import courseInitRouter from "./routes/course-initialization";
 
 // Add any middleware needed
 const authMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -115,6 +116,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/skills-tracking', skillsRouter);
   // Добавляем маршрут для AB-тестирования
   app.use('/api/ab-test', abTestRouter);
+  // Добавляем маршрут для управления курсами
+  app.use('/api/course-management', courseManagementRouter);
+  // Добавляем маршрут для инициализации курсов
+  app.use('/api/course-init', courseInitRouter);
   
   // Создаем тестового пользователя Vitaliy
   (async () => {
