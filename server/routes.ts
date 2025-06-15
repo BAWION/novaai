@@ -13,7 +13,6 @@ import session from "express-session";
 import memorystore from "memorystore";
 import { checkSecrets } from "./routes/check-secrets";
 import mlApiRouter from "./routes/ml-api";
-import gapAnalysisRouter from "./routes/gap-analysis-api";
 import aiAssistantRouter from "./routes/ai-assistant-api";
 import profilesRouter from "./routes/profiles-api";
 import eventLogsRouter from "./routes/event-logs-api";
@@ -96,7 +95,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Импортируем и используем маршрутизаторы для различных API
   app.use('/api/check-secrets', checkSecrets);
   app.use('/api/ml', mlApiRouter);
-  app.use('/api/gap-analysis', gapAnalysisRouter);
+
   app.use('/api/ai-assistant', aiAssistantRouter);
   app.use('/api/profiles', profilesRouter);
   app.use('/api/modules', moduleRouter);
