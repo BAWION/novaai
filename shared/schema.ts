@@ -194,6 +194,8 @@ export const insertAssignmentSchema = createInsertSchema(assignments).omit({
   updatedAt: true,
 });
 
+
+
 // Схема для отслеживания прогресса по урокам
 export const userLessonProgress = pgTable("user_lesson_progress", {
   id: serial("id").primaryKey(),
@@ -243,6 +245,32 @@ export const insertUserAssignmentResultsSchema = createInsertSchema(userAssignme
   updatedAt: true,
 });
 
+// Схемы для новых таблиц интеграции Skills DNA
+export const insertCourseSkillsDnaMappingSchema = createInsertSchema(courseSkillsDnaMapping).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertModuleSkillsDnaMappingSchema = createInsertSchema(moduleSkillsDnaMapping).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertLessonSkillsDnaImpactSchema = createInsertSchema(lessonSkillsDnaImpact).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertAssignmentSkillsDnaImpactSchema = createInsertSchema(assignmentSkillsDnaImpact).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertSkillsDnaProgressHistorySchema = createInsertSchema(skillsDnaProgressHistory).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Типы для вставки данных
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertUserProfile = z.infer<typeof insertUserProfileSchema>;
@@ -253,6 +281,26 @@ export type InsertLesson = z.infer<typeof insertLessonSchema>;
 export type InsertAssignment = z.infer<typeof insertAssignmentSchema>;
 export type InsertUserLessonProgress = z.infer<typeof insertUserLessonProgressSchema>;
 export type InsertUserAssignmentResults = z.infer<typeof insertUserAssignmentResultsSchema>;
+
+// Новые типы для Skills DNA интеграции
+export type InsertCourseSkillsDnaMapping = z.infer<typeof insertCourseSkillsDnaMappingSchema>;
+export type InsertModuleSkillsDnaMapping = z.infer<typeof insertModuleSkillsDnaMappingSchema>;
+export type InsertLessonSkillsDnaImpact = z.infer<typeof insertLessonSkillsDnaImpactSchema>;
+export type InsertAssignmentSkillsDnaImpact = z.infer<typeof insertAssignmentSkillsDnaImpactSchema>;
+export type InsertSkillsDnaProgressHistory = z.infer<typeof insertSkillsDnaProgressHistorySchema>;
+
+// Типы для выборки данных
+export type Course = typeof courses.$inferSelect;
+export type CourseModule = typeof courseModules.$inferSelect;
+export type Lesson = typeof lessons.$inferSelect;
+export type Assignment = typeof assignments.$inferSelect;
+export type UserLessonProgress = typeof userLessonProgress.$inferSelect;
+export type UserAssignmentResults = typeof userAssignmentResults.$inferSelect;
+export type SkillsDna = typeof skillsDna.$inferSelect;
+export type UserSkillsDnaProgress = typeof userSkillsDnaProgress.$inferSelect;
+export type CourseSkillsDnaMapping = typeof courseSkillsDnaMapping.$inferSelect;
+export type LessonSkillsDnaImpact = typeof lessonSkillsDnaImpact.$inferSelect;
+export type SkillsDnaProgressHistory = typeof skillsDnaProgressHistory.$inferSelect;
 
 // Определение таблицы функциональных флагов для ML-функций
 export const featureFlags = pgTable("feature_flags", {
@@ -414,6 +462,9 @@ export const mlDataSnapshots = pgTable("ml_data_snapshots", {
 // Типы категорий навыков
 export const skillCategoryEnum = pgEnum('skill_category', ['programming', 'data', 'ml', 'soft-skills', 'domain-knowledge']);
 
+// Уровни Skills DNA (таксономия Блума 2.0)
+export const skillsDnaLevelEnum = pgEnum('skills_dna_level', ['awareness', 'knowledge', 'application', 'mastery', 'expertise']);
+
 // Навыки и требования для курсов
 export const skills = pgTable("skills", {
   id: serial("id").primaryKey(),
@@ -486,9 +537,6 @@ export const userSkillGaps = pgTable("user_skill_gaps", {
 });
 
 // ========== НОВЫЕ ТАБЛИЦЫ ДЛЯ SKILLS DNA И МИКРОУРОКОВ ==========
-
-// Определение таблицы компетенций (Skills DNA)
-export const skillsDnaLevelEnum = pgEnum('skills_dna_level', ['awareness', 'knowledge', 'application', 'mastery', 'expertise']);
 
 // Предварительное объявление таблицы для самоссылки
 export const skillsDnaTable = pgTable("skills_dna", {
