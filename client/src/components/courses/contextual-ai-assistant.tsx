@@ -205,7 +205,7 @@ export function ContextualAIAssistant({
       <Separator />
 
       <CardContent className="flex-1 flex flex-col p-0">
-        <ScrollArea className="flex-1 p-4">
+        <ScrollArea className="h-80 p-4">
           <div className="space-y-4">
             {messages.map((message) => (
               <div
