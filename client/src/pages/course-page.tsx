@@ -421,7 +421,7 @@ export default function CoursePage() {
       </div>
       
       {/* Модальная подсказка клавиатурных сокращений */}
-      {ShortcutsHelp && <ShortcutsHelp />}
+      <ShortcutsHelp />
     </DashboardLayout>
   );
 }
