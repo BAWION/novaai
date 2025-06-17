@@ -68,7 +68,7 @@ export function DifficultyLevelSwitcher({
           <Button
             key={level.id}
             variant={currentLevel === level.id ? "default" : "outline"}
-            className={`w-full justify-start text-left h-auto p-3 ${
+            className={`w-full justify-start text-left h-auto p-3 whitespace-normal ${
               currentLevel === level.id 
                 ? level.color
                 : "hover:bg-muted/50"
@@ -76,20 +76,20 @@ export function DifficultyLevelSwitcher({
             onClick={() => handleLevelChange(level.id)}
             disabled={isLoading}
           >
-            <div className="flex items-center gap-3 w-full">
-              <div className="flex-shrink-0">
+            <div className="flex items-start gap-3 w-full">
+              <div className="flex-shrink-0 mt-0.5">
                 {level.icon}
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium">{level.name}</span>
+              <div className="flex-1 min-w-0 overflow-hidden">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-medium text-sm leading-tight">{level.name}</span>
                   {currentLevel === level.id && (
-                    <Badge variant="secondary" className="text-xs">
+                    <Badge variant="secondary" className="text-xs flex-shrink-0">
                       Активный
                     </Badge>
                   )}
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-xs text-muted-foreground mt-1 leading-relaxed break-words">
                   {level.description}
                 </p>
               </div>
