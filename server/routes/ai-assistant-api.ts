@@ -19,6 +19,23 @@ const explanationSchema = z.object({
   difficulty: z.enum(['easy', 'medium', 'hard']).optional(),
 });
 
+// Схема для валидации запроса контекстуального ассистента урока
+const lessonContextSchema = z.object({
+  lessonId: z.number(),
+  lessonTitle: z.string(),
+  lessonContent: z.string(),
+  currentSection: z.string().optional(),
+  userMessage: z.string().min(1).max(1000),
+  userSkillsLevel: z.enum(['beginner', 'intermediate', 'advanced']),
+  conversationHistory: z.array(z.object({
+    id: z.string(),
+    type: z.enum(['user', 'assistant']),
+    content: z.string(),
+    timestamp: z.string(),
+    context: z.string().optional()
+  })).optional()
+});
+
 /**
  * Получить ответ от AI-ассистента
  * POST /api/ai-assistant/ask
@@ -99,6 +116,54 @@ router.post('/explain', authMiddleware, async (req: Request, res: Response) => {
     return res.json({ explanation });
   } catch (error) {
     console.error('Error in /api/ai-assistant/explain:', error);
+    return res.status(500).json({ error: 'Внутренняя ошибка сервера' });
+  }
+});
+
+/**
+ * Контекстуальный AI-ассистент для урока
+ * POST /api/ai-assistant/lesson-context
+ */
+router.post('/lesson-context', async (req: Request, res: Response) => {
+  try {
+    // Валидируем запрос
+    const validationResult = lessonContextSchema.safeParse(req.body);
+    if (!validationResult.success) {
+      return res.status(400).json({ 
+        error: 'Неверный формат запроса',
+        details: validationResult.error.errors 
+      });
+    }
+    
+    const { 
+      lessonId, 
+      lessonTitle, 
+      lessonContent, 
+      currentSection, 
+      userMessage, 
+      userSkillsLevel,
+      conversationHistory = []
+    } = validationResult.data;
+    
+    // Получаем ответ от контекстуального ассистента
+    const response = await aiAssistantService.getLessonContextualResponse({
+      lessonId,
+      lessonTitle,
+      lessonContent,
+      currentSection,
+      userMessage,
+      userSkillsLevel,
+      conversationHistory
+    });
+    
+    // Возвращаем ответ
+    return res.json({ 
+      response: response.message,
+      context: response.context,
+      suggestedQuestions: response.suggestedQuestions || []
+    });
+  } catch (error) {
+    console.error('Error in /api/ai-assistant/lesson-context:', error);
     return res.status(500).json({ error: 'Внутренняя ошибка сервера' });
   }
 });
