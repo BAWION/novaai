@@ -223,13 +223,15 @@ export function ContextualAIAssistant({
                 )}
                 
                 <div
-                  className={`max-w-[80%] rounded-lg px-3 py-2 text-sm ${
+                  className={`max-w-[80%] rounded-lg px-3 py-2 text-sm break-words overflow-hidden ${
                     message.type === 'user'
                       ? 'bg-primary text-primary-foreground ml-auto'
                       : 'bg-muted'
                   }`}
                 >
-                  <div>{message.content}</div>
+                  <div className="whitespace-pre-wrap break-words overflow-wrap-anywhere">
+                    {message.content}
+                  </div>
                   <div className="text-xs opacity-70 mt-1">
                     {message.timestamp.toLocaleTimeString([], { 
                       hour: '2-digit', 
