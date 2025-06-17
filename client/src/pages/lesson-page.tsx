@@ -15,6 +15,9 @@ import { Glassmorphism } from "@/components/ui/glassmorphism";
 import { queryClient } from "@/lib/queryClient";
 import ReactMarkdown from "react-markdown";
 import { MicroLessonStructure } from "@/components/courses/micro-lesson-structure";
+import { MicroLessonNavigation } from "@/components/courses/micro-lesson-navigation";
+import { ContextualAIAssistant } from "@/components/courses/contextual-ai-assistant";
+import { DifficultyLevelSwitcher } from "@/components/courses/difficulty-level-switcher";
 
 interface Lesson {
   id: number;
@@ -49,6 +52,10 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("content");
   const [isLoading, setIsLoading] = useState(true);
+  const [showAIAssistant, setShowAIAssistant] = useState(false);
+  const [isAIMinimized, setIsAIMinimized] = useState(false);
+  const [userSkillsLevel, setUserSkillsLevel] = useState<'beginner' | 'intermediate' | 'advanced'>('intermediate');
+  const [useMicroLessons, setUseMicroLessons] = useState(false);
 
   // Проверка аутентификации
   useEffect(() => {
@@ -206,6 +213,55 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
     completeLessonMutation.mutate();
   };
 
+  // Создаем микро-разделы для урока (TutorAI-стиль)
+  const createMicroSections = (lessonContent: string) => {
+    if (!lessonContent) return [];
+
+    const sections = [
+      {
+        id: 'introduction',
+        title: 'Введение',
+        content: lessonContent.substring(0, Math.min(500, lessonContent.length)),
+        estimatedMinutes: 2,
+        type: 'text' as const
+      },
+      {
+        id: 'main-content',
+        title: 'Основной материал',
+        content: lessonContent.substring(500, Math.min(1500, lessonContent.length)),
+        estimatedMinutes: 5,
+        type: 'text' as const
+      },
+      {
+        id: 'examples',
+        title: 'Примеры и практика',
+        content: lessonContent.substring(1500, Math.min(2500, lessonContent.length)),
+        estimatedMinutes: 4,
+        type: 'interactive' as const
+      },
+      {
+        id: 'summary',
+        title: 'Заключение',
+        content: lessonContent.substring(2500) || "Подведение итогов урока и ключевые выводы.",
+        estimatedMinutes: 2,
+        type: 'text' as const
+      }
+    ].filter(section => section.content.length > 50);
+
+    return sections;
+  };
+
+  const microSections = lesson ? createMicroSections(lesson.content) : [];
+
+  const handleMicroSectionComplete = (sectionId: string) => {
+    console.log(`Micro section completed: ${sectionId}`);
+  };
+
+  const handleToggleAIAssistant = () => {
+    setShowAIAssistant(!showAIAssistant);
+    setIsAIMinimized(false);
+  };
+
   // Функция для перехода к предыдущему уроку
   const goToPreviousLesson = () => {
     if (!module?.lessons) return;
@@ -299,24 +355,54 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
               </TabsList>
               
               <TabsContent value="content">
-                <Card className="shadow-lg">
-                  <CardHeader>
-                    <div className="flex justify-between items-center">
-                      <CardTitle>{lesson.title}</CardTitle>
-                      <Badge variant="outline">
-                        {lesson.type === "text" ? "Текст" : 
-                         lesson.type === "video" ? "Видео" : 
-                         lesson.type === "quiz" ? "Тест" : 
-                         "Интерактивный"}
-                      </Badge>
-                    </div>
-                    <CardDescription>
-                      <div className="flex items-center mt-1">
-                        <Clock className="h-4 w-4 mr-1" />
-                        <span>{lesson.estimatedDuration} минут</span>
-                      </div>
-                    </CardDescription>
-                  </CardHeader>
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                  {/* Основное содержимое урока */}
+                  <div className="lg:col-span-3">
+                    {useMicroLessons && microSections.length > 0 ? (
+                      <MicroLessonNavigation
+                        sections={microSections}
+                        lessonTitle={lesson.title}
+                        onSectionComplete={handleMicroSectionComplete}
+                        onLessonComplete={handleLessonComplete}
+                      />
+                    ) : (
+                      <Card className="shadow-lg">
+                        <CardHeader>
+                          <div className="flex justify-between items-center">
+                            <CardTitle>{lesson.title}</CardTitle>
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline">
+                                {lesson.type === "text" ? "Текст" : 
+                                 lesson.type === "video" ? "Видео" : 
+                                 lesson.type === "quiz" ? "Тест" : 
+                                 "Интерактивный"}
+                              </Badge>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setUseMicroLessons(!useMicroLessons)}
+                              >
+                                <LayersIcon className="h-4 w-4 mr-1" />
+                                {useMicroLessons ? "Обычный вид" : "Микро-уроки"}
+                              </Button>
+                            </div>
+                          </div>
+                          <CardDescription>
+                            <div className="flex items-center mt-1">
+                              <Clock className="h-4 w-4 mr-1" />
+                              <span>{lesson.estimatedDuration} минут</span>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="ml-4"
+                                onClick={handleToggleAIAssistant}
+                              >
+                                <HelpCircle className="h-4 w-4 mr-1" />
+                                AI-Помощник
+                              </Button>
+                            </div>
+                          </CardDescription>
+                        </CardHeader>
                   <CardContent className="prose prose-lg max-w-none dark:prose-invert bg-white dark:bg-zinc-800 p-6 rounded-lg shadow-sm">
                     {lesson.type === "text" ? (
                       <div>

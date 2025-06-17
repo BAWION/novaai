@@ -390,6 +390,180 @@ class AIAssistantService {
       difficulty: "beginner"
     };
   }
+
+  /**
+   * Контекстуальный ответ AI-ассистента на основе содержания урока
+   */
+  async getLessonContextualResponse(params: {
+    lessonId: number;
+    lessonTitle: string;
+    lessonContent: string;
+    currentSection?: string;
+    userMessage: string;
+    userSkillsLevel: 'beginner' | 'intermediate' | 'advanced';
+    conversationHistory: Array<{
+      type: 'user' | 'assistant';
+      content: string;
+      timestamp: string;
+    }>;
+  }): Promise<{
+    message: string;
+    context: string;
+    suggestedQuestions?: string[];
+  }> {
+    try {
+      const {
+        lessonId,
+        lessonTitle,
+        lessonContent,
+        currentSection,
+        userMessage,
+        userSkillsLevel,
+        conversationHistory
+      } = params;
+
+      // Строим контекст для AI на основе урока
+      const lessonContext = this.buildLessonContext(
+        lessonTitle,
+        lessonContent,
+        currentSection,
+        userSkillsLevel
+      );
+
+      // Формируем историю разговора
+      const conversationContext = conversationHistory
+        .slice(-5) // Берем последние 5 сообщений
+        .map(msg => `${msg.type === 'user' ? 'Студент' : 'Ассистент'}: ${msg.content}`)
+        .join('\n');
+
+      // Создаем промпт для контекстуального ассистента
+      const prompt = `Ты - персональный AI-ассистент для онлайн-обучения, специализирующийся на уроке "${lessonTitle}".
+
+КОНТЕКСТ УРОКА:
+${lessonContext}
+
+${currentSection ? `ТЕКУЩИЙ РАЗДЕЛ: ${currentSection}` : ''}
+
+УРОВЕНЬ СТУДЕНТА: ${userSkillsLevel === 'beginner' ? 'Новичок' : userSkillsLevel === 'intermediate' ? 'Средний уровень' : 'Продвинутый'}
+
+${conversationContext ? `ИСТОРИЯ РАЗГОВОРА:\n${conversationContext}` : ''}
+
+ВОПРОС СТУДЕНТА: ${userMessage}
+
+ИНСТРУКЦИИ:
+1. Отвечай на основе содержания урока
+2. Адаптируй сложность объяснения под уровень студента
+3. Используй примеры из урока или создавай аналогичные
+4. Если вопрос выходит за рамки урока, мягко направь студента к материалу урока
+5. Будь дружелюбным и поддерживающим
+6. Если нужно, предложи дополнительные вопросы для понимания
+
+Ответ должен быть на русском языке, конкретным и полезным.`;
+
+      const response = await this.openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          {
+            role: "system",
+            content: "Ты - опытный преподаватель и AI-ассистент для онлайн-образования. Твоя задача - помочь студенту понять материал урока через персональные объяснения и ответы на вопросы."
+          },
+          {
+            role: "user", 
+            content: prompt
+          }
+        ],
+        max_tokens: 800,
+        temperature: 0.7
+      });
+
+      const assistantMessage = response.choices[0]?.message?.content || 
+        "Извините, не удалось сгенерировать ответ. Попробуйте переформулировать вопрос.";
+
+      // Генерируем предложенные вопросы
+      const suggestedQuestions = await this.generateSuggestedQuestions(
+        lessonTitle,
+        lessonContent,
+        userSkillsLevel
+      );
+
+      return {
+        message: assistantMessage,
+        context: 'lesson_contextual',
+        suggestedQuestions
+      };
+
+    } catch (error) {
+      console.error('Error in getLessonContextualResponse:', error);
+      throw new Error('Не удалось получить ответ от AI-ассистента');
+    }
+  }
+
+  /**
+   * Строит контекст урока для AI-ассистента
+   */
+  private buildLessonContext(
+    lessonTitle: string, 
+    lessonContent: string, 
+    currentSection?: string,
+    userLevel?: string
+  ): string {
+    // Извлекаем ключевые части содержания урока
+    const contentSummary = lessonContent.length > 2000 
+      ? lessonContent.substring(0, 2000) + "..." 
+      : lessonContent;
+
+    return `Урок: ${lessonTitle}
+${currentSection ? `Текущий раздел: ${currentSection}` : ''}
+
+Основное содержание урока:
+${contentSummary}
+
+Уровень сложности для студента: ${userLevel || 'не указан'}`;
+  }
+
+  /**
+   * Генерирует предложенные вопросы на основе содержания урока
+   */
+  private async generateSuggestedQuestions(
+    lessonTitle: string,
+    lessonContent: string, 
+    userLevel: string
+  ): Promise<string[]> {
+    try {
+      const prompt = `На основе урока "${lessonTitle}" сгенерируй 3 полезных вопроса для студента уровня "${userLevel}".
+
+Содержание урока (первые 1000 символов):
+${lessonContent.substring(0, 1000)}
+
+Вопросы должны быть:
+- Релевантными к содержанию урока
+- Подходящими для уровня студента
+- Помогающими углубить понимание
+
+Верни только список вопросов, по одному на строку, без номеров.`;
+
+      const response = await this.openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [{ role: "user", content: prompt }],
+        max_tokens: 200,
+        temperature: 0.6
+      });
+
+      const questions = response.choices[0]?.message?.content
+        ?.split('\n')
+        .filter(q => q.trim().length > 0)
+        .slice(0, 3) || [];
+
+      return questions;
+    } catch (error) {
+      console.error('Error generating suggested questions:', error);
+      return [
+        "Можете объяснить это подробнее?",
+        "Как это применяется на практике?", 
+        "Что самое важное в этой теме?"
+      ];
+    }
+  }
 }
 
 // Создаем и экспортируем экземпляр сервиса
