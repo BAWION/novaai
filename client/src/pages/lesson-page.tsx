@@ -302,359 +302,299 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
     );
   }
 
-  // Если урок не найден
-  if (!lesson || !module) {
+  // Если урок найден, отображаем его
+  if (lesson) {
     return (
-      <DashboardLayout title="Урок не найден">
-        <div className="flex flex-col items-center justify-center min-h-screen">
-          <h1 className="text-2xl font-bold">Урок не найден</h1>
-          <p className="mt-2 text-muted-foreground">Проверьте URL или выберите другой урок</p>
-          <Button className="mt-4" onClick={() => navigate(`/courses/${courseContext}`)}>
-            Вернуться к курсу
-          </Button>
+      <DashboardLayout title={lesson.title}>
+        <div className="container mx-auto px-4 py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+            {/* Основное содержимое урока */}
+            <div className="lg:col-span-4">
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <TabsList className="grid w-full grid-cols-4 mb-6">
+                  <TabsTrigger value="content">
+                    <div className="flex flex-col items-center">
+                      <BookOpen className="h-4 w-4 mb-1" />
+                      Урок
+                    </div>
+                  </TabsTrigger>
+                  <TabsTrigger value="microlesson">
+                    <div className="flex flex-col items-center">
+                      <LayersIcon className="h-4 w-4 mb-1" />
+                      Микро-уроки
+                    </div>
+                  </TabsTrigger>
+                  <TabsTrigger value="materials">Материалы</TabsTrigger>
+                  <TabsTrigger value="notes">Заметки</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="content">
+                  {useMicroLessons && microSections.length > 0 ? (
+                    <MicroLessonNavigation
+                      sections={microSections}
+                      lessonTitle={lesson.title}
+                      onSectionComplete={handleMicroSectionComplete}
+                      onLessonComplete={handleLessonComplete}
+                    />
+                  ) : (
+                    <Card className="shadow-lg">
+                      <CardHeader>
+                        <div className="flex justify-between items-center">
+                          <CardTitle>{lesson.title}</CardTitle>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline">
+                              {lesson.type === "text" ? "Текст" : 
+                               lesson.type === "video" ? "Видео" : 
+                               lesson.type === "quiz" ? "Тест" : 
+                               "Интерактивный"}
+                            </Badge>
+                          </div>
+                        </div>
+                        <CardDescription>
+                          <div className="flex items-center mt-1">
+                            <Clock className="h-4 w-4 mr-1" />
+                            <span>{lesson.estimatedDuration} минут</span>
+                          </div>
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="prose prose-lg max-w-none dark:prose-invert bg-white dark:bg-zinc-800 p-6 rounded-lg shadow-sm">
+                        {lesson.type === "text" ? (
+                          <div>
+                            {lesson.content ? (
+                              <div className="dark:text-white text-black">
+                                <ReactMarkdown>{lesson.content}</ReactMarkdown>
+                              </div>
+                            ) : (
+                              <p className="text-muted-foreground italic">Содержимое урока отсутствует</p>
+                            )}
+                          </div>
+                        ) : lesson.type === "video" ? (
+                          <div>
+                            {lesson.content ? (
+                              <div>
+                                <ReactMarkdown>{lesson.content}</ReactMarkdown>
+                                <div className="aspect-video bg-muted rounded-lg mt-4 flex items-center justify-center">
+                                  <Video className="h-16 w-16 text-muted-foreground" />
+                                  <p className="ml-4">Видеоматериал урока</p>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
+                                <Video className="h-16 w-16 text-muted-foreground" />
+                                <p className="ml-4">Видеоматериал недоступен</p>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div>
+                            {lesson.content ? (
+                              <div>
+                                <ReactMarkdown>{lesson.content}</ReactMarkdown>
+                                <div className="mt-6 border-t pt-6">
+                                  <h3 className="text-xl font-medium">Практическое задание</h3>
+                                  <p className="text-muted-foreground">Интерактивная часть урока будет доступна в будущих версиях</p>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="flex flex-col items-center justify-center py-10">
+                                <FileText className="h-16 w-16 text-muted-foreground" />
+                                <p className="mt-4">Интерактивное содержимое урока отсутствует</p>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </CardContent>
+                      <CardFooter className="flex justify-between border-t pt-6">
+                        <Button 
+                          variant="outline" 
+                          onClick={goToPreviousLesson}
+                          disabled={isFirstLesson}
+                        >
+                          <ArrowLeft className="mr-2 h-4 w-4" />
+                          Предыдущий урок
+                        </Button>
+                        <Button 
+                          onClick={goToNextLesson}
+                          disabled={isLastLesson}
+                        >
+                          Следующий урок
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                        </Button>
+                      </CardFooter>
+                    </Card>
+                  )}
+                </TabsContent>
+                
+                <TabsContent value="microlesson">
+                  {user ? (
+                    <MicroLessonStructure 
+                      lessonId={parseInt(lessonId || "0")}
+                      userId={user.id}
+                      onComplete={handleLessonComplete}
+                    />
+                  ) : (
+                    <Card className="shadow-lg">
+                      <CardHeader>
+                        <CardTitle>Требуется авторизация</CardTitle>
+                        <CardDescription>
+                          Для доступа к микроструктуре урока необходимо авторизоваться
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="flex flex-col items-center justify-center py-6">
+                          <p className="text-muted-foreground">
+                            Пожалуйста, войдите в систему для доступа к полной функциональности.
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                </TabsContent>
+                
+                <TabsContent value="materials">
+                  <Card className="shadow-lg">
+                    <CardHeader>
+                      <CardTitle>Материалы урока</CardTitle>
+                      <CardDescription>
+                        Дополнительные материалы и ресурсы для изучения
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-muted-foreground">
+                        Дополнительные материалы будут доступны в будущих версиях
+                      </p>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+                
+                <TabsContent value="notes">
+                  <Card className="shadow-lg">
+                    <CardHeader>
+                      <CardTitle>Заметки</CardTitle>
+                      <CardDescription>
+                        Ваши личные заметки по уроку
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-muted-foreground">
+                        Функция заметок будет доступна в будущих версиях
+                      </p>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
+            </div>
+
+            {/* Боковая панель с TutorAI-функциями */}
+            <div className="lg:col-span-1 space-y-4">
+              <DifficultyLevelSwitcher
+                currentLevel={userSkillsLevel}
+                onLevelChange={setUserSkillsLevel}
+                lessonContent={lesson.content}
+              />
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm">Функции урока</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full justify-start"
+                    onClick={() => setUseMicroLessons(!useMicroLessons)}
+                  >
+                    <LayersIcon className="h-4 w-4 mr-2" />
+                    {useMicroLessons ? "Обычный вид" : "Микро-разделы"}
+                  </Button>
+                  
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full justify-start"
+                    onClick={handleToggleAIAssistant}
+                  >
+                    <HelpCircle className="h-4 w-4 mr-2" />
+                    AI-Помощник
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm">Прогресс урока</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="flex justify-between text-sm">
+                      <span>Завершение</span>
+                      <span>{lesson.completed ? "100%" : "0%"}</span>
+                    </div>
+                    <Progress 
+                      value={lesson.completed ? 100 : 0} 
+                      className="h-2"
+                    />
+                    <Button
+                      className="w-full"
+                      onClick={handleLessonComplete}
+                      disabled={completeLessonMutation.isPending || lesson.completed}
+                    >
+                      {completeLessonMutation.isPending ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          Завершение...
+                        </>
+                      ) : lesson.completed ? (
+                        <>
+                          <CheckCircle className="h-4 w-4 mr-2" />
+                          Завершено
+                        </>
+                      ) : (
+                        "Завершить урок"
+                      )}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          {/* Контекстуальный AI-ассистент */}
+          {showAIAssistant && lesson && (
+            <ContextualAIAssistant
+              lessonId={lesson.id}
+              lessonTitle={lesson.title}
+              lessonContent={lesson.content}
+              userSkillsLevel={userSkillsLevel}
+              isMinimized={isAIMinimized}
+              onToggleMinimize={() => setIsAIMinimized(!isAIMinimized)}
+              onClose={() => setShowAIAssistant(false)}
+            />
+          )}
         </div>
       </DashboardLayout>
     );
   }
 
   return (
-    <DashboardLayout title={`${module.title} | ${lesson.title}`}>
-      <div className="container mx-auto py-6 px-4">
-        {/* Навигационный заголовок */}
-        <div className="flex items-center mb-6">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => navigate(`/courses/${courseContext}`)}
-            className="mr-4"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Вернуться к курсу
-          </Button>
-          <div>
-            <p className="text-sm text-muted-foreground">{module.title}</p>
-            <h1 className="text-2xl font-bold">{lesson.title}</h1>
-          </div>
-        </div>
-
-        {/* Основной контент */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Левая колонка (2/3 ширины) - Контент урока */}
-          <div className="lg:col-span-2">
-            <Tabs defaultValue="content" value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="mb-6">
-                <TabsTrigger value="content">Содержание</TabsTrigger>
-                <TabsTrigger value="microlesson">
-                  <div className="flex items-center">
-                    <LayersIcon className="w-4 h-4 mr-2" />
-                    Микроструктура
-                  </div>
-                </TabsTrigger>
-                <TabsTrigger value="materials">Материалы</TabsTrigger>
-                <TabsTrigger value="notes">Заметки</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="content">
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                  {/* Основное содержимое урока */}
-                  <div className="lg:col-span-3">
-                    {useMicroLessons && microSections.length > 0 ? (
-                      <MicroLessonNavigation
-                        sections={microSections}
-                        lessonTitle={lesson.title}
-                        onSectionComplete={handleMicroSectionComplete}
-                        onLessonComplete={handleLessonComplete}
-                      />
-                    ) : (
-                      <Card className="shadow-lg">
-                        <CardHeader>
-                          <div className="flex justify-between items-center">
-                            <CardTitle>{lesson.title}</CardTitle>
-                            <div className="flex items-center gap-2">
-                              <Badge variant="outline">
-                                {lesson.type === "text" ? "Текст" : 
-                                 lesson.type === "video" ? "Видео" : 
-                                 lesson.type === "quiz" ? "Тест" : 
-                                 "Интерактивный"}
-                              </Badge>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setUseMicroLessons(!useMicroLessons)}
-                              >
-                                <LayersIcon className="h-4 w-4 mr-1" />
-                                {useMicroLessons ? "Обычный вид" : "Микро-уроки"}
-                              </Button>
-                            </div>
-                          </div>
-                          <CardDescription>
-                            <div className="flex items-center mt-1">
-                              <Clock className="h-4 w-4 mr-1" />
-                              <span>{lesson.estimatedDuration} минут</span>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="ml-4"
-                                onClick={handleToggleAIAssistant}
-                              >
-                                <HelpCircle className="h-4 w-4 mr-1" />
-                                AI-Помощник
-                              </Button>
-                            </div>
-                          </CardDescription>
-                        </CardHeader>
-                  <CardContent className="prose prose-lg max-w-none dark:prose-invert bg-white dark:bg-zinc-800 p-6 rounded-lg shadow-sm">
-                    {lesson.type === "text" ? (
-                      <div>
-                        {lesson.content ? (
-                          <div className="dark:text-white text-black">
-                            <ReactMarkdown>{lesson.content}</ReactMarkdown>
-                          </div>
-                        ) : (
-                          <p className="text-muted-foreground italic">Содержимое урока отсутствует</p>
-                        )}
-                      </div>
-                    ) : lesson.type === "video" ? (
-                      <div>
-                        {lesson.content ? (
-                          // Если в содержимом есть ссылка на видео, можно ее отобразить
-                          <div>
-                            <ReactMarkdown>{lesson.content}</ReactMarkdown>
-                            <div className="aspect-video bg-muted rounded-lg mt-4 flex items-center justify-center">
-                              <Video className="h-16 w-16 text-muted-foreground" />
-                              <p className="ml-4">Видеоматериал урока</p>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-                            <Video className="h-16 w-16 text-muted-foreground" />
-                            <p className="ml-4">Видеоматериал недоступен</p>
-                          </div>
-                        )}
-                      </div>
-                    ) : lesson.type === "quiz" ? (
-                      <div>
-                        {lesson.content ? (
-                          <div>
-                            <ReactMarkdown>{lesson.content}</ReactMarkdown>
-                            <div className="mt-6 space-y-6 border-t pt-6">
-                              <h3 className="text-xl font-medium">Тестирование знаний</h3>
-                              <p className="text-muted-foreground">Ответьте на вопросы, чтобы проверить свое понимание материала</p>
-                              {/* В будущем здесь будут отображаться вопросы теста */}
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="space-y-6">
-                            <p className="text-muted-foreground italic">Содержимое теста отсутствует</p>
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <div>
-                        {lesson.content ? (
-                          <div>
-                            <ReactMarkdown>{lesson.content}</ReactMarkdown>
-                            <div className="mt-6 border-t pt-6">
-                              <h3 className="text-xl font-medium">Практическое задание</h3>
-                              <p className="text-muted-foreground">Интерактивная часть урока будет доступна в будущих версиях</p>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex flex-col items-center justify-center py-10">
-                            <FileText className="h-16 w-16 text-muted-foreground" />
-                            <p className="mt-4">Интерактивное содержимое урока отсутствует</p>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </CardContent>
-                  <CardFooter className="flex justify-between border-t pt-6">
-                    <Button 
-                      variant="outline" 
-                      onClick={goToPreviousLesson}
-                      disabled={isFirstLesson}
-                    >
-                      <ArrowLeft className="mr-2 h-4 w-4" />
-                      Предыдущий урок
-                    </Button>
-                    <Button 
-                      onClick={handleLessonComplete}
-                      disabled={completeLessonMutation.isPending}
-                    >
-                      {completeLessonMutation.isPending ? (
-                        <>Отмечаем как завершенный...</>
-                      ) : (
-                        <>Завершить урок <CheckCircle className="ml-2 h-4 w-4" /></>
-                      )}
-                    </Button>
-                    <Button 
-                      onClick={goToNextLesson}
-                      disabled={isLastLesson}
-                    >
-                      Следующий урок
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </CardFooter>
-                </Card>
-              </TabsContent>
-              
-              <TabsContent value="microlesson">
-                {/* Здесь вставляем компонент микроструктуры урока */}
-                {user ? (
-                  <MicroLessonStructure 
-                    lessonId={parseInt(lessonId || "0")}
-                    userId={user.id}
-                    onComplete={handleLessonComplete}
-                  />
-                ) : (
-                  <Card className="shadow-lg">
-                    <CardHeader>
-                      <CardTitle>Требуется авторизация</CardTitle>
-                      <CardDescription>
-                        Для доступа к микроструктуре урока необходимо авторизоваться
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex flex-col items-center justify-center py-6">
-                        <p className="text-muted-foreground">
-                          Пожалуйста, войдите в систему для доступа к полной функциональности.
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-              </TabsContent>
-              
-              <TabsContent value="materials">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Дополнительные материалы</CardTitle>
-                    <CardDescription>
-                      Ресурсы для углубленного изучения темы
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-start p-4 border rounded-lg">
-                      <FileText className="h-6 w-6 mr-4 text-primary" />
-                      <div>
-                        <h3 className="font-medium">Руководство по основам ИИ</h3>
-                        <p className="text-sm text-muted-foreground">PDF, 2.3 MB</p>
-                        <Button variant="link" className="p-0 h-auto mt-1">Скачать</Button>
-                      </div>
-                    </div>
-                    <div className="flex items-start p-4 border rounded-lg">
-                      <Video className="h-6 w-6 mr-4 text-primary" />
-                      <div>
-                        <h3 className="font-medium">Видеолекция: История развития ИИ</h3>
-                        <p className="text-sm text-muted-foreground">MP4, 45 минут</p>
-                        <Button variant="link" className="p-0 h-auto mt-1">Просмотреть</Button>
-                      </div>
-                    </div>
-                    <div className="flex items-start p-4 border rounded-lg">
-                      <BookOpen className="h-6 w-6 mr-4 text-primary" />
-                      <div>
-                        <h3 className="font-medium">Рекомендуемая литература</h3>
-                        <p className="text-sm text-muted-foreground">Список книг и статей по теме</p>
-                        <Button variant="link" className="p-0 h-auto mt-1">Открыть</Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              
-              <TabsContent value="notes">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Мои заметки</CardTitle>
-                    <CardDescription>
-                      Сохраняйте важные мысли и идеи во время обучения
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <textarea 
-                      className="w-full min-h-[300px] p-4 border rounded-lg resize-none"
-                      placeholder="Введите ваши заметки по этому уроку..."
-                    ></textarea>
-                  </CardContent>
-                  <CardFooter className="justify-end">
-                    <Button>Сохранить заметки</Button>
-                  </CardFooter>
-                </Card>
-              </TabsContent>
-            </Tabs>
-          </div>
-          
-          {/* Правая колонка (1/3 ширины) - ИИ-ассистент */}
-          <div>
-            <AIAssistantPanel
-              title="Помощник по уроку"
-              description="Задайте вопрос по материалам этого урока"
-              onSendMessage={(message) => {
-                console.log("Сообщение ассистенту:", message);
-                // Здесь будет логика отправки сообщения ассистенту
-              }}
-            />
-            
-            {/* Подсказки по курсу */}
-            <Card className="mt-6">
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center">
-                  <HelpCircle className="h-5 w-5 mr-2 text-primary" />
-                  Полезные подсказки
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4 text-sm">
-                <div className="p-3 bg-primary/10 rounded-lg">
-                  <strong>Совет 1:</strong> Делайте заметки во время изучения материала, это поможет лучше запомнить информацию.
-                </div>
-                <div className="p-3 bg-primary/10 rounded-lg">
-                  <strong>Совет 2:</strong> Используйте ИИ-ассистента, если у вас возникли вопросы по материалу урока.
-                </div>
-                <div className="p-3 bg-primary/10 rounded-lg">
-                  <strong>Совет 3:</strong> После завершения урока попробуйте применить полученные знания на практике.
-                </div>
-              </CardContent>
-            </Card>
-            
-            {/* Прогресс по модулю */}
-            <Card className="mt-6">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Прогресс по модулю</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>Общий прогресс</span>
-                      <span>35%</span>
-                    </div>
-                    <Progress value={35} className="h-2" />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    {module.lessons.map((moduleLesson) => (
-                      <div 
-                        key={moduleLesson.id}
-                        className={`p-2 rounded-md flex items-center ${moduleLesson.id.toString() === lessonId ? 'bg-primary/20' : ''}`}
-                      >
-                        {moduleLesson.completed ? (
-                          <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
-                        ) : moduleLesson.id.toString() === lessonId ? (
-                          <div className="h-4 w-4 mr-2 bg-primary rounded-full"></div>
-                        ) : (
-                          <div className="h-4 w-4 mr-2 border rounded-full"></div>
-                        )}
-                        <span className={`text-sm ${moduleLesson.completed ? 'line-through opacity-70' : ''}`}>
-                          {moduleLesson.title}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+    <DashboardLayout title="Урок не найден">
+      <div className="container mx-auto px-4 py-8">
+        <Card className="max-w-md mx-auto text-center">
+          <CardHeader>
+            <CardTitle>Урок не найден</CardTitle>
+            <CardDescription>
+              Урок с указанным ID не найден или недоступен
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground mb-4">
+              Возможно, урок был удален или у вас нет доступа к нему
+            </p>
+            <Button onClick={() => navigate("/courses")}>
+              Вернуться к курсам
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     </DashboardLayout>
   );
