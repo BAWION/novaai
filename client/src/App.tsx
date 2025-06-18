@@ -45,6 +45,7 @@ import InvestorPresentation from "@/pages/investor-presentation";
 import PresentationSelector from "@/pages/presentation-selector";
 import ProductDemo from "@/pages/product-demo";
 import CourseManagement from "@/pages/course-management";
+import AdminDashboard from "@/pages/admin/index";
 
 interface ProtectedRouteProps {
   component: React.ComponentType;
@@ -125,6 +126,9 @@ function Router() {
           <Route path="/investor-presentation" component={InvestorPresentation} />
           <Route path="/presentation-selector" component={PresentationSelector} />
           <Route path="/product-demo" component={ProductDemo} />
+          
+          {/* Admin Panel - Public access with authentication check */}
+          <Route path="/admin" component={AdminDashboard} />
           
           {/* Protected Routes */}
           <ProtectedRoute path="/dashboard" component={Dashboard} />
