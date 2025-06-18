@@ -18,6 +18,9 @@ import { MicroLessonStructure } from "@/components/courses/micro-lesson-structur
 import { MicroLessonNavigation } from "@/components/courses/micro-lesson-navigation";
 import { ContextualAIAssistant } from "@/components/courses/contextual-ai-assistant";
 import { DifficultyLevelSwitcher } from "@/components/courses/difficulty-level-switcher";
+import { LessonBreadcrumbs } from "@/components/courses/lesson-breadcrumbs";
+import { MicroLessonContent } from "@/components/courses/micro-lesson-content";
+import { InlineQuiz } from "@/components/courses/inline-quiz";
 
 interface Lesson {
   id: number;
@@ -55,7 +58,8 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
   const [showAIAssistant, setShowAIAssistant] = useState(false);
   const [isAIMinimized, setIsAIMinimized] = useState(false);
   const [userSkillsLevel, setUserSkillsLevel] = useState<'beginner' | 'intermediate' | 'advanced'>('intermediate');
-  const [useMicroLessons, setUseMicroLessons] = useState(false);
+  const [useMicroLessons, setUseMicroLessons] = useState(true); // По умолчанию используем микроуроки
+  const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
 
   // Проверка аутентификации
   useEffect(() => {
