@@ -391,23 +391,6 @@ export default function Login() {
                 <i className="fas fa-home mr-2"></i>
                 Вернуться на главную
               </button>
-              
-              {/* Admin Access Comet Icon */}
-              <div className="mt-3">
-                <div 
-                  className="inline-block cursor-pointer hover:scale-110 transition-all duration-300 opacity-30 hover:opacity-70"
-                  onClick={() => navigate("/admin")}
-                  title="System Access"
-                >
-                  <svg 
-                    className="w-4 h-4 text-white/40 hover:text-white/60 transition-colors" 
-                    fill="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M21.7 3.3c.4-.4.3-1-.2-1.3-1.2-.7-2.6-.9-4 0L3.6 15.4c-.4.4-.4 1 0 1.4l1.4 1.4c.4.4 1 .4 1.4 0L20.3 4.3c.4-.4.4-1 0-1.4l-1.4-1.4c-.4-.4-1-.4-1.4 0L3.6 15.4M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77 5.82 21.02 7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                  </svg>
-                </div>
-              </div>
             </div>
           </Glassmorphism>
         </motion.div>
