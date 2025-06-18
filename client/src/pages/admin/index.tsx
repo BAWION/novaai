@@ -18,6 +18,25 @@ interface DashboardStats {
   totalLessons: number;
   systemHealth: number;
   dbConnections: number;
+  // Educational Analytics
+  dailyActiveUsers: number;
+  monthlyActiveUsers: number;
+  weeklyRetention: number;
+  monthlyRetention: number;
+  averageSessionDuration: number;
+  courseCompletionRate: number;
+  lessonCompletionRate: number;
+  skillsProgressRate: number;
+  // Engagement Metrics
+  totalLearningEvents: number;
+  averageLessonsPerUser: number;
+  averageTimePerLesson: number;
+  userEngagementScore: number;
+  // Business Metrics
+  newUsersToday: number;
+  churnRate: number;
+  reactivationRate: number;
+  learningStreakAverage: number;
 }
 
 export default function AdminDashboard() {
@@ -30,7 +49,26 @@ export default function AdminDashboard() {
     totalCourses: 0,
     totalLessons: 0,
     systemHealth: 0,
-    dbConnections: 0
+    dbConnections: 0,
+    // Educational Analytics
+    dailyActiveUsers: 0,
+    monthlyActiveUsers: 0,
+    weeklyRetention: 0,
+    monthlyRetention: 0,
+    averageSessionDuration: 0,
+    courseCompletionRate: 0,
+    lessonCompletionRate: 0,
+    skillsProgressRate: 0,
+    // Engagement Metrics
+    totalLearningEvents: 0,
+    averageLessonsPerUser: 0,
+    averageTimePerLesson: 0,
+    userEngagementScore: 0,
+    // Business Metrics
+    newUsersToday: 0,
+    churnRate: 0,
+    reactivationRate: 0,
+    learningStreakAverage: 0
   });
 
   useEffect(() => {
