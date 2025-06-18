@@ -945,24 +945,7 @@ export class DatabaseStorage implements IStorage {
     return result;
   }
 
-  // Additional analytics methods required by the updated endpoint
-  async getActiveUsersCount(days: number): Promise<number> {
-    const result = await db
-      .select({ count: sql<number>`count(DISTINCT ${learningEvents.userId})` })
-      .from(learningEvents)
-      .where(sql`${learningEvents.timestamp} >= NOW() - INTERVAL '${days} days'`);
-    
-    return result[0]?.count || 0;
-  }
 
-  async getNewUsersCount(days: number): Promise<number> {
-    const result = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(users)
-      .where(sql`${users.createdAt} >= NOW() - INTERVAL '${days} days'`);
-    
-    return result[0]?.count || 0;
-  }
 
   async getRetentionRate(days: number): Promise<number> {
     const totalUsers = await this.getTotalUsersCount();
@@ -1128,19 +1111,19 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(userProfiles);
   }
 
-  async getActiveUsersCount(since: Date): Promise<number> {
+  async getActiveUsersCount(days: number): Promise<number> {
     const result = await db
       .select({ count: sql<number>`count(distinct ${learningEvents.userId})` })
       .from(learningEvents)
-      .where(sql`${learningEvents.timestamp} >= ${since}`);
+      .where(sql`${learningEvents.timestamp} >= NOW() - INTERVAL '${days} days'`);
     return result[0]?.count || 0;
   }
 
-  async getNewUsersCount(since: Date): Promise<number> {
+  async getNewUsersCount(days: number): Promise<number> {
     const result = await db
       .select({ count: sql<number>`count(*)` })
       .from(users)
-      .where(sql`${users.createdAt} >= ${since}`);
+      .where(sql`${users.createdAt} >= NOW() - INTERVAL '${days} days'`);
     return result[0]?.count || 0;
   }
 }
