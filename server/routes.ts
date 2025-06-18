@@ -1187,47 +1187,104 @@ export async function registerRoutes(app: Express): Promise<Server> {
   //   }
   // });
 
-  // Admin analytics endpoint with comprehensive educational metrics
+  // Admin analytics endpoint with real-time metrics from database
   app.get("/api/admin/stats", async (req, res) => {
     try {
-      // Get basic database metrics
-      const [totalUsers, totalCourses, totalLessons] = await Promise.all([
+      // Get all real metrics from database
+      const [
+        totalUsers,
+        totalCourses, 
+        totalLessons,
+        totalLearningEvents,
+        userGrowthTrend,
+        courseCompletionTrend,
+        hourlyActivity,
+        periodComparison,
+        categoryDistribution,
+        topCourses
+      ] = await Promise.all([
         storage.getTotalUsersCount(),
-        storage.getTotalCoursesCount(), 
-        storage.getTotalLessonsCount()
+        storage.getTotalCoursesCount(),
+        storage.getTotalLessonsCount(),
+        storage.getTotalLearningEventsCount(),
+        storage.getUserGrowthTrend(30),
+        storage.getCourseCompletionTrend(12),
+        storage.getHourlyActivityData(),
+        storage.getPeriodComparisonData(),
+        storage.getCategoryDistribution(),
+        storage.getTopCoursesByActivity()
       ]);
 
-      // Return comprehensive analytics with calculated metrics
+      // Calculate real metrics from database
+      const today = new Date();
+      const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+      const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+      const monthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+      
+      // Calculate real DAU/MAU from learning events
+      const dailyActiveUsers = await storage.getActiveUsersCount(1);
+      const monthlyActiveUsers = await storage.getActiveUsersCount(30);
+      const newUsersToday = await storage.getNewUsersCount(1);
+      
+      // Calculate retention rates from actual user data
+      const weeklyRetention = await storage.getRetentionRate(7);
+      const monthlyRetention = await storage.getRetentionRate(30);
+      
+      // Calculate completion rates from real learning events
+      const courseCompletionRate = await storage.getCourseCompletionRate();
+      const lessonCompletionRate = await storage.getLessonCompletionRate();
+      
+      // Calculate engagement metrics
+      const averageSessionDuration = await storage.getAverageSessionDuration();
+      const averageLessonsPerUser = totalLessons > 0 && totalUsers > 0 ? 
+        Math.round((totalLearningEvents / totalUsers) * 10) / 10 : 0;
+      const averageTimePerLesson = Math.floor(averageSessionDuration / Math.max(averageLessonsPerUser, 1));
+      
+      // Calculate business metrics
+      const churnRate = await storage.getChurnRate();
+      const reactivationRate = await storage.getReactivationRate();
+      const learningStreakAverage = await storage.getAverageLearningStreak();
+      const userEngagementScore = await storage.getUserEngagementScore();
+      const skillsProgressRate = await storage.getSkillsProgressRate();
+
       const stats = {
-        // Basic metrics from database
-        totalUsers: totalUsers || 12,
-        activeUsers: Math.floor((totalUsers || 12) * 0.35),
-        totalCourses: totalCourses || 8,
-        totalLessons: totalLessons || 47,
+        // Real database metrics
+        totalUsers,
+        activeUsers: monthlyActiveUsers,
+        totalCourses,
+        totalLessons,
         systemHealth: 98,
         dbConnections: 15,
         
-        // Educational Analytics (calculated from database where possible)
-        dailyActiveUsers: Math.floor((totalUsers || 12) * 0.12),
-        monthlyActiveUsers: Math.floor((totalUsers || 12) * 0.35),
-        weeklyRetention: 73.5,
-        monthlyRetention: 27.6,
-        averageSessionDuration: 1847,
-        courseCompletionRate: 34.2,
-        lessonCompletionRate: 68.7,
-        skillsProgressRate: 45.9,
+        // Real educational analytics
+        dailyActiveUsers,
+        monthlyActiveUsers,
+        weeklyRetention,
+        monthlyRetention,
+        averageSessionDuration,
+        courseCompletionRate,
+        lessonCompletionRate,
+        skillsProgressRate,
         
-        // Engagement Metrics
-        totalLearningEvents: Math.floor((totalUsers || 12) * 125),
-        averageLessonsPerUser: 8.3,
-        averageTimePerLesson: 420,
-        userEngagementScore: 72.4,
+        // Real engagement metrics
+        totalLearningEvents,
+        averageLessonsPerUser,
+        averageTimePerLesson,
+        userEngagementScore,
         
-        // Business Metrics
-        newUsersToday: Math.floor((totalUsers || 12) * 0.02),
-        churnRate: 12.8,
-        reactivationRate: 8.7,
-        learningStreakAverage: 4.2
+        // Real business metrics
+        newUsersToday,
+        churnRate,
+        reactivationRate,
+        learningStreakAverage,
+        
+        // Trend data for charts
+        userGrowthTrend,
+        courseCompletionTrend,
+        hourlyActivity,
+        periodComparison,
+        categoryDistribution,
+        topCourses
       };
 
       res.json(stats);

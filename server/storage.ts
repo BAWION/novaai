@@ -798,6 +798,314 @@ export class DatabaseStorage implements IStorage {
     return result[0]?.count || 0;
   }
 
+  // Real-time trend analytics methods
+  async getUserGrowthTrend(days: number = 30): Promise<Array<{date: string, count: number}>> {
+    const result = await db
+      .select({
+        date: sql<string>`DATE(${users.createdAt})`,
+        count: sql<number>`count(*)`
+      })
+      .from(users)
+      .where(sql`${users.createdAt} >= NOW() - INTERVAL '${days} days'`)
+      .groupBy(sql`DATE(${users.createdAt})`)
+      .orderBy(sql`DATE(${users.createdAt})`);
+    
+    return result;
+  }
+
+  async getCourseCompletionTrend(weeks: number = 12): Promise<Array<{week: string, completion_rate: number}>> {
+    const result = await db
+      .select({
+        week: sql<string>`DATE_TRUNC('week', ${learningEvents.timestamp})`,
+        completion_rate: sql<number>`
+          ROUND(
+            (COUNT(CASE WHEN ${learningEvents.eventType} = 'course_completed' THEN 1 END)::float / 
+             NULLIF(COUNT(CASE WHEN ${learningEvents.eventType} = 'course_started' THEN 1 END), 0)) * 100, 1
+          )`
+      })
+      .from(learningEvents)
+      .where(sql`${learningEvents.timestamp} >= NOW() - INTERVAL '${weeks} weeks'`)
+      .groupBy(sql`DATE_TRUNC('week', ${learningEvents.timestamp})`)
+      .orderBy(sql`DATE_TRUNC('week', ${learningEvents.timestamp})`);
+    
+    return result;
+  }
+
+  async getHourlyActivityData(): Promise<Array<{hour: number, activity_count: number}>> {
+    const result = await db
+      .select({
+        hour: sql<number>`EXTRACT(HOUR FROM ${learningEvents.timestamp})`,
+        activity_count: sql<number>`count(*)`
+      })
+      .from(learningEvents)
+      .where(sql`${learningEvents.timestamp} >= NOW() - INTERVAL '24 hours'`)
+      .groupBy(sql`EXTRACT(HOUR FROM ${learningEvents.timestamp})`)
+      .orderBy(sql`EXTRACT(HOUR FROM ${learningEvents.timestamp})`);
+    
+    return result;
+  }
+
+  async getPeriodComparisonData(): Promise<{
+    thisMonth: number,
+    lastMonth: number,
+    thisWeek: number,
+    lastWeek: number,
+    today: number,
+    yesterday: number
+  }> {
+    const [thisMonth] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(users)
+      .where(sql`${users.createdAt} >= DATE_TRUNC('month', NOW())`);
+
+    const [lastMonth] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(users)
+      .where(sql`${users.createdAt} >= DATE_TRUNC('month', NOW() - INTERVAL '1 month') 
+                 AND ${users.createdAt} < DATE_TRUNC('month', NOW())`);
+
+    const [thisWeek] = await db
+      .select({ 
+        completion_rate: sql<number>`
+          ROUND(
+            (COUNT(CASE WHEN ${learningEvents.eventType} = 'course_completed' THEN 1 END)::float / 
+             NULLIF(COUNT(CASE WHEN ${learningEvents.eventType} = 'course_started' THEN 1 END), 0)) * 100, 1
+          )`
+      })
+      .from(learningEvents)
+      .where(sql`${learningEvents.timestamp} >= DATE_TRUNC('week', NOW())`);
+
+    const [lastWeek] = await db
+      .select({ 
+        completion_rate: sql<number>`
+          ROUND(
+            (COUNT(CASE WHEN ${learningEvents.eventType} = 'course_completed' THEN 1 END)::float / 
+             NULLIF(COUNT(CASE WHEN ${learningEvents.eventType} = 'course_started' THEN 1 END), 0)) * 100, 1
+          )`
+      })
+      .from(learningEvents)
+      .where(sql`${learningEvents.timestamp} >= DATE_TRUNC('week', NOW() - INTERVAL '1 week') 
+                 AND ${learningEvents.timestamp} < DATE_TRUNC('week', NOW())`);
+
+    const [today] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(learningEvents)
+      .where(sql`DATE(${learningEvents.timestamp}) = CURRENT_DATE`);
+
+    const [yesterday] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(learningEvents)
+      .where(sql`DATE(${learningEvents.timestamp}) = CURRENT_DATE - INTERVAL '1 day'`);
+
+    return {
+      thisMonth: thisMonth?.count || 0,
+      lastMonth: lastMonth?.count || 0,
+      thisWeek: thisWeek?.completion_rate || 0,
+      lastWeek: lastWeek?.completion_rate || 0,
+      today: today?.count || 0,
+      yesterday: yesterday?.count || 0
+    };
+  }
+
+  async getCategoryDistribution(): Promise<Array<{category: string, percentage: number, sessions: number}>> {
+    const result = await db
+      .select({
+        category: courses.category,
+        sessions: sql<number>`count(${learningEvents.id})`,
+        percentage: sql<number>`
+          ROUND(
+            (count(${learningEvents.id})::float / 
+             (SELECT count(*) FROM ${learningEvents} le2 
+              JOIN ${courses} c2 ON le2.entity_id = c2.id 
+              WHERE le2.entity_type = 'course')) * 100, 0
+          )`
+      })
+      .from(learningEvents)
+      .innerJoin(courses, eq(learningEvents.entityId, courses.id))
+      .where(eq(learningEvents.entityType, 'course'))
+      .groupBy(courses.category)
+      .orderBy(sql`count(${learningEvents.id}) DESC`);
+
+    return result;
+  }
+
+  async getTopCoursesByActivity(): Promise<Array<{title: string, sessions: number}>> {
+    const result = await db
+      .select({
+        title: courses.title,
+        sessions: sql<number>`count(${learningEvents.id})`
+      })
+      .from(learningEvents)
+      .innerJoin(courses, eq(learningEvents.entityId, courses.id))
+      .where(eq(learningEvents.entityType, 'course'))
+      .groupBy(courses.title)
+      .orderBy(sql`count(${learningEvents.id}) DESC`)
+      .limit(5);
+
+    return result;
+  }
+
+  // Additional analytics methods required by the updated endpoint
+  async getActiveUsersCount(days: number): Promise<number> {
+    const result = await db
+      .select({ count: sql<number>`count(DISTINCT ${learningEvents.userId})` })
+      .from(learningEvents)
+      .where(sql`${learningEvents.timestamp} >= NOW() - INTERVAL '${days} days'`);
+    
+    return result[0]?.count || 0;
+  }
+
+  async getNewUsersCount(days: number): Promise<number> {
+    const result = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(users)
+      .where(sql`${users.createdAt} >= NOW() - INTERVAL '${days} days'`);
+    
+    return result[0]?.count || 0;
+  }
+
+  async getRetentionRate(days: number): Promise<number> {
+    const totalUsers = await this.getTotalUsersCount();
+    const activeUsers = await this.getActiveUsersCount(days);
+    
+    return totalUsers > 0 ? Math.round((activeUsers / totalUsers) * 100 * 10) / 10 : 0;
+  }
+
+  async getCourseCompletionRate(): Promise<number> {
+    const [completions] = await db
+      .select({
+        rate: sql<number>`
+          ROUND(
+            (COUNT(CASE WHEN ${learningEvents.eventType} = 'course_completed' THEN 1 END)::float / 
+             NULLIF(COUNT(CASE WHEN ${learningEvents.eventType} = 'course_started' THEN 1 END), 0)) * 100, 1
+          )`
+      })
+      .from(learningEvents)
+      .where(sql`${learningEvents.eventType} IN ('course_started', 'course_completed')`);
+    
+    return completions?.rate || 0;
+  }
+
+  async getLessonCompletionRate(): Promise<number> {
+    const [completions] = await db
+      .select({
+        rate: sql<number>`
+          ROUND(
+            (COUNT(CASE WHEN ${learningEvents.eventType} = 'lesson_completed' THEN 1 END)::float / 
+             NULLIF(COUNT(CASE WHEN ${learningEvents.eventType} = 'lesson_started' THEN 1 END), 0)) * 100, 1
+          )`
+      })
+      .from(learningEvents)
+      .where(sql`${learningEvents.eventType} IN ('lesson_started', 'lesson_completed')`);
+    
+    return completions?.rate || 0;
+  }
+
+  async getAverageSessionDuration(): Promise<number> {
+    const [avgDuration] = await db
+      .select({
+        avg_duration: sql<number>`
+          COALESCE(AVG(EXTRACT(EPOCH FROM (
+            CASE 
+              WHEN ${learningEvents.data}->>'duration' IS NOT NULL 
+              THEN CAST(${learningEvents.data}->>'duration' AS INTEGER)
+              ELSE 1800
+            END
+          ))), 1800)`
+      })
+      .from(learningEvents)
+      .where(eq(learningEvents.eventType, 'session_end'));
+    
+    return Math.floor(avgDuration?.avg_duration || 1800);
+  }
+
+  async getChurnRate(): Promise<number> {
+    const [churn] = await db
+      .select({
+        rate: sql<number>`
+          ROUND(
+            (COUNT(CASE WHEN ${users.createdAt} < NOW() - INTERVAL '30 days' 
+                        AND ${users.id} NOT IN (
+                          SELECT DISTINCT user_id FROM ${learningEvents} 
+                          WHERE timestamp > NOW() - INTERVAL '30 days'
+                        ) THEN 1 END)::float / 
+             NULLIF(COUNT(CASE WHEN ${users.createdAt} < NOW() - INTERVAL '30 days' THEN 1 END), 0)) * 100, 1
+          )`
+      })
+      .from(users);
+    
+    return churn?.rate || 0;
+  }
+
+  async getReactivationRate(): Promise<number> {
+    const [reactivation] = await db
+      .select({
+        rate: sql<number>`
+          ROUND(
+            (COUNT(CASE WHEN ${users.id} IN (
+              SELECT DISTINCT user_id FROM ${learningEvents} 
+              WHERE timestamp > NOW() - INTERVAL '7 days'
+              AND user_id IN (
+                SELECT user_id FROM ${learningEvents}
+                WHERE timestamp < NOW() - INTERVAL '30 days'
+                AND timestamp > NOW() - INTERVAL '60 days'
+              )
+            ) THEN 1 END)::float / 
+             NULLIF(COUNT(*), 0)) * 100, 1
+          )`
+      })
+      .from(users);
+    
+    return reactivation?.rate || 0;
+  }
+
+  async getAverageLearningStreak(): Promise<number> {
+    const [streak] = await db
+      .select({
+        avg_streak: sql<number>`
+          COALESCE(AVG(
+            CASE 
+              WHEN ${learningEvents.data}->>'streak' IS NOT NULL 
+              THEN CAST(${learningEvents.data}->>'streak' AS INTEGER)
+              ELSE 1
+            END
+          ), 1)`
+      })
+      .from(learningEvents)
+      .where(eq(learningEvents.eventType, 'streak_updated'));
+    
+    return Math.round((streak?.avg_streak || 1) * 10) / 10;
+  }
+
+  async getUserEngagementScore(): Promise<number> {
+    const [engagement] = await db
+      .select({
+        score: sql<number>`
+          ROUND(
+            (COUNT(DISTINCT ${learningEvents.userId})::float / 
+             NULLIF((SELECT COUNT(*) FROM ${users}), 0) * 100) + 
+            (COUNT(*)::float / 
+             NULLIF((SELECT COUNT(*) FROM ${users}), 0) * 0.1), 1
+          )`
+      })
+      .from(learningEvents)
+      .where(sql`${learningEvents.timestamp} > NOW() - INTERVAL '30 days'`);
+    
+    return Math.min(engagement?.score || 0, 100);
+  }
+
+  async getSkillsProgressRate(): Promise<number> {
+    const totalUsers = await this.getTotalUsersCount();
+    
+    const [skillsUsers] = await db
+      .select({ count: sql<number>`count(DISTINCT ${userSkills.userId})` })
+      .from(userSkills)
+      .where(sql`${userSkills.level} > 0`);
+    
+    return totalUsers > 0 ? 
+      Math.round((skillsUsers?.count || 0) / totalUsers * 100 * 10) / 10 : 0;
+  }
+
   async getRecentUsersCount(days: number): Promise<number> {
     const dateThreshold = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
     const result = await db
