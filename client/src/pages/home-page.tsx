@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Glassmorphism } from "@/components/ui/glassmorphism";
 import { Button } from "@/components/ui/button";
@@ -6,8 +6,10 @@ import { Link } from "wouter";
 import { ParticlesBackground } from "@/components/particles-background";
 // Removed AppIntegrationTest import
 import { screenshots } from "../screenshots";
+import { AdminLoginModal } from "@/components/admin/admin-login-modal";
 
 export default function HomePage() {
+  const [showAdminLogin, setShowAdminLogin] = useState(false);
 
   // Примеры скриншотов для демонстрации функционала платформы
   const platformScreenshots = [
@@ -728,6 +730,12 @@ export default function HomePage() {
           </div>
           <div className="pt-6 border-t border-white/10 text-center text-white/50">
             <p>© 2025 NovaAI University. Все права защищены.</p>
+            {/* Admin Easter Egg */}
+            <div 
+              className="inline-block mt-2 w-2 h-2 bg-white/5 rounded-full cursor-pointer hover:bg-white/20 transition-all duration-300"
+              onClick={() => setShowAdminLogin(true)}
+              title="System Access"
+            ></div>
           </div>
         </div>
       </footer>
