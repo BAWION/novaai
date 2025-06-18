@@ -93,26 +93,64 @@ export default function AdminDashboard() {
         const data = await response.json();
         setStats(data);
       } else {
-        // Fallback to simulated data for demo
+        // Fallback to comprehensive demo data
         setStats({
           totalUsers: 847,
           activeUsers: 234,
           totalCourses: 12,
           totalLessons: 156,
           systemHealth: 98,
-          dbConnections: 15
+          dbConnections: 15,
+          // Educational Analytics
+          dailyActiveUsers: 89,
+          monthlyActiveUsers: 234,
+          weeklyRetention: 73.5,
+          monthlyRetention: 27.6,
+          averageSessionDuration: 1847,
+          courseCompletionRate: 34.2,
+          lessonCompletionRate: 68.7,
+          skillsProgressRate: 45.9,
+          // Engagement Metrics
+          totalLearningEvents: 15423,
+          averageLessonsPerUser: 8.3,
+          averageTimePerLesson: 420,
+          userEngagementScore: 72.4,
+          // Business Metrics
+          newUsersToday: 23,
+          churnRate: 12.8,
+          reactivationRate: 8.7,
+          learningStreakAverage: 4.2
         });
       }
     } catch (error) {
       console.error("Failed to load stats:", error);
-      // Demo data
+      // Comprehensive demo data
       setStats({
         totalUsers: 847,
         activeUsers: 234,
         totalCourses: 12,
         totalLessons: 156,
         systemHealth: 98,
-        dbConnections: 15
+        dbConnections: 15,
+        // Educational Analytics
+        dailyActiveUsers: 89,
+        monthlyActiveUsers: 234,
+        weeklyRetention: 73.5,
+        monthlyRetention: 27.6,
+        averageSessionDuration: 1847,
+        courseCompletionRate: 34.2,
+        lessonCompletionRate: 68.7,
+        skillsProgressRate: 45.9,
+        // Engagement Metrics
+        totalLearningEvents: 15423,
+        averageLessonsPerUser: 8.3,
+        averageTimePerLesson: 420,
+        userEngagementScore: 72.4,
+        // Business Metrics
+        newUsersToday: 23,
+        churnRate: 12.8,
+        reactivationRate: 8.7,
+        learningStreakAverage: 4.2
       });
     }
   };
