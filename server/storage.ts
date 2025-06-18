@@ -719,32 +719,33 @@ export class DatabaseStorage implements IStorage {
     endDate?: Date;
     limit?: number;
   }): Promise<LearningEvent[]> {
-    let query = db
-      .select()
-      .from(learningEvents)
-      .where(eq(learningEvents.userId, userId));
+    const conditions = [eq(learningEvents.userId, userId)];
 
     if (params?.eventType) {
-      query = query.where(eq(learningEvents.eventType, params.eventType));
+      conditions.push(eq(learningEvents.eventType, params.eventType));
     }
 
     if (params?.entityType) {
-      query = query.where(eq(learningEvents.entityType, params.entityType as any));
+      conditions.push(eq(learningEvents.entityType, params.entityType as any));
     }
 
     if (params?.entityId) {
-      query = query.where(eq(learningEvents.entityId, params.entityId));
+      conditions.push(eq(learningEvents.entityId, params.entityId));
     }
 
     if (params?.startDate) {
-      query = query.where(sql`${learningEvents.timestamp} >= ${params.startDate}`);
+      conditions.push(sql`${learningEvents.timestamp} >= ${params.startDate}`);
     }
 
     if (params?.endDate) {
-      query = query.where(sql`${learningEvents.timestamp} <= ${params.endDate}`);
+      conditions.push(sql`${learningEvents.timestamp} <= ${params.endDate}`);
     }
 
-    query = query.orderBy(desc(learningEvents.timestamp));
+    let query = db
+      .select()
+      .from(learningEvents)
+      .where(and(...conditions))
+      .orderBy(desc(learningEvents.timestamp));
 
     if (params?.limit) {
       query = query.limit(params.limit);
