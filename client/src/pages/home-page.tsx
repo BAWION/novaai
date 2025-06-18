@@ -1,15 +1,51 @@
 import React, { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Glassmorphism } from "@/components/ui/glassmorphism";
 import { Button } from "@/components/ui/button";
-import { Link } from "wouter";
+import { Input } from "@/components/ui/input";
+import { Link, useLocation } from "wouter";
 import { ParticlesBackground } from "@/components/particles-background";
 // Removed AppIntegrationTest import
 import { screenshots } from "../screenshots";
-import { AdminLoginModal } from "@/components/admin/admin-login-modal";
 
 export default function HomePage() {
+  const [, setLocation] = useLocation();
   const [showAdminLogin, setShowAdminLogin] = useState(false);
+  const [adminUsername, setAdminUsername] = useState("");
+  const [adminPassword, setAdminPassword] = useState("");
+  const [isAdminLoading, setIsAdminLoading] = useState(false);
+  const [adminError, setAdminError] = useState("");
+
+  const handleAdminLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsAdminLoading(true);
+    setAdminError("");
+
+    // Check credentials
+    if (adminUsername === "borabora" && adminPassword === "28934f_EF_#R") {
+      // Simulate authentication
+      localStorage.setItem("admin-session", "authenticated");
+      localStorage.setItem("admin-role", "admin");
+      localStorage.setItem("admin-user", JSON.stringify({
+        username: "borabora",
+        role: "admin",
+        permissions: ["all"]
+      }));
+      
+      setTimeout(() => {
+        setIsAdminLoading(false);
+        setShowAdminLogin(false);
+        setLocation("/admin");
+      }, 1000);
+    } else {
+      setTimeout(() => {
+        setIsAdminLoading(false);
+        setAdminError("Неверные учетные данные");
+        setAdminUsername("");
+        setAdminPassword("");
+      }, 1000);
+    }
+  };
 
   // Примеры скриншотов для демонстрации функционала платформы
   const platformScreenshots = [
@@ -732,19 +768,104 @@ export default function HomePage() {
             <p>© 2025 NovaAI University. Все права защищены.</p>
             {/* Admin Easter Egg */}
             <div 
-              className="inline-block mt-2 w-2 h-2 bg-white/5 rounded-full cursor-pointer hover:bg-white/20 transition-all duration-300"
+              className="inline-block mt-2 cursor-pointer hover:scale-110 transition-all duration-300 opacity-30 hover:opacity-70"
               onClick={() => setShowAdminLogin(true)}
               title="System Access"
-            ></div>
+            >
+              <svg 
+                className="w-4 h-4 text-white/40 hover:text-white/60 transition-colors" 
+                fill="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path d="M21.7 3.3c.4-.4.3-1-.2-1.3-1.2-.7-2.6-.9-4 0L3.6 15.4c-.4.4-.4 1 0 1.4l1.4 1.4c.4.4 1 .4 1.4 0L20.3 4.3c.4-.4.4-1 0-1.4l-1.4-1.4c-.4-.4-1-.4-1.4 0L3.6 15.4M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77 5.82 21.02 7 14.14 2 9.27l6.91-1.01L12 2z"/>
+              </svg>
+            </div>
           </div>
         </div>
       </footer>
 
       {/* Admin Login Modal */}
-      <AdminLoginModal 
-        isOpen={showAdminLogin} 
-        onClose={() => setShowAdminLogin(false)} 
-      />
+      <AnimatePresence>
+        {showAdminLogin && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            onClick={() => setShowAdminLogin(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white rounded-lg p-6 w-full max-w-md"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold text-gray-900">Системный доступ</h2>
+                <button
+                  onClick={() => setShowAdminLogin(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  ✕
+                </button>
+              </div>
+              
+              <form onSubmit={handleAdminLogin} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Логин
+                  </label>
+                  <Input
+                    type="text"
+                    value={adminUsername}
+                    onChange={(e) => setAdminUsername(e.target.value)}
+                    placeholder="Введите логин"
+                    required
+                    disabled={isAdminLoading}
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Пароль
+                  </label>
+                  <Input
+                    type="password"
+                    value={adminPassword}
+                    onChange={(e) => setAdminPassword(e.target.value)}
+                    placeholder="Введите пароль"
+                    required
+                    disabled={isAdminLoading}
+                  />
+                </div>
+                
+                {adminError && (
+                  <div className="text-red-600 text-sm">{adminError}</div>
+                )}
+                
+                <div className="flex gap-2">
+                  <Button
+                    type="submit"
+                    disabled={isAdminLoading}
+                    className="flex-1"
+                  >
+                    {isAdminLoading ? "Вход..." : "Войти"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setShowAdminLogin(false)}
+                    disabled={isAdminLoading}
+                  >
+                    Отмена
+                  </Button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
