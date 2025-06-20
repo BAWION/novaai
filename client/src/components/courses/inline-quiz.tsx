@@ -32,7 +32,7 @@ export default function InlineQuiz({ questions, lessonId, onComplete }: InlineQu
 
   const submitAnswerMutation = useMutation({
     mutationFn: async (answerData: any) => {
-      return await apiRequest(`/api/lessons/${lessonId}/quiz-answer`, 'POST', answerData);
+      return await apiRequest('POST', `/api/lessons/${lessonId}/quiz-answer`, answerData);
     }
   });
 
