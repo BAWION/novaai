@@ -23,8 +23,14 @@ export default function QuickExplain({ selectedText, context, onClose }: QuickEx
         context
       });
     },
-    onSuccess: (data) => {
-      setExplanation(data.explanation);
+    onSuccess: (data: any) => {
+      if (data && typeof data === 'object' && 'explanation' in data) {
+        setExplanation(data.explanation);
+      } else if (typeof data === 'string') {
+        setExplanation(data);
+      } else {
+        setExplanation('Объяснение получено, но формат ответа неожиданный');
+      }
     }
   });
 

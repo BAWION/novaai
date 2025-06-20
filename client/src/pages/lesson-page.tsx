@@ -17,7 +17,6 @@ import ReactMarkdown from "react-markdown";
 import { MicroLessonStructure } from "@/components/courses/micro-lesson-structure";
 import { MicroLessonNavigation } from "@/components/courses/micro-lesson-navigation";
 import { ContextualAIAssistant } from "@/components/courses/contextual-ai-assistant";
-import DifficultyLevelSwitcher from "@/components/courses/difficulty-level-switcher";
 import InlineQuiz from "@/components/courses/inline-quiz";
 
 interface Lesson {
@@ -486,17 +485,8 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
               </Tabs>
             </div>
 
-            {/* Боковая панель с TutorAI-функциями */}
+            {/* Боковая панель с функциями урока */}
             <div className="lg:col-span-1 space-y-4">
-              <DifficultyLevelSwitcher
-                currentLevel={userSkillsLevel}
-                onLevelChange={setUserSkillsLevel}
-                content={{
-                  beginner: lesson.content,
-                  intermediate: lesson.content,
-                  advanced: lesson.content
-                }}
-              />
               
               <Card>
                 <CardHeader>
@@ -506,21 +496,23 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="w-full justify-start"
+                    className="w-full justify-start text-left overflow-hidden"
                     onClick={() => setUseMicroLessons(!useMicroLessons)}
                   >
-                    <LayersIcon className="h-4 w-4 mr-2" />
-                    {useMicroLessons ? "Обычный вид" : "Микро-разделы"}
+                    <LayersIcon className="h-4 w-4 mr-2 flex-shrink-0" />
+                    <span className="truncate">
+                      {useMicroLessons ? "Обычный вид" : "Микро-разделы"}
+                    </span>
                   </Button>
                   
                   <Button
                     variant="outline"
                     size="sm"
-                    className="w-full justify-start"
+                    className="w-full justify-start text-left overflow-hidden"
                     onClick={handleToggleAIAssistant}
                   >
-                    <HelpCircle className="h-4 w-4 mr-2" />
-                    AI-Помощник
+                    <HelpCircle className="h-4 w-4 mr-2 flex-shrink-0" />
+                    <span className="truncate">AI-Помощник</span>
                   </Button>
                 </CardContent>
               </Card>
@@ -540,22 +532,22 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                       className="h-2"
                     />
                     <Button
-                      className="w-full"
+                      className="w-full text-left overflow-hidden"
                       onClick={handleLessonComplete}
                       disabled={completeLessonMutation.isPending || lesson.completed}
                     >
                       {completeLessonMutation.isPending ? (
                         <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          Завершение...
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2 flex-shrink-0"></div>
+                          <span className="truncate">Завершение...</span>
                         </>
                       ) : lesson.completed ? (
                         <>
-                          <CheckCircle className="h-4 w-4 mr-2" />
-                          Завершено
+                          <CheckCircle className="h-4 w-4 mr-2 flex-shrink-0" />
+                          <span className="truncate">Завершено</span>
                         </>
                       ) : (
-                        "Завершить урок"
+                        <span className="truncate">Завершить урок</span>
                       )}
                     </Button>
                   </div>
