@@ -213,7 +213,7 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
     completeLessonMutation.mutate();
   };
 
-  // Создаем микро-разделы для урока (TutorAI-стиль)
+  // Создаем короткие части для урока (по 2-5 минут каждая)
   const createMicroSections = (lessonContent: string) => {
     if (!lessonContent) return [];
 
@@ -311,11 +311,17 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
             {/* Основное содержимое урока */}
             <div className="lg:col-span-4">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-4 mb-6">
+                <TabsList className="grid w-full grid-cols-5 mb-6">
                   <TabsTrigger value="content">
                     <div className="flex flex-col items-center">
                       <BookOpen className="h-4 w-4 mb-1" />
                       Урок
+                    </div>
+                  </TabsTrigger>
+                  <TabsTrigger value="quiz">
+                    <div className="flex flex-col items-center">
+                      <HelpCircle className="h-4 w-4 mb-1" />
+                      Квиз
                     </div>
                   </TabsTrigger>
                   <TabsTrigger value="microlesson">
@@ -425,6 +431,76 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                   )}
                 </TabsContent>
                 
+                <TabsContent value="quiz">
+                  <Card className="shadow-lg">
+                    <CardHeader>
+                      <CardTitle>Проверка знаний</CardTitle>
+                      <CardDescription>
+                        Квиз по материалам урока "{lesson.title}"
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <InlineQuiz
+                        questions={[
+                          {
+                            id: "q1",
+                            type: "multiple-choice",
+                            question: "Что из перечисленного НЕ является характеристикой современного искусственного интеллекта?",
+                            options: [
+                              "Способность обучаться на данных",
+                              "Распознавание образов и речи",
+                              "Полная независимость от человеческого контроля",
+                              "Обработка естественного языка"
+                            ],
+                            correctAnswer: 2,
+                            explanation: "Современный ИИ не является полностью независимым от человеческого контроля. ИИ-системы требуют надзора, настройки и проверки результатов человеком."
+                          },
+                          {
+                            id: "q2",
+                            type: "single-choice",
+                            question: "Какой тип ИИ существует в настоящее время?",
+                            options: [
+                              "Только общий искусственный интеллект (AGI)",
+                              "Только узкий искусственный интеллект (ANI)",
+                              "И узкий, и общий искусственный интеллект",
+                              "Сверхинтеллект (ASI)"
+                            ],
+                            correctAnswer: 1,
+                            explanation: "В настоящее время существует только узкий (слабый) ИИ - системы, специализирующиеся на конкретных задачах. Общий ИИ пока остается целью исследований."
+                          },
+                          {
+                            id: "q3",
+                            type: "true-false",
+                            question: "Машинное обучение является подразделом искусственного интеллекта",
+                            correctAnswer: true,
+                            explanation: "Верно. Машинное обучение - это метод достижения искусственного интеллекта, при котором системы автоматически улучшаются через опыт."
+                          },
+                          {
+                            id: "q4",
+                            type: "multiple-choice",
+                            question: "Выберите все области применения современного ИИ:",
+                            options: [
+                              "Медицинская диагностика",
+                              "Автономные транспортные средства", 
+                              "Рекомендательные системы",
+                              "Все перечисленное"
+                            ],
+                            correctAnswer: 3,
+                            explanation: "ИИ активно применяется во всех перечисленных областях: от медицинской диагностики до автопилотов и персонализации контента."
+                          }
+                        ]}
+                        onQuizComplete={(score, totalQuestions) => {
+                          toast({
+                            title: "Квиз завершен!",
+                            description: `Вы набрали ${score} из ${totalQuestions} баллов`,
+                            variant: "default"
+                          });
+                        }}
+                      />
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+                
                 <TabsContent value="microlesson">
                   {user ? (
                     <MicroLessonStructure 
@@ -501,7 +577,7 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                   >
                     <LayersIcon className="h-4 w-4 mr-2 flex-shrink-0" />
                     <span className="truncate">
-                      {useMicroLessons ? "Обычный вид" : "Микро-разделы"}
+  {useMicroLessons ? "Обычный вид" : "По частям"}
                     </span>
                   </Button>
                   
