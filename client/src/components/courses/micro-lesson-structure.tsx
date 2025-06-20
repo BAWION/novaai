@@ -432,8 +432,24 @@ export function MicroLessonStructure({ lessonId, userId, onComplete }: MicroLess
                 В этом разделе вы ознакомитесь с ключевыми моментами урока
               </CardDescription>
             </CardHeader>
-            <CardContent className="prose prose-lg max-w-none dark:prose-invert bg-white dark:bg-zinc-800 p-6 rounded-lg shadow-sm">
-              <ReactMarkdown>{lessonStructure.hook}</ReactMarkdown>
+            <CardContent className="prose prose-lg max-w-none dark:prose-invert">
+              <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg border">
+                <ReactMarkdown 
+                  components={{
+                    h1: ({children}) => <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">{children}</h1>,
+                    h2: ({children}) => <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">{children}</h2>,
+                    h3: ({children}) => <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">{children}</h3>,
+                    p: ({children}) => <p className="text-gray-900 dark:text-gray-100 mb-3 leading-relaxed">{children}</p>,
+                    ul: ({children}) => <ul className="text-gray-900 dark:text-gray-100 list-disc pl-6 mb-3">{children}</ul>,
+                    ol: ({children}) => <ol className="text-gray-900 dark:text-gray-100 list-decimal pl-6 mb-3">{children}</ol>,
+                    li: ({children}) => <li className="text-gray-900 dark:text-gray-100 mb-1">{children}</li>,
+                    strong: ({children}) => <strong className="font-semibold text-gray-900 dark:text-gray-100">{children}</strong>,
+                    code: ({children}) => <code className="bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 px-2 py-1 rounded text-sm">{children}</code>,
+                  }}
+                >
+                  {lessonStructure.hook}
+                </ReactMarkdown>
+              </div>
             </CardContent>
             <CardFooter className="flex justify-between border-t pt-4">
               <div></div>
@@ -464,8 +480,24 @@ export function MicroLessonStructure({ lessonId, userId, onComplete }: MicroLess
                 Изучите основные концепции и теорию
               </CardDescription>
             </CardHeader>
-            <CardContent className="prose prose-lg max-w-none dark:prose-invert bg-white dark:bg-zinc-800 p-6 rounded-lg shadow-sm">
-              <ReactMarkdown>{lessonStructure.explanation}</ReactMarkdown>
+            <CardContent className="prose prose-lg max-w-none dark:prose-invert">
+              <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg border">
+                <ReactMarkdown 
+                  components={{
+                    h1: ({children}) => <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">{children}</h1>,
+                    h2: ({children}) => <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">{children}</h2>,
+                    h3: ({children}) => <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">{children}</h3>,
+                    p: ({children}) => <p className="text-gray-900 dark:text-gray-100 mb-3 leading-relaxed">{children}</p>,
+                    ul: ({children}) => <ul className="text-gray-900 dark:text-gray-100 list-disc pl-6 mb-3">{children}</ul>,
+                    ol: ({children}) => <ol className="text-gray-900 dark:text-gray-100 list-decimal pl-6 mb-3">{children}</ol>,
+                    li: ({children}) => <li className="text-gray-900 dark:text-gray-100 mb-1">{children}</li>,
+                    strong: ({children}) => <strong className="font-semibold text-gray-900 dark:text-gray-100">{children}</strong>,
+                    code: ({children}) => <code className="bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 px-2 py-1 rounded text-sm">{children}</code>,
+                  }}
+                >
+                  {lessonStructure.explanation}
+                </ReactMarkdown>
+              </div>
             </CardContent>
             <CardFooter className="flex justify-between border-t pt-4">
               <Button variant="outline" onClick={goToPreviousSection}>
@@ -499,8 +531,24 @@ export function MicroLessonStructure({ lessonId, userId, onComplete }: MicroLess
                 Наглядные примеры и демонстрации концепций
               </CardDescription>
             </CardHeader>
-            <CardContent className="prose prose-lg max-w-none dark:prose-invert bg-white dark:bg-zinc-800 p-6 rounded-lg shadow-sm">
-              <ReactMarkdown>{lessonStructure.demo}</ReactMarkdown>
+            <CardContent className="prose prose-lg max-w-none dark:prose-invert">
+              <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg border">
+                <ReactMarkdown 
+                  components={{
+                    h1: ({children}) => <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">{children}</h1>,
+                    h2: ({children}) => <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">{children}</h2>,
+                    h3: ({children}) => <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">{children}</h3>,
+                    p: ({children}) => <p className="text-gray-900 dark:text-gray-100 mb-3 leading-relaxed">{children}</p>,
+                    ul: ({children}) => <ul className="text-gray-900 dark:text-gray-100 list-disc pl-6 mb-3">{children}</ul>,
+                    ol: ({children}) => <ol className="text-gray-900 dark:text-gray-100 list-decimal pl-6 mb-3">{children}</ol>,
+                    li: ({children}) => <li className="text-gray-900 dark:text-gray-100 mb-1">{children}</li>,
+                    strong: ({children}) => <strong className="font-semibold text-gray-900 dark:text-gray-100">{children}</strong>,
+                    code: ({children}) => <code className="bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 px-2 py-1 rounded text-sm">{children}</code>,
+                  }}
+                >
+                  {lessonStructure.demo}
+                </ReactMarkdown>
+              </div>
             </CardContent>
             <CardFooter className="flex justify-between border-t pt-4">
               <Button variant="outline" onClick={goToPreviousSection}>
@@ -669,40 +717,24 @@ def classify_text(text):
                 Применение изученного материала на практике
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                {/* Основное содержимое раздела */}
-                <div className="prose prose-lg max-w-none dark:prose-invert bg-white dark:bg-zinc-800 p-6 rounded-lg shadow-sm">
-                  <ReactMarkdown>{lessonStructure.practice}</ReactMarkdown>
-                </div>
-                
-                {/* Квиз для проверки знаний */}
-                <div className="mt-8">
-                  <h3 className="text-lg font-medium mb-4">Проверьте свои знания</h3>
-                  <QuizComponent questions={sampleQuestions} onComplete={handleQuizComplete} />
-                </div>
-                
-                {/* Практическое задание */}
-                <div className="mt-8">
-                  <h3 className="text-lg font-medium mb-4">Практическое задание</h3>
-                  <PracticeAssignment 
-                    assignment={sampleAssignment} 
-                    onComplete={handleAssignmentComplete}
-                    onRequestFeedback={handleRequestFeedback}
-                  />
-                </div>
-                
-                {/* Обратная связь */}
-                <div className="mt-8">
-                  <h3 className="text-lg font-medium mb-4">Обратная связь</h3>
-                  <FeedbackSystem 
-                    feedbackItems={sampleFeedback}
-                    lessonId={lessonId}
-                    assignmentId="assignment1"
-                    userId={userId}
-                    onSubmitFeedback={handleSubmitFeedback}
-                  />
-                </div>
+            <CardContent className="prose prose-lg max-w-none dark:prose-invert text-gray-900 dark:text-gray-100">
+              <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg border">
+                <ReactMarkdown 
+                  components={{
+                    h1: ({children}) => <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">{children}</h1>,
+                    h2: ({children}) => <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">{children}</h2>,
+                    h3: ({children}) => <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">{children}</h3>,
+                    p: ({children}) => <p className="text-gray-900 dark:text-gray-100 mb-3 leading-relaxed">{children}</p>,
+                    ul: ({children}) => <ul className="text-gray-900 dark:text-gray-100 list-disc pl-6 mb-3">{children}</ul>,
+                    ol: ({children}) => <ol className="text-gray-900 dark:text-gray-100 list-decimal pl-6 mb-3">{children}</ol>,
+                    li: ({children}) => <li className="text-gray-900 dark:text-gray-100 mb-1">{children}</li>,
+                    strong: ({children}) => <strong className="font-semibold text-gray-900 dark:text-gray-100">{children}</strong>,
+                    em: ({children}) => <em className="italic text-gray-800 dark:text-gray-200">{children}</em>,
+                    code: ({children}) => <code className="bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 px-2 py-1 rounded text-sm">{children}</code>,
+                  }}
+                >
+                  {lessonStructure.practice}
+                </ReactMarkdown>
               </div>
             </CardContent>
             <CardFooter className="flex justify-between border-t pt-4">
@@ -737,8 +769,24 @@ def classify_text(text):
                 Подведение итогов и осмысление изученного
               </CardDescription>
             </CardHeader>
-            <CardContent className="prose prose-lg max-w-none dark:prose-invert bg-white dark:bg-zinc-800 p-6 rounded-lg shadow-sm">
-              <ReactMarkdown>{lessonStructure.reflection}</ReactMarkdown>
+            <CardContent className="prose prose-lg max-w-none dark:prose-invert">
+              <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg border">
+                <ReactMarkdown 
+                  components={{
+                    h1: ({children}) => <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">{children}</h1>,
+                    h2: ({children}) => <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">{children}</h2>,
+                    h3: ({children}) => <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">{children}</h3>,
+                    p: ({children}) => <p className="text-gray-900 dark:text-gray-100 mb-3 leading-relaxed">{children}</p>,
+                    ul: ({children}) => <ul className="text-gray-900 dark:text-gray-100 list-disc pl-6 mb-3">{children}</ul>,
+                    ol: ({children}) => <ol className="text-gray-900 dark:text-gray-100 list-decimal pl-6 mb-3">{children}</ol>,
+                    li: ({children}) => <li className="text-gray-900 dark:text-gray-100 mb-1">{children}</li>,
+                    strong: ({children}) => <strong className="font-semibold text-gray-900 dark:text-gray-100">{children}</strong>,
+                    code: ({children}) => <code className="bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 px-2 py-1 rounded text-sm">{children}</code>,
+                  }}
+                >
+                  {lessonStructure.reflection}
+                </ReactMarkdown>
+              </div>
             </CardContent>
             <CardFooter className="flex justify-between border-t pt-4">
               <Button variant="outline" onClick={goToPreviousSection}>
