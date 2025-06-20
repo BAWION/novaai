@@ -818,6 +818,9 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getCourseCompletionTrend(weeks: number = 12): Promise<Array<{week: string, completion_rate: number}>> {
+    const weeksAgo = new Date();
+    weeksAgo.setDate(weeksAgo.getDate() - (weeks * 7));
+    
     const result = await db
       .select({
         week: sql<string>`DATE_TRUNC('week', ${learningEvents.timestamp})`,
@@ -828,7 +831,7 @@ export class DatabaseStorage implements IStorage {
           )`
       })
       .from(learningEvents)
-      .where(sql`${learningEvents.timestamp} >= NOW() - INTERVAL '${weeks} weeks'`)
+      .where(sql`${learningEvents.timestamp} >= ${weeksAgo}`)
       .groupBy(sql`DATE_TRUNC('week', ${learningEvents.timestamp})`)
       .orderBy(sql`DATE_TRUNC('week', ${learningEvents.timestamp})`);
     

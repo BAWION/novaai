@@ -17,7 +17,8 @@ import ReactMarkdown from "react-markdown";
 import { MicroLessonStructure } from "@/components/courses/micro-lesson-structure";
 import { MicroLessonNavigation } from "@/components/courses/micro-lesson-navigation";
 import { ContextualAIAssistant } from "@/components/courses/contextual-ai-assistant";
-import { DifficultyLevelSwitcher } from "@/components/courses/difficulty-level-switcher";
+import DifficultyLevelSwitcher from "@/components/courses/difficulty-level-switcher";
+import InlineQuiz from "@/components/courses/inline-quiz";
 
 interface Lesson {
   id: number;
