@@ -432,8 +432,10 @@ export function MicroLessonStructure({ lessonId, userId, onComplete }: MicroLess
                 В этом разделе вы ознакомитесь с ключевыми моментами урока
               </CardDescription>
             </CardHeader>
-            <CardContent className="prose prose-lg max-w-none dark:prose-invert bg-white dark:bg-zinc-800 p-6 rounded-lg shadow-sm">
-              <ReactMarkdown>{lessonStructure.hook}</ReactMarkdown>
+            <CardContent className="prose prose-lg max-w-none dark:prose-invert bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-zinc-900 dark:to-zinc-800 p-6 rounded-lg shadow-sm border border-blue-100 dark:border-zinc-700">
+              <div className="text-zinc-900 dark:text-zinc-100">
+                <ReactMarkdown>{lessonStructure.hook}</ReactMarkdown>
+              </div>
             </CardContent>
             <CardFooter className="flex justify-between border-t pt-4">
               <div></div>
@@ -464,8 +466,10 @@ export function MicroLessonStructure({ lessonId, userId, onComplete }: MicroLess
                 Изучите основные концепции и теорию
               </CardDescription>
             </CardHeader>
-            <CardContent className="prose prose-lg max-w-none dark:prose-invert bg-white dark:bg-zinc-800 p-6 rounded-lg shadow-sm">
-              <ReactMarkdown>{lessonStructure.explanation}</ReactMarkdown>
+            <CardContent className="prose prose-lg max-w-none dark:prose-invert bg-gradient-to-br from-green-50 to-emerald-50 dark:from-zinc-900 dark:to-zinc-800 p-6 rounded-lg shadow-sm border border-green-100 dark:border-zinc-700">
+              <div className="text-zinc-900 dark:text-zinc-100">
+                <ReactMarkdown>{lessonStructure.explanation}</ReactMarkdown>
+              </div>
             </CardContent>
             <CardFooter className="flex justify-between border-t pt-4">
               <Button variant="outline" onClick={goToPreviousSection}>
@@ -499,8 +503,10 @@ export function MicroLessonStructure({ lessonId, userId, onComplete }: MicroLess
                 Наглядные примеры и демонстрации концепций
               </CardDescription>
             </CardHeader>
-            <CardContent className="prose prose-lg max-w-none dark:prose-invert bg-white dark:bg-zinc-800 p-6 rounded-lg shadow-sm">
-              <ReactMarkdown>{lessonStructure.demo}</ReactMarkdown>
+            <CardContent className="prose prose-lg max-w-none dark:prose-invert bg-gradient-to-br from-purple-50 to-violet-50 dark:from-zinc-900 dark:to-zinc-800 p-6 rounded-lg shadow-sm border border-purple-100 dark:border-zinc-700">
+              <div className="text-zinc-900 dark:text-zinc-100">
+                <ReactMarkdown>{lessonStructure.demo}</ReactMarkdown>
+              </div>
             </CardContent>
             <CardFooter className="flex justify-between border-t pt-4">
               <Button variant="outline" onClick={goToPreviousSection}>
