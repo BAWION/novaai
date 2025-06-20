@@ -1331,6 +1331,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Маршрутизатор для диагностики и Skills DNA
   app.use("/api/diagnosis", diagnosisRouter);
   
+  // API endpoint for quick explanations (TutorAI feature)
+  app.post("/api/ai/quick-explain", async (req, res) => {
+    try {
+      const { text, level, context } = req.body;
+      
+      if (!text) {
+        return res.status(400).json({ message: "Text is required" });
+      }
+      
+      const prompts = {
+        simpler: `Объясни простыми словами, как для школьника: "${text}". Контекст: ${context}`,
+        current: `Объясни на текущем уровне: "${text}". Контекст: ${context}`,
+        deeper: `Дай глубокое техническое объяснение: "${text}". Контекст: ${context}`
+      };
+      
+      const prompt = prompts[level as keyof typeof prompts] || prompts.current;
+      
+      // Simulate AI response for now - in production would use OpenAI API
+      const explanations = {
+        simpler: `Простыми словами: ${text} - это основная концепция, которая используется для понимания более сложных тем. Представь это как строительный блок в обучении.`,
+        current: `${text} представляет собой важную концепцию в данной области. Это понятие связано с другими темами курса и помогает понять практические применения.`,
+        deeper: `${text} является фундаментальным элементом с глубокими техническими связями. Детальный анализ показывает взаимодействие с системными компонентами и архитектурными решениями.`
+      };
+      
+      res.json({
+        explanation: explanations[level as keyof typeof explanations] || explanations.current,
+        level,
+        originalText: text
+      });
+    } catch (error) {
+      console.error("Quick explain error:", error);
+      res.status(500).json({ message: "Failed to generate explanation" });
+    }
+  });
+  
   // Временно отключены маршруты, для которых требуются дополнительные схемы
   // // Маршруты для отслеживания событий обучения
   // app.use("/api/learning", learningEventsRouter);
