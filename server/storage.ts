@@ -156,8 +156,8 @@ export interface IStorage {
   getActiveSessionsCount(): Promise<number>;
   getAllUserCourseProgress(): Promise<UserCourseProgress[]>;
   getAllUserProfiles(): Promise<UserProfile[]>;
-  getActiveUsersCount(since: Date): Promise<number>;
-  getNewUsersCount(since: Date): Promise<number>;
+  getActiveUsersCount(days: number): Promise<number>;
+  getNewUsersCount(days: number): Promise<number>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -800,13 +800,17 @@ export class DatabaseStorage implements IStorage {
 
   // Real-time trend analytics methods
   async getUserGrowthTrend(days: number = 30): Promise<Array<{date: string, count: number}>> {
+    // Use simpler approach to avoid parameter binding issues
+    const daysAgo = new Date();
+    daysAgo.setDate(daysAgo.getDate() - days);
+    
     const result = await db
       .select({
         date: sql<string>`DATE(${users.createdAt})`,
         count: sql<number>`count(*)`
       })
       .from(users)
-      .where(sql`${users.createdAt} >= NOW() - INTERVAL '${days} days'`)
+      .where(sql`${users.createdAt} >= ${daysAgo}`)
       .groupBy(sql`DATE(${users.createdAt})`)
       .orderBy(sql`DATE(${users.createdAt})`);
     
@@ -1112,18 +1116,24 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getActiveUsersCount(days: number): Promise<number> {
+    const daysAgo = new Date();
+    daysAgo.setDate(daysAgo.getDate() - days);
+    
     const result = await db
       .select({ count: sql<number>`count(distinct ${learningEvents.userId})` })
       .from(learningEvents)
-      .where(sql`${learningEvents.timestamp} >= NOW() - INTERVAL '${days} days'`);
+      .where(sql`${learningEvents.timestamp} >= ${daysAgo}`);
     return result[0]?.count || 0;
   }
 
   async getNewUsersCount(days: number): Promise<number> {
+    const daysAgo = new Date();
+    daysAgo.setDate(daysAgo.getDate() - days);
+    
     const result = await db
       .select({ count: sql<number>`count(*)` })
       .from(users)
-      .where(sql`${users.createdAt} >= NOW() - INTERVAL '${days} days'`);
+      .where(sql`${users.createdAt} >= ${daysAgo}`);
     return result[0]?.count || 0;
   }
 }
