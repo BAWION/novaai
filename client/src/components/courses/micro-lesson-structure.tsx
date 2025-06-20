@@ -778,24 +778,9 @@ def classify_text(text):
   };
 
   return (
-    <div className="space-y-6">
-      {/* Заголовок секции с контекстом */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-lg shadow-lg">
-        <div className="flex items-center space-x-3 mb-3">
-          <GraduationCap className="h-8 w-8" />
-          <div>
-            <h2 className="text-2xl font-bold">Микро-уроки</h2>
-            <p className="text-blue-100">Пошаговое изучение материала урока</p>
-          </div>
-        </div>
-        <div className="flex items-center text-sm text-blue-100">
-          <Clock className="h-4 w-4 mr-2" />
-          <span>Примерное время прохождения: 15-20 минут</span>
-        </div>
-      </div>
-
-      {/* Прогресс урока */}
-      <div className="bg-white dark:bg-zinc-800 rounded-lg p-4 shadow-sm">
+    <div className="space-y-4">
+      {/* Компактный прогресс-индикатор */}
+      <div className="bg-white dark:bg-zinc-800 rounded-lg p-4 border">
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-sm font-medium">Прогресс урока</h3>
           <span className="text-sm text-muted-foreground">{Math.round(calculateProgress())}%</span>
