@@ -75,9 +75,10 @@ export default function InlineQuiz({ questions, lessonId, onComplete }: InlineQu
 
   const completeQuiz = () => {
     const score = userAnswers.reduce((acc: number, answer, index) => {
+      if (!answer) return acc;
       const q = questions[index];
       if (q.type === 'open-ended') return acc + 0.5; // Partial credit for open-ended
-      return acc + (answer === q.correctAnswer ? 1 : 0);
+      return acc + (Number(answer) === Number(q.correctAnswer) ? 1 : 0);
     }, 0);
     
     const percentage = Math.round((score / questions.length) * 100);
@@ -88,10 +89,11 @@ export default function InlineQuiz({ questions, lessonId, onComplete }: InlineQu
   const isCorrect = question.type === 'open-ended' ? null : userAnswer === question.correctAnswer;
 
   if (quizCompleted) {
-    const score = userAnswers.reduce((acc, answer, index) => {
+    const score = userAnswers.reduce((acc: number, answer, index) => {
+      if (!answer) return acc;
       const q = questions[index];
       if (q.type === 'open-ended') return acc + 0.5;
-      return acc + (answer === q.correctAnswer ? 1 : 0);
+      return acc + (Number(answer) === Number(q.correctAnswer) ? 1 : 0);
     }, 0);
     const percentage = Math.round((score / questions.length) * 100);
 
