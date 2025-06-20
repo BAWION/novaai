@@ -206,33 +206,28 @@ export function ProgressiveLessonStructure({ lessonId, userId, onComplete }: Pro
           {currentStep === 3 && (
             <div className="mt-6 p-4 bg-white rounded-lg border border-green-200">
               <h4 className="font-medium mb-3 text-green-800">Практическое задание</h4>
-              <QuizComponent
-                quiz={{
-                  id: 1,
-                  lessonId: lessonId,
-                  title: "Проверка понимания",
-                  questions: [
-                    {
-                      id: 1,
-                      text: "Какой из перечисленных принципов является основным в изученной теме?",
-                      type: "multiple-choice" as QuestionType,
-                      options: [
-                        { id: "a", text: "Первый принцип", isCorrect: true },
-                        { id: "b", text: "Второй принцип", isCorrect: false },
-                        { id: "c", text: "Третий принцип", isCorrect: false },
-                        { id: "d", text: "Четвертый принцип", isCorrect: false }
-                      ],
-                      explanation: "Правильный ответ основан на материале, изученном в предыдущих шагах."
-                    }
-                  ]
-                }}
-                onQuizComplete={(results) => {
-                  toast({
-                    title: "Практика завершена!",
-                    description: `Результат: ${results.score}%`,
-                  });
-                }}
-              />
+              <div className="space-y-4">
+                <p className="text-sm text-green-700">
+                  Примените изученные знания на практике. Выберите правильный ответ:
+                </p>
+                <div className="bg-green-50 p-3 rounded border">
+                  <p className="font-medium text-sm">Вопрос: Какой из принципов наиболее важен в данной теме?</p>
+                  <div className="mt-2 space-y-1">
+                    <label className="flex items-center text-sm">
+                      <input type="radio" name="practice" className="mr-2" />
+                      Первый принцип
+                    </label>
+                    <label className="flex items-center text-sm">
+                      <input type="radio" name="practice" className="mr-2" />
+                      Второй принцип
+                    </label>
+                    <label className="flex items-center text-sm">
+                      <input type="radio" name="practice" className="mr-2" />
+                      Третий принцип
+                    </label>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
           
