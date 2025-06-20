@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, ArrowLeft, ArrowRight, BookOpen, Clock, Video, FileText, HelpCircle, Target, BookOpenCheck, ThumbsUp, Lightbulb } from "lucide-react";
+import { CheckCircle, ArrowLeft, ArrowRight, BookOpen, Clock, Video, FileText, HelpCircle, Target, BookOpenCheck, ThumbsUp, Lightbulb, GraduationCap, Brain } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
@@ -678,8 +678,10 @@ def classify_text(text):
             <CardContent>
               <div className="space-y-6">
                 {/* Основное содержимое раздела */}
-                <div className="prose prose-lg max-w-none dark:prose-invert bg-white dark:bg-zinc-800 p-6 rounded-lg shadow-sm">
-                  <ReactMarkdown>{lessonStructure.practice}</ReactMarkdown>
+                <div className="prose prose-lg max-w-none dark:prose-invert bg-gradient-to-br from-orange-50 to-amber-50 dark:from-zinc-900 dark:to-zinc-800 p-6 rounded-lg shadow-sm border border-orange-100 dark:border-zinc-700">
+                  <div className="text-zinc-900 dark:text-zinc-100">
+                    <ReactMarkdown>{lessonStructure.practice}</ReactMarkdown>
+                  </div>
                 </div>
                 
                 {/* Квиз для проверки знаний */}
@@ -743,8 +745,10 @@ def classify_text(text):
                 Подведение итогов и осмысление изученного
               </CardDescription>
             </CardHeader>
-            <CardContent className="prose prose-lg max-w-none dark:prose-invert bg-white dark:bg-zinc-800 p-6 rounded-lg shadow-sm">
-              <ReactMarkdown>{lessonStructure.reflection}</ReactMarkdown>
+            <CardContent className="prose prose-lg max-w-none dark:prose-invert bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-zinc-900 dark:to-zinc-800 p-6 rounded-lg shadow-sm border border-emerald-100 dark:border-zinc-700">
+              <div className="text-zinc-900 dark:text-zinc-100">
+                <ReactMarkdown>{lessonStructure.reflection}</ReactMarkdown>
+              </div>
             </CardContent>
             <CardFooter className="flex justify-between border-t pt-4">
               <Button variant="outline" onClick={goToPreviousSection}>
@@ -775,6 +779,21 @@ def classify_text(text):
 
   return (
     <div className="space-y-6">
+      {/* Заголовок секции с контекстом */}
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-lg shadow-lg">
+        <div className="flex items-center space-x-3 mb-3">
+          <GraduationCap className="h-8 w-8" />
+          <div>
+            <h2 className="text-2xl font-bold">Микро-уроки</h2>
+            <p className="text-blue-100">Пошаговое изучение материала урока</p>
+          </div>
+        </div>
+        <div className="flex items-center text-sm text-blue-100">
+          <Clock className="h-4 w-4 mr-2" />
+          <span>Примерное время прохождения: 15-20 минут</span>
+        </div>
+      </div>
+
       {/* Прогресс урока */}
       <div className="bg-white dark:bg-zinc-800 rounded-lg p-4 shadow-sm">
         <div className="flex items-center justify-between mb-2">
