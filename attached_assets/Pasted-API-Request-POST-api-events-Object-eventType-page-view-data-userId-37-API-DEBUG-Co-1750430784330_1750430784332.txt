@@ -1,0 +1,78 @@
+API Request: POST /api/events 
+Object {eventType: "page_view", data: {…}, userId: 37}
+[API-DEBUG] Cookies при отправке запроса: нет кук
+Загрузка уроков для модуля 5
+API Response: POST /api/events - Status: 201 Created
+[API-DEBUG] Заголовки ответа для POST /api/events: access-control-allow-credentials: true, access-control-allow-headers: Origin, X-Requested-With, Content-Type, Accept, Authorization, access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, access-control-allow-origin: https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev, content-length: 533, content-type: application/json; charset=utf-8, date: Fri, 20 Jun 2025 14:44:50 GMT, etag: W/"215-sLKQJIJsyKLZalhjM4swahrUrNo", replit-cluster: janeway, x-powered-by: Express, x-robots-tag: none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex, none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex
+API Request: /api/lessons/5/quiz-answer POST 
+Object {questionId: "q1", answer: 2, questionType: "multiple-choice", isCorrect: true}
+[API-DEBUG] Cookies при отправке запроса: нет кук
+API Request Failed: /api/lessons/5/quiz-answer POST 
+TypeError {message: "Failed to execute 'fetch' on 'Window': '/api/lessons/5/quiz-answer' is not a valid HTTP method."}
+
+at t.value (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
+Failed to execute 'fetch' on 'Window': '/api/lessons/5/quiz-answer' is not a valid HTTP method.
+at window.fetch (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:218642)
+at apiRequest (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/src/lib/queryClient.ts:12:23)
+at Object.mutationFn (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/src/components/courses/inline-quiz.tsx:36:20)
+at Object.fn (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=9e418829:1189:29)
+at run (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=9e418829:494:49)
+at Object.start (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=9e418829:536:9)
+at _a6.execute (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=9e418829:1225:56)
+API Request: /api/lessons/5/quiz-answer POST 
+Object {questionId: "q2", answer: 1, questionType: "multiple-choice", isCorrect: true}
+[API-DEBUG] Cookies при отправке запроса: нет кук
+API Request Failed: /api/lessons/5/quiz-answer POST 
+TypeError {message: "Failed to execute 'fetch' on 'Window': '/api/lessons/5/quiz-answer' is not a valid HTTP method."}
+
+at t.value (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
+Failed to execute 'fetch' on 'Window': '/api/lessons/5/quiz-answer' is not a valid HTTP method.
+at window.fetch (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:218642)
+at apiRequest (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/src/lib/queryClient.ts:12:23)
+at Object.mutationFn (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/src/components/courses/inline-quiz.tsx:36:20)
+at Object.fn (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=9e418829:1189:29)
+at run (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=9e418829:494:49)
+at Object.start (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=9e418829:536:9)
+at _a6.execute (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=9e418829:1225:56)
+API Request: /api/lessons/5/quiz-answer POST 
+Object {questionId: "q3", answer: 0, questionType: "true-false", isCorrect: true}
+[API-DEBUG] Cookies при отправке запроса: нет кук
+API Request Failed: /api/lessons/5/quiz-answer POST 
+TypeError {message: "Failed to execute 'fetch' on 'Window': '/api/lessons/5/quiz-answer' is not a valid HTTP method."}
+
+at t.value (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
+Failed to execute 'fetch' on 'Window': '/api/lessons/5/quiz-answer' is not a valid HTTP method.
+at window.fetch (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:218642)
+at apiRequest (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/src/lib/queryClient.ts:12:23)
+at Object.mutationFn (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/src/components/courses/inline-quiz.tsx:36:20)
+at Object.fn (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=9e418829:1189:29)
+at run (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=9e418829:494:49)
+at Object.start (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=9e418829:536:9)
+at _a6.execute (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=9e418829:1225:56)
+API Request: /api/lessons/5/quiz-answer POST 
+Object {questionId: "q4", answer: 0, questionType: "multiple-choice", isCorrect: false}
+[API-DEBUG] Cookies при отправке запроса: нет кук
+API Request Failed: /api/lessons/5/quiz-answer POST 
+TypeError {message: "Failed to execute 'fetch' on 'Window': '/api/lessons/5/quiz-answer' is not a valid HTTP method."}
+
+at t.value (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
+Failed to execute 'fetch' on 'Window': '/api/lessons/5/quiz-answer' is not a valid HTTP method.
+at window.fetch (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:218642)
+at apiRequest (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/src/lib/queryClient.ts:12:23)
+at Object.mutationFn (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/src/components/courses/inline-quiz.tsx:36:20)
+at Object.fn (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=9e418829:1189:29)
+at run (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=9e418829:494:49)
+at Object.start (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=9e418829:536:9)
+at _a6.execute (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=9e418829:1225:56)
