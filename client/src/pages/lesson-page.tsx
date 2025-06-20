@@ -14,8 +14,7 @@ import { AIAssistantPanel } from "@/components/courses/ai-assistant-panel";
 import { Glassmorphism } from "@/components/ui/glassmorphism";
 import { queryClient } from "@/lib/queryClient";
 import ReactMarkdown from "react-markdown";
-import { MicroLessonStructure } from "@/components/courses/micro-lesson-structure";
-import { MicroLessonNavigation } from "@/components/courses/micro-lesson-navigation";
+import { ProgressiveLessonStructure } from "@/components/courses/progressive-lesson-structure";
 import { ContextualAIAssistant } from "@/components/courses/contextual-ai-assistant";
 import InlineQuiz from "@/components/courses/inline-quiz";
 
@@ -514,7 +513,7 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                 
                 <TabsContent value="microlesson">
                   {user ? (
-                    <MicroLessonStructure 
+                    <ProgressiveLessonStructure 
                       lessonId={parseInt(lessonId || "0")}
                       userId={user.id}
                       onComplete={handleLessonComplete}
@@ -524,7 +523,7 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                       <CardHeader>
                         <CardTitle>Требуется авторизация</CardTitle>
                         <CardDescription>
-                          Для доступа к микроструктуре урока необходимо авторизоваться
+                          Для доступа к пошаговому изучению урока необходимо авторизоваться
                         </CardDescription>
                       </CardHeader>
                       <CardContent>
