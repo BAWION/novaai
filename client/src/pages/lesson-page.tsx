@@ -54,7 +54,7 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
   const [showAIAssistant, setShowAIAssistant] = useState(false);
   const [isAIMinimized, setIsAIMinimized] = useState(false);
   const [userSkillsLevel, setUserSkillsLevel] = useState<'beginner' | 'intermediate' | 'advanced'>('intermediate');
-  const [useMicroLessons, setUseMicroLessons] = useState(false);
+  const [useProgressiveLearning, setUseProgressiveLearning] = useState(true);
 
   // Проверка аутентификации
   useEffect(() => {
@@ -344,12 +344,11 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                 </TabsList>
                 
                 <TabsContent value="content">
-                  {useMicroLessons && microSections.length > 0 ? (
-                    <MicroLessonNavigation
-                      sections={microSections}
-                      lessonTitle={lesson.title}
-                      onSectionComplete={handleMicroSectionComplete}
-                      onLessonComplete={handleLessonComplete}
+                  {useProgressiveLearning && user ? (
+                    <ProgressiveLessonStructure 
+                      lessonId={parseInt(lessonId || "0")}
+                      userId={user.id}
+                      onComplete={handleLessonComplete}
                     />
                   ) : (
                     <Card className="shadow-lg">
@@ -583,11 +582,11 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                     variant="outline"
                     size="sm"
                     className="w-full justify-start text-left overflow-hidden"
-                    onClick={() => setUseMicroLessons(!useMicroLessons)}
+                    onClick={() => setUseProgressiveLearning(!useProgressiveLearning)}
                   >
                     <LayersIcon className="h-4 w-4 mr-2 flex-shrink-0" />
                     <span className="truncate">
-  {useMicroLessons ? "Обычный вид" : "По частям"}
+  {useProgressiveLearning ? "Обычный вид" : "Пошаговое изучение"}
                     </span>
                   </Button>
                   
