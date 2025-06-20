@@ -441,6 +441,7 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                     </CardHeader>
                     <CardContent>
                       <InlineQuiz
+                        lessonId={lesson.id}
                         questions={[
                           {
                             id: "q1",
@@ -457,7 +458,7 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                           },
                           {
                             id: "q2",
-                            type: "single-choice",
+                            type: "multiple-choice",
                             question: "Какой тип ИИ существует в настоящее время?",
                             options: [
                               "Только общий искусственный интеллект (AGI)",
@@ -472,7 +473,7 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                             id: "q3",
                             type: "true-false",
                             question: "Машинное обучение является подразделом искусственного интеллекта",
-                            correctAnswer: true,
+                            correctAnswer: 0,
                             explanation: "Верно. Машинное обучение - это метод достижения искусственного интеллекта, при котором системы автоматически улучшаются через опыт."
                           },
                           {
@@ -489,10 +490,10 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                             explanation: "ИИ активно применяется во всех перечисленных областях: от медицинской диагностики до автопилотов и персонализации контента."
                           }
                         ]}
-                        onQuizComplete={(score, totalQuestions) => {
+                        onComplete={(score: number) => {
                           toast({
                             title: "Квиз завершен!",
-                            description: `Вы набрали ${score} из ${totalQuestions} баллов`,
+                            description: `Ваш результат: ${score}%`,
                             variant: "default"
                           });
                         }}
