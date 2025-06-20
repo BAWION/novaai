@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, ArrowLeft, ArrowRight, BookOpen, Clock, Video, FileText, HelpCircle, LayersIcon } from "lucide-react";
+import { CheckCircle, ArrowLeft, ArrowRight, BookOpen, Clock, Video, FileText, HelpCircle, LayersIcon, Edit3 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AIAssistantPanel } from "@/components/courses/ai-assistant-panel";
 import { Glassmorphism } from "@/components/ui/glassmorphism";
@@ -330,8 +330,18 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                       Микро-уроки
                     </div>
                   </TabsTrigger>
-                  <TabsTrigger value="materials">Материалы</TabsTrigger>
-                  <TabsTrigger value="notes">Заметки</TabsTrigger>
+                  <TabsTrigger value="materials">
+                    <div className="flex flex-col items-center">
+                      <FileText className="h-4 w-4 mb-1" />
+                      Материалы
+                    </div>
+                  </TabsTrigger>
+                  <TabsTrigger value="notes">
+                    <div className="flex flex-col items-center">
+                      <Edit3 className="h-4 w-4 mb-1" />
+                      Заметки
+                    </div>
+                  </TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="content">
