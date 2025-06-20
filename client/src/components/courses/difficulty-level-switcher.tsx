@@ -106,7 +106,7 @@ export default function DifficultyLevelSwitcher({
       <div className="prose prose-invert max-w-none">
         <div 
           className="text-white/90 leading-relaxed"
-          dangerouslySetInnerHTML={{ __html: content[currentLevel] }}
+          dangerouslySetInnerHTML={{ __html: content?.[currentLevel] || content || 'Контент загружается...' }}
         />
       </div>
 
