@@ -491,7 +491,11 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
               <DifficultyLevelSwitcher
                 currentLevel={userSkillsLevel}
                 onLevelChange={setUserSkillsLevel}
-                lessonContent={lesson.content}
+                content={{
+                  beginner: lesson.content,
+                  intermediate: lesson.content,
+                  advanced: lesson.content
+                }}
               />
               
               <Card>
