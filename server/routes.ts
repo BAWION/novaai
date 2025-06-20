@@ -1010,6 +1010,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Маршрут для отправки ответов на квиз
+  app.post("/api/lessons/:lessonId/quiz-answer", async (req, res) => {
+    try {
+      const lessonId = parseInt(req.params.lessonId);
+      const { questionId, answer, questionType, isCorrect } = req.body;
+      
+      // Сохраняем аналитику ответа на квиз для улучшения образовательного контента
+      console.log(`[Quiz Analytics] Lesson ${lessonId}, Question ${questionId}: ${isCorrect ? 'correct' : 'incorrect'} answer`);
+      
+      // В будущем здесь можно добавить сохранение в базу данных для аналитики
+      res.json({ 
+        success: true, 
+        message: "Quiz answer recorded",
+        questionId,
+        isCorrect 
+      });
+    } catch (error) {
+      console.error("Submit quiz answer error:", error);
+      res.status(500).json({ message: "Failed to submit quiz answer" });
+    }
+  });
+
   // User course progress routes
   app.get("/api/user/courses", authMiddleware, async (req, res) => {
     try {
