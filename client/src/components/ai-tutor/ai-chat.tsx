@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Send, Bot, User, Lightbulb, BookOpen } from 'lucide-react';
+import { Loader2, Send, Bot, User, Lightbulb, BookOpen, Brain, Sparkles, Zap, MessageCircle } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 
 interface ChatMessage {
