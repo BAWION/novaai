@@ -14,14 +14,6 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="NovaAI">
     <meta name="application-name" content="NovaAI University">
-    <!-- Скрытие PWA индикаторов на iOS -->
-    <meta name="apple-touch-fullscreen" content="yes">
-    <meta name="format-detection" content="telephone=no">
-    <meta name="msapplication-tap-highlight" content="no">
-    <!-- Дополнительные мета-теги для скрытия системных элементов -->
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#6E3AFF">
-    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0e101c">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
       html {
@@ -51,48 +43,6 @@
           padding-bottom: env(safe-area-inset-bottom);
           padding-left: env(safe-area-inset-left);
           padding-right: env(safe-area-inset-right);
-        }
-      }
-      
-      /* Скрытие PWA-плашки и системных элементов iOS */
-      @media (display-mode: standalone) {
-        /* Убираем все системные индикаторы */
-        body::after, body::before {
-          display: none !important;
-        }
-        
-        /* Скрываем возможные overlay элементы */
-        *[class*="banner"], 
-        *[class*="app-indicator"],
-        *[id*="app-banner"],
-        *[data-testid*="banner"] {
-          display: none !important;
-          visibility: hidden !important;
-          opacity: 0 !important;
-          position: absolute !important;
-          left: -9999px !important;
-        }
-      }
-      
-      /* Дополнительные стили для iOS Safari PWA */
-      @supports (-webkit-touch-callout: none) and (display-mode: standalone) {
-        /* Полностью скрываем системные элементы */
-        body {
-          -webkit-user-select: none;
-          -webkit-touch-callout: none;
-          -webkit-tap-highlight-color: transparent;
-        }
-        
-        /* Убираем возможность выделения текста */
-        * {
-          -webkit-user-select: none;
-          -webkit-touch-callout: none;
-        }
-        
-        /* Разрешаем выделение только для input и textarea */
-        input, textarea, [contenteditable] {
-          -webkit-user-select: text;
-          -webkit-touch-callout: default;
         }
       }
       /* Стили для экрана загрузки */
@@ -151,93 +101,11 @@
       </div>
     </div>
     <script type="module" src="/src/main.tsx"></script>
-    
-    <!-- Скрипт для скрытия PWA-плашки на iOS -->
+    <!-- Удаляем баннер Replit при продакшн деплое -->
     <script>
-      // Функция для скрытия PWA индикаторов
-      function hidePWAIndicators() {
-        // Скрываем все возможные баннеры и индикаторы
-        const selectors = [
-          '[class*="banner"]',
-          '[class*="app-indicator"]', 
-          '[class*="pwa-indicator"]',
-          '[id*="app-banner"]',
-          '[data-testid*="banner"]',
-          '.safari-banner',
-          '.app-banner',
-          '#pwa-banner',
-          '.ios-app-banner'
-        ];
-        
-        selectors.forEach(selector => {
-          const elements = document.querySelectorAll(selector);
-          elements.forEach(el => {
-            el.style.display = 'none';
-            el.style.visibility = 'hidden';
-            el.style.opacity = '0';
-            el.style.position = 'absolute';
-            el.style.left = '-9999px';
-            el.remove();
-          });
-        });
-        
-        // Проверяем shadow DOM
-        document.querySelectorAll('*').forEach(el => {
-          if (el.shadowRoot) {
-            selectors.forEach(selector => {
-              const shadowElements = el.shadowRoot.querySelectorAll(selector);
-              shadowElements.forEach(shadowEl => {
-                shadowEl.style.display = 'none';
-                shadowEl.remove();
-              });
-            });
-          }
-        });
-      }
-      
-      // Запускаем сразу
-      hidePWAIndicators();
-      
-      // Запускаем после загрузки DOM
-      document.addEventListener('DOMContentLoaded', hidePWAIndicators);
-      
-      // Запускаем через MutationObserver для динамически добавляемых элементов
-      const observer = new MutationObserver(hidePWAIndicators);
-      observer.observe(document.body, {
-        childList: true,
-        subtree: true,
-        attributes: true,
-        attributeFilter: ['class', 'id', 'data-testid']
-      });
-      
-      // Дополнительные проверки каждые 100мс в первые 5 секунд
-      let checks = 0;
-      const intervalId = setInterval(() => {
-        hidePWAIndicators();
-        checks++;
-        if (checks >= 50) { // 5 секунд
-          clearInterval(intervalId);
-        }
-      }, 100);
-      
-      // Отключение жестов iOS для более нативного ощущения
-      if (window.navigator.standalone) {
-        document.addEventListener('touchstart', function(e) {
-          if (e.touches.length > 1) {
-            e.preventDefault(); // Отключаем жесты с несколькими пальцами
-          }
-        });
-        
-        // Отключаем bounce эффект
-        document.addEventListener('touchmove', function(e) {
-          if (e.scale !== 1) {
-            e.preventDefault();
-          }
-        }, { passive: false });
-      }
-      
-      // Удаляем баннер Replit при продакшн деплое
+      // Проверка что мы не на replit.com
       if (window.location.hostname.indexOf('replit') === -1) {
+        // Проверка наличия manifest.json
         fetch('/manifest.json')
           .then(response => {
             if (!response.ok) {

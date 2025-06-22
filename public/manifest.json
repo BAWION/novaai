@@ -4,8 +4,8 @@
   "description": "AI-образовательная платформа с адаптивным обучением",
   "start_url": "/?pwa=true&fullscreen=true",
   "scope": "/",
-  "display": "standalone",
-  "display_override": ["standalone", "minimal-ui"],
+  "display": "fullscreen",
+  "display_override": ["window-controls-overlay", "fullscreen", "standalone", "minimal-ui"],
   "edge_side_panel": {
     "preferred_width": 400 
   },
