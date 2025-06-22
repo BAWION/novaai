@@ -121,6 +121,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Добавляем маршрут для инициализации курсов
   app.use('/api/course-init', courseInitRouter);
   
+  // AI Tutor routes
+  const aiTutorRouter = await import('./routes/ai-tutor.js');
+  app.use('/api/ai-tutor', aiTutorRouter.default);
+  
   // Создаем тестового пользователя Vitaliy
   (async () => {
     try {
