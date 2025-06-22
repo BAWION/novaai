@@ -141,16 +141,16 @@ export function AiChat() {
         </CardTitle>
       </CardHeader>
       
-      <CardContent className="flex-1 flex flex-col p-4 pt-0 min-w-0">
+      <CardContent className="flex-1 flex flex-col p-4 pt-0 overflow-hidden">
         {/* Messages */}
         <ScrollArea ref={scrollAreaRef} className="flex-1 pr-4 mb-4">
-          <div className="space-y-4">
+          <div className="space-y-4 w-full">
             {messages.map((message) => (
               <div
                 key={message.id}
                 className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                <div className={`flex gap-3 max-w-[80%] min-w-0 ${message.type === 'user' ? 'flex-row-reverse' : ''}`}>
+                <div className={`flex gap-3 w-full max-w-[85%] ${message.type === 'user' ? 'flex-row-reverse' : ''}`}>
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                     message.type === 'user' 
                       ? 'bg-blue-600 text-white' 
@@ -159,13 +159,13 @@ export function AiChat() {
                     {message.type === 'user' ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
                   </div>
                   
-                  <div className="space-y-2 min-w-0 flex-1">
-                    <div className={`rounded-lg p-3 min-w-0 ${
+                  <div className="flex-1 min-w-0 space-y-2">
+                    <div className={`rounded-lg p-3 w-full ${
                       message.type === 'user'
                         ? 'bg-blue-600 text-white'
                         : 'bg-gray-100 text-gray-900'
                     }`}>
-                      <div className="text-sm whitespace-pre-wrap break-words overflow-wrap-anywhere">
+                      <div className="text-sm whitespace-pre-wrap break-words word-wrap overflow-hidden">
                         {formatMessage(message.content)}
                       </div>
                     </div>
@@ -215,9 +215,9 @@ export function AiChat() {
             ))}
             
             {isLoading && (
-              <div className="flex justify-start">
-                <div className="flex gap-3">
-                  <div className="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center">
+              <div className="flex justify-start w-full">
+                <div className="flex gap-3 max-w-[85%]">
+                  <div className="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center flex-shrink-0">
                     <Bot className="h-4 w-4" />
                   </div>
                   <div className="bg-gray-100 rounded-lg p-3">
