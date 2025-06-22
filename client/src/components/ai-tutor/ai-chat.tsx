@@ -195,7 +195,7 @@ export function AiChat() {
                                 <Badge
                                   key={index}
                                   variant="outline"
-                                  className="cursor-pointer hover:bg-yellow-100 hover:border-yellow-400 text-xs break-words max-w-full transition-all duration-200 hover:scale-105"
+                                  className="cursor-pointer hover:bg-yellow-100 hover:border-yellow-400 text-xs break-words max-w-full transition-all duration-200 hover:scale-105 border-yellow-300 text-yellow-900 bg-yellow-50"
                                   onClick={() => handleSuggestionClick(suggestion)}
                                 >
                                   {suggestion}
@@ -258,7 +258,7 @@ export function AiChat() {
                 <Badge
                   key={index}
                   variant="outline"
-                  className="cursor-pointer hover:bg-purple-100 hover:border-purple-400 break-words max-w-full p-2 text-center transition-all duration-200 hover:scale-105 hover:shadow-md"
+                  className="cursor-pointer hover:bg-purple-100 hover:border-purple-400 break-words max-w-full p-2 text-center transition-all duration-200 hover:scale-105 hover:shadow-md border-purple-300 text-purple-900 bg-purple-50"
                   onClick={() => handleSuggestionClick(suggestion)}
                 >
                   {suggestion}
