@@ -1,0 +1,112 @@
+[vite] connecting...
+[vite] connected.
+AuthProvider: проверка статуса аутентификации...
+AuthProvider: пользователь не авторизован, статус: 401
+API Request: POST /api/events 
+Object {eventType: "page_view", data: {…}, userId: undefined}
+[API-DEBUG] Cookies при отправке запроса: нет кук
+Перенаправление на /login, так как пользователь не авторизован
+API Request: POST /api/events 
+Object {eventType: "page_view", data: {…}, userId: undefined}
+[API-DEBUG] Cookies при отправке запроса: нет кук
+API Response: POST /api/events - Status: 201 Created
+[API-DEBUG] Заголовки ответа для POST /api/events: access-control-allow-credentials: true, access-control-allow-headers: Origin, X-Requested-With, Content-Type, Accept, Authorization, access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, access-control-allow-origin: https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev, content-length: 430, content-type: application/json; charset=utf-8, date: Sun, 22 Jun 2025 22:33:51 GMT, etag: W/"1ae-XzhvHBEEDps2nA0mPvSSIGR4zIw", replit-cluster: janeway, x-powered-by: Express, x-robots-tag: none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex, none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex
+API Response: POST /api/events - Status: 201 Created
+[API-DEBUG] Заголовки ответа для POST /api/events: access-control-allow-credentials: true, access-control-allow-headers: Origin, X-Requested-With, Content-Type, Accept, Authorization, access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, access-control-allow-origin: https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev, content-length: 421, content-type: application/json; charset=utf-8, date: Sun, 22 Jun 2025 22:33:51 GMT, etag: W/"1a5-QcQPgyCL5MA3DFx7qcPkhVIEINE", replit-cluster: janeway, x-powered-by: Express, x-robots-tag: none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex, none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex
+Кнопка входа нажата напрямую
+Начинаем процесс входа с данными: 
+Object {username: "Vitaliy Gulcheev 111", hasPassword: true}
+Отправляем запрос на /api/auth/login
+Получен ответ: 200 OK
+Получены данные пользователя: 
+Object {id: 37, username: "Vitaliy Gulcheev 111", displayName: "Vitaliy"}
+Обновляем состояние авторизации
+Проверяем перенаправление после авторизации: 
+Object {redirectAfterAuth: null, hasDiagnosticResults: true}
+Планируем стандартное перенаправление на /dashboard
+Пользователь уже авторизован, перенаправление на dashboard
+API Request: GET /api/profile?userId=37 
+[API-DEBUG] Cookies при отправке запроса: нет кук
+API Request: GET /api/diagnosis/progress/37 
+[API-DEBUG] Cookies при отправке запроса: нет кук
+API Request: GET /api/courses/recommended 
+[API-DEBUG] Cookies при отправке запроса: нет кук
+API Request: POST /api/events 
+Object {eventType: "page_view", data: {…}, userId: 37}
+[API-DEBUG] Cookies при отправке запроса: нет кук
+API Response: GET /api/profile?userId=37 - Status: 200 OK
+[API-DEBUG] Заголовки ответа для GET /api/profile?userId=37: access-control-allow-credentials: true, access-control-allow-headers: Origin, X-Requested-With, Content-Type, Accept, Authorization, access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, access-control-allow-origin: https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev, content-length: 745, content-type: application/json; charset=utf-8, date: Sun, 22 Jun 2025 22:35:01 GMT, etag: W/"2e9-JL9O/IJ3npkoxvu5nesv2lLPBgI", replit-cluster: janeway, x-powered-by: Express, x-robots-tag: none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex, none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex
+API Response: GET /api/diagnosis/progress/37 - Status: 200 OK
+[API-DEBUG] Заголовки ответа для GET /api/diagnosis/progress/37: access-control-allow-credentials: true, access-control-allow-headers: Origin, X-Requested-With, Content-Type, Accept, Authorization, access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, access-control-allow-origin: https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev, content-length: 4313, content-type: application/json; charset=utf-8, date: Sun, 22 Jun 2025 22:35:01 GMT, etag: W/"10d9-Q+oXObwOpE73mLzApMWu/nYLjdQ", replit-cluster: janeway, x-powered-by: Express, x-robots-tag: none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex, none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex
+[SkillsDnaResultsWidget] Получены детальные данные диагностики: 
+Object {data: Array(9)}
+API Response: POST /api/events - Status: 201 Created
+[API-DEBUG] Заголовки ответа для POST /api/events: access-control-allow-credentials: true, access-control-allow-headers: Origin, X-Requested-With, Content-Type, Accept, Authorization, access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, access-control-allow-origin: https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev, content-length: 431, content-type: application/json; charset=utf-8, date: Sun, 22 Jun 2025 22:35:02 GMT, etag: W/"1af-huMV5I2Ek2+cQ0ZhvObFOYIq3uI", replit-cluster: janeway, x-powered-by: Express, x-robots-tag: none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex, none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex
+Перенаправляем на /dashboard
+API Response: GET /api/courses/recommended - Status: 200 OK
+[API-DEBUG] Заголовки ответа для GET /api/courses/recommended: access-control-allow-credentials: true, access-control-allow-headers: Origin, X-Requested-With, Content-Type, Accept, Authorization, access-control-allow-methods: GET, POST, PUT, PATCH, DELETE, OPTIONS, access-control-allow-origin: https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev, content-length: 3604, content-type: application/json; charset=utf-8, date: Sun, 22 Jun 2025 22:35:02 GMT, etag: W/"e14-zk72aFHCutb5LMIHwYgTBesO7Zo", replit-cluster: janeway, x-powered-by: Express, x-robots-tag: none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex, none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex
+Brain is not defined
+at https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/src/components/ai-tutor/ai-chat.tsx:171:256
+at Array.map (<anonymous>)
+at AiChat (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/src/components/ai-tutor/ai-chat.tsx:148:18)
+at renderWithHooks (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=d50d1383:11548:26)
+at mountIndeterminateComponent (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=d50d1383:14926:21)
+at beginWork (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=d50d1383:15914:22)
+at HTMLUnknownElement.callCallback2 (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=d50d1383:3674:22)
+at Object.invokeGuardedCallbackDev (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=d50d1383:3699:24)
+at invokeGuardedCallback (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=d50d1383:3733:39)
+at beginWork$1 (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=d50d1383:19765:15)
+Brain is not defined
+at https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/src/components/ai-tutor/ai-chat.tsx:171:256
+at Array.map (<anonymous>)
+at AiChat (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/src/components/ai-tutor/ai-chat.tsx:148:18)
+at renderWithHooks (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=d50d1383:11548:26)
+at mountIndeterminateComponent (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=d50d1383:14926:21)
+at beginWork (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=d50d1383:15914:22)
+at HTMLUnknownElement.callCallback2 (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=d50d1383:3674:22)
+at Object.invokeGuardedCallbackDev (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=d50d1383:3699:24)
+at invokeGuardedCallback (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=d50d1383:3733:39)
+at beginWork$1 (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=d50d1383:19765:15)
+The above error occurred in the <AiChat> component:
+
+    at AiChat (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/src/components/ai-tutor/ai-chat.tsx:27:35)
+    at div
+    at div
+    at div
+    at div
+    at MotionComponent (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/framer-motion.js?v=d50d1383:945:40)
+    at div
+    at main
+    at div
+    at DashboardLayout (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/src/components/layout/dashboard-layout.tsx:25:35)
+    at AiTutorPage
+    at Route (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=d50d1383:323:16)
+    at ProtectedRoute (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/src/App.tsx?v=zHXoaCLvZbwxAAA4k_2wh:67:38)
+    at Switch (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=d50d1383:379:17)
+    at main
+    at div
+    at Router (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/src/App.tsx?v=zHXoaCLvZbwxAAA4k_2wh:112:31)
+    at Provider (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=d50d1383:38:15)
+    at TooltipProvider (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=d50d1383:64:5)
+    at SidebarProvider (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/src/components/layout/sidebar.tsx:32:35)
+    at AppProvider (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/src/context/app-context.tsx:26:31)
+    at TrackingProvider (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/src/context/tracking-context.tsx:27:36)
+    at UserProfileProvider (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/src/context/user-profile-context.tsx:26:39)
+    at AuthProvider (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/src/context/auth-context.tsx:27:32)
+    at QueryClientProvider (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=d50d1383:2805:3)
+    at Providers (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/src/context/providers.tsx:24:29)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+Brain is not defined
+at https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/src/components/ai-tutor/ai-chat.tsx:171:256
+at Array.map (<anonymous>)
+at AiChat (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/src/components/ai-tutor/ai-chat.tsx:148:18)
+at renderWithHooks (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=d50d1383:11548:26)
+at mountIndeterminateComponent (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=d50d1383:14926:21)
+at beginWork (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=d50d1383:15914:22)
+at beginWork$1 (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=d50d1383:19753:22)
+at performUnitOfWork (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=d50d1383:19198:20)
+at workLoopSync (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=d50d1383:19137:13)
+at renderRootSync (https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=d50d1383:19116:15)
