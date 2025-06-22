@@ -1,12 +1,28 @@
 import { Router } from 'express';
-import { OfflineAITutor } from '../../create-simple-ai-tutor.js';
+import { AiTutorService } from '../services/ai-tutor-service.js';
 
 const router = Router();
-const aiTutor = new OfflineAITutor();
+let aiTutor: AiTutorService;
+
+// Initialize AI Tutor service
+try {
+  aiTutor = new AiTutorService();
+  console.log('AI Tutor Service initialized with OpenAI');
+} catch (error) {
+  console.error('Failed to initialize AI Tutor Service:', error);
+}
 
 // AI Tutor chat endpoint
 router.post('/chat', async (req, res) => {
   try {
+    if (!aiTutor) {
+      return res.status(500).json({
+        success: false,
+        error: 'AI Tutor service not available',
+        message: 'AI-тьютор временно недоступен. Попробуйте позже.'
+      });
+    }
+
     const { message, context } = req.body;
     
     if (!message || typeof message !== 'string') {
@@ -16,13 +32,17 @@ router.post('/chat', async (req, res) => {
       });
     }
 
+    // Get user ID for conversation history
+    const userId = req.user?.id?.toString() || req.sessionID || 'anonymous';
+
     // Get response from AI tutor
-    const response = await aiTutor.chat(message);
+    const response = await aiTutor.chat(message, userId);
     
     // Log interaction for analytics
     console.log('AI Tutor interaction:', {
-      userId: req.user?.id || 'anonymous',
+      userId: userId,
       message: message.substring(0, 100),
+      success: response.success,
       timestamp: new Date().toISOString()
     });
 
