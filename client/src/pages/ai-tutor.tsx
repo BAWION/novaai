@@ -2,10 +2,12 @@ import { AiChat } from '@/components/ai-tutor/ai-chat';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Bot, Brain, BookOpen, MessageSquare, Lightbulb, Target } from 'lucide-react';
+import { PageLayout } from '@/components/layout/page-layout';
 
 export default function AiTutorPage() {
   return (
-    <div className="container mx-auto py-8 px-4">
+    <PageLayout>
+      <div className="container mx-auto py-8 px-4">
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-4">
           <Bot className="h-8 w-8 text-blue-600" />
@@ -118,6 +120,7 @@ export default function AiTutorPage() {
           </Card>
         </div>
       </div>
-    </div>
+      </div>
+    </PageLayout>
   );
 }
