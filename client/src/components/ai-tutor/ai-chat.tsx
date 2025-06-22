@@ -160,28 +160,42 @@ export function AiChat() {
                   </div>
                   
                   <div className="flex-1 min-w-0 space-y-2">
-                    <div className={`rounded-lg p-3 w-full ${
+                    <div className={`rounded-lg p-3 w-full relative ${
                       message.type === 'user'
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-100 text-gray-900'
+                        ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg'
+                        : 'bg-gradient-to-r from-gray-50 to-white text-gray-900 border border-gray-200 shadow-sm'
                     }`}>
+                      {message.type === 'ai' && (
+                        <div className="absolute -top-1 -left-1">
+                          <Brain className="h-4 w-4 text-blue-500 animate-pulse" />
+                        </div>
+                      )}
                       <div className="text-sm whitespace-pre-wrap break-words word-wrap overflow-hidden">
                         {formatMessage(message.content)}
                       </div>
+                      {message.type === 'ai' && (
+                        <div className="mt-2 flex items-center gap-2 text-xs text-gray-500">
+                          <Zap className="h-3 w-3" />
+                          <span>Powered by AI</span>
+                        </div>
+                      )}
                     </div>
                     
                     {/* AI message suggestions and topics */}
                     {message.type === 'ai' && (
                       <div className="space-y-2 min-w-0">
                         {message.suggestions && message.suggestions.length > 0 && (
-                          <div className="flex items-start gap-2 flex-wrap min-w-0">
-                            <Lightbulb className="h-3 w-3 text-yellow-600 flex-shrink-0 mt-1" />
-                            <div className="flex flex-wrap gap-1 min-w-0">
+                          <div className="p-3 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border border-yellow-200 min-w-0">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Lightbulb className="h-4 w-4 text-yellow-600 animate-bounce" />
+                              <span className="text-sm font-medium text-yellow-800">Попробуйте спросить:</span>
+                            </div>
+                            <div className="flex flex-wrap gap-2 min-w-0">
                               {message.suggestions.map((suggestion, index) => (
                                 <Badge
                                   key={index}
                                   variant="outline"
-                                  className="cursor-pointer hover:bg-blue-50 text-xs break-words max-w-full"
+                                  className="cursor-pointer hover:bg-yellow-100 hover:border-yellow-400 text-xs break-words max-w-full transition-all duration-200 hover:scale-105"
                                   onClick={() => handleSuggestionClick(suggestion)}
                                 >
                                   {suggestion}
@@ -192,16 +206,19 @@ export function AiChat() {
                         )}
                         
                         {message.relatedTopics && message.relatedTopics.length > 0 && (
-                          <div className="flex items-start gap-2 flex-wrap min-w-0">
-                            <BookOpen className="h-3 w-3 text-blue-600 flex-shrink-0 mt-1" />
+                          <div className="p-2 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <BookOpen className="h-3 w-3 text-blue-600" />
+                              <span className="text-xs font-medium text-blue-800">Связанные темы:</span>
+                            </div>
                             <div className="flex flex-wrap gap-1 min-w-0">
                               {message.relatedTopics.map((topic, index) => (
                                 <Badge
                                   key={index}
                                   variant="secondary"
-                                  className="text-xs break-words max-w-full"
+                                  className="text-xs break-words max-w-full bg-blue-100 text-blue-800 hover:bg-blue-200 transition-colors"
                                 >
-                                  {topic}
+                                  #{topic}
                                 </Badge>
                               ))}
                             </div>
@@ -231,14 +248,17 @@ export function AiChat() {
 
         {/* Quick suggestions */}
         {suggestions.length > 0 && messages.length === 1 && (
-          <div className="mb-4 min-w-0">
-            <div className="text-sm text-gray-600 mb-2">Популярные вопросы:</div>
-            <div className="flex flex-wrap gap-2 min-w-0">
+          <div className="mb-4 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200 min-w-0">
+            <div className="flex items-center gap-2 mb-3">
+              <MessageCircle className="h-4 w-4 text-purple-600 animate-pulse" />
+              <span className="text-sm font-medium text-purple-800">🔥 Популярные вопросы:</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 min-w-0">
               {suggestions.map((suggestion, index) => (
                 <Badge
                   key={index}
                   variant="outline"
-                  className="cursor-pointer hover:bg-blue-50 break-words max-w-full"
+                  className="cursor-pointer hover:bg-purple-100 hover:border-purple-400 break-words max-w-full p-2 text-center transition-all duration-200 hover:scale-105 hover:shadow-md"
                   onClick={() => handleSuggestionClick(suggestion)}
                 >
                   {suggestion}
@@ -249,18 +269,34 @@ export function AiChat() {
         )}
 
         {/* Input */}
-        <form onSubmit={handleSubmit} className="flex gap-2">
-          <Input
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            placeholder="Задайте вопрос..."
-            disabled={isLoading}
-            className="flex-1"
-          />
-          <Button type="submit" disabled={isLoading || !inputValue.trim()}>
-            <Send className="h-4 w-4" />
-          </Button>
-        </form>
+        <div className="border-t pt-4">
+          <form onSubmit={handleSubmit} className="flex gap-2">
+            <div className="flex-1 relative">
+              <Input
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                placeholder="💭 Спросите что-то интересное об ИИ..."
+                disabled={isLoading}
+                className="pr-10 border-2 border-gray-200 focus:border-blue-400 transition-colors"
+              />
+              <Brain className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            </div>
+            <Button 
+              type="submit" 
+              disabled={isLoading || !inputValue.trim()}
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all duration-200 hover:scale-105"
+            >
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
+            </Button>
+          </form>
+          <div className="text-xs text-gray-500 mt-2 text-center">
+            ✨ Powered by OpenAI GPT-4o | 🧠 Адаптивное обучение
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
