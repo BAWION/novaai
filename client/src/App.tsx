@@ -46,6 +46,7 @@ import PresentationSelector from "@/pages/presentation-selector";
 import ProductDemo from "@/pages/product-demo";
 import CourseManagement from "@/pages/course-management";
 import AdminDashboard from "@/pages/admin/index";
+import AiTutorPage from "@/pages/ai-tutor";
 
 interface ProtectedRouteProps {
   component: React.ComponentType;
@@ -139,6 +140,7 @@ function Router() {
           <ProtectedRoute path="/community" component={Community} />
           <ProtectedRoute path="/profile" component={Profile} />
           <ProtectedRoute path="/settings" component={Settings} />
+          <ProtectedRoute path="/ai-tutor" component={AiTutorPage} />
           <ProtectedRoute path="/orbital-lobby" component={OrbitalLobby} />
           <ProtectedRoute path="/personal-dashboard" component={PersonalDashboardPage} />
           
