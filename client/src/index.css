@@ -9,6 +9,14 @@
   hyphens: auto;
 }
 
+.word-wrap {
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  max-width: 100%;
+}
+
 @layer utilities {
   /* Дополнительные анимации для глубокой диагностики */
   .animate-spin-slow {
