@@ -46,9 +46,10 @@ export function AiChat() {
 
   const loadSuggestions = async () => {
     try {
-      const response = await apiRequest('/api/ai-tutor/suggestions');
-      if (response.success) {
-        setSuggestions(response.suggestions);
+      const response = await fetch('/api/ai-tutor/suggestions');
+      const data = await response.json();
+      if (data.success) {
+        setSuggestions(data.suggestions);
       }
     } catch (error) {
       console.error('Failed to load suggestions:', error);
@@ -70,8 +71,11 @@ export function AiChat() {
     setIsLoading(true);
 
     try {
-      const response = await apiRequest('/api/ai-tutor/chat', {
+      const response = await fetch('/api/ai-tutor/chat', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ 
           message: content.trim(),
           context: {
@@ -79,20 +83,22 @@ export function AiChat() {
           }
         })
       });
+      
+      const responseData = await response.json();
 
-      if (response.success) {
+      if (responseData.success) {
         const aiMessage: ChatMessage = {
           id: (Date.now() + 1).toString(),
           type: 'ai',
-          content: response.message,
+          content: responseData.message,
           timestamp: new Date(),
-          suggestions: response.suggestions,
-          relatedTopics: response.relatedTopics
+          suggestions: responseData.suggestions,
+          relatedTopics: responseData.relatedTopics
         };
 
         setMessages(prev => [...prev, aiMessage]);
       } else {
-        throw new Error(response.error || 'Failed to get AI response');
+        throw new Error(responseData.error || 'Failed to get AI response');
       }
     } catch (error) {
       console.error('Chat error:', error);
