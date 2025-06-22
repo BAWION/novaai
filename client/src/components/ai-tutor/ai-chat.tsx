@@ -141,7 +141,7 @@ export function AiChat() {
         </CardTitle>
       </CardHeader>
       
-      <CardContent className="flex-1 flex flex-col p-4 pt-0">
+      <CardContent className="flex-1 flex flex-col p-4 pt-0 min-w-0">
         {/* Messages */}
         <ScrollArea ref={scrollAreaRef} className="flex-1 pr-4 mb-4">
           <div className="space-y-4">
@@ -150,7 +150,7 @@ export function AiChat() {
                 key={message.id}
                 className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                <div className={`flex gap-3 max-w-[80%] ${message.type === 'user' ? 'flex-row-reverse' : ''}`}>
+                <div className={`flex gap-3 max-w-[80%] min-w-0 ${message.type === 'user' ? 'flex-row-reverse' : ''}`}>
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                     message.type === 'user' 
                       ? 'bg-blue-600 text-white' 
@@ -159,48 +159,52 @@ export function AiChat() {
                     {message.type === 'user' ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
                   </div>
                   
-                  <div className="space-y-2">
-                    <div className={`rounded-lg p-3 ${
+                  <div className="space-y-2 min-w-0 flex-1">
+                    <div className={`rounded-lg p-3 min-w-0 ${
                       message.type === 'user'
                         ? 'bg-blue-600 text-white'
                         : 'bg-gray-100 text-gray-900'
                     }`}>
-                      <div className="text-sm whitespace-pre-wrap">
+                      <div className="text-sm whitespace-pre-wrap break-words overflow-wrap-anywhere">
                         {formatMessage(message.content)}
                       </div>
                     </div>
                     
                     {/* AI message suggestions and topics */}
                     {message.type === 'ai' && (
-                      <div className="space-y-2">
+                      <div className="space-y-2 min-w-0">
                         {message.suggestions && message.suggestions.length > 0 && (
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <Lightbulb className="h-3 w-3 text-yellow-600" />
-                            {message.suggestions.map((suggestion, index) => (
-                              <Badge
-                                key={index}
-                                variant="outline"
-                                className="cursor-pointer hover:bg-blue-50 text-xs"
-                                onClick={() => handleSuggestionClick(suggestion)}
-                              >
-                                {suggestion}
-                              </Badge>
-                            ))}
+                          <div className="flex items-start gap-2 flex-wrap min-w-0">
+                            <Lightbulb className="h-3 w-3 text-yellow-600 flex-shrink-0 mt-1" />
+                            <div className="flex flex-wrap gap-1 min-w-0">
+                              {message.suggestions.map((suggestion, index) => (
+                                <Badge
+                                  key={index}
+                                  variant="outline"
+                                  className="cursor-pointer hover:bg-blue-50 text-xs break-words max-w-full"
+                                  onClick={() => handleSuggestionClick(suggestion)}
+                                >
+                                  {suggestion}
+                                </Badge>
+                              ))}
+                            </div>
                           </div>
                         )}
                         
                         {message.relatedTopics && message.relatedTopics.length > 0 && (
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <BookOpen className="h-3 w-3 text-blue-600" />
-                            {message.relatedTopics.map((topic, index) => (
-                              <Badge
-                                key={index}
-                                variant="secondary"
-                                className="text-xs"
-                              >
-                                {topic}
-                              </Badge>
-                            ))}
+                          <div className="flex items-start gap-2 flex-wrap min-w-0">
+                            <BookOpen className="h-3 w-3 text-blue-600 flex-shrink-0 mt-1" />
+                            <div className="flex flex-wrap gap-1 min-w-0">
+                              {message.relatedTopics.map((topic, index) => (
+                                <Badge
+                                  key={index}
+                                  variant="secondary"
+                                  className="text-xs break-words max-w-full"
+                                >
+                                  {topic}
+                                </Badge>
+                              ))}
+                            </div>
                           </div>
                         )}
                       </div>
@@ -227,14 +231,14 @@ export function AiChat() {
 
         {/* Quick suggestions */}
         {suggestions.length > 0 && messages.length === 1 && (
-          <div className="mb-4">
+          <div className="mb-4 min-w-0">
             <div className="text-sm text-gray-600 mb-2">Популярные вопросы:</div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 min-w-0">
               {suggestions.map((suggestion, index) => (
                 <Badge
                   key={index}
                   variant="outline"
-                  className="cursor-pointer hover:bg-blue-50"
+                  className="cursor-pointer hover:bg-blue-50 break-words max-w-full"
                   onClick={() => handleSuggestionClick(suggestion)}
                 >
                   {suggestion}

@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+/* AI Chat text overflow fix */
+.overflow-wrap-anywhere {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
+}
+
 @layer utilities {
   /* Дополнительные анимации для глубокой диагностики */
   .animate-spin-slow {
