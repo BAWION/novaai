@@ -151,8 +151,8 @@ function Router() {
           {/* Курсы с ИИ-ассистентом */}
           <ProtectedRoute path="/course-ai/:courseId?" component={CourseAI} />
           
-          {/* Детальная страница курса */}
-          <ProtectedRoute path="/courses/:slug" component={CoursePage} />
+          {/* Детальная страница курса - публичный доступ */}
+          <Route path="/courses/:slug" component={CoursePage} />
           
           {/* Управление курсами */}
           <ProtectedRoute path="/course-management" component={CourseManagement} />
