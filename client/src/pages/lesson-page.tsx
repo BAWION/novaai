@@ -571,73 +571,161 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
             </div>
 
             {/* Боковая панель с функциями урока */}
-            <div className="lg:col-span-1 space-y-4">
+            <div className="lg:col-span-1 space-y-4 order-2 lg:order-none">
               
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-sm">Функции урока</CardTitle>
+              {/* Мобильная версия - горизонтальные кнопки */}
+              <div className="lg:hidden grid grid-cols-2 gap-3 mb-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="justify-center py-3 px-4 border-dashed hover:border-solid transition-all duration-200"
+                  onClick={() => setUseProgressiveLearning(!useProgressiveLearning)}
+                >
+                  <LayersIcon className="h-4 w-4 mr-2 flex-shrink-0 text-purple-500" />
+                  <span className="text-xs font-medium truncate">
+                    {useProgressiveLearning ? "Обычный" : "Пошаговый"}
+                  </span>
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="justify-center py-3 px-4 border-dashed hover:border-solid transition-all duration-200"
+                  onClick={handleToggleAIAssistant}
+                >
+                  <HelpCircle className="h-4 w-4 mr-2 flex-shrink-0 text-blue-500" />
+                  <span className="text-xs font-medium">AI-Помощь</span>
+                </Button>
+              </div>
+              
+              {/* Десктопная версия - полные карточки */}
+              <div className="hidden lg:block space-y-4">
+              
+              <Card className="overflow-hidden">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-medium">Функции урока</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-2">
+                <CardContent className="space-y-3 pt-0">
                   <Button
                     variant="outline"
                     size="sm"
-                    className="w-full justify-start text-left h-auto py-2 px-3"
+                    className="w-full justify-start text-left min-h-[44px] py-3 px-4 border-dashed hover:border-solid transition-all duration-200"
                     onClick={() => setUseProgressiveLearning(!useProgressiveLearning)}
                   >
-                    <LayersIcon className="h-4 w-4 mr-2 flex-shrink-0" />
-                    <span className="text-xs leading-tight">
-                      {useProgressiveLearning ? "Обычный вид" : "Пошаговое изучение"}
-                    </span>
+                    <LayersIcon className="h-4 w-4 mr-3 flex-shrink-0 text-purple-500" />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium leading-tight truncate">
+                        {useProgressiveLearning ? "Обычный вид" : "Пошаговое изучение"}
+                      </div>
+                      <div className="text-xs text-muted-foreground leading-tight">
+                        {useProgressiveLearning ? "Переключить на стандартный" : "Структурированное обучение"}
+                      </div>
+                    </div>
                   </Button>
                   
                   <Button
                     variant="outline"
                     size="sm"
-                    className="w-full justify-start text-left h-auto py-2 px-3"
+                    className="w-full justify-start text-left min-h-[44px] py-3 px-4 border-dashed hover:border-solid transition-all duration-200"
                     onClick={handleToggleAIAssistant}
                   >
-                    <HelpCircle className="h-4 w-4 mr-2 flex-shrink-0" />
-                    <span className="text-xs leading-tight">AI-Помощник</span>
+                    <HelpCircle className="h-4 w-4 mr-3 flex-shrink-0 text-blue-500" />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium leading-tight">AI-Помощник</div>
+                      <div className="text-xs text-muted-foreground leading-tight">Получить помощь по уроку</div>
+                    </div>
                   </Button>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-sm">Прогресс урока</CardTitle>
+              <Card className="overflow-hidden">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-medium">Прогресс урока</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex justify-between text-sm">
-                      <span>Завершение</span>
-                      <span>{lesson.completed ? "100%" : "0%"}</span>
+                <CardContent className="space-y-4 pt-0">
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-muted-foreground">Завершение</span>
+                      <span className="font-medium">{lesson.completed ? "100%" : "0%"}</span>
                     </div>
                     <Progress 
                       value={lesson.completed ? 100 : 0} 
-                      className="h-2"
+                      className="h-2 bg-muted"
                     />
-                    <Button
-                      className="w-full text-left h-auto py-2 px-3"
-                      onClick={handleLessonComplete}
-                      disabled={completeLessonMutation.isPending || lesson.completed}
-                    >
+                  </div>
+                  
+                  <Button
+                    className="w-full min-h-[44px] py-3 px-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 transition-all duration-200"
+                    onClick={handleLessonComplete}
+                    disabled={completeLessonMutation.isPending || lesson.completed}
+                  >
+                    <div className="flex items-center justify-center w-full">
                       {completeLessonMutation.isPending ? (
                         <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2 flex-shrink-0"></div>
-                          <span className="text-xs leading-tight">Завершение...</span>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-3 flex-shrink-0"></div>
+                          <span className="text-sm font-medium">Завершение...</span>
                         </>
                       ) : lesson.completed ? (
                         <>
-                          <CheckCircle className="h-4 w-4 mr-2 flex-shrink-0" />
-                          <span className="text-xs leading-tight">Завершено</span>
+                          <CheckCircle className="h-4 w-4 mr-3 flex-shrink-0 text-green-400" />
+                          <span className="text-sm font-medium">Завершено</span>
                         </>
                       ) : (
-                        <span className="text-xs leading-tight">Завершить урок</span>
+                        <>
+                          <CheckCircle className="h-4 w-4 mr-3 flex-shrink-0" />
+                          <span className="text-sm font-medium">Завершить урок</span>
+                        </>
                       )}
-                    </Button>
-                  </div>
+                    </div>
+                  </Button>
+                  
+                  {lesson.completed && (
+                    <div className="text-center">
+                      <div className="inline-flex items-center justify-center w-8 h-8 bg-green-100 rounded-full mb-2">
+                        <CheckCircle className="h-5 w-5 text-green-600" />
+                      </div>
+                      <p className="text-xs text-muted-foreground">Урок успешно завершен!</p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
+              </div>
+              
+              {/* Мобильная версия прогресса */}
+              <div className="lg:hidden">
+                <Card className="overflow-hidden">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-sm font-medium">Прогресс</span>
+                      <span className="text-sm font-medium">{lesson.completed ? "100%" : "0%"}</span>
+                    </div>
+                    <Progress 
+                      value={lesson.completed ? 100 : 0} 
+                      className="h-2 mb-3"
+                    />
+                    <Button
+                      className="w-full min-h-[40px] bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                      onClick={handleLessonComplete}
+                      disabled={completeLessonMutation.isPending || lesson.completed}
+                      size="sm"
+                    >
+                      {completeLessonMutation.isPending ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          <span className="text-sm">Завершение...</span>
+                        </>
+                      ) : lesson.completed ? (
+                        <>
+                          <CheckCircle className="h-4 w-4 mr-2 text-green-400" />
+                          <span className="text-sm">Завершено</span>
+                        </>
+                      ) : (
+                        <span className="text-sm">Завершить урок</span>
+                      )}
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
           </div>
 
