@@ -161,7 +161,7 @@ export default function HomePage() {
                   Освойте <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-purple-500 to-secondary">искусственный интеллект</span> и стройте карьеру будущего
                 </h1>
                 <p className="text-base sm:text-lg md:text-xl text-white/80 mb-6 sm:mb-8 max-w-xl">
-                  NovaAI University — это <span className="font-bold text-white">преимущественно бесплатная</span> образовательная платформа для <span className="font-bold text-white">всех уровней</span> — от школьников до Senior-разработчиков, с адаптивной AI-системой обучения.
+                  NovaAI Academy — это <span className="font-bold text-white">преимущественно бесплатная</span> образовательная платформа для <span className="font-bold text-white">всех уровней</span> — от школьников до Senior-разработчиков, с адаптивной AI-системой обучения.
                 </p>
                 <div className="flex flex-wrap gap-3 sm:gap-4">
                   <a href="/onboarding-intro" className="inline-block py-2 sm:py-3 px-4 sm:px-8 text-base sm:text-lg rounded bg-primary hover:bg-primary/90 active:bg-primary/80 transition-colors text-white no-underline font-medium tap-highlight-none">
@@ -229,7 +229,7 @@ export default function HomePage() {
         <section id="features" className="py-12 sm:py-16 md:py-20 px-4 sm:px-6">
           <div className="container mx-auto">
             <div className="text-center mb-8 sm:mb-12 md:mb-16">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">Почему выбирают NovaAI University</h2>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">Почему выбирают NovaAI </h2>
               <p className="text-base sm:text-lg md:text-xl text-white/70 max-w-2xl mx-auto">
                 Платформа, где <span className="font-bold text-white">ИИ сам проектирует и обновляет</span> образовательный контент, а вы <span className="font-bold text-white">мгновенно применяете</span> новые навыки
               </p>
