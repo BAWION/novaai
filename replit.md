@@ -117,10 +117,12 @@ NovaAI University is a comprehensive AI-powered educational platform built with 
 
 ## Changelog
 
-- June 23, 2025: Добавлена интеграция с Telegram каналом @humanreadytech в раздел сообщества
+- June 23, 2025: Завершена интеграция с Telegram каналом @humanreadytech
   - Создан компонент TelegramFeed для отображения ленты новостей
-  - Добавлен API эндпоинт /api/telegram для работы с Telegram данными
-  - Реализована лента новостей с функциями просмотра, хештегами и статистикой
+  - Добавлен API эндпоинт /api/telegram с web scraping функциональностью
+  - Реализована лента новостей с автоматическим обновлением каждые 5 минут
+  - Убрано уведомление об источнике данных для чистоты интерфейса
+  - Лента новостей успешно интегрирована в раздел "Сообщества"
 - June 23, 2025. Initial setup
 
 ## User Preferences

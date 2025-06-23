@@ -30,33 +30,37 @@ export default function TelegramFeed() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const fetchTelegramPosts = async () => {
+    try {
+      const response = await fetch('/api/telegram/channel/humanreadytech/posts?limit=10');
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.success && data.posts && data.posts.length > 0) {
+        setPosts(data.posts);
+        setError(null); // Убираем уведомление при успешной загрузке
+        setLoading(false);
+        return true; // Успешно получили данные
+      } else {
+        console.warn('Нет данных от API, используем fallback');
+        return false;
+      }
+    } catch (err) {
+      console.error('Ошибка получения данных Telegram:', err);
+      return false;
+    }
+  };
+
   useEffect(() => {
-    const fetchTelegramPosts = async () => {
-      try {
-        const response = await fetch('/api/telegram/channel/humanreadytech/posts?limit=10');
-        
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        
-        const data = await response.json();
-        
-        if (data.success && data.posts && data.posts.length > 0) {
-          setPosts(data.posts);
-          // Показываем источник данных
-          if (data.source === 'web-scraping') {
-            setError("Данные получены через парсинг публичной страницы канала.");
-          } else if (data.source === 'telegram-api') {
-            setError(null); // Убираем ошибку, если данные из API
-          }
-          setLoading(false);
-          return; // Успешно получили данные, выходим
-        } else {
-          console.warn('Нет данных от API, используем fallback');
-        }
-      } catch (err) {
-        console.error('Ошибка получения данных Telegram:', err);
-        // Fallback к демонстрационным данным в случае ошибки
+    const loadInitialData = async () => {
+      const success = await fetchTelegramPosts();
+      
+      if (!success) {
+        // Fallback к демонстрационным данным только при ошибке
         const mockPosts: MockTelegramPost[] = [
           {
             id: "1",
@@ -102,7 +106,14 @@ export default function TelegramFeed() {
       setLoading(false);
     };
 
-    fetchTelegramPosts();
+    loadInitialData();
+
+    // Автоматическое обновление каждые 5 минут
+    const interval = setInterval(async () => {
+      await fetchTelegramPosts();
+    }, 5 * 60 * 1000); // 5 минут
+
+    return () => clearInterval(interval);
   }, []);
 
   const formatDate = (dateString: string) => {
@@ -177,7 +188,7 @@ export default function TelegramFeed() {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {error && (
+        {error && error.includes("демонстрационные данные") && (
           <Alert className="mb-4">
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>{error}</AlertDescription>
