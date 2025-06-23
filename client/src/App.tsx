@@ -47,6 +47,7 @@ import ProductDemo from "@/pages/product-demo";
 import CourseManagement from "@/pages/course-management";
 import AdminDashboard from "@/pages/admin/index";
 import AiTutorPage from "@/pages/ai-tutor";
+import BusinessAIPage from "@/pages/business-ai";
 
 interface ProtectedRouteProps {
   component: React.ComponentType;
@@ -146,6 +147,7 @@ function Router() {
           
           {/* Business AI Module Routes */}
           <ProtectedRoute path="/business" component={BusinessAIOverview} />
+          <ProtectedRoute path="/business-ai" component={BusinessAIPage} />
           <ProtectedRoute path="/business/cases" component={CaseLibrary} />
           
           {/* Курсы с ИИ-ассистентом */}
