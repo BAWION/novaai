@@ -43,6 +43,12 @@ export default function TelegramFeed() {
         
         if (data.success) {
           setPosts(data.posts);
+          // Показываем источник данных
+          if (data.source === 'mock-data') {
+            setError("Используются демонстрационные данные. Настройте TELEGRAM_BOT_TOKEN для получения реальных постов.");
+          } else {
+            setError(null); // Убираем ошибку, если данные реальные
+          }
         } else {
           throw new Error(data.message);
         }
@@ -87,7 +93,7 @@ export default function TelegramFeed() {
         ];
         
         setPosts(mockPosts);
-        setError("Используются демонстрационные данные");
+        setError("Не удалось подключиться к Telegram API. Используются демонстрационные данные.");
       } finally {
         setLoading(false);
       }

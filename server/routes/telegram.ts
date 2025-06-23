@@ -1,10 +1,11 @@
 import { Router } from 'express';
+import fetch from 'node-fetch';
 
 const router = Router();
 
-// Прокси для получения постов из Telegram канала
-// В продакшене здесь может быть интеграция с Telegram Bot API
-// или RSS фидом канала
+// Реальная интеграция с Telegram Bot API для получения постов из канала
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const CHANNEL_USERNAME = 'humanreadytech';
 
 interface TelegramPost {
   id: string;
@@ -18,14 +19,95 @@ interface TelegramPost {
   };
 }
 
+// Функция для получения реальных постов из Telegram канала
+async function fetchTelegramChannelPosts(channelName: string, limit: number = 10): Promise<TelegramPost[]> {
+  if (!TELEGRAM_BOT_TOKEN) {
+    throw new Error('TELEGRAM_BOT_TOKEN not configured');
+  }
+
+  try {
+    // Получаем информацию о канале
+    const channelResponse = await fetch(
+      `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getChat?chat_id=@${channelName}`
+    );
+    
+    if (!channelResponse.ok) {
+      throw new Error(`Failed to get channel info: ${channelResponse.statusText}`);
+    }
+
+    // Получаем последние сообщения из канала (через getUpdates с channel_post)
+    // Альтернативно можно использовать getChatHistory, но это требует дополнительных разрешений
+    const updatesResponse = await fetch(
+      `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates?allowed_updates=["channel_post"]&limit=${limit}`
+    );
+    
+    if (!updatesResponse.ok) {
+      throw new Error(`Failed to get updates: ${updatesResponse.statusText}`);
+    }
+
+    const updatesData = await updatesResponse.json() as any;
+    
+    if (!updatesData.ok) {
+      throw new Error(`Telegram API error: ${updatesData.description}`);
+    }
+
+    // Фильтруем и преобразуем сообщения в формат TelegramPost
+    const posts: TelegramPost[] = updatesData.result
+      .filter((update: any) => 
+        update.channel_post && 
+        update.channel_post.chat.username === channelName &&
+        update.channel_post.text
+      )
+      .map((update: any) => {
+        const post = update.channel_post;
+        return {
+          id: post.message_id.toString(),
+          text: post.text,
+          date: new Date(post.date * 1000).toISOString(),
+          views: post.views || undefined,
+          link: `https://t.me/${channelName}/${post.message_id}`,
+          media: post.photo || post.video ? {
+            type: post.photo ? 'photo' : 'video',
+            url: post.photo ? `https://api.telegram.org/file/bot${TELEGRAM_BOT_TOKEN}/${post.photo[0].file_path}` : ''
+          } : undefined
+        };
+      })
+      .slice(0, limit);
+
+    return posts;
+
+  } catch (error) {
+    console.error('Error fetching Telegram posts:', error);
+    throw error;
+  }
+}
+
 // GET /api/telegram/channel/:channelName/posts
 router.get('/channel/:channelName/posts', async (req, res) => {
   try {
     const { channelName } = req.params;
     const limit = parseInt(req.query.limit as string) || 10;
 
-    // Для демонстрации возвращаем моковые данные
-    // В продакшене здесь будет реальный API запрос
+    // Пытаемся получить реальные данные из Telegram
+    if (channelName === 'humanreadytech' && TELEGRAM_BOT_TOKEN) {
+      try {
+        const posts = await fetchTelegramChannelPosts(channelName, limit);
+        
+        res.json({
+          success: true,
+          channel: channelName,
+          posts: posts,
+          total: posts.length,
+          source: 'telegram-api'
+        });
+        return;
+      } catch (telegramError) {
+        console.error('Telegram API error, falling back to mock data:', telegramError);
+        // Продолжаем с демонстрационными данными в случае ошибки API
+      }
+    }
+
+    // Fallback к демонстрационным данным
     if (channelName === 'humanreadytech') {
       const mockPosts: TelegramPost[] = [
         {
@@ -72,7 +154,8 @@ router.get('/channel/:channelName/posts', async (req, res) => {
         success: true,
         channel: channelName,
         posts: limitedPosts,
-        total: mockPosts.length
+        total: mockPosts.length,
+        source: 'mock-data'
       });
     } else {
       res.status(404).json({
