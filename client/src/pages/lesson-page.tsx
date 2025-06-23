@@ -76,13 +76,6 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
   // Определяем контекст курса для навигации
   const courseContext = inCourseContext || "ai-literacy-101";
 
-  // Initialize note content when lesson note loads
-  useEffect(() => {
-    if (lessonNote) {
-      setNoteContent(lessonNote.content || "");
-    }
-  }, [lessonNote]);
-
   // Запрос данных урока
   const { data: lesson, isLoading: lessonLoading } = useQuery<Lesson>({
     queryKey: [`/api/lessons/${lessonId}`],
@@ -115,6 +108,13 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
       return await response.json();
     }
   });
+
+  // Initialize note content when lesson note loads
+  useEffect(() => {
+    if (lessonNote) {
+      setNoteContent(lessonNote.content || "");
+    }
+  }, [lessonNote]);
 
   // Запрос данных модуля
   const { data: module, isLoading: moduleLoading } = useQuery<Module>({
@@ -657,7 +657,7 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                         <div>
                           <CardTitle>Заметки к уроку</CardTitle>
                           <CardDescription>
-                            Ваши личные заметки по уроку "{lesson.title}"
+                            Ваши личные заметки по уроку "{lesson?.title || 'Урок'}"
                           </CardDescription>
                         </div>
                         <div className="flex gap-2">
