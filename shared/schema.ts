@@ -816,7 +816,10 @@ export type UserProfile = typeof userProfiles.$inferSelect;
 export type Course = typeof courses.$inferSelect;
 export type CourseModule = typeof courseModules.$inferSelect;
 export type Lesson = typeof lessons.$inferSelect;
+export type LessonNote = typeof lessonNotes.$inferSelect;
 export type Assignment = typeof assignments.$inferSelect;
+
+export type InsertLessonNote = typeof lessonNotes.$inferInsert;
 export type UserCourseProgress = typeof userCourseProgress.$inferSelect;
 export type UserLessonProgress = typeof userLessonProgress.$inferSelect;
 export type UserAssignmentResult = typeof userAssignmentResults.$inferSelect;

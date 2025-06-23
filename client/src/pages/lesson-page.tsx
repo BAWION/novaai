@@ -8,8 +8,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, ArrowLeft, ArrowRight, BookOpen, Clock, Video, FileText, HelpCircle, LayersIcon, Edit3 } from "lucide-react";
+import { CheckCircle, ArrowLeft, ArrowRight, BookOpen, Clock, Video, FileText, HelpCircle, LayersIcon, Edit3, Save, Trash2 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 import { AIAssistantPanel } from "@/components/courses/ai-assistant-panel";
 import { Glassmorphism } from "@/components/ui/glassmorphism";
 import { queryClient } from "@/lib/queryClient";
@@ -55,6 +56,8 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
   const [isAIMinimized, setIsAIMinimized] = useState(false);
   const [userSkillsLevel, setUserSkillsLevel] = useState<'beginner' | 'intermediate' | 'advanced'>('intermediate');
   const [useProgressiveLearning, setUseProgressiveLearning] = useState(false);
+  const [noteContent, setNoteContent] = useState("");
+  const [isNoteSaving, setIsNoteSaving] = useState(false);
 
   // Проверка аутентификации
   useEffect(() => {
@@ -73,6 +76,13 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
   // Определяем контекст курса для навигации
   const courseContext = inCourseContext || "ai-literacy-101";
 
+  // Initialize note content when lesson note loads
+  useEffect(() => {
+    if (lessonNote) {
+      setNoteContent(lessonNote.content || "");
+    }
+  }, [lessonNote]);
+
   // Запрос данных урока
   const { data: lesson, isLoading: lessonLoading } = useQuery<Lesson>({
     queryKey: [`/api/lessons/${lessonId}`],
@@ -89,6 +99,20 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
         console.error('Ошибка при загрузке урока:', error);
         throw error;
       }
+    }
+  });
+
+  // Load lesson note
+  const { data: lessonNote } = useQuery({
+    queryKey: [`/api/lessons/${lessonId}/notes`],
+    enabled: !!lessonId && !!user,
+    queryFn: async () => {
+      const response = await fetch(`/api/lessons/${lessonId}/notes`);
+      if (!response.ok) {
+        if (response.status === 404) return { content: "" };
+        throw new Error('Не удалось загрузить заметку');
+      }
+      return await response.json();
     }
   });
 
@@ -211,6 +235,80 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
   const handleLessonComplete = () => {
     completeLessonMutation.mutate();
   };
+
+  // Save lesson note mutation
+  const saveNoteMutation = useMutation({
+    mutationFn: async (content: string) => {
+      const response = await fetch(`/api/lessons/${lessonId}/notes`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ content }),
+      });
+      if (!response.ok) {
+        throw new Error('Не удалось сохранить заметку');
+      }
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/lessons/${lessonId}/notes`] });
+      toast({
+        title: "Заметка сохранена",
+        description: "Ваша заметка успешно сохранена",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Ошибка",
+        description: "Не удалось сохранить заметку",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Delete lesson note mutation
+  const deleteNoteMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch(`/api/lessons/${lessonId}/notes`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        throw new Error('Не удалось удалить заметку');
+      }
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/lessons/${lessonId}/notes`] });
+      setNoteContent("");
+      toast({
+        title: "Заметка удалена",
+        description: "Заметка успешно удалена",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Ошибка",
+        description: "Не удалось удалить заметку",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleSaveNote = () => {
+    if (!user) return;
+    setIsNoteSaving(true);
+    saveNoteMutation.mutate(noteContent, {
+      onSettled: () => setIsNoteSaving(false),
+    });
+  };
+
+  const handleDeleteNote = () => {
+    if (!user) return;
+    deleteNoteMutation.mutate();
+  };
+
+  const hasNoteChanged = noteContent !== (lessonNote?.content || "");
 
   // Создаем короткие части для урока (по 2-5 минут каждая)
   const createMicroSections = (lessonContent: string) => {
