@@ -760,7 +760,7 @@ export default function HomePage() {
             </div>
           </div>
           <div className="pt-6 border-t border-white/10 text-center text-white/50">
-            <p>© 2025 NovaAI University. Все права защищены.</p>
+            <p>© 2025 NovaAI Academy. Все права защищены.</p>
             {/* Admin Easter Egg */}
             <div 
               className="inline-block mt-2 cursor-pointer hover:scale-110 transition-all duration-300 opacity-30 hover:opacity-70"
