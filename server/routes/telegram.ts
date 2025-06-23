@@ -19,6 +19,50 @@ interface TelegramPost {
   };
 }
 
+// Функция для парсинга публичной страницы канала (Web Scraping)
+async function scrapeChannelPosts(channelName: string, limit: number = 10): Promise<TelegramPost[]> {
+  try {
+    const response = await fetch(`https://t.me/s/${channelName}`);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch channel page: ${response.statusText}`);
+    }
+    
+    const html = await response.text();
+    
+    // Простой парсинг HTML для извлечения постов
+    const posts: TelegramPost[] = [];
+    
+    // Ищем блоки с постами через регулярные выражения
+    const postRegex = /<div class="tgme_widget_message.*?data-post="[^"]+\/(\d+)".*?<div class="tgme_widget_message_text[^>]*>(.*?)<\/div>.*?<time[^>]*datetime="([^"]+)"/gs;
+    
+    let match;
+    let postCount = 0;
+    
+    while ((match = postRegex.exec(html)) && postCount < limit) {
+      const messageId = match[1];
+      const textContent = match[2]?.replace(/<[^>]*>/g, '').trim(); // Удаляем HTML теги
+      const dateStr = match[3];
+      
+      if (textContent && textContent.length > 10) { // Фильтруем слишком короткие посты
+        posts.push({
+          id: messageId,
+          text: textContent,
+          date: new Date(dateStr).toISOString(),
+          link: `https://t.me/${channelName}/${messageId}`,
+          views: undefined
+        });
+        postCount++;
+      }
+    }
+    
+    return posts.reverse(); // Возвращаем в хронологическом порядке
+    
+  } catch (error) {
+    console.error('Error scraping channel posts:', error);
+    throw error;
+  }
+}
+
 // Функция для получения реальных постов из Telegram канала
 async function fetchTelegramChannelPosts(channelName: string, limit: number = 10): Promise<TelegramPost[]> {
   if (!TELEGRAM_BOT_TOKEN) {
@@ -26,29 +70,31 @@ async function fetchTelegramChannelPosts(channelName: string, limit: number = 10
   }
 
   try {
-    // Получаем информацию о канале
+    // Проверяем доступ к каналу
     const channelResponse = await fetch(
       `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getChat?chat_id=@${channelName}`
     );
     
     if (!channelResponse.ok) {
-      throw new Error(`Failed to get channel info: ${channelResponse.statusText}`);
+      console.log(`Telegram API getChat failed, trying web scraping...`);
+      return await scrapeChannelPosts(channelName, limit);
     }
 
-    // Получаем последние сообщения из канала (через getUpdates с channel_post)
-    // Альтернативно можно использовать getChatHistory, но это требует дополнительных разрешений
+    // Получаем webhook updates (новые сообщения)
     const updatesResponse = await fetch(
       `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates?allowed_updates=["channel_post"]&limit=${limit}`
     );
     
     if (!updatesResponse.ok) {
-      throw new Error(`Failed to get updates: ${updatesResponse.statusText}`);
+      console.log(`Telegram API getUpdates failed, trying web scraping...`);
+      return await scrapeChannelPosts(channelName, limit);
     }
 
     const updatesData = await updatesResponse.json() as any;
     
     if (!updatesData.ok) {
-      throw new Error(`Telegram API error: ${updatesData.description}`);
+      console.log(`Telegram API error: ${updatesData.description}, trying web scraping...`);
+      return await scrapeChannelPosts(channelName, limit);
     }
 
     // Фильтруем и преобразуем сообщения в формат TelegramPost
@@ -74,11 +120,17 @@ async function fetchTelegramChannelPosts(channelName: string, limit: number = 10
       })
       .slice(0, limit);
 
+    // Если через API ничего не получили, пробуем web scraping
+    if (posts.length === 0) {
+      console.log('No posts from Telegram API, trying web scraping...');
+      return await scrapeChannelPosts(channelName, limit);
+    }
+
     return posts;
 
   } catch (error) {
-    console.error('Error fetching Telegram posts:', error);
-    throw error;
+    console.error('Error fetching Telegram posts via API, trying web scraping:', error);
+    return await scrapeChannelPosts(channelName, limit);
   }
 }
 
@@ -93,12 +145,14 @@ router.get('/channel/:channelName/posts', async (req, res) => {
       try {
         const posts = await fetchTelegramChannelPosts(channelName, limit);
         
+        const sourceType = posts.length > 0 && posts[0].views ? 'telegram-api' : 'web-scraping';
+        
         res.json({
           success: true,
           channel: channelName,
           posts: posts,
           total: posts.length,
-          source: 'telegram-api'
+          source: sourceType
         });
         return;
       } catch (telegramError) {

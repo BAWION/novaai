@@ -46,8 +46,10 @@ export default function TelegramFeed() {
           // Показываем источник данных
           if (data.source === 'mock-data') {
             setError("Используются демонстрационные данные. Настройте TELEGRAM_BOT_TOKEN для получения реальных постов.");
+          } else if (data.source === 'web-scraping') {
+            setError("Данные получены через парсинг публичной страницы канала.");
           } else {
-            setError(null); // Убираем ошибку, если данные реальные
+            setError(null); // Убираем ошибку, если данные из API
           }
         } else {
           throw new Error(data.message);
