@@ -54,7 +54,7 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
   const [showAIAssistant, setShowAIAssistant] = useState(false);
   const [isAIMinimized, setIsAIMinimized] = useState(false);
   const [userSkillsLevel, setUserSkillsLevel] = useState<'beginner' | 'intermediate' | 'advanced'>('intermediate');
-  const [useProgressiveLearning, setUseProgressiveLearning] = useState(true);
+  const [useProgressiveLearning, setUseProgressiveLearning] = useState(false);
 
   // Проверка аутентификации
   useEffect(() => {
@@ -581,23 +581,23 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="w-full justify-start text-left overflow-hidden"
+                    className="w-full justify-start text-left h-auto py-2 px-3"
                     onClick={() => setUseProgressiveLearning(!useProgressiveLearning)}
                   >
                     <LayersIcon className="h-4 w-4 mr-2 flex-shrink-0" />
-                    <span className="truncate">
-  {useProgressiveLearning ? "Обычный вид" : "Пошаговое изучение"}
+                    <span className="text-xs leading-tight">
+                      {useProgressiveLearning ? "Обычный вид" : "Пошаговое изучение"}
                     </span>
                   </Button>
                   
                   <Button
                     variant="outline"
                     size="sm"
-                    className="w-full justify-start text-left overflow-hidden"
+                    className="w-full justify-start text-left h-auto py-2 px-3"
                     onClick={handleToggleAIAssistant}
                   >
                     <HelpCircle className="h-4 w-4 mr-2 flex-shrink-0" />
-                    <span className="truncate">AI-Помощник</span>
+                    <span className="text-xs leading-tight">AI-Помощник</span>
                   </Button>
                 </CardContent>
               </Card>
@@ -617,22 +617,22 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                       className="h-2"
                     />
                     <Button
-                      className="w-full text-left overflow-hidden"
+                      className="w-full text-left h-auto py-2 px-3"
                       onClick={handleLessonComplete}
                       disabled={completeLessonMutation.isPending || lesson.completed}
                     >
                       {completeLessonMutation.isPending ? (
                         <>
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2 flex-shrink-0"></div>
-                          <span className="truncate">Завершение...</span>
+                          <span className="text-xs leading-tight">Завершение...</span>
                         </>
                       ) : lesson.completed ? (
                         <>
                           <CheckCircle className="h-4 w-4 mr-2 flex-shrink-0" />
-                          <span className="truncate">Завершено</span>
+                          <span className="text-xs leading-tight">Завершено</span>
                         </>
                       ) : (
-                        <span className="truncate">Завершить урок</span>
+                        <span className="text-xs leading-tight">Завершить урок</span>
                       )}
                     </Button>
                   </div>
