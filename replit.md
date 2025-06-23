@@ -53,6 +53,12 @@ NovaAI University is a comprehensive AI-powered educational platform built with 
 - Achievement system with milestones
 - Analytics dashboard for learning insights
 
+### 6. Community Integration
+- Telegram channel integration (@humanreadytech)
+- News feed with posts, hashtags, and engagement metrics
+- Real-time content updates from external sources
+- Social features for community engagement
+
 ## Data Flow
 
 ### User Authentication Flow
@@ -111,6 +117,10 @@ NovaAI University is a comprehensive AI-powered educational platform built with 
 
 ## Changelog
 
+- June 23, 2025: Добавлена интеграция с Telegram каналом @humanreadytech в раздел сообщества
+  - Создан компонент TelegramFeed для отображения ленты новостей
+  - Добавлен API эндпоинт /api/telegram для работы с Telegram данными
+  - Реализована лента новостей с функциями просмотра, хештегами и статистикой
 - June 23, 2025. Initial setup
 
 ## User Preferences
