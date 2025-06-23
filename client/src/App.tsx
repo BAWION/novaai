@@ -48,6 +48,7 @@ import CourseManagement from "@/pages/course-management";
 import AdminDashboard from "@/pages/admin/index";
 import AiTutorPage from "@/pages/ai-tutor";
 import BusinessAIPage from "@/pages/business-ai";
+import CourseDetailPage from "@/pages/course-detail";
 
 interface ProtectedRouteProps {
   component: React.ComponentType;
@@ -155,6 +156,9 @@ function Router() {
           
           {/* Детальная страница курса - публичный доступ */}
           <Route path="/courses/:slug" component={CoursePage} />
+          
+          {/* Подробный просмотр курса с полной структурой */}
+          <ProtectedRoute path="/courses/:slug/detail" component={CourseDetailPage} />
           
           {/* Управление курсами */}
           <ProtectedRoute path="/course-management" component={CourseManagement} />
