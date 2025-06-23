@@ -805,7 +805,7 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                     <LayersIcon className="h-4 w-4 mr-3 flex-shrink-0 text-purple-500" />
                     <div className="flex flex-col items-start text-left flex-1 min-w-0">
                       <div className="text-sm font-medium leading-5 text-foreground">
-                        {useProgressiveLearning ? "Обычный вид" : "Пошаговое изучение"}
+                        {useProgressiveLearning ? "Обычный вид" : "Пошагово"}
                       </div>
                       <div className="text-xs text-muted-foreground leading-4 mt-1">
                         {useProgressiveLearning ? "Стандартный режим" : "Пошаговый режим"}

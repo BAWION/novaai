@@ -161,7 +161,6 @@ export function Sidebar() {
           onClick={() => setIsOpen(false)}
         />
       )}
-
       {/* Sidebar - переработан для стабильного отображения */}
       <div
         className="fixed top-0 bottom-0 z-50 bg-space-800/90 backdrop-blur-sm border-r border-white/10 flex flex-col transition-all duration-300"
@@ -193,7 +192,7 @@ export function Sidebar() {
             <h1 className="font-orbitron font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#B28DFF] to-[#8BE0F7]">
               NovaAI
             </h1>
-            <p className="text-white/50 text-xs">University</p>
+            <p className="text-white/50 text-xs">Academy</p>
           </div>
         </div>
 
@@ -242,7 +241,6 @@ export function Sidebar() {
           </div>
         </div>
       </div>
-
       {/* Toggle button (показывает в правильном месте в зависимости от состояния) */}
       <button
         className="fixed top-4 z-50 w-10 h-10 rounded-lg bg-space-800 border border-white/20 flex items-center justify-center transition-all duration-300"
