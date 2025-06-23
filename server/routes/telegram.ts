@@ -39,20 +39,63 @@ async function scrapeChannelPosts(channelName: string, limit: number = 10): Prom
     let postCount = 0;
     
     while ((match = postRegex.exec(html)) && postCount < limit) {
-      const messageId = match[1];
-      const textContent = match[2]?.replace(/<[^>]*>/g, '').trim(); // Удаляем HTML теги
-      const dateStr = match[3];
+      let textContent = match[1]?.replace(/<[^>]*>/g, '').trim(); // Удаляем HTML теги
       
-      if (textContent && textContent.length > 10) { // Фильтруем слишком короткие посты
+      // Декодируем HTML entities
+      textContent = textContent?.replace(/&amp;/g, '&')
+                              .replace(/&lt;/g, '<')
+                              .replace(/&gt;/g, '>')
+                              .replace(/&quot;/g, '"')
+                              .replace(/&#33;/g, '!')
+                              .replace(/&#39;/g, "'");
+      
+      if (textContent && textContent.length > 50) { // Фильтруем слишком короткие посты
         posts.push({
-          id: messageId,
-          text: textContent,
-          date: new Date(dateStr).toISOString(),
-          link: `https://t.me/${channelName}/${messageId}`,
+          id: `post_${postCount + 1}`,
+          text: textContent.substring(0, 500) + (textContent.length > 500 ? '...' : ''), // Ограничиваем длину
+          date: new Date().toISOString(), // Используем текущую дату
+          link: `https://t.me/${channelName}`,
           views: undefined
         });
         postCount++;
       }
+    }
+    
+    console.log(`[Telegram Scraping] Найдено постов: ${posts.length} из ${limit} запрошенных`);
+    
+    // Если ничего не нашли через основное регулярное выражение, пробуем более простой метод
+    if (posts.length === 0) {
+      console.log('[Telegram Scraping] Основное регулярное выражение не сработало, пробуем более простой метод...');
+      
+      // Очень простой метод: парсим JSON-LD данные или ищем текст в постах
+      const messageBlocks = html.match(/<div[^>]*class="[^"]*tgme_widget_message[^"]*"[^>]*>/g);
+      console.log(`[Telegram Scraping] Найдено блоков сообщений: ${messageBlocks?.length || 0}`);
+      
+      // Попробуем найти хотя бы текст постов
+      const textBlocks = html.match(/<div[^>]*class="[^"]*tgme_widget_message_text[^"]*"[^>]*>(.*?)<\/div>/gs);
+      console.log(`[Telegram Scraping] Найдено текстовых блоков: ${textBlocks?.length || 0}`);
+      
+      if (textBlocks && textBlocks.length > 0) {
+        textBlocks.slice(0, limit).forEach((block, index) => {
+          const textMatch = block.match(/<div[^>]*>(.*?)<\/div>/s);
+          if (textMatch && textMatch[1]) {
+            let text = textMatch[1].replace(/<[^>]*>/g, '').trim();
+            text = text.replace(/&amp;/g, '&').replace(/&#33;/g, '!').replace(/&#39;/g, "'");
+            
+            if (text.length > 20) {
+              posts.push({
+                id: `scraped_${index + 1}`,
+                text: text.substring(0, 400) + (text.length > 400 ? '...' : ''),
+                date: new Date().toISOString(), // Используем текущую дату как fallback
+                link: `https://t.me/${channelName}`,
+                views: undefined
+              });
+            }
+          }
+        });
+      }
+      
+      console.log(`[Telegram Scraping] Упрощенный метод нашел: ${posts.length} постов`);
     }
     
     return posts.reverse(); // Возвращаем в хронологическом порядке
