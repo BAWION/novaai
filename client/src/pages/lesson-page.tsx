@@ -555,15 +555,73 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                 <TabsContent value="notes">
                   <Card className="shadow-lg">
                     <CardHeader>
-                      <CardTitle>Заметки</CardTitle>
-                      <CardDescription>
-                        Ваши личные заметки по уроку
-                      </CardDescription>
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <CardTitle>Заметки к уроку</CardTitle>
+                          <CardDescription>
+                            Ваши личные заметки по уроку "{lesson.title}"
+                          </CardDescription>
+                        </div>
+                        <div className="flex gap-2">
+                          {noteContent.trim() && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={handleDeleteNote}
+                              disabled={deleteNoteMutation.isPending}
+                            >
+                              <Trash2 className="h-4 w-4 mr-1" />
+                              Удалить
+                            </Button>
+                          )}
+                          <Button
+                            size="sm"
+                            onClick={handleSaveNote}
+                            disabled={!hasNoteChanged || isNoteSaving || !user}
+                            className="bg-primary hover:bg-primary/90"
+                          >
+                            {isNoteSaving ? (
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-1"></div>
+                            ) : (
+                              <Save className="h-4 w-4 mr-1" />
+                            )}
+                            Сохранить
+                          </Button>
+                        </div>
+                      </div>
                     </CardHeader>
-                    <CardContent>
-                      <p className="text-muted-foreground">
-                        Функция заметок будет доступна в будущих версиях
-                      </p>
+                    <CardContent className="space-y-4">
+                      {!user ? (
+                        <div className="text-center py-8">
+                          <p className="text-muted-foreground mb-4">
+                            Войдите в систему, чтобы создавать заметки к урокам
+                          </p>
+                          <Button onClick={() => window.location.href = "/login"}>
+                            Войти
+                          </Button>
+                        </div>
+                      ) : (
+                        <>
+                          <Textarea
+                            placeholder="Введите ваши заметки по уроку..."
+                            value={noteContent}
+                            onChange={(e) => setNoteContent(e.target.value)}
+                            className="min-h-[300px] resize-y"
+                          />
+                          
+                          {hasNoteChanged && (
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                              Есть несохраненные изменения
+                            </div>
+                          )}
+
+                          <div className="text-xs text-muted-foreground">
+                            Заметки автоматически сохраняются в вашем профиле и доступны только вам.
+                            Вы можете использовать их для запоминания ключевых моментов урока.
+                          </div>
+                        </>
+                      )}
                     </CardContent>
                   </Card>
                 </TabsContent>
