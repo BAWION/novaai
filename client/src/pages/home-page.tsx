@@ -707,7 +707,7 @@ export default function HomePage() {
         <div className="container mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
             <div>
-              <h3 className="text-xl font-bold mb-4">NovaAI University</h3>
+              <h3 className="text-xl font-bold mb-4">NovaAI Academy</h3>
               <p className="text-white/70 mb-4">
                 Образовательная платформа нового поколения для изучения искусственного интеллекта и науки о данных.
               </p>
