@@ -35,32 +35,6 @@ export const coursesCatalog: CatalogCourse[] = [
   // 1. БАЗОВАЯ ГРАМОТНОСТЬ
   {
     id: uuidv4(),
-    title: "AI Literacy 101",
-    description: "Введение в мир искусственного интеллекта: основные понятия, история развития, современные возможности и ограничения технологии.",
-    icon: "lightbulb",
-    modules: 5,
-    level: "beginner",
-    category: ["ai", "fundamentals", "literacy"],
-    track: "Базовая грамотность",
-    subTrack: "AI Literacy 101",
-    instructor: "NOVA AI Ассистент",
-    duration: "4 часа",
-    rating: 4.7,
-    enrolled: 3245,
-    updated: "2025-04-15",
-    color: "primary",
-    themeStyle: "space",
-    skillMatch: {
-      percentage: 100,
-      label: "Рекомендуем всем новичкам",
-      isRecommended: true
-    },
-    isNew: false,
-    isFeatured: true,
-    forRole: ["student", "professional", "teacher", "researcher"]
-  },
-  {
-    id: uuidv4(),
     title: "Prompt Thinking",
     description: "Искусство формулирования запросов к ИИ: роли и контекст, chain-of-thought, техники улучшения ответов, создание эффективных инструкций.",
     icon: "sparkles",
