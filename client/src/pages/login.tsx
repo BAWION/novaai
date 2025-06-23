@@ -213,7 +213,6 @@ export default function Login() {
   return (
     <div className="min-h-screen w-full flex flex-col">
       <ParticlesBackground />
-
       <section className="container mx-auto px-4 min-h-[80vh] flex flex-col items-center justify-center mt-16">
         <div className="text-center mb-8">
           <motion.h1
@@ -221,9 +220,7 @@ export default function Login() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             className="font-orbitron text-4xl md:text-5xl lg:text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-[#B28DFF] via-[#8BE0F7] to-[#B28DFF]"
-          >
-            NovaAI University
-          </motion.h1>
+          >NovaAI Academy</motion.h1>
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
