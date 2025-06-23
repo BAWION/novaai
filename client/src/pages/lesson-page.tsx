@@ -578,23 +578,27 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="justify-center py-3 px-4 border-dashed hover:border-solid transition-all duration-200"
+                  className="justify-center lesson-mobile-button border-dashed hover:border-solid transition-all duration-200"
                   onClick={() => setUseProgressiveLearning(!useProgressiveLearning)}
                 >
-                  <LayersIcon className="h-4 w-4 mr-2 flex-shrink-0 text-purple-500" />
-                  <span className="text-xs font-medium truncate">
-                    {useProgressiveLearning ? "Обычный" : "Пошаговый"}
-                  </span>
+                  <div className="flex flex-col items-center min-w-0">
+                    <LayersIcon className="lesson-sidebar-icon mb-1 text-purple-500" />
+                    <span className="lesson-mobile-text font-medium text-center">
+                      {useProgressiveLearning ? "Обычный" : "Пошаговый"}
+                    </span>
+                  </div>
                 </Button>
                 
                 <Button
                   variant="outline"
                   size="sm"
-                  className="justify-center py-3 px-4 border-dashed hover:border-solid transition-all duration-200"
+                  className="justify-center lesson-mobile-button border-dashed hover:border-solid transition-all duration-200"
                   onClick={handleToggleAIAssistant}
                 >
-                  <HelpCircle className="h-4 w-4 mr-2 flex-shrink-0 text-blue-500" />
-                  <span className="text-xs font-medium">AI-Помощь</span>
+                  <div className="flex flex-col items-center min-w-0">
+                    <HelpCircle className="lesson-sidebar-icon mb-1 text-blue-500" />
+                    <span className="lesson-mobile-text font-medium text-center">AI-Помощь</span>
+                  </div>
                 </Button>
               </div>
               
@@ -609,16 +613,16 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="w-full justify-start text-left min-h-[44px] py-3 px-4 border-dashed hover:border-solid transition-all duration-200"
+                    className="w-full justify-start text-left lesson-sidebar-button lesson-desktop-button border-dashed hover:border-solid transition-all duration-200"
                     onClick={() => setUseProgressiveLearning(!useProgressiveLearning)}
                   >
-                    <LayersIcon className="h-4 w-4 mr-3 flex-shrink-0 text-purple-500" />
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium leading-tight truncate">
+                    <LayersIcon className="lesson-sidebar-icon mr-3 text-purple-500" />
+                    <div className="flex-1 min-w-0 overflow-hidden">
+                      <div className="text-sm font-medium lesson-sidebar-text">
                         {useProgressiveLearning ? "Обычный вид" : "Пошаговое изучение"}
                       </div>
-                      <div className="text-xs text-muted-foreground leading-tight">
-                        {useProgressiveLearning ? "Переключить на стандартный" : "Структурированное обучение"}
+                      <div className="text-xs text-muted-foreground lesson-sidebar-text mt-1">
+                        {useProgressiveLearning ? "Стандартный режим" : "Пошаговый режим"}
                       </div>
                     </div>
                   </Button>
@@ -626,13 +630,13 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="w-full justify-start text-left min-h-[44px] py-3 px-4 border-dashed hover:border-solid transition-all duration-200"
+                    className="w-full justify-start text-left lesson-sidebar-button lesson-desktop-button border-dashed hover:border-solid transition-all duration-200"
                     onClick={handleToggleAIAssistant}
                   >
-                    <HelpCircle className="h-4 w-4 mr-3 flex-shrink-0 text-blue-500" />
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium leading-tight">AI-Помощник</div>
-                      <div className="text-xs text-muted-foreground leading-tight">Получить помощь по уроку</div>
+                    <HelpCircle className="lesson-sidebar-icon mr-3 text-blue-500" />
+                    <div className="flex-1 min-w-0 overflow-hidden">
+                      <div className="text-sm font-medium lesson-sidebar-text">AI-Помощник</div>
+                      <div className="text-xs text-muted-foreground lesson-sidebar-text mt-1">Помощь по уроку</div>
                     </div>
                   </Button>
                 </CardContent>
@@ -655,25 +659,25 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                   </div>
                   
                   <Button
-                    className="w-full min-h-[44px] py-3 px-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 transition-all duration-200"
+                    className="w-full min-h-[50px] py-3 px-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 transition-all duration-200 h-auto"
                     onClick={handleLessonComplete}
                     disabled={completeLessonMutation.isPending || lesson.completed}
                   >
-                    <div className="flex items-center justify-center w-full">
+                    <div className="flex items-center justify-center w-full min-w-0">
                       {completeLessonMutation.isPending ? (
                         <>
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-3 flex-shrink-0"></div>
-                          <span className="text-sm font-medium">Завершение...</span>
+                          <span className="text-sm font-medium break-words">Завершение...</span>
                         </>
                       ) : lesson.completed ? (
                         <>
                           <CheckCircle className="h-4 w-4 mr-3 flex-shrink-0 text-green-400" />
-                          <span className="text-sm font-medium">Завершено</span>
+                          <span className="text-sm font-medium break-words">Завершено</span>
                         </>
                       ) : (
                         <>
                           <CheckCircle className="h-4 w-4 mr-3 flex-shrink-0" />
-                          <span className="text-sm font-medium">Завершить урок</span>
+                          <span className="text-sm font-medium break-words">Завершить урок</span>
                         </>
                       )}
                     </div>
@@ -704,24 +708,29 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                       className="h-2 mb-3"
                     />
                     <Button
-                      className="w-full min-h-[40px] bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                      className="w-full min-h-[44px] bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 h-auto py-3"
                       onClick={handleLessonComplete}
                       disabled={completeLessonMutation.isPending || lesson.completed}
                       size="sm"
                     >
-                      {completeLessonMutation.isPending ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          <span className="text-sm">Завершение...</span>
-                        </>
-                      ) : lesson.completed ? (
-                        <>
-                          <CheckCircle className="h-4 w-4 mr-2 text-green-400" />
-                          <span className="text-sm">Завершено</span>
-                        </>
-                      ) : (
-                        <span className="text-sm">Завершить урок</span>
-                      )}
+                      <div className="flex items-center justify-center w-full min-w-0">
+                        {completeLessonMutation.isPending ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2 flex-shrink-0"></div>
+                            <span className="text-sm font-medium break-words">Завершение...</span>
+                          </>
+                        ) : lesson.completed ? (
+                          <>
+                            <CheckCircle className="h-4 w-4 mr-2 text-green-400 flex-shrink-0" />
+                            <span className="text-sm font-medium break-words">Завершено</span>
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle className="h-4 w-4 mr-2 flex-shrink-0" />
+                            <span className="text-sm font-medium break-words">Завершить урок</span>
+                          </>
+                        )}
+                      </div>
                     </Button>
                   </CardContent>
                 </Card>
