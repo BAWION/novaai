@@ -39,22 +39,28 @@ export default function TelegramFeed() {
     const fetchTelegramPosts = async () => {
       try {
         const response = await fetch('/api/telegram/channel/humanreadytech/posts?limit=10');
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
         const data = await response.json();
         
-        if (data.success) {
+        if (data.success && data.posts && data.posts.length > 0) {
           setPosts(data.posts);
           // Показываем источник данных
-          if (data.source === 'mock-data') {
-            setError("Используются демонстрационные данные. Настройте TELEGRAM_BOT_TOKEN для получения реальных постов.");
-          } else if (data.source === 'web-scraping') {
+          if (data.source === 'web-scraping') {
             setError("Данные получены через парсинг публичной страницы канала.");
-          } else {
+          } else if (data.source === 'telegram-api') {
             setError(null); // Убираем ошибку, если данные из API
           }
+          setLoading(false);
+          return; // Успешно получили данные, выходим
         } else {
-          throw new Error(data.message);
+          console.warn('Нет данных от API, используем fallback');
         }
       } catch (err) {
+        console.error('Ошибка получения данных Telegram:', err);
         // Fallback к демонстрационным данным в случае ошибки
         const mockPosts: MockTelegramPost[] = [
           {
