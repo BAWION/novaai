@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { ExternalLink, MessageCircle, Users, Clock } from "lucide-react";
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { ExternalLink, MessageCircle, Clock, Eye, AlertTriangle } from "lucide-react";
 
 interface TelegramPost {
   id: string;
@@ -17,23 +17,18 @@ interface TelegramPost {
   };
 }
 
+interface MockTelegramPost {
+  id: string;
+  text: string;
+  date: string;
+  views: number;
+  link: string;
+}
+
 export default function TelegramFeed() {
   const [posts, setPosts] = useState<TelegramPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // Типы для демонстрационных данных
-  interface MockTelegramPost {
-    id: string;
-    text: string;
-    date: string;
-    views?: number;
-    link: string;
-    media?: {
-      type: 'photo' | 'video';
-      url: string;
-    };
-  }
 
   useEffect(() => {
     const fetchTelegramPosts = async () => {
@@ -101,10 +96,10 @@ export default function TelegramFeed() {
         ];
         
         setPosts(mockPosts);
-        setError("Не удалось подключиться к Telegram API. Используются демонстрационные данные.");
-      } finally {
-        setLoading(false);
+        setError("Не удалось загрузить данные из Telegram. Используются демонстрационные данные.");
       }
+      
+      setLoading(false);
     };
 
     fetchTelegramPosts();
@@ -173,18 +168,69 @@ export default function TelegramFeed() {
     );
   }
 
-  if (error) {
-    return (
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MessageCircle className="h-5 w-5 text-red-500" />
-            Лента новостей @humanreadytech
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+  return (
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <MessageCircle className="h-5 w-5 text-blue-500" />
+          Лента новостей @humanreadytech
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {error && (
+          <Alert className="mb-4">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+        
+        {posts && posts.length > 0 ? (
+          <div className="space-y-4">
+            {posts.map((post) => (
+              <Card key={post.id} className="border-l-4 border-l-blue-500">
+                <CardContent className="p-4">
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Clock className="h-4 w-4" />
+                      {formatDate(post.date)}
+                    </div>
+                    {post.views && (
+                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                        <Eye className="h-4 w-4" />
+                        {formatViews(post.views)}
+                      </div>
+                    )}
+                  </div>
+                  
+                  <p className="text-sm leading-relaxed mb-3">
+                    {getCleanText(post.text)}
+                  </p>
+                  
+                  <div className="flex flex-wrap gap-1 mb-3">
+                    {extractHashtags(post.text).map((hashtag, index) => (
+                      <Badge key={index} variant="secondary" className="text-xs">
+                        {hashtag}
+                      </Badge>
+                    ))}
+                  </div>
+                  
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => window.open(post.link, '_blank')}
+                    className="text-xs"
+                  >
+                    <ExternalLink className="h-3 w-3 mr-1" />
+                    Читать далее
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
           <div className="text-center py-8">
-            <p className="text-gray-500 mb-4">{error}</p>
+            <MessageCircle className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+            <p className="text-muted-foreground mb-4">Пока нет постов для отображения</p>
             <Button 
               variant="outline" 
               onClick={() => window.open('https://t.me/humanreadytech', '_blank')}
@@ -193,104 +239,7 @@ export default function TelegramFeed() {
               Открыть канал в Telegram
             </Button>
           </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  return (
-    <Card className="w-full">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <MessageCircle className="h-5 w-5 text-blue-500" />
-            Лента новостей @humanreadytech
-          </CardTitle>
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => window.open('https://t.me/humanreadytech', '_blank')}
-          >
-            <ExternalLink className="h-4 w-4 mr-2" />
-            Подписаться
-          </Button>
-        </div>
-        <div className="flex items-center gap-2 text-sm text-gray-600">
-          <Users className="h-4 w-4" />
-          <span>Канал об ИИ и технологиях</span>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <ScrollArea className="h-[600px] pr-4">
-          <div className="space-y-6">
-            {posts.map((post, index) => (
-              <div key={post.id} className="border-b border-gray-100 pb-6 last:border-b-0">
-                <div className="space-y-3">
-                  {/* Основной текст поста */}
-                  <p className="text-sm leading-relaxed whitespace-pre-line">
-                    {getCleanText(post.text)}
-                  </p>
-                  
-                  {/* Хештеги */}
-                  {extractHashtags(post.text).length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {extractHashtags(post.text).map((hashtag, i) => (
-                        <Badge 
-                          key={i} 
-                          variant="secondary" 
-                          className="text-xs bg-blue-50 text-blue-700 hover:bg-blue-100"
-                        >
-                          {hashtag}
-                        </Badge>
-                      ))}
-                    </div>
-                  )}
-                  
-                  {/* Метаинформация и действия */}
-                  <div className="flex items-center justify-between pt-2">
-                    <div className="flex items-center gap-4 text-xs text-gray-500">
-                      <div className="flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        {formatDate(post.date)}
-                      </div>
-                      {post.views && (
-                        <div className="flex items-center gap-1">
-                          <Users className="h-3 w-3" />
-                          {formatViews(post.views)} просмотров
-                        </div>
-                      )}
-                    </div>
-                    
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={() => window.open(post.link, '_blank')}
-                      className="text-xs h-auto p-2"
-                    >
-                      <ExternalLink className="h-3 w-3 mr-1" />
-                      Открыть
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </ScrollArea>
-        
-        {/* Подвал с информацией о канале */}
-        <div className="mt-4 pt-4 border-t border-gray-100">
-          <div className="flex items-center justify-between text-xs text-gray-500">
-            <span>Свежие новости об ИИ и технологиях</span>
-            <Button 
-              variant="link" 
-              size="sm" 
-              className="h-auto p-0 text-xs"
-              onClick={() => window.open('https://t.me/humanreadytech', '_blank')}
-            >
-              @humanreadytech
-            </Button>
-          </div>
-        </div>
+        )}
       </CardContent>
     </Card>
   );
