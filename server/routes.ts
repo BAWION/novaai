@@ -44,6 +44,7 @@ import { skillsRouter } from "./routes/skills-api";
 import { abTestRouter } from "./routes/ab-test";
 import courseManagementRouter from "./routes/course-management-api";
 import courseInitRouter from "./routes/course-initialization";
+import telegramRouter from "./routes/telegram";
 
 // Add any middleware needed
 const authMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -1405,11 +1406,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // // Маршруты для навыков и карты навыков
   // app.use("/api/skills", skillsRouter);
 
-  // Old AI Tutor routes removed - now using dedicated router with OpenAI integration
-  
-  // Authentication routes
-  
-  // Регистрация нового пользователя
+  // Import and use specialized routers
+  app.use('/api/modules', moduleRouter);
+  app.use('/api/skills-dna', skillsDnaRouter);
+  app.use('/api/lesson-structure', lessonStructureRouter);
+  app.use('/api/competency-map', competencyMapRouter);
+  app.use('/api/ai-agent', aiAgentRouter);
+  app.use('/api/diagnosis', diagnosisRouter);
+  app.use('/api/recommended-courses', recommendedCoursesRouter);
+  app.use('/api/user-courses', userCoursesRouter);
+  app.use('/api/skills-radar', skillsRadarRouter);
+  app.use('/api/skill-probe', skillProbeRouter);
+  app.use('/api/time-saved', timeSavedRouter);
+  app.use('/api/skills', skillsRouter);
+  app.use('/api/ab-test', abTestRouter);
+  app.use('/api/course-management', courseManagementRouter);
+  app.use('/api/course-init', courseInitRouter);
+  app.use('/api/telegram', telegramRouter);
 
   const httpServer = createServer(app);
   return httpServer;

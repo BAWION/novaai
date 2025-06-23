@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Glassmorphism } from "@/components/ui/glassmorphism";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProgressRing } from "@/components/ui/progress-ring";
+import TelegramFeed from "@/components/telegram-feed";
 
 // Types for community data
 interface ForumThread {
@@ -188,7 +189,7 @@ const LEADERBOARD: LeaderboardUser[] = [
 ];
 
 export default function Community() {
-  const [activeTab, setActiveTab] = useState("forum");
+  const [activeTab, setActiveTab] = useState("news");
 
   // Helper functions
   const formatDateRelative = (dateString: string) => {
@@ -273,11 +274,36 @@ export default function Community() {
     >
       <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
         <TabsList className="mb-8">
+          <TabsTrigger value="news">Новости</TabsTrigger>
           <TabsTrigger value="forum">Форум</TabsTrigger>
           <TabsTrigger value="events">События</TabsTrigger>
           <TabsTrigger value="leaderboard">Таблица лидеров</TabsTrigger>
           <TabsTrigger value="discord">Discord</TabsTrigger>
         </TabsList>
+        
+        <TabsContent value="news" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <TelegramFeed />
+            </div>
+            <div className="space-y-4">
+              <Glassmorphism className="p-5 rounded-xl">
+                <h3 className="font-medium mb-4">Источники новостей</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition-colors">
+                    <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                      <i className="fab fa-telegram-plane text-white text-sm"></i>
+                    </div>
+                    <div>
+                      <div className="font-medium text-sm">@humanreadytech</div>
+                      <div className="text-xs text-white/60">Канал об ИИ и технологиях</div>
+                    </div>
+                  </div>
+                </div>
+              </Glassmorphism>
+            </div>
+          </div>
+        </TabsContent>
         
         <TabsContent value="forum" className="space-y-6">
           <div className="flex flex-col lg:flex-row gap-6">

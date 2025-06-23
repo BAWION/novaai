@@ -22,6 +22,19 @@ export default function TelegramFeed() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Типы для демонстрационных данных
+  interface MockTelegramPost {
+    id: string;
+    text: string;
+    date: string;
+    views?: number;
+    link: string;
+    media?: {
+      type: 'photo' | 'video';
+      url: string;
+    };
+  }
+
   useEffect(() => {
     const fetchTelegramPosts = async () => {
       try {
@@ -34,8 +47,8 @@ export default function TelegramFeed() {
           throw new Error(data.message);
         }
       } catch (err) {
-        // Fallback к моковым данным в случае ошибки
-        const mockPosts: TelegramPost[] = [
+        // Fallback к демонстрационным данным в случае ошибки
+        const mockPosts: MockTelegramPost[] = [
           {
             id: "1",
             text: "🚀 Новый прорыв в области ИИ: OpenAI представила GPT-5 с революционными возможностями мультимодального понимания. Модель теперь может анализировать видео в реальном времени и генерировать код для робототехники.\n\n#ИИ #OpenAI #GPT5 #Технологии",
@@ -75,12 +88,13 @@ export default function TelegramFeed() {
         
         setPosts(mockPosts);
         setError("Используются демонстрационные данные");
-      } catch (err) {
-        setError("Не удалось загрузить новости из Telegram канала");
-      } finally {
-        setLoading(false);
       }
-    };
+    } catch (err) {
+      setError("Не удалось загрузить новости из Telegram канала");
+    } finally {
+      setLoading(false);
+    }
+  };
 
     fetchTelegramPosts();
   }, []);
