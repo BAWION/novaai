@@ -124,14 +124,11 @@ export default function HomePage() {
   return (
     <div className="min-h-screen w-full bg-space-900 text-white overflow-x-hidden overflow-y-auto">
       <ParticlesBackground />
-      
       {/* Header/Navigation */}
       <header className="w-full py-4 px-4 sm:px-6 backdrop-blur-sm bg-black/30 fixed top-0 z-50 fixed-header">
         <div className="container mx-auto flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
-              NovaAI University
-            </span>
+            <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">NovaAI Academy</span>
           </div>
           <nav className="hidden md:flex gap-6 items-center">
             <a href="#features" className="text-white/70 hover:text-white transition-colors">Возможности</a>
@@ -149,7 +146,6 @@ export default function HomePage() {
           </div>
         </div>
       </header>
-
       <main className="pt-20">
         {/* Hero Section */}
         <section className="py-12 sm:py-16 md:py-24 px-4 sm:px-6">
@@ -706,7 +702,6 @@ export default function HomePage() {
           </div>
         </section>
       </main>
-
       {/* Footer */}
       <footer className="py-10 px-6 bg-black/50 backdrop-blur-md">
         <div className="container mx-auto">
@@ -783,7 +778,6 @@ export default function HomePage() {
           </div>
         </div>
       </footer>
-
       {/* Admin Login Modal */}
       <AnimatePresence>
         {showAdminLogin && (
