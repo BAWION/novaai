@@ -582,47 +582,50 @@ export default function Courses() {
                   <div className="mt-8 flex flex-wrap gap-3">
                     <button 
                       onClick={() => {
-                        // Определяем slug курса для детального просмотра
+                        // Получаем ID курса из API или используем стандартный slug
+                        const courseId = String(selectedCourse.id).startsWith('api_') 
+                          ? selectedCourse.id.substring(4) // Убираем префикс 'api_'
+                          : selectedCourse.id;
+                          
+                        // Получаем slug курса из API или используем стандартный slug
                         let courseSlug;
-                        if (selectedCourse.id === "ethics-ai-safety" || selectedCourse.title.includes("AI Ethics")) {
-                          courseSlug = "ethics-ai-safety";
-                        } else if (selectedCourse.title.includes("AI Literacy")) {
-                          courseSlug = "ai-literacy-101";
-                        } else if (selectedCourse.slug) {
-                          courseSlug = selectedCourse.slug;
-                        } else {
-                          courseSlug = String(selectedCourse.id);
+                        if (apiCourses && apiCourses.length > 0) {
+                          // Ищем курс в API курсах по ID
+                          const apiCourse = apiCourses.find((c: any) => c.id === Number(courseId));
+                          
+                          if (apiCourse && apiCourse.slug) {
+                            courseSlug = apiCourse.slug;
+                            console.log(`Найден slug курса в API: ${courseSlug}`);
+                          }
                         }
                         
-                        console.log(`Переход к детальному просмотру курса: /courses/${courseSlug}/detail`);
-                        setLocation(`/courses/${courseSlug}/detail`);
+                        // Если не нашли slug, используем стандартное поведение
+                        if (!courseSlug) {
+                          if (selectedCourse.id === "0") {
+                            setLocation("/course-ai/python-for-ai-beginners");
+                            return;
+                          } else if (selectedCourse.id === 7 || selectedCourse.title.includes("AI Ethics")) {
+                            // AI Ethics курсы - ведем на детальную страницу курса
+                            courseSlug = "ai-ethics";
+                          } else if (selectedCourse.title.includes("AI Literacy")) {
+                            courseSlug = "ai-literacy-101";
+                          } else {
+                            // По умолчанию используем индекс курса
+                            courseSlug = String(courseId);
+                          }
+                        }
+                        
+                        console.log(`Переход на страницу курса: /courses/${courseSlug}`);
+                        setLocation(`/courses/${courseSlug}`);
                       }}
                       className="bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:from-[#4922B2] hover:to-[#1682A1] text-white py-3 px-6 rounded-lg font-medium transition duration-300 flex items-center"
                     >
                       <i className="fas fa-play-circle mr-2"></i>
                       {selectedCourse.progress ? 'Продолжить обучение' : 'Начать обучение'}
                     </button>
-                    <button 
-                      onClick={() => {
-                        // Та же логика для кнопки "Показать все модули"
-                        let courseSlug;
-                        if (selectedCourse.id === "ethics-ai-safety" || selectedCourse.title.includes("AI Ethics")) {
-                          courseSlug = "ethics-ai-safety";
-                        } else if (selectedCourse.title.includes("AI Literacy")) {
-                          courseSlug = "ai-literacy-101";
-                        } else if (selectedCourse.slug) {
-                          courseSlug = selectedCourse.slug;
-                        } else {
-                          courseSlug = String(selectedCourse.id);
-                        }
-                        
-                        console.log(`Переход к детальному просмотру курса: /courses/${courseSlug}/detail`);
-                        setLocation(`/courses/${courseSlug}/detail`);
-                      }}
-                      className="border border-white/20 hover:bg-white/10 text-white py-3 px-6 rounded-lg font-medium transition duration-300 flex items-center"
-                    >
-                      <i className="fas fa-list-ul mr-2"></i>
-                      Показать все модули
+                    <button className="border border-white/20 hover:bg-white/10 text-white py-3 px-6 rounded-lg font-medium transition duration-300 flex items-center">
+                      <i className="far fa-bookmark mr-2"></i>
+                      Добавить в избранное
                     </button>
                   </div>
                 </div>
@@ -663,25 +666,7 @@ export default function Courses() {
                   </div>
                   
                   <div className="text-center pt-2">
-                    <button 
-                      onClick={() => {
-                        // Та же логика для кнопки "Показать все модули" в сайдбаре
-                        let courseSlug;
-                        if (selectedCourse.id === "ethics-ai-safety" || selectedCourse.title.includes("AI Ethics")) {
-                          courseSlug = "ethics-ai-safety";
-                        } else if (selectedCourse.title.includes("AI Literacy")) {
-                          courseSlug = "ai-literacy-101";
-                        } else if (selectedCourse.slug) {
-                          courseSlug = selectedCourse.slug;
-                        } else {
-                          courseSlug = String(selectedCourse.id);
-                        }
-                        
-                        console.log(`Переход к детальному просмотру курса из сайдбара: /courses/${courseSlug}/detail`);
-                        setLocation(`/courses/${courseSlug}/detail`);
-                      }}
-                      className="text-[#B28DFF] hover:text-[#D2B8FF] text-sm transition-colors"
-                    >
+                    <button className="text-[#B28DFF] hover:text-[#D2B8FF] text-sm">
                       Показать все модули ({selectedCourse.modules})
                     </button>
                   </div>
