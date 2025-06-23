@@ -373,7 +373,7 @@ export default function Courses() {
 
   // Преобразуем курсы из API в формат нашего приложения
   const formattedApiCourses = apiCourses.map((course: any) => ({
-    id: `api_${course.id}`, // добавляем префикс, чтобы избежать конфликта ID
+    id: course.slug, // используем slug для корректной навигации
     title: course.title,
     description: course.description,
     icon: course.icon || 'book',
@@ -387,6 +387,7 @@ export default function Courses() {
     updated: course.updatedAt || new Date().toISOString(),
     color: course.color as 'primary' | 'secondary' | 'accent' || 'primary',
     access: course.access || 'free',
+    slug: course.slug, // добавляем slug для правильной навигации
     skillMatch: {
       percentage: 90,
       label: "Рекомендуется",
@@ -400,7 +401,7 @@ export default function Courses() {
   // Объединяем курсы из API с локальными курсами и новым каталогом
   const allCourses = showAllCourses 
     ? [...SAMPLE_COURSES, ...formattedApiCourses, ethicsCourseFormatted, lawCourseFormatted, ...catalogCoursesFormatted]
-    : [...catalogCoursesFormatted]; // По умолчанию показываем только новый расширенный каталог
+    : [...formattedApiCourses, ...catalogCoursesFormatted]; // Показываем API курсы по умолчанию
 
   // Filter courses based on search and filters
   // Преобразовать id в строки для поддержки строковых идентификаторов
