@@ -663,7 +663,25 @@ export default function Courses() {
                   </div>
                   
                   <div className="text-center pt-2">
-                    <button className="text-[#B28DFF] hover:text-[#D2B8FF] text-sm">
+                    <button 
+                      onClick={() => {
+                        // Та же логика для кнопки "Показать все модули" в сайдбаре
+                        let courseSlug;
+                        if (selectedCourse.id === "ethics-ai-safety" || selectedCourse.title.includes("AI Ethics")) {
+                          courseSlug = "ethics-ai-safety";
+                        } else if (selectedCourse.title.includes("AI Literacy")) {
+                          courseSlug = "ai-literacy-101";
+                        } else if (selectedCourse.slug) {
+                          courseSlug = selectedCourse.slug;
+                        } else {
+                          courseSlug = String(selectedCourse.id);
+                        }
+                        
+                        console.log(`Переход к детальному просмотру курса из сайдбара: /courses/${courseSlug}/detail`);
+                        setLocation(`/courses/${courseSlug}/detail`);
+                      }}
+                      className="text-[#B28DFF] hover:text-[#D2B8FF] text-sm transition-colors"
+                    >
                       Показать все модули ({selectedCourse.modules})
                     </button>
                   </div>
