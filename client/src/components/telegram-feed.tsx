@@ -88,13 +88,10 @@ export default function TelegramFeed() {
         
         setPosts(mockPosts);
         setError("Используются демонстрационные данные");
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      setError("Не удалось загрузить новости из Telegram канала");
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
     fetchTelegramPosts();
   }, []);
