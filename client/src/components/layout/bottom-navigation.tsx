@@ -72,14 +72,14 @@ export function BottomNavigation() {
                     }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <div className={`w-8 h-8 flex items-center justify-center rounded-lg ${
+                    <div className={`w-8 h-8 flex items-center justify-center rounded-lg flex-shrink-0 ${
                       isActive
                         ? "bg-gradient-to-br from-[#6E3AFF] to-[#2EBAE1] text-white"
                         : "text-white/60"
                     }`}>
                       <i className={`fas ${item.icon} text-sm`}></i>
                     </div>
-                    <span className="text-sm font-medium">{item.label}</span>
+                    <span className="text-sm font-medium flex-1 text-left">{item.label}</span>
                   </motion.button>
                 );
               })}
