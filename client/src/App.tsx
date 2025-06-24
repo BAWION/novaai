@@ -46,6 +46,7 @@ import PresentationSelector from "@/pages/presentation-selector";
 import ProductDemo from "@/pages/product-demo";
 import CourseManagement from "@/pages/course-management";
 import AdminDashboard from "@/pages/admin/index";
+import AdminPage from "@/pages/admin";
 import AiTutorPage from "@/pages/ai-tutor";
 import BusinessAIPage from "@/pages/business-ai";
 
