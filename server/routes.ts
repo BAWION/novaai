@@ -807,9 +807,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
       res.set('Pragma', 'no-cache');
       res.set('Expires', '0');
+      // Добавляем ETag с текущим временем для принудительного обновления
+      res.set('ETag', `"courses-${Date.now()}"`);
       
       const courses = await storage.getAllCourses();
-      console.log(`[Courses API] Возвращаем ${courses.length} курсов`);
+      console.log(`[Courses API] Возвращаем ${courses.length} курсов (обновлено: ${new Date().toLocaleTimeString()})`);
       res.json(courses);
     } catch (error) {
       console.error("Get courses error:", error);
@@ -865,6 +867,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Маршруты для модулей курса
   app.get("/api/courses/:courseIdOrSlug/modules", async (req, res) => {
     try {
+      // Отключаем кэширование для модулей
+      res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.set('ETag', `"modules-${Date.now()}"`);
+      
       const courseIdOrSlug = req.params.courseIdOrSlug;
       let courseId: number | null = null;
       
@@ -933,6 +939,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Маршруты для уроков
   app.get("/api/modules/:moduleId/lessons", async (req, res) => {
     try {
+      // Отключаем кэширование для уроков
+      res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.set('ETag', `"lessons-${Date.now()}"`);
+      
       const moduleId = parseInt(req.params.moduleId);
       const lessons = await storage.getModuleLessons(moduleId);
       res.json(lessons);

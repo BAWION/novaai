@@ -123,6 +123,7 @@ NovaAI University is a comprehensive AI-powered educational platform built with 
   - Проекты: умный CRM, контент-генератор, ИИ-анализатор, email-маркетинг
   - Интеграции: OpenAI API, Telegram, Google Workspace, CRM системы
   - Полный контент от основ Make.com до продвинутых multi-step сценариев
+  - ОПТИМИЗАЦИЯ: отключено кэширование API для мгновенного отображения новых курсов
 - June 24, 2025: СОЗДАН КУРС "Автоматизация Make.com+ChatGPT"
   - Полноценный курс по no-code автоматизации с ИИ интеграцией (300 минут)
   - 6 модулей: от основ Make.com до продвинутых multi-step сценариев
