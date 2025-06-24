@@ -164,14 +164,11 @@ export default function Profile() {
               >
                 <Glassmorphism className="p-6 rounded-xl">
                   <div className="flex flex-col items-center text-center">
-                    <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#6E3AFF] to-[#2EBAE1] p-1 mb-4">
-                      <div className="w-full h-full rounded-full overflow-hidden">
-                        <img 
-                          src="https://i.pravatar.cc/150?img=5" 
-                          alt="Profile" 
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
+                    <div className="mb-4">
+                      <AvatarUploader 
+                        currentAvatar={profileData.avatarUrl}
+                        onAvatarChange={handleAvatarChange}
+                      />
                     </div>
                     <h3 className="text-xl font-semibold text-white mb-2">
                       {profileData.displayName}
