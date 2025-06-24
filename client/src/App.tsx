@@ -187,6 +187,16 @@ function Router() {
               </Suspense>
             );
           }} />
+
+          {/* Make.com + ChatGPT Automation Course */}
+          <ProtectedRoute path="/courses/make-chatgpt-automation" component={() => {
+            const MakeAutomationCoursePage = lazy(() => import("@/pages/make-automation-course-page"));
+            return (
+              <Suspense fallback={<div>Загрузка...</div>}>
+                <MakeAutomationCoursePage />
+              </Suspense>
+            );
+          }} />
           
           {/* Lesson Page - универсальный для любого курса */}
           <ProtectedRoute path="/courses/:courseSlug/modules/:moduleId/lessons/:lessonId" component={() => {
