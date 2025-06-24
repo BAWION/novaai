@@ -1424,6 +1424,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/course-init', courseInitRouter);
   app.use('/api/telegram', telegramRouter);
 
+  // Admin панель - архитектура курсов
+  app.get('/api/admin/course-architecture', async (req, res) => {
+    try {
+      const courseArchitecture = await storage.getCourseArchitecture();
+      res.json(courseArchitecture);
+    } catch (error) {
+      console.error('Course architecture error:', error);
+      res.status(500).json({ message: 'Failed to get course architecture' });
+    }
+  });
+
+  // Admin панель - идеи курсов
+  app.get('/api/admin/course-ideas', async (req, res) => {
+    try {
+      const courseIdeas = await storage.getCourseIdeas();
+      res.json(courseIdeas);
+    } catch (error) {
+      console.error('Course ideas error:', error);
+      res.status(500).json({ message: 'Failed to get course ideas' });
+    }
+  });
+
+  // Admin панель - создание идеи курса
+  app.post('/api/admin/course-ideas', async (req, res) => {
+    try {
+      const newIdea = await storage.createCourseIdea(req.body);
+      res.status(201).json(newIdea);
+    } catch (error) {
+      console.error('Create course idea error:', error);
+      res.status(500).json({ message: 'Failed to create course idea' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
