@@ -907,6 +907,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Получить информацию о курсе по модулю для правильной навигации
+  app.get("/api/modules/:id/course", async (req, res) => {
+    try {
+      const moduleId = parseInt(req.params.id);
+      const courseInfo = await storage.getCourseByModuleId(moduleId);
+      
+      if (!courseInfo) {
+        return res.status(404).json({ message: "Курс не найден для данного модуля" });
+      }
+      
+      res.json(courseInfo);
+    } catch (error) {
+      console.error("Ошибка при получении информации о курсе:", error);
+      res.status(500).json({ message: "Ошибка сервера" });
+    }
+  });
+
   // Маршруты для уроков
   app.get("/api/modules/:moduleId/lessons", async (req, res) => {
     try {
