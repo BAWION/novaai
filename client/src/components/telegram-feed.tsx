@@ -99,7 +99,7 @@ export default function TelegramFeed() {
       </div>
       
       {/* Контент с прокруткой */}
-      <div className="max-h-96 overflow-y-auto">
+      <div className="max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
         <div className="p-6">
           {loading ? (
             <div className="space-y-4">
