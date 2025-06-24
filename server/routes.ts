@@ -12,6 +12,7 @@ import { z } from "zod";
 import session from "express-session";
 import memorystore from "memorystore";
 import { checkSecrets } from "./routes/check-secrets";
+import { setCacheHeaders, shouldForceRefresh, CACHE_SETTINGS } from "./utils/cache-helpers";
 import mlApiRouter from "./routes/ml-api";
 import aiAssistantRouter from "./routes/ai-assistant-api";
 import profilesRouter from "./routes/profiles-api";
@@ -803,15 +804,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Course routes
   app.get("/api/courses", async (req, res) => {
     try {
-      // Отключаем кэширование для обновления списка курсов
-      res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-      res.set('Pragma', 'no-cache');
-      res.set('Expires', '0');
-      // Добавляем ETag с текущим временем для принудительного обновления
-      res.set('ETag', `"courses-${Date.now()}"`);
-      
       const courses = await storage.getAllCourses();
-      console.log(`[Courses API] Возвращаем ${courses.length} курсов (обновлено: ${new Date().toLocaleTimeString()})`);
+      
+      // Умное кэширование с использованием утилит
+      const forceRefresh = shouldForceRefresh(req.query);
+      setCacheHeaders(res, {
+        ...CACHE_SETTINGS.COURSES,
+        forceRefresh
+      });
+      
+      console.log(`[Courses API] Возвращаем ${courses.length} курсов (кэш: ${forceRefresh ? 'отключен' : 'включен'})`);
       res.json(courses);
     } catch (error) {
       console.error("Get courses error:", error);
@@ -867,10 +869,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Маршруты для модулей курса
   app.get("/api/courses/:courseIdOrSlug/modules", async (req, res) => {
     try {
-      // Отключаем кэширование для модулей
-      res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-      res.set('ETag', `"modules-${Date.now()}"`);
-      
       const courseIdOrSlug = req.params.courseIdOrSlug;
       let courseId: number | null = null;
       
@@ -939,12 +937,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Маршруты для уроков
   app.get("/api/modules/:moduleId/lessons", async (req, res) => {
     try {
-      // Отключаем кэширование для уроков
-      res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-      res.set('ETag', `"lessons-${Date.now()}"`);
-      
       const moduleId = parseInt(req.params.moduleId);
       const lessons = await storage.getModuleLessons(moduleId);
+      
+      // Кэшируем уроки на 15 минут (самый стабильный контент)
+      res.set('Cache-Control', 'public, max-age=900');
       res.json(lessons);
     } catch (error) {
       console.error("Get module lessons error:", error);
