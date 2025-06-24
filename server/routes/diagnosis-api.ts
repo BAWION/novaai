@@ -107,13 +107,39 @@ const demoAuthMiddleware = async (req: express.Request, res: express.Response, n
   next();
 };
 
-// Схема валидации для результатов диагностики
+// Схема валидации для результатов диагностики с санитизацией null значений
 const diagnosisResultSchema = z.object({
   userId: z.number(),
-  skills: z.record(z.string(), z.number().min(0).max(100)),
+  skills: z.record(z.string(), z.union([z.number(), z.null()]).transform(val => val === null ? 0 : val)).pipe(z.record(z.string(), z.number().min(0).max(100))),
   diagnosticType: z.enum(["quick", "deep"]),
   metadata: z.any().optional()
 });
+
+// Функция санитизации данных диагностики
+function sanitizeDiagnosisData(data: any): any {
+  if (!data || typeof data !== 'object') return data;
+  
+  const sanitized = { ...data };
+  
+  // Санитизация skills - заменяем null значения на 0
+  if (sanitized.skills && typeof sanitized.skills === 'object') {
+    const sanitizedSkills: Record<string, number> = {};
+    for (const [skillName, value] of Object.entries(sanitized.skills)) {
+      if (value === null || value === undefined) {
+        sanitizedSkills[skillName] = 0;
+        console.log(`[API] Заменен null/undefined на 0 для навыка: ${skillName}`);
+      } else if (typeof value === 'number') {
+        sanitizedSkills[skillName] = Math.max(0, Math.min(100, value)); // Ограничиваем диапазон 0-100
+      } else {
+        sanitizedSkills[skillName] = 0;
+        console.log(`[API] Заменен некорректный тип на 0 для навыка: ${skillName}, тип: ${typeof value}`);
+      }
+    }
+    sanitized.skills = sanitizedSkills;
+  }
+  
+  return sanitized;
+}
 
 /**
  * POST /api/diagnosis/results
@@ -162,8 +188,14 @@ router.post("/results", demoAuthMiddleware, async (req: Request, res: Response) 
       });
     }
     
-    // Валидация данных запроса
-    const validationResult = diagnosisResultSchema.safeParse(req.body);
+    // Санитизация и валидация данных запроса
+    const sanitizedData = sanitizeDiagnosisData(req.body);
+    console.log("[API] POST /api/diagnosis/results - Данные после санитизации:", {
+      skillsCount: Object.keys(sanitizedData.skills || {}).length,
+      hasNullValues: Object.values(sanitizedData.skills || {}).some(v => v === null)
+    });
+    
+    const validationResult = diagnosisResultSchema.safeParse(sanitizedData);
     
     if (!validationResult.success) {
       console.error("[API] POST /api/diagnosis/results - Некорректные данные диагностики:", {
