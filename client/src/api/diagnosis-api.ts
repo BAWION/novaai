@@ -244,6 +244,37 @@ export const diagnosisApi = {
   },
   
   /**
+   * Санитизирует данные диагностики, заменяя null значения на 0
+   * @param results Результаты диагностики для санитизации
+   * @returns Санитизированные результаты
+   */
+  sanitizeDiagnosisResults(results: any): any {
+    if (!results || !results.skills) return results;
+    
+    const sanitizedSkills: Record<string, number> = {};
+    let sanitizedCount = 0;
+    
+    for (const [skillName, value] of Object.entries(results.skills)) {
+      if (value === null || value === undefined || typeof value !== 'number') {
+        sanitizedSkills[skillName] = 0;
+        sanitizedCount++;
+        console.log(`[API] Санитизирован навык ${skillName}: ${value} → 0`);
+      } else {
+        sanitizedSkills[skillName] = Math.max(0, Math.min(100, value as number));
+      }
+    }
+    
+    if (sanitizedCount > 0) {
+      console.log(`[API] Санитизировано ${sanitizedCount} навыков с некорректными значениями`);
+    }
+    
+    return {
+      ...results,
+      skills: sanitizedSkills
+    };
+  },
+
+  /**
    * Восстанавливает результаты диагностики из кэша и отправляет на сервер
    * @param userId ID пользователя для добавления к результатам
    * @returns Результат операции восстановления
@@ -295,9 +326,12 @@ export const diagnosisApi = {
         diagnosticType: results.diagnosticType
       });
       
-      // Отправляем результаты на сервер
+      // Санитизируем и отправляем результаты на сервер
       try {
-        const savedResults = await this.saveResults(results);
+        const sanitizedResults = this.sanitizeDiagnosisResults(results);
+        console.log('[API] Результаты диагностики санитизированы перед отправкой');
+        
+        const savedResults = await this.saveResults(sanitizedResults);
         
         // Вычисляем время восстановления
         const recoveryTimeMs = Date.now() - startTime;
