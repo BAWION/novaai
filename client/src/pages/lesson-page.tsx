@@ -87,6 +87,15 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
   // Определяем контекст курса для навигации из URL или API
   const courseContext = courseSlug || courseInfo?.slug || inCourseContext || "ai-literacy-101";
 
+  // Автоматическое перенаправление на правильный URL, если слаг курса не совпадает
+  useEffect(() => {
+    if (courseInfo?.slug && moduleId && lessonId && courseInfo.slug !== courseSlug && courseInfo.slug !== inCourseContext) {
+      const correctUrl = `/courses/${courseInfo.slug}/modules/${moduleId}/lessons/${lessonId}`;
+      console.log(`Перенаправляем на правильный URL: ${correctUrl}`);
+      navigate(correctUrl, { replace: true });
+    }
+  }, [courseInfo, moduleId, lessonId, courseSlug, inCourseContext, navigate]);
+
   // Запрос данных урока
   const { data: lesson, isLoading: lessonLoading } = useQuery<Lesson>({
     queryKey: [`/api/lessons/${lessonId}`],
@@ -415,6 +424,39 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
     return (
       <DashboardLayout title={lesson.title}>
         <div className="container mx-auto px-4 py-8">
+          {/* Навигационный заголовок */}
+          <div className="flex items-center mb-6">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => navigate(`/courses/${courseContext}`)}
+              className="mr-4"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Вернуться к курсу
+            </Button>
+            <div className="flex-1">
+              <div className="flex items-center text-sm text-muted-foreground mb-1">
+                <button 
+                  className="hover:text-primary transition"
+                  onClick={() => navigate("/courses")}
+                >
+                  Курсы
+                </button>
+                <span className="mx-2">→</span>
+                <button 
+                  className="hover:text-primary transition"
+                  onClick={() => navigate(`/courses/${courseContext}`)}
+                >
+                  {courseInfo?.title || "Курс"}
+                </button>
+                <span className="mx-2">→</span>
+                <span>{module?.title}</span>
+              </div>
+              <h1 className="text-2xl font-bold">{lesson?.title}</h1>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
             {/* Основное содержимое урока */}
             <div className="lg:col-span-4">

@@ -177,8 +177,24 @@ function Router() {
             // Используем реализацию подстраниц - основная страница курса
             return <AILiteracyCoursePage />;
           }} />
+
+          {/* Telegram Bots Course */}
+          <ProtectedRoute path="/courses/telegram-bots-replit" component={() => {
+            const TelegramBotsCoursePage = lazy(() => import("@/pages/telegram-bots-course-page"));
+            return (
+              <Suspense fallback={<div>Загрузка...</div>}>
+                <TelegramBotsCoursePage />
+              </Suspense>
+            );
+          }} />
           
-          {/* Lesson Page - внутри курса AI Literacy */}
+          {/* Lesson Page - универсальный для любого курса */}
+          <ProtectedRoute path="/courses/:courseSlug/modules/:moduleId/lessons/:lessonId" component={() => {
+            // Универсальный компонент урока без жестко заданного контекста
+            return <LessonPage />;
+          }} />
+          
+          {/* Lesson Page - внутри курса AI Literacy (обратная совместимость) */}
           <ProtectedRoute path="/courses/ai-literacy-101/modules/:moduleId/lessons/:lessonId" component={() => {
             // Загружаем компонент и не используем Suspense, чтобы избежать моргания
             return <LessonPage inCourseContext="ai-literacy-101" />;

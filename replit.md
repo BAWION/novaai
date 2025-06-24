@@ -117,6 +117,12 @@ NovaAI University is a comprehensive AI-powered educational platform built with 
 
 ## Changelog
 
+- June 24, 2025: ИСПРАВЛЕНА проблема с URL-адресами уроков
+  - Добавлено автоматическое перенаправление на правильные URL курсов
+  - API эндпоинт /api/modules/:id/course для получения информации о курсе
+  - Универсальная маршрутизация /courses/:courseSlug/modules/:moduleId/lessons/:lessonId
+  - Хлебные крошки навигации "Курсы → Курс → Модуль"
+  - Уроки Telegram-ботов теперь показывают корректный URL: /courses/telegram-bots-replit/modules/44/lessons/82
 - June 24, 2025: СОЗДАН КУРС "Создание Telegram-ботов на Replit без кода"
   - Полноценный курс с 5 модулями и 10 уроками (180 минут обучения)
   - Модули: Основы ботов, Настройка Replit, Команды и меню, API интеграции, Монетизация
