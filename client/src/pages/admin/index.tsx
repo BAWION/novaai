@@ -121,6 +121,44 @@ export default function AdminDashboard() {
     reactivationRate: 0,
     learningStreakAverage: 0
   });
+  
+  const [courseArchitecture, setCourseArchitecture] = useState<CourseArchitecture[]>([]);
+  const [courseIdeas, setCourseIdeas] = useState<CourseIdea[]>([]);
+  const [newIdeaForm, setNewIdeaForm] = useState({
+    title: '',
+    description: '',
+    targetAudience: '',
+    difficultyLevel: 'beginner',
+    estimatedDuration: 120,
+    marketDemand: 'medium',
+    implementationPriority: 5,
+    category: '',
+    tags: ''
+  });
+
+  const fetchCourseArchitecture = async () => {
+    try {
+      const response = await fetch('/api/admin/course-architecture');
+      if (response.ok) {
+        const data = await response.json();
+        setCourseArchitecture(data);
+      }
+    } catch (error) {
+      console.error('Error fetching course architecture:', error);
+    }
+  };
+
+  const fetchCourseIdeas = async () => {
+    try {
+      const response = await fetch('/api/admin/course-ideas');
+      if (response.ok) {
+        const data = await response.json();
+        setCourseIdeas(data);
+      }
+    } catch (error) {
+      console.error('Error fetching course ideas:', error);
+    }
+  };
 
   useEffect(() => {
     // Check admin authentication
@@ -134,6 +172,8 @@ export default function AdminDashboard() {
 
     setAdminUser(JSON.parse(adminUserData));
     loadDashboardStats();
+    fetchCourseArchitecture();
+    fetchCourseIdeas();
   }, [setLocation]);
 
   const loadDashboardStats = async () => {
@@ -203,6 +243,63 @@ export default function AdminDashboard() {
         reactivationRate: 8.7,
         learningStreakAverage: 4.2
       });
+    }
+  };
+
+  const handleNewIdeaSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await fetch('/api/admin/course-ideas', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...newIdeaForm,
+          tags: newIdeaForm.tags.split(',').map(tag => tag.trim()).filter(tag => tag)
+        })
+      });
+
+      if (response.ok) {
+        setNewIdeaForm({
+          title: '',
+          description: '',
+          targetAudience: '',
+          difficultyLevel: 'beginner',
+          estimatedDuration: 120,
+          marketDemand: 'medium',
+          implementationPriority: 5,
+          category: '',
+          tags: ''
+        });
+        fetchCourseIdeas();
+      } else {
+        throw new Error('Failed to create course idea');
+      }
+    } catch (error) {
+      console.error('Error creating course idea:', error);
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'completed': return 'bg-green-500';
+      case 'in_progress': return 'bg-blue-500';
+      case 'draft': return 'bg-yellow-500';
+      default: return 'bg-gray-500';
+    }
+  };
+
+  const getPriorityColor = (priority: number) => {
+    if (priority >= 8) return 'text-red-600 font-bold';
+    if (priority >= 6) return 'text-orange-600 font-semibold';
+    return 'text-gray-600';
+  };
+
+  const getDemandColor = (demand: string) => {
+    switch (demand) {
+      case 'high': return 'text-red-600 font-bold';
+      case 'medium': return 'text-yellow-600 font-semibold';
+      case 'low': return 'text-gray-600';
+      default: return 'text-gray-600';
     }
   };
 
