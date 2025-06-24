@@ -12,6 +12,7 @@ interface TelegramPost {
 export default function TelegramFeed() {
   const [posts, setPosts] = useState<TelegramPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const [allPosts, setAllPosts] = useState<Set<string>>(new Set()); // Для отслеживания уникальных постов
 
   const fetchTelegramPosts = async () => {
     try {
@@ -23,11 +24,20 @@ export default function TelegramFeed() {
       const data = await response.json();
       
       if (data.success && data.posts) {
-        const sortedPosts = data.posts.sort((a: any, b: any) => 
-          new Date(b.date).getTime() - new Date(a.date).getTime()
-        );
-        setPosts(sortedPosts);
-        console.log(`[TelegramFeed] Загружено ${sortedPosts.length} постов из источника: ${data.source}`);
+        // Объединяем новые посты с существующими, избегая дубликатов
+        setPosts(currentPosts => {
+          const existingIds = new Set(currentPosts.map(post => post.id));
+          const newPosts = data.posts.filter((post: any) => !existingIds.has(post.id));
+          
+          // Объединяем и сортируем по дате (новые сначала)
+          const combinedPosts = [...newPosts, ...currentPosts]
+            .sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime())
+            .slice(0, 10); // Ограничиваем 10 постами
+          
+          console.log(`[TelegramFeed] Обновлено постов: ${combinedPosts.length} (добавлено: ${newPosts.length})`);
+          return combinedPosts;
+        });
+        
         setLoading(false);
         return true;
       } else {
@@ -48,7 +58,7 @@ export default function TelegramFeed() {
     const interval = setInterval(async () => {
       console.log('[TelegramFeed] Автоматическое обновление ленты...');
       await fetchTelegramPosts();
-    }, 3 * 60 * 1000); // 3 минуты
+    }, 1 * 60 * 1000); // 1 минута для быстрой синхронизации новых постов
 
     return () => clearInterval(interval);
   }, []);

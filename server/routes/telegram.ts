@@ -168,23 +168,9 @@ async function fetchTelegramChannelPosts(channelName: string, limit: number = 10
   }
 
   try {
-    // Сначала получаем обновления с большим offset для свежих данных
-    const offsetResponse = await fetch(
-      `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates?offset=-1&limit=1`
-    );
-    
-    let latestUpdateId = 0;
-    if (offsetResponse.ok) {
-      const offsetData = await offsetResponse.json();
-      if (offsetData.ok && offsetData.result.length > 0) {
-        latestUpdateId = offsetData.result[0].update_id;
-      }
-    }
-    
-    // Получаем последние сообщения начиная с недавних
-    const startOffset = Math.max(0, latestUpdateId - 500); // Последние 500 обновлений для большего покрытия
+    // Получаем большое количество обновлений для получения истории постов
     const updatesResponse = await fetch(
-      `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates?offset=${startOffset}&limit=100&allowed_updates=["channel_post"]`
+      `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates?offset=0&limit=100&allowed_updates=["channel_post"]`
     );
     
     if (!updatesResponse.ok) {
@@ -224,11 +210,14 @@ async function fetchTelegramChannelPosts(channelName: string, limit: number = 10
       }))
       .filter((post: any) => post.text.length > 10); // Фильтруем пустые посты
 
-    console.log(`[Telegram API] Общий список постов: ${allPosts.length}, последние 3 даты:`);
-    allPosts.slice(0, 3).forEach((post: any, index: number) => {
-      const date = new Date(post.timestamp * 1000);
-      console.log(`${index + 1}. ${date.toLocaleString('ru-RU')} - ${post.text.substring(0, 60)}...`);
-    });
+    console.log(`[Telegram API] Общий список постов: ${allPosts.length}`);
+    if (allPosts.length > 0) {
+      console.log(`[Telegram API] Последние 3 поста:`);
+      allPosts.slice(0, 3).forEach((post: any, index: number) => {
+        const date = new Date(post.timestamp * 1000);
+        console.log(`${index + 1}. ${date.toLocaleString('ru-RU')} - ${post.text.substring(0, 60)}...`);
+      });
+    }
 
     // Сортируем по timestamp (новые сначала) и берем нужное количество
     allPosts.sort((a, b) => b.timestamp - a.timestamp);
