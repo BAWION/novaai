@@ -176,7 +176,7 @@ async function fetchTelegramChannelPosts(channelName: string, limit: number = 10
       throw new Error('No posts found via Telegram API');
     }
 
-    return data.result
+    const posts = data.result
       .filter((update: any) => update.channel_post)
       .map((update: any) => ({
         id: `tg_${update.channel_post.message_id}`,
@@ -185,6 +185,17 @@ async function fetchTelegramChannelPosts(channelName: string, limit: number = 10
         link: `https://t.me/${channelName}/${update.channel_post.message_id}`,
         views: update.channel_post.views
       }));
+    
+    // Сортируем по дате (новые сначала)
+    posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    
+    console.log('[Telegram API] Порядок постов после сортировки:');
+    posts.forEach((post, index) => {
+      const date = new Date(post.date);
+      console.log(`${index + 1}. ${date.toLocaleString('ru-RU')} - ${post.text.substring(0, 60)}...`);
+    });
+    
+    return posts;
 
   } catch (error) {
     console.error('Error fetching Telegram channel posts:', error);
