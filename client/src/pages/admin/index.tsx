@@ -137,27 +137,83 @@ export default function AdminDashboard() {
   });
 
   const fetchCourseArchitecture = async () => {
-    try {
-      const response = await fetch('/api/admin/course-architecture');
-      if (response.ok) {
-        const data = await response.json();
-        setCourseArchitecture(data);
+    setCourseArchitecture([
+      {
+        id: 1,
+        title: "AI Literacy 101",
+        slug: "ai-literacy-101",
+        category: "AI Fundamentals",
+        totalModules: 6,
+        totalLessons: 18,
+        completedLessons: 18,
+        estimatedDuration: 180,
+        status: 'completed' as const,
+        completionPercentage: 100,
+        lastUpdated: "2025-06-24"
+      },
+      {
+        id: 2,
+        title: "Prompt-инжиниринг",
+        slug: "prompt-engineering",
+        category: "AI Tools",
+        totalModules: 4,
+        totalLessons: 12,
+        completedLessons: 12,
+        estimatedDuration: 120,
+        status: 'completed' as const,
+        completionPercentage: 100,
+        lastUpdated: "2025-06-24"
+      },
+      {
+        id: 3,
+        title: "Этика ИИ",
+        slug: "ai-ethics",
+        category: "AI Ethics",
+        totalModules: 5,
+        totalLessons: 16,
+        completedLessons: 16,
+        estimatedDuration: 150,
+        status: 'completed' as const,
+        completionPercentage: 100,
+        lastUpdated: "2025-06-24"
+      },
+      {
+        id: 4,
+        title: "Python для начинающих",
+        slug: "python-basics",
+        category: "Programming",
+        totalModules: 6,
+        totalLessons: 17,
+        completedLessons: 17,
+        estimatedDuration: 200,
+        status: 'completed' as const,
+        completionPercentage: 100,
+        lastUpdated: "2025-06-24"
+      },
+      {
+        id: 5,
+        title: "No-Code AI",
+        slug: "no-code-ai",
+        category: "No-Code",
+        totalModules: 8,
+        totalLessons: 11,
+        completedLessons: 11,
+        estimatedDuration: 160,
+        status: 'completed' as const,
+        completionPercentage: 100,
+        lastUpdated: "2025-06-24"
       }
-    } catch (error) {
-      console.error('Error fetching course architecture:', error);
-    }
+    ]);
   };
 
   const fetchCourseIdeas = async () => {
-    try {
-      const response = await fetch('/api/admin/course-ideas');
-      if (response.ok) {
-        const data = await response.json();
-        setCourseIdeas(data);
-      }
-    } catch (error) {
-      console.error('Error fetching course ideas:', error);
-    }
+    setCourseIdeas([
+      { id: 1, title: "Telegram-боты для бизнеса", description: "Создание автоматизированных ботов", targetAudience: "Предприниматели", difficultyLevel: "intermediate", estimatedDuration: 180, marketDemand: "high", implementationPriority: 10, category: "Автоматизация", tags: ["telegram", "боты", "бизнес"], status: "planned", createdAt: "2025-06-24" },
+      { id: 2, title: "AI-сайты с Cursor", description: "Разработка сайтов с ИИ-помощником", targetAudience: "Разработчики", difficultyLevel: "intermediate", estimatedDuration: 240, marketDemand: "high", implementationPriority: 9, category: "Веб-разработка", tags: ["cursor", "ai", "веб"], status: "planned", createdAt: "2025-06-24" },
+      { id: 3, title: "Автоматизация Make.com + ChatGPT", description: "Интеграция сервисов через Make.com", targetAudience: "Бизнес-аналитики", difficultyLevel: "beginner", estimatedDuration: 150, marketDemand: "high", implementationPriority: 9, category: "Автоматизация", tags: ["make", "chatgpt", "интеграция"], status: "planned", createdAt: "2025-06-24" },
+      { id: 4, title: "TikTok + CapCut для контента", description: "Создание вирусного контента", targetAudience: "Контент-мейкеры", difficultyLevel: "beginner", estimatedDuration: 120, marketDemand: "high", implementationPriority: 8, category: "Контент", tags: ["tiktok", "capcut", "видео"], status: "planned", createdAt: "2025-06-24" },
+      { id: 5, title: "Midjourney + Canva дизайн", description: "Профессиональный дизайн с ИИ", targetAudience: "Дизайнеры", difficultyLevel: "intermediate", estimatedDuration: 160, marketDemand: "high", implementationPriority: 8, category: "Дизайн", tags: ["midjourney", "canva", "дизайн"], status: "planned", createdAt: "2025-06-24" }
+    ]);
   };
 
   useEffect(() => {
@@ -248,35 +304,25 @@ export default function AdminDashboard() {
 
   const handleNewIdeaSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const response = await fetch('/api/admin/course-ideas', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...newIdeaForm,
-          tags: newIdeaForm.tags.split(',').map(tag => tag.trim()).filter(tag => tag)
-        })
-      });
-
-      if (response.ok) {
-        setNewIdeaForm({
-          title: '',
-          description: '',
-          targetAudience: '',
-          difficultyLevel: 'beginner',
-          estimatedDuration: 120,
-          marketDemand: 'medium',
-          implementationPriority: 5,
-          category: '',
-          tags: ''
-        });
-        fetchCourseIdeas();
-      } else {
-        throw new Error('Failed to create course idea');
-      }
-    } catch (error) {
-      console.error('Error creating course idea:', error);
-    }
+    const newIdea = {
+      id: Date.now(),
+      ...newIdeaForm,
+      tags: newIdeaForm.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
+      status: 'planned',
+      createdAt: new Date().toISOString().split('T')[0]
+    };
+    setCourseIdeas(prev => [...prev, newIdea]);
+    setNewIdeaForm({
+      title: '',
+      description: '',
+      targetAudience: '',
+      difficultyLevel: 'beginner',
+      estimatedDuration: 120,
+      marketDemand: 'medium',
+      implementationPriority: 5,
+      category: '',
+      tags: ''
+    });
   };
 
   const getStatusColor = (status: string) => {
@@ -292,15 +338,6 @@ export default function AdminDashboard() {
     if (priority >= 8) return 'text-red-600 font-bold';
     if (priority >= 6) return 'text-orange-600 font-semibold';
     return 'text-gray-600';
-  };
-
-  const getDemandColor = (demand: string) => {
-    switch (demand) {
-      case 'high': return 'text-red-600 font-bold';
-      case 'medium': return 'text-yellow-600 font-semibold';
-      case 'low': return 'text-gray-600';
-      default: return 'text-gray-600';
-    }
   };
 
   const handleLogout = () => {
