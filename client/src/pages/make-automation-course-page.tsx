@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, BookOpen, Clock, CheckCircle, Play, Users, Star, Target, Zap, Bot, BarChart3 } from "lucide-react";
 import { CourseOutline } from "@/components/courses/course-outline";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/context/auth-context";
 
 interface Module {
   id: number;
