@@ -117,6 +117,11 @@ NovaAI University is a comprehensive AI-powered educational platform built with 
 
 ## Changelog
 
+- June 24, 2025: Аудит содержимого курсов
+  - Полностью готовы: AI Literacy 101 (18 уроков), Prompt-инжиниринг (12 уроков), Этика ИИ (16 уроков)
+  - Частично готовы: Python для начинающих (37%), Основы ИИ (25%), Python Полный курс (37%)
+  - Требуют дополнения: структуры данных, функции, ООП в Python курсах
+  - Исправлена система накопления постов в Telegram ленте - новые посты сверху, старые остаются
 - June 23, 2025: Завершена интеграция с Telegram каналом @humanreadytech
   - Создан компонент TelegramFeed для отображения ленты новостей
   - Добавлен API эндпоинт /api/telegram с web scraping функциональностью
