@@ -66,6 +66,11 @@ async function scrapeTelegramChannel(channelName: string, limit: number = 10): P
     const messageBlocks = html.split('class="tgme_widget_message ').slice(1);
     console.log(`[Telegram Scraping] Найдено блоков сообщений: ${messageBlocks.length}`);
     
+    // Проверяем, есть ли в HTML искомый пост о дизайн-системе
+    const hasDesignPost = html.includes('кросс-платформенную дизайн-систему');
+    const hasTimePattern = html.includes('10:16') || html.includes('14:26');
+    console.log(`[Telegram Scraping] Найден пост о дизайн-системе: ${hasDesignPost}, найдены паттерны времени: ${hasTimePattern}`);
+    
     for (let i = 0; i < messageBlocks.length && posts.length < limit; i++) {
       const block = 'class="tgme_widget_message ' + messageBlocks[i];
       
