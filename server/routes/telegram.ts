@@ -1,11 +1,8 @@
-import { Router } from 'express';
+import express from 'express';
 import fetch from 'node-fetch';
 
-const router = Router();
-
-// Реальная интеграция с Telegram Bot API для получения постов из канала
+const router = express.Router();
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const CHANNEL_USERNAME = 'humanreadytech';
 
 interface TelegramPost {
   id: string;
@@ -19,86 +16,128 @@ interface TelegramPost {
   };
 }
 
-// Функция для парсинга публичной страницы канала (Web Scraping)
-async function scrapeChannelPosts(channelName: string, limit: number = 10): Promise<TelegramPost[]> {
+// Новый улучшенный алгоритм парсинга для получения реальных постов
+async function scrapeTelegramChannel(channelName: string, limit: number = 10): Promise<TelegramPost[]> {
   try {
-    const response = await fetch(`https://t.me/s/${channelName}`);
+    console.log(`[Telegram Scraping] Загружаем страницу канала: https://t.me/s/${channelName}`);
+    
+    const response = await fetch(`https://t.me/s/${channelName}`, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9,ru;q=0.8',
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
+      }
+    });
+    
     if (!response.ok) {
-      throw new Error(`Failed to fetch channel page: ${response.statusText}`);
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
     
     const html = await response.text();
+    console.log(`[Telegram Scraping] Получен HTML размером: ${html.length} символов`);
     
-    // Простой парсинг HTML для извлечения постов
+    // Ищем JSON данные в скрипте страницы
+    const scriptMatch = html.match(/<script[^>]*>window\.__INITIAL_STATE__\s*=\s*({.*?});?<\/script>/s);
+    if (scriptMatch) {
+      try {
+        const initialState = JSON.parse(scriptMatch[1]);
+        console.log('[Telegram Scraping] Найдены JSON данные страницы');
+      } catch (e) {
+        console.log('[Telegram Scraping] Ошибка парсинга JSON данных');
+      }
+    }
+    
     const posts: TelegramPost[] = [];
     
-    // Ищем блоки с постами через регулярные выражения
-    const postRegex = /<div class="tgme_widget_message.*?data-post="[^"]+\/(\d+)".*?<div class="tgme_widget_message_text[^>]*>(.*?)<\/div>.*?<time[^>]*datetime="([^"]+)"/gs;
+    // Метод 1: Парсинг через разделение на блоки сообщений
+    const messageBlocks = html.split('class="tgme_widget_message ').slice(1);
+    console.log(`[Telegram Scraping] Найдено блоков сообщений: ${messageBlocks.length}`);
     
-    let match;
-    let postCount = 0;
-    
-    while ((match = postRegex.exec(html)) && postCount < limit) {
-      let textContent = match[1]?.replace(/<[^>]*>/g, '').trim(); // Удаляем HTML теги
+    for (let i = 0; i < messageBlocks.length && posts.length < limit; i++) {
+      const block = 'class="tgme_widget_message ' + messageBlocks[i];
       
-      // Декодируем HTML entities
-      textContent = textContent?.replace(/&amp;/g, '&')
-                              .replace(/&lt;/g, '<')
-                              .replace(/&gt;/g, '>')
-                              .replace(/&quot;/g, '"')
-                              .replace(/&#33;/g, '!')
-                              .replace(/&#39;/g, "'");
+      // Извлекаем ID поста из data-post
+      const postIdMatch = block.match(/data-post="[^"]*\/(\d+)"/);
+      if (!postIdMatch) continue;
       
-      if (textContent && textContent.length > 50) { // Фильтруем слишком короткие посты
-        posts.push({
-          id: `post_${postCount + 1}`,
-          text: textContent.substring(0, 500) + (textContent.length > 500 ? '...' : ''), // Ограничиваем длину
-          date: new Date().toISOString(), // Используем текущую дату
-          link: `https://t.me/${channelName}`,
-          views: undefined
-        });
-        postCount++;
-      }
-    }
-    
-    console.log(`[Telegram Scraping] Найдено постов: ${posts.length} из ${limit} запрошенных`);
-    
-    // Если ничего не нашли через основное регулярное выражение, пробуем более простой метод
-    if (posts.length === 0) {
-      console.log('[Telegram Scraping] Основное регулярное выражение не сработало, пробуем более простой метод...');
+      const postId = postIdMatch[1];
       
-      // Очень простой метод: парсим JSON-LD данные или ищем текст в постах
-      const messageBlocks = html.match(/<div[^>]*class="[^"]*tgme_widget_message[^"]*"[^>]*>/g);
-      console.log(`[Telegram Scraping] Найдено блоков сообщений: ${messageBlocks?.length || 0}`);
+      // Извлекаем текст сообщения
+      const textMatch = block.match(/<div[^>]*class="[^"]*js-message_text[^"]*"[^>]*>(.*?)<\/div>/s);
+      if (!textMatch) continue;
       
-      // Попробуем найти хотя бы текст постов
-      const textBlocks = html.match(/<div[^>]*class="[^"]*tgme_widget_message_text[^"]*"[^>]*>(.*?)<\/div>/gs);
-      console.log(`[Telegram Scraping] Найдено текстовых блоков: ${textBlocks?.length || 0}`);
+      let text = textMatch[1]
+        .replace(/<br\s*\/?>/gi, '\n')
+        .replace(/<a[^>]*href="[^"]*"[^>]*>/gi, '')
+        .replace(/<\/a>/gi, '')
+        .replace(/<[^>]*>/g, '')
+        .replace(/&quot;/g, '"')
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
       
-      if (textBlocks && textBlocks.length > 0) {
-        textBlocks.slice(0, limit).forEach((block, index) => {
-          const textMatch = block.match(/<div[^>]*>(.*?)<\/div>/s);
-          if (textMatch && textMatch[1]) {
-            let text = textMatch[1].replace(/<[^>]*>/g, '').trim();
-            text = text.replace(/&amp;/g, '&').replace(/&#33;/g, '!').replace(/&#39;/g, "'");
-            
-            if (text.length > 20) {
-              posts.push({
-                id: `scraped_${index + 1}`,
-                text: text.substring(0, 400) + (text.length > 400 ? '...' : ''),
-                date: new Date().toISOString(), // Используем текущую дату как fallback
-                link: `https://t.me/${channelName}`,
-                views: undefined
-              });
-            }
+      if (text.length < 20) continue;
+      
+      // Извлекаем дату из datetime атрибута
+      const dateMatch = block.match(/<time[^>]*datetime="([^"]*)"[^>]*>/);
+      let postDate = new Date();
+      if (dateMatch) {
+        try {
+          postDate = new Date(dateMatch[1]);
+          if (isNaN(postDate.getTime())) {
+            console.log(`[Telegram Scraping] Некорректная дата: ${dateMatch[1]}`);
+            postDate = new Date();
           }
-        });
+        } catch (e) {
+          console.log(`[Telegram Scraping] Ошибка парсинга даты: ${dateMatch[1]}`);
+          postDate = new Date();
+        }
       }
       
-      console.log(`[Telegram Scraping] Упрощенный метод нашел: ${posts.length} постов`);
+      // Извлекаем количество просмотров
+      const viewsMatch = block.match(/<span[^>]*class="[^"]*tgme_widget_message_views[^"]*"[^>]*>([^<]+)<\/span>/);
+      let views = undefined;
+      if (viewsMatch) {
+        const viewsStr = viewsMatch[1].replace(/[,\s]/g, '').toLowerCase();
+        if (viewsStr.includes('k') || viewsStr.includes('к')) {
+          views = Math.floor(parseFloat(viewsStr) * 1000);
+        } else if (viewsStr.includes('m') || viewsStr.includes('м')) {
+          views = Math.floor(parseFloat(viewsStr) * 1000000);
+        } else {
+          const numViews = parseInt(viewsStr);
+          if (!isNaN(numViews)) views = numViews;
+        }
+      }
+      
+      posts.push({
+        id: `post_${postId}`,
+        text: text,
+        date: postDate.toISOString(),
+        views: views,
+        link: `https://t.me/${channelName}/${postId}`
+      });
+      
+      console.log(`[Telegram Scraping] Пост ${posts.length}: ${postDate.toISOString()} - ${text.substring(0, 80)}...`);
     }
     
-    return posts.reverse(); // Возвращаем в хронологическом порядке
+    console.log(`[Telegram Scraping] Основной метод нашел: ${posts.length} постов`);
+    
+    // Сортируем по дате публикации (новые сначала)
+    posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    
+    // Логируем финальный порядок постов
+    console.log('[Telegram Scraping] Финальный порядок постов:');
+    posts.forEach((post, index) => {
+      const date = new Date(post.date);
+      console.log(`${index + 1}. ${date.toLocaleString('ru-RU')} - ${post.text.substring(0, 60)}...`);
+    });
+    
+    return posts;
     
   } catch (error) {
     console.error('Error scraping channel posts:', error);
@@ -106,7 +145,7 @@ async function scrapeChannelPosts(channelName: string, limit: number = 10): Prom
   }
 }
 
-// Функция для получения реальных постов из Telegram канала
+// Функция для получения реальных постов из Telegram канала через Bot API
 async function fetchTelegramChannelPosts(channelName: string, limit: number = 10): Promise<TelegramPost[]> {
   if (!TELEGRAM_BOT_TOKEN) {
     throw new Error('TELEGRAM_BOT_TOKEN not configured');
@@ -119,185 +158,89 @@ async function fetchTelegramChannelPosts(channelName: string, limit: number = 10
     );
     
     if (!channelResponse.ok) {
-      console.log(`Telegram API getChat failed, trying web scraping...`);
-      return await scrapeChannelPosts(channelName, limit);
+      throw new Error(`Failed to access channel: ${channelResponse.status}`);
     }
 
-    // Получаем webhook updates (новые сообщения)
+    // Пытаемся получить последние сообщения
     const updatesResponse = await fetch(
-      `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates?allowed_updates=["channel_post"]&limit=${limit}`
+      `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates?limit=${limit}&allowed_updates=["channel_post"]`
     );
     
     if (!updatesResponse.ok) {
-      console.log(`Telegram API getUpdates failed, trying web scraping...`);
-      return await scrapeChannelPosts(channelName, limit);
+      throw new Error(`Failed to get updates: ${updatesResponse.status}`);
     }
 
-    const updatesData = await updatesResponse.json() as any;
+    const data = await updatesResponse.json();
     
-    if (!updatesData.ok) {
-      console.log(`Telegram API error: ${updatesData.description}, trying web scraping...`);
-      return await scrapeChannelPosts(channelName, limit);
+    if (!data.ok || !data.result) {
+      throw new Error('No posts found via Telegram API');
     }
 
-    // Фильтруем и преобразуем сообщения в формат TelegramPost
-    const posts: TelegramPost[] = updatesData.result
-      .filter((update: any) => 
-        update.channel_post && 
-        update.channel_post.chat.username === channelName &&
-        update.channel_post.text
-      )
-      .map((update: any) => {
-        const post = update.channel_post;
-        return {
-          id: post.message_id.toString(),
-          text: post.text,
-          date: new Date(post.date * 1000).toISOString(),
-          views: post.views || undefined,
-          link: `https://t.me/${channelName}/${post.message_id}`,
-          media: post.photo || post.video ? {
-            type: post.photo ? 'photo' : 'video',
-            url: post.photo ? `https://api.telegram.org/file/bot${TELEGRAM_BOT_TOKEN}/${post.photo[0].file_path}` : ''
-          } : undefined
-        };
-      })
-      .slice(0, limit);
-
-    // Если через API ничего не получили, пробуем web scraping
-    if (posts.length === 0) {
-      console.log('No posts from Telegram API, trying web scraping...');
-      return await scrapeChannelPosts(channelName, limit);
-    }
-
-    return posts;
+    return data.result
+      .filter((update: any) => update.channel_post)
+      .map((update: any) => ({
+        id: `tg_${update.channel_post.message_id}`,
+        text: update.channel_post.text || update.channel_post.caption || '',
+        date: new Date(update.channel_post.date * 1000).toISOString(),
+        link: `https://t.me/${channelName}/${update.channel_post.message_id}`,
+        views: update.channel_post.views
+      }));
 
   } catch (error) {
-    console.error('Error fetching Telegram posts via API, trying web scraping:', error);
-    return await scrapeChannelPosts(channelName, limit);
+    console.error('Error fetching Telegram channel posts:', error);
+    throw error;
   }
 }
 
-// GET /api/telegram/channel/:channelName/posts
+// Эндпоинт для получения постов канала
 router.get('/channel/:channelName/posts', async (req, res) => {
   try {
     const { channelName } = req.params;
     const limit = parseInt(req.query.limit as string) || 10;
-
-    // Пытаемся получить реальные данные из Telegram
-    if (channelName === 'humanreadytech' && TELEGRAM_BOT_TOKEN) {
-      try {
-        const posts = await fetchTelegramChannelPosts(channelName, limit);
-        
-        const sourceType = posts.length > 0 && posts[0].views ? 'telegram-api' : 'web-scraping';
-        
-        res.json({
-          success: true,
-          channel: channelName,
-          posts: posts,
-          total: posts.length,
-          source: sourceType
-        });
-        return;
-      } catch (telegramError) {
-        console.error('Telegram API error, falling back to mock data:', telegramError);
-        // Продолжаем с демонстрационными данными в случае ошибки API
-      }
-    }
-
-    // Fallback к демонстрационным данным
-    if (channelName === 'humanreadytech') {
-      const mockPosts: TelegramPost[] = [
-        {
-          id: "1",
-          text: "🚀 Новый прорыв в области ИИ: OpenAI представила GPT-5 с революционными возможностями мультимодального понимания. Модель теперь может анализировать видео в реальном времени и генерировать код для робототехники.\n\n#ИИ #OpenAI #GPT5 #Технологии",
-          date: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 часа назад
-          views: 1250,
-          link: "https://t.me/humanreadytech/1"
-        },
-        {
-          id: "2", 
-          text: "📊 Исследование показало, что 78% компаний планируют увеличить инвестиции в ИИ в 2025 году. Основные направления:\n\n• Автоматизация бизнес-процессов (45%)\n• Персонализация клиентского опыта (32%)\n• Предиктивная аналитика (28%)\n• Кибербезопасность (25%)\n\n#БизнесИИ #Инвестиции #Автоматизация",
-          date: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(), // 5 часов назад
-          views: 890,
-          link: "https://t.me/humanreadytech/2"
-        },
-        {
-          id: "3",
-          text: "🎯 Практический совет дня: При обучении нейронных сетей не забывайте про data augmentation! Это может увеличить точность модели на 15-20% без дополнительных данных.\n\nОсобенно эффективно для:\n✅ Компьютерного зрения\n✅ Обработки естественного языка\n✅ Аудио анализа\n\n#МашинноеОбучение #DataScience #НейронныеСети",
-          date: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(), // 8 часов назад
-          views: 634,
-          link: "https://t.me/humanreadytech/3"
-        },
-        {
-          id: "4",
-          text: "🤖 Anthropic выпустила Claude 3.5 Sonnet с улучшенными возможностями программирования. Новая модель может:\n\n• Анализировать большие кодовые базы\n• Предлагать архитектурные решения\n• Автоматически исправлять баги\n• Генерировать тесты\n\nУже протестировали? Делитесь впечатлениями! 👇\n\n#Claude #Anthropic #ИИПрограммирование",
-          date: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(), // 12 часов назад
-          views: 1456,
-          link: "https://t.me/humanreadytech/4"
-        },
-        {
-          id: "5",
-          text: "📈 Интересная статистика: рынок ИИ-образования вырос на 240% за последний год. Люди активно изучают:\n\n1. Prompt Engineering (35%)\n2. Machine Learning основы (28%)\n3. Computer Vision (18%)\n4. NLP (12%)\n5. Этика ИИ (7%)\n\nА что изучаете вы? 🎓\n\n#ОбразованиеИИ #Обучение #CareerInAI",
-          date: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // 1 день назад
-          views: 723,
-          link: "https://t.me/humanreadytech/5"
-        }
-      ];
-
-      // Ограничиваем количество постов
-      const limitedPosts = mockPosts.slice(0, limit);
+    
+    console.log(`[Telegram API] Запрос постов канала ${channelName}, лимит: ${limit}`);
+    
+    let posts: TelegramPost[] = [];
+    
+    // Сначала пробуем Bot API
+    try {
+      posts = await fetchTelegramChannelPosts(channelName, limit);
+      console.log(`[Telegram API] Получено ${posts.length} постов через Bot API`);
       
-      res.json({
-        success: true,
-        channel: channelName,
-        posts: limitedPosts,
-        total: mockPosts.length,
-        source: 'mock-data'
-      });
-    } else {
-      res.status(404).json({
-        success: false,
-        message: `Channel @${channelName} not found or not configured`
-      });
+      if (posts.length > 0) {
+        return res.json({
+          success: true,
+          posts: posts,
+          source: 'telegram-api',
+          timestamp: new Date().toISOString()
+        });
+      }
+    } catch (apiError) {
+      console.log('No posts from Telegram API, trying web scraping...');
     }
+    
+    // Если Bot API не работает, используем web scraping
+    try {
+      posts = await scrapeTelegramChannel(channelName, limit);
+      console.log(`[Telegram Scraping] Получено ${posts.length} постов через web scraping`);
+      
+      return res.json({
+        success: true,
+        posts: posts,
+        source: 'web-scraping',
+        timestamp: new Date().toISOString()
+      });
+    } catch (scrapingError) {
+      console.error('Web scraping failed:', scrapingError);
+      throw scrapingError;
+    }
+    
   } catch (error) {
-    console.error('Error fetching Telegram posts:', error);
+    console.error('Error in telegram posts endpoint:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch Telegram posts'
-    });
-  }
-});
-
-// GET /api/telegram/channel/:channelName/info
-router.get('/channel/:channelName/info', async (req, res) => {
-  try {
-    const { channelName } = req.params;
-
-    if (channelName === 'humanreadytech') {
-      res.json({
-        success: true,
-        channel: {
-          name: 'humanreadytech',
-          title: 'Human Ready Tech',
-          description: 'Канал об искусственном интеллекте, технологиях и их влиянии на будущее человечества',
-          subscribers: '2.1k',
-          link: 'https://t.me/humanreadytech',
-          verified: false,
-          avatar: null
-        }
-      });
-    } else {
-      res.status(404).json({
-        success: false,
-        message: `Channel @${channelName} not found`
-      });
-    }
-  } catch (error) {
-    console.error('Error fetching channel info:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch channel info'
+      error: 'Failed to fetch Telegram posts',
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
