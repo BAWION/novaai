@@ -144,8 +144,14 @@ export default function TelegramFeed() {
             <div className="text-center py-8">
               <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-3" />
               <p className="text-gray-500 dark:text-gray-400">
-                Нет доступных новостей
+                Не удалось загрузить новости
               </p>
+              <button 
+                onClick={fetchTelegramPosts}
+                className="mt-2 text-blue-500 hover:text-blue-600 text-sm underline"
+              >
+                Повторить попытку
+              </button>
             </div>
           )}
         </div>
