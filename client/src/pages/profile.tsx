@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useUserProfile } from "@/context/user-profile-context";
 import { UserRole, UserInterest } from "@/lib/constants";
 import SkillTracker from "@/components/skills/SkillTracker";
+import { AvatarUploader } from "@/components/profile/avatar-uploader";
 import { useLocation } from "wouter";
 
 // Helper functions for role and interest titles
@@ -111,6 +112,13 @@ export default function Profile() {
   const [activeTab, setActiveTab] = useState("overview");
   const [editMode, setEditMode] = useState(false);
   
+  // Добавляем состояние для аватара
+  const [avatarUrl, setAvatarUrl] = useState("https://i.pravatar.cc/150?img=5");
+  
+  const handleAvatarChange = (newAvatarUrl: string) => {
+    setAvatarUrl(newAvatarUrl);
+  };
+
   const [profileData, setProfileData] = useState({
     displayName: userProfile?.displayName || "Пользователь",
     bio: userProfile?.metadata?.demographic ? 
@@ -166,7 +174,7 @@ export default function Profile() {
                   <div className="flex flex-col items-center text-center">
                     <div className="mb-4">
                       <AvatarUploader 
-                        currentAvatar={profileData.avatarUrl}
+                        currentAvatar={avatarUrl}
                         onAvatarChange={handleAvatarChange}
                       />
                     </div>
