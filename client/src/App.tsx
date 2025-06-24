@@ -131,8 +131,7 @@ function Router() {
           <Route path="/product-demo" component={ProductDemo} />
           
           {/* Admin Panel - Public access with authentication check */}
-          <Route path="/admin" component={AdminPage} />
-          <Route path="/admin/dashboard" component={AdminDashboard} />
+          <Route path="/admin" component={AdminDashboard} />
           
           {/* Protected Routes */}
           <ProtectedRoute path="/dashboard" component={Dashboard} />
