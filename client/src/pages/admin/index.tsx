@@ -540,6 +540,184 @@ export default function AdminDashboard() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
+              <h2 className="text-2xl font-bold mb-6">Course Management</h2>
+              
+              {/* Course Management Actions */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <Glassmorphism className="p-6 rounded-xl">
+                  <h3 className="text-lg font-bold mb-4">Lesson Structure</h3>
+                  <p className="text-white/70 mb-4">
+                    Manage course modules, lessons, and content structure.
+                  </p>
+                  <Button 
+                    onClick={() => setLocation('/admin/lesson-structure')}
+                    className="w-full"
+                  >
+                    <i className="fas fa-sitemap mr-2"></i>
+                    Edit Lesson Structure
+                  </Button>
+                </Glassmorphism>
+
+                <Glassmorphism className="p-6 rounded-xl">
+                  <h3 className="text-lg font-bold mb-4">Content Creation</h3>
+                  <p className="text-white/70 mb-4">
+                    Create and edit course materials, assignments, and quizzes.
+                  </p>
+                  <Button variant="outline" className="w-full" disabled>
+                    <i className="fas fa-plus mr-2"></i>
+                    Coming Soon
+                  </Button>
+                </Glassmorphism>
+              </div>
+
+              {/* Course Architecture & Planning Section */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                {/* Course Architecture */}
+                <Glassmorphism className="p-6 rounded-xl">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Layout className="h-5 w-5 text-blue-400" />
+                    <h3 className="text-lg font-bold">Архитектура курсов</h3>
+                  </div>
+                  <div className="space-y-4 max-h-80 overflow-y-auto">
+                    {courseArchitecture.map((course) => (
+                      <div key={course.id} className="border border-white/20 rounded-lg p-4 bg-white/5">
+                        <div className="flex items-center justify-between mb-3">
+                          <div>
+                            <h4 className="font-semibold text-sm text-white">{course.title}</h4>
+                            <p className="text-xs text-white/60">
+                              {course.totalModules} модулей • {course.totalLessons} уроков
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge className={`text-xs ${getStatusColor(course.status)}`}>
+                              {course.status === 'completed' ? 'Готов' : 
+                               course.status === 'in_progress' ? 'В работе' : 'Черновик'}
+                            </Badge>
+                            <span className="text-sm font-semibold text-white">
+                              {course.completionPercentage}%
+                            </span>
+                          </div>
+                        </div>
+                        <div className="mb-2">
+                          <div className="flex justify-between text-xs mb-1 text-white/60">
+                            <span>Готовность контента</span>
+                            <span>{course.completedLessons}/{course.totalLessons} уроков</span>
+                          </div>
+                          <div className="w-full bg-white/20 rounded-full h-2">
+                            <div 
+                              className="bg-blue-400 h-2 rounded-full transition-all duration-500"
+                              style={{ width: `${course.completionPercentage}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </Glassmorphism>
+
+                {/* Course Ideas Planning */}
+                <Glassmorphism className="p-6 rounded-xl">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Lightbulb className="h-5 w-5 text-yellow-400" />
+                    <h3 className="text-lg font-bold">План курсов</h3>
+                  </div>
+                  
+                  {/* Add New Idea Form */}
+                  <form onSubmit={handleNewIdeaSubmit} className="space-y-3 mb-4">
+                    <Input
+                      value={newIdeaForm.title}
+                      onChange={(e) => setNewIdeaForm(prev => ({ ...prev, title: e.target.value }))}
+                      placeholder="Название курса"
+                      className="text-sm bg-white/10 border-white/20 text-white placeholder:text-white/60"
+                      required
+                    />
+                    <Textarea
+                      value={newIdeaForm.description}
+                      onChange={(e) => setNewIdeaForm(prev => ({ ...prev, description: e.target.value }))}
+                      placeholder="Описание курса"
+                      rows={2}
+                      className="text-sm bg-white/10 border-white/20 text-white placeholder:text-white/60"
+                      required
+                    />
+                    <div className="grid grid-cols-2 gap-2">
+                      <Input
+                        value={newIdeaForm.targetAudience}
+                        onChange={(e) => setNewIdeaForm(prev => ({ ...prev, targetAudience: e.target.value }))}
+                        placeholder="Целевая аудитория"
+                        className="text-sm bg-white/10 border-white/20 text-white placeholder:text-white/60"
+                      />
+                      <Input
+                        value={newIdeaForm.category}
+                        onChange={(e) => setNewIdeaForm(prev => ({ ...prev, category: e.target.value }))}
+                        placeholder="Категория"
+                        className="text-sm bg-white/10 border-white/20 text-white placeholder:text-white/60"
+                      />
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      <Select value={newIdeaForm.difficultyLevel} onValueChange={(value) => setNewIdeaForm(prev => ({ ...prev, difficultyLevel: value }))}>
+                        <SelectTrigger className="text-sm bg-white/10 border-white/20 text-white">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="beginner">Начинающий</SelectItem>
+                          <SelectItem value="intermediate">Средний</SelectItem>
+                          <SelectItem value="advanced">Продвинутый</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Select value={newIdeaForm.marketDemand} onValueChange={(value) => setNewIdeaForm(prev => ({ ...prev, marketDemand: value }))}>
+                        <SelectTrigger className="text-sm bg-white/10 border-white/20 text-white">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="low">Низкий спрос</SelectItem>
+                          <SelectItem value="medium">Средний спрос</SelectItem>
+                          <SelectItem value="high">Высокий спрос</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Input
+                        type="number"
+                        min="1"
+                        max="10"
+                        value={newIdeaForm.implementationPriority}
+                        onChange={(e) => setNewIdeaForm(prev => ({ ...prev, implementationPriority: parseInt(e.target.value) }))}
+                        placeholder="Приоритет"
+                        className="text-sm bg-white/10 border-white/20 text-white placeholder:text-white/60"
+                      />
+                    </div>
+                    <Button type="submit" className="w-full text-sm">
+                      <Plus className="h-4 w-4 mr-1" />
+                      Добавить идею
+                    </Button>
+                  </form>
+
+                  {/* Course Ideas List */}
+                  <div className="space-y-3 max-h-60 overflow-y-auto">
+                    {courseIdeas
+                      .sort((a, b) => b.implementationPriority - a.implementationPriority)
+                      .map((idea) => (
+                      <div key={idea.id} className="border border-white/20 rounded-lg p-3 text-sm bg-white/5">
+                        <div className="flex items-start justify-between mb-2">
+                          <h4 className="font-medium text-sm leading-tight text-white">{idea.title}</h4>
+                          <div className="flex items-center gap-1">
+                            <span className={`text-xs ${getPriorityColor(idea.implementationPriority)}`}>
+                              {idea.implementationPriority}
+                            </span>
+                            <span className="text-xs">
+                              {idea.marketDemand === 'high' ? '🔥' : idea.marketDemand === 'medium' ? '📈' : '📊'}
+                            </span>
+                          </div>
+                        </div>
+                        <p className="text-xs text-white/60 mb-2 line-clamp-2">{idea.description}</p>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-white/50">{idea.targetAudience}</span>
+                          <Badge variant="outline" className="text-xs border-white/20 text-white/80">{idea.category}</Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </Glassmorphism>
+              </div>
+
               <h2 className="text-2xl font-bold mb-6">Course Analytics</h2>
               
               {/* Course Performance Metrics */}
