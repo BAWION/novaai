@@ -952,6 +952,117 @@ export class DatabaseStorage implements IStorage {
     return result;
   }
 
+  // Новые методы для админ-панели
+  async getCourseArchitecture() {
+    const result = await db.execute(sql`
+      SELECT 
+        c.id,
+        c.title,
+        c.slug,
+        c.category,
+        c.estimated_duration,
+        c.updated_at,
+        COUNT(DISTINCT cm.id) as total_modules,
+        COUNT(DISTINCT l.id) as total_lessons,
+        COUNT(DISTINCT CASE WHEN l.content IS NOT NULL AND LENGTH(l.content) > 100 THEN l.id END) as completed_lessons,
+        CASE 
+          WHEN COUNT(DISTINCT l.id) > 0 THEN 
+            CAST(ROUND((COUNT(DISTINCT CASE WHEN l.content IS NOT NULL AND LENGTH(l.content) > 100 THEN l.id END)::decimal / COUNT(DISTINCT l.id)) * 100, 0) AS INTEGER)
+          ELSE 0 
+        END as completion_percentage,
+        CASE 
+          WHEN COUNT(DISTINCT CASE WHEN l.content IS NOT NULL AND LENGTH(l.content) > 100 THEN l.id END) = COUNT(DISTINCT l.id) AND COUNT(DISTINCT l.id) > 0 THEN 'completed'
+          WHEN COUNT(DISTINCT CASE WHEN l.content IS NOT NULL AND LENGTH(l.content) > 100 THEN l.id END) > 0 THEN 'in_progress'
+          ELSE 'draft'
+        END as status
+      FROM courses c
+      LEFT JOIN course_modules cm ON c.id = cm.course_id
+      LEFT JOIN lessons l ON cm.id = l.module_id
+      GROUP BY c.id, c.title, c.slug, c.category, c.estimated_duration, c.updated_at
+      ORDER BY c.created_at DESC
+    `);
+    
+    return result.rows.map((row: any) => ({
+      id: row.id,
+      title: row.title,
+      slug: row.slug,
+      category: row.category,
+      totalModules: parseInt(row.total_modules),
+      totalLessons: parseInt(row.total_lessons),
+      completedLessons: parseInt(row.completed_lessons),
+      estimatedDuration: row.estimated_duration,
+      status: row.status,
+      completionPercentage: row.completion_percentage,
+      lastUpdated: row.updated_at
+    }));
+  }
+
+  async getCourseIdeas() {
+    const result = await db.execute(sql`
+      SELECT 
+        id,
+        title,
+        description,
+        target_audience,
+        difficulty_level,
+        estimated_duration,
+        market_demand,
+        implementation_priority,
+        category,
+        tags,
+        status,
+        created_at
+      FROM course_ideas
+      ORDER BY implementation_priority DESC, created_at DESC
+    `);
+    
+    return result.rows.map((row: any) => ({
+      id: row.id,
+      title: row.title,
+      description: row.description,
+      targetAudience: row.target_audience,
+      difficultyLevel: row.difficulty_level,
+      estimatedDuration: row.estimated_duration,
+      marketDemand: row.market_demand,
+      implementationPriority: row.implementation_priority,
+      category: row.category,
+      tags: row.tags,
+      status: row.status,
+      createdAt: row.created_at
+    }));
+  }
+
+  async createCourseIdea(ideaData: any) {
+    const result = await db.execute(sql`
+      INSERT INTO course_ideas (
+        title,
+        description,
+        target_audience,
+        difficulty_level,
+        estimated_duration,
+        market_demand,
+        implementation_priority,
+        category,
+        tags,
+        suggested_by
+      ) VALUES (
+        ${ideaData.title},
+        ${ideaData.description},
+        ${ideaData.targetAudience},
+        ${ideaData.difficultyLevel},
+        ${ideaData.estimatedDuration},
+        ${ideaData.marketDemand},
+        ${ideaData.implementationPriority},
+        ${ideaData.category},
+        ${ideaData.tags},
+        'admin'
+      )
+      RETURNING *
+    `);
+    
+    return result.rows[0];
+  }
+
 
 
   async getRetentionRate(days: number): Promise<number> {
