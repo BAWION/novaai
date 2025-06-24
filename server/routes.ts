@@ -803,7 +803,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Course routes
   app.get("/api/courses", async (req, res) => {
     try {
+      // Отключаем кэширование для обновления списка курсов
+      res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.set('Pragma', 'no-cache');
+      res.set('Expires', '0');
+      
       const courses = await storage.getAllCourses();
+      console.log(`[Courses API] Возвращаем ${courses.length} курсов`);
       res.json(courses);
     } catch (error) {
       console.error("Get courses error:", error);
