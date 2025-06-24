@@ -2,13 +2,50 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Glassmorphism } from "@/components/ui/glassmorphism";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 import { useLocation } from "wouter";
 import { ParticlesBackground } from "@/components/particles-background";
+import { Plus, Layout, Lightbulb } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface AdminUser {
   username: string;
   role: string;
   permissions: string[];
+}
+
+interface CourseArchitecture {
+  id: number;
+  title: string;
+  slug: string;
+  category: string;
+  totalModules: number;
+  totalLessons: number;
+  completedLessons: number;
+  estimatedDuration: number;
+  status: 'draft' | 'in_progress' | 'completed' | 'published';
+  completionPercentage: number;
+  lastUpdated: string;
+}
+
+interface CourseIdea {
+  id: number;
+  title: string;
+  description: string;
+  targetAudience: string;
+  difficultyLevel: string;
+  estimatedDuration: number;
+  marketDemand: string;
+  implementationPriority: number;
+  category: string;
+  tags: string[];
+  status: string;
+  createdAt: string;
 }
 
 interface DashboardStats {
