@@ -152,18 +152,9 @@ async function fetchTelegramChannelPosts(channelName: string, limit: number = 10
   }
 
   try {
-    // Проверяем доступ к каналу
-    const channelResponse = await fetch(
-      `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getChat?chat_id=@${channelName}`
-    );
-    
-    if (!channelResponse.ok) {
-      throw new Error(`Failed to access channel: ${channelResponse.status}`);
-    }
-
-    // Пытаемся получить последние сообщения
+    // Пытаемся получить последние сообщения напрямую
     const updatesResponse = await fetch(
-      `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates?limit=${limit}&allowed_updates=["channel_post"]`
+      `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates?limit=100&allowed_updates=["channel_post"]`
     );
     
     if (!updatesResponse.ok) {
@@ -176,19 +167,28 @@ async function fetchTelegramChannelPosts(channelName: string, limit: number = 10
       throw new Error('No posts found via Telegram API');
     }
 
-    const posts = data.result
-      .filter((update: any) => update.channel_post)
+    // Фильтруем посты только из нужного канала и извлекаем максимум постов
+    const channelPosts = data.result
+      .filter((update: any) => {
+        return update.channel_post && 
+               update.channel_post.chat && 
+               (update.channel_post.chat.username === channelName ||
+                update.channel_post.chat.title?.includes('HumanReadyTech'));
+      })
       .map((update: any) => ({
         id: `tg_${update.channel_post.message_id}`,
         text: update.channel_post.text || update.channel_post.caption || '',
         date: new Date(update.channel_post.date * 1000).toISOString(),
         link: `https://t.me/${channelName}/${update.channel_post.message_id}`,
-        views: update.channel_post.views
-      }));
+        views: update.channel_post.views || undefined
+      }))
+      .filter((post: any) => post.text.length > 10); // Фильтруем пустые посты
+
+    // Сортируем по дате (новые сначала) и берем нужное количество
+    channelPosts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    const posts = channelPosts.slice(0, limit);
     
-    // Сортируем по дате (новые сначала)
-    posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    
+    console.log(`[Telegram API] Найдено ${channelPosts.length} постов канала, отобрано ${posts.length}`);
     console.log('[Telegram API] Порядок постов после сортировки:');
     posts.forEach((post, index) => {
       const date = new Date(post.date);
