@@ -1489,6 +1489,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Подключаем статические файлы для аватаров
+  app.use('/avatars', express.static(path.join(process.cwd(), 'public', 'avatars')));
+
   const httpServer = createServer(app);
   return httpServer;
 }

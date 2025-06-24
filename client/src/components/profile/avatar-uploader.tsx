@@ -177,10 +177,13 @@ export function AvatarUploader({ currentAvatar, onAvatarChange }: AvatarUploader
       </div>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="bg-gray-900 border-gray-700 max-w-2xl">
+        <DialogContent className="bg-gray-900 border-gray-700 max-w-2xl" aria-describedby="avatar-upload-description">
           <DialogHeader>
             <DialogTitle className="text-white">Изменить фото профиля</DialogTitle>
           </DialogHeader>
+          <p id="avatar-upload-description" className="sr-only">
+            Загрузите собственное фото или создайте аватар с помощью искусственного интеллекта
+          </p>
 
           <div className="space-y-6">
             {/* Загрузка файла */}
