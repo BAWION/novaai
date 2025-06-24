@@ -208,22 +208,24 @@ router.get('/channel/:channelName/posts', async (req, res) => {
   try {
     const { channelName } = req.params;
     const limit = parseInt(req.query.limit as string) || 10;
+    const maxLimit = Math.min(limit, 50); // Ограничиваем максимум 50 постами
     
-    console.log(`[Telegram API] Запрос постов канала ${channelName}, лимит: ${limit}`);
+    console.log(`[Telegram API] Запрос постов канала ${channelName}, лимит: ${maxLimit}`);
     
     let posts: TelegramPost[] = [];
     
     // Сначала пробуем Bot API
     try {
-      posts = await fetchTelegramChannelPosts(channelName, limit);
+      posts = await fetchTelegramChannelPosts(channelName, maxLimit);
       console.log(`[Telegram API] Получено ${posts.length} постов через Bot API`);
       
       if (posts.length > 0) {
         return res.json({
           success: true,
-          posts: posts,
+          posts: posts.slice(0, maxLimit), // Обрезаем до нужного лимита
           source: 'telegram-api',
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
+          total: posts.length
         });
       }
     } catch (apiError) {
@@ -232,14 +234,15 @@ router.get('/channel/:channelName/posts', async (req, res) => {
     
     // Если Bot API не работает, используем web scraping
     try {
-      posts = await scrapeTelegramChannel(channelName, limit);
+      posts = await scrapeTelegramChannel(channelName, maxLimit);
       console.log(`[Telegram Scraping] Получено ${posts.length} постов через web scraping`);
       
       return res.json({
         success: true,
-        posts: posts,
+        posts: posts.slice(0, maxLimit), // Обрезаем до нужного лимита
         source: 'web-scraping',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        total: posts.length
       });
     } catch (scrapingError) {
       console.error('Web scraping failed:', scrapingError);
