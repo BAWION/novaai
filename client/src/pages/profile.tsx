@@ -7,7 +7,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useUserProfile } from "@/context/user-profile-context";
 import { UserRole, UserInterest } from "@/lib/constants";
 import SkillTracker from "@/components/skills/SkillTracker";
-import { AvatarUploader } from "@/components/profile/avatar-uploader";
 import { useLocation } from "wouter";
 
 // Helper functions for role and interest titles
@@ -112,13 +111,6 @@ export default function Profile() {
   const [activeTab, setActiveTab] = useState("overview");
   const [editMode, setEditMode] = useState(false);
   
-  // Добавляем состояние для аватара
-  const [avatarUrl, setAvatarUrl] = useState("https://i.pravatar.cc/150?img=5");
-  
-  const handleAvatarChange = (newAvatarUrl: string) => {
-    setAvatarUrl(newAvatarUrl);
-  };
-
   const [profileData, setProfileData] = useState({
     displayName: userProfile?.displayName || "Пользователь",
     bio: userProfile?.metadata?.demographic ? 
@@ -172,11 +164,14 @@ export default function Profile() {
               >
                 <Glassmorphism className="p-6 rounded-xl">
                   <div className="flex flex-col items-center text-center">
-                    <div className="mb-4">
-                      <AvatarUploader 
-                        currentAvatar={avatarUrl}
-                        onAvatarChange={handleAvatarChange}
-                      />
+                    <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#6E3AFF] to-[#2EBAE1] p-1 mb-4">
+                      <div className="w-full h-full rounded-full overflow-hidden">
+                        <img 
+                          src="https://i.pravatar.cc/150?img=5" 
+                          alt="Profile" 
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
                     </div>
                     <h3 className="text-xl font-semibold text-white mb-2">
                       {profileData.displayName}
