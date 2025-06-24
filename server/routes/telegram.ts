@@ -182,7 +182,7 @@ async function fetchTelegramChannelPosts(channelName: string, limit: number = 10
     }
     
     // Получаем последние сообщения начиная с недавних
-    const startOffset = Math.max(0, latestUpdateId - 200); // Последние 200 обновлений
+    const startOffset = Math.max(0, latestUpdateId - 500); // Последние 500 обновлений для большего покрытия
     const updatesResponse = await fetch(
       `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates?offset=${startOffset}&limit=100&allowed_updates=["channel_post"]`
     );
@@ -198,18 +198,22 @@ async function fetchTelegramChannelPosts(channelName: string, limit: number = 10
     }
 
     // Фильтруем посты только из нужного канала и извлекаем все доступные посты
-    const allPosts = data.result
-      .filter((update: any) => {
-        if (!update.channel_post || !update.channel_post.chat) return false;
-        
-        const chat = update.channel_post.chat;
-        const isTargetChannel = chat.username === channelName || 
-                               chat.username === 'HumanReadyTech' ||
-                               chat.title?.toLowerCase().includes('humanreadytech') ||
-                               chat.title?.toLowerCase().includes('human ready tech');
-        
-        return isTargetChannel;
-      })
+    const allUpdates = data.result.filter((update: any) => {
+      if (!update.channel_post || !update.channel_post.chat) return false;
+      
+      const chat = update.channel_post.chat;
+      const isTargetChannel = chat.username === channelName || 
+                             chat.username === 'HumanReadyTech' ||
+                             chat.id === -1943565331 || // ID канала HumanReadyTech
+                             chat.title?.toLowerCase().includes('humanreadytech') ||
+                             chat.title?.toLowerCase().includes('human ready tech');
+      
+      return isTargetChannel;
+    });
+
+    console.log(`[Telegram API] Всего обновлений: ${data.result.length}, из целевого канала: ${allUpdates.length}`);
+
+    const allPosts = allUpdates
       .map((update: any) => ({
         id: `tg_${update.channel_post.message_id}`,
         text: update.channel_post.text || update.channel_post.caption || '',
