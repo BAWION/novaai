@@ -12,7 +12,6 @@ import { z } from "zod";
 import session from "express-session";
 import memorystore from "memorystore";
 import { checkSecrets } from "./routes/check-secrets";
-import { setCacheHeaders, shouldForceRefresh, CACHE_SETTINGS } from "./utils/cache-helpers";
 import mlApiRouter from "./routes/ml-api";
 import aiAssistantRouter from "./routes/ai-assistant-api";
 import profilesRouter from "./routes/profiles-api";
@@ -46,7 +45,6 @@ import { abTestRouter } from "./routes/ab-test";
 import courseManagementRouter from "./routes/course-management-api";
 import courseInitRouter from "./routes/course-initialization";
 import telegramRouter from "./routes/telegram";
-import profileAvatarRouter from "./routes/profile-avatar";
 
 // Add any middleware needed
 const authMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -805,16 +803,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Course routes
   app.get("/api/courses", async (req, res) => {
     try {
+      // Отключаем кэширование для обновления списка курсов
+      res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.set('Pragma', 'no-cache');
+      res.set('Expires', '0');
+      
       const courses = await storage.getAllCourses();
-      
-      // Умное кэширование с использованием утилит
-      const forceRefresh = shouldForceRefresh(req.query);
-      setCacheHeaders(res, {
-        ...CACHE_SETTINGS.COURSES,
-        forceRefresh
-      });
-      
-      console.log(`[Courses API] Возвращаем ${courses.length} курсов (кэш: ${forceRefresh ? 'отключен' : 'включен'})`);
+      console.log(`[Courses API] Возвращаем ${courses.length} курсов`);
       res.json(courses);
     } catch (error) {
       console.error("Get courses error:", error);
@@ -940,9 +935,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const moduleId = parseInt(req.params.moduleId);
       const lessons = await storage.getModuleLessons(moduleId);
-      
-      // Кэшируем уроки на 15 минут (самый стабильный контент)
-      res.set('Cache-Control', 'public, max-age=900');
       res.json(lessons);
     } catch (error) {
       console.error("Get module lessons error:", error);
@@ -1454,7 +1446,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/course-management', courseManagementRouter);
   app.use('/api/course-init', courseInitRouter);
   app.use('/api/telegram', telegramRouter);
-  app.use('/api/profile/avatar', profileAvatarRouter);
 
   // Admin панель - архитектура курсов
   app.get('/api/admin/course-architecture', async (req, res) => {
@@ -1488,9 +1479,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: 'Failed to create course idea' });
     }
   });
-
-  // Подключаем статические файлы для аватаров
-  app.use('/avatars', express.static(path.join(process.cwd(), 'public', 'avatars')));
 
   const httpServer = createServer(app);
   return httpServer;
