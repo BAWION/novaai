@@ -46,6 +46,7 @@ import { abTestRouter } from "./routes/ab-test";
 import courseManagementRouter from "./routes/course-management-api";
 import courseInitRouter from "./routes/course-initialization";
 import telegramRouter from "./routes/telegram";
+import profileAvatarRouter from "./routes/profile-avatar";
 
 // Add any middleware needed
 const authMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
