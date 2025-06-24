@@ -43,6 +43,12 @@ async function scrapeTelegramChannel(channelName: string, limit: number = 10): P
     const html = await response.text();
     console.log(`[Telegram Scraping] Получен HTML размером: ${html.length} символов`);
     
+    // Проверяем наличие свежих постов (сегодняшняя дата)
+    const todayPattern = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    const yesterdayPattern = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+    const hasTodayPosts = html.includes(todayPattern) || html.includes('10:16') || html.includes('14:26');
+    console.log(`[Telegram Scraping] Ищем посты от ${todayPattern} или ${yesterdayPattern}, найдены: ${hasTodayPosts}`);
+    
     // Ищем JSON данные в скрипте страницы
     const scriptMatch = html.match(/<script[^>]*>window\.__INITIAL_STATE__\s*=\s*({.*?});?<\/script>/s);
     if (scriptMatch) {
@@ -219,7 +225,7 @@ async function fetchTelegramChannelPosts(channelName: string, limit: number = 10
     allPosts.sort((a, b) => b.timestamp - a.timestamp);
     const posts = allPosts.slice(0, limit).map(({ timestamp, ...post }) => post);
     
-    console.log(`[Telegram API] Найдено ${channelPosts.length} постов канала, отобрано ${posts.length}`);
+    console.log(`[Telegram API] Найдено ${allPosts.length} постов канала, отобрано ${posts.length}`);
     console.log('[Telegram API] Порядок постов после сортировки:');
     posts.forEach((post, index) => {
       const date = new Date(post.date);
