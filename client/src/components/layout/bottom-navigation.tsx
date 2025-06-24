@@ -12,9 +12,9 @@ const mainNavItems = [
 const menuItems = [
   { icon: "fa-save", label: "Знания", to: "/knowledge-vault" },
   { icon: "fa-flask", label: "Практика", to: "/labhub" },
-  { icon: "fa-user-astronaut", label: "Профиль", to: "/profile" },
-  { icon: "fa-chart-line", label: "Skills DNA", to: "/skills-dna" },
+  { icon: "fa-users", label: "Сообщества", to: "/community" },
   { icon: "fa-briefcase", label: "Business AI", to: "/business-ai" },
+  { icon: "fa-user-astronaut", label: "Профиль", to: "/profile" },
   { icon: "fa-cog", label: "Настройки", to: "/settings" },
 ];
 
