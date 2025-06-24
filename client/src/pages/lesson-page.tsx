@@ -46,7 +46,7 @@ interface LessonPageProps {
 }
 
 export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
-  const { moduleId, lessonId } = useParams();
+  const { moduleId, lessonId, courseSlug } = useParams();
   const [, navigate] = useLocation();
   const { user, isAuthenticated } = useAuth();
   const { toast } = useToast();
@@ -73,8 +73,19 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
     }
   }, [moduleId, lessonId]);
   
-  // Определяем контекст курса для навигации
-  const courseContext = inCourseContext || "ai-literacy-101";
+  // Получаем информацию о курсе по модулю для правильного формирования URL
+  const { data: courseInfo } = useQuery({
+    queryKey: [`/api/modules/${moduleId}/course`],
+    enabled: !!moduleId,
+    queryFn: async () => {
+      const response = await fetch(`/api/modules/${moduleId}/course`);
+      if (!response.ok) throw new Error('Failed to fetch course info');
+      return await response.json();
+    }
+  });
+
+  // Определяем контекст курса для навигации из URL или API
+  const courseContext = courseSlug || courseInfo?.slug || inCourseContext || "ai-literacy-101";
 
   // Запрос данных урока
   const { data: lesson, isLoading: lessonLoading } = useQuery<Lesson>({
