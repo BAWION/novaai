@@ -168,28 +168,27 @@ async function fetchTelegramChannelPosts(channelName: string, limit: number = 10
   }
 
   try {
-    // Новый подход: получаем больше истории через getChat и getChatHistory
-    const chatResponse = await fetch(
-      `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getChat?chat_id=@${channelName}`
+    // Сначала получаем обновления с большим offset для свежих данных
+    const offsetResponse = await fetch(
+      `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates?offset=-1&limit=1`
     );
-
-    if (!chatResponse.ok) {
-      throw new Error(`Failed to get chat info: ${chatResponse.status}`);
+    
+    let latestUpdateId = 0;
+    if (offsetResponse.ok) {
+      const offsetData = await offsetResponse.json();
+      if (offsetData.ok && offsetData.result.length > 0) {
+        latestUpdateId = offsetData.result[0].update_id;
+      }
     }
-
-    const chatData = await chatResponse.json();
-    if (!chatData.ok) {
-      throw new Error('Failed to get chat data');
-    }
-
-    // Получаем все обновления без offset ограничений 
+    
+    // Получаем последние сообщения начиная с недавних
+    const startOffset = Math.max(0, latestUpdateId - 500); // Последние 500 обновлений для большего покрытия
     const updatesResponse = await fetch(
-      `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates?allowed_updates=["channel_post"]&limit=100`
+      `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates?offset=${startOffset}&limit=100&allowed_updates=["channel_post"]`
     );
     
     if (!updatesResponse.ok) {
-      // Если не получилось через getUpdates, пробуем использовать web scraping как fallback
-      throw new Error(`Updates request failed: ${updatesResponse.status}`);
+      throw new Error(`Failed to get updates: ${updatesResponse.status}`);
     }
 
     const data = await updatesResponse.json();
@@ -198,22 +197,21 @@ async function fetchTelegramChannelPosts(channelName: string, limit: number = 10
       throw new Error('No posts found via Telegram API');
     }
 
-    // Фильтруем все посты из целевого канала (включая старые)
-    const channelId = chatData.result.id;
+    // Фильтруем посты только из нужного канала и извлекаем все доступные посты
     const allUpdates = data.result.filter((update: any) => {
       if (!update.channel_post || !update.channel_post.chat) return false;
       
       const chat = update.channel_post.chat;
-      return chat.id === channelId || 
-             chat.username === channelName || 
-             chat.username === 'HumanReadyTech';
+      const isTargetChannel = chat.username === channelName || 
+                             chat.username === 'HumanReadyTech' ||
+                             chat.id === -1943565331 || // ID канала HumanReadyTech
+                             chat.title?.toLowerCase().includes('humanreadytech') ||
+                             chat.title?.toLowerCase().includes('human ready tech');
+      
+      return isTargetChannel;
     });
 
-    console.log(`[Telegram API] Всего обновлений: ${data.result.length}, из канала ${channelName}: ${allUpdates.length}`);
-
-    if (allUpdates.length === 0) {
-      throw new Error('No channel posts found in updates');
-    }
+    console.log(`[Telegram API] Всего обновлений: ${data.result.length}, из целевого канала: ${allUpdates.length}`);
 
     const allPosts = allUpdates
       .map((update: any) => ({
@@ -224,7 +222,13 @@ async function fetchTelegramChannelPosts(channelName: string, limit: number = 10
         views: update.channel_post.views || undefined,
         timestamp: update.channel_post.date
       }))
-      .filter((post: any) => post.text.length > 10);
+      .filter((post: any) => post.text.length > 10); // Фильтруем пустые посты
+
+    console.log(`[Telegram API] Общий список постов: ${allPosts.length}, последние 3 даты:`);
+    allPosts.slice(0, 3).forEach((post: any, index: number) => {
+      const date = new Date(post.timestamp * 1000);
+      console.log(`${index + 1}. ${date.toLocaleString('ru-RU')} - ${post.text.substring(0, 60)}...`);
+    });
 
     // Сортируем по timestamp (новые сначала) и берем нужное количество
     allPosts.sort((a, b) => b.timestamp - a.timestamp);
@@ -232,7 +236,7 @@ async function fetchTelegramChannelPosts(channelName: string, limit: number = 10
     
     console.log(`[Telegram API] Найдено ${allPosts.length} постов канала, отобрано ${posts.length}`);
     console.log('[Telegram API] Порядок постов после сортировки:');
-    posts.slice(0, 3).forEach((post, index) => {
+    posts.forEach((post, index) => {
       const date = new Date(post.date);
       console.log(`${index + 1}. ${date.toLocaleString('ru-RU')} - ${post.text.substring(0, 60)}...`);
     });
@@ -261,16 +265,14 @@ router.get('/channel/:channelName/posts', async (req, res) => {
       posts = await fetchTelegramChannelPosts(channelName, maxLimit);
       console.log(`[Telegram API] Получено ${posts.length} постов через Bot API`);
       
-      if (posts.length >= 3) { // Минимум 3 поста для нормальной прокрутки
+      if (posts.length > 0) {
         return res.json({
           success: true,
-          posts: posts.slice(0, maxLimit),
+          posts: posts.slice(0, maxLimit), // Обрезаем до нужного лимита
           source: 'telegram-api',
           timestamp: new Date().toISOString(),
           total: posts.length
         });
-      } else if (posts.length > 0) {
-        console.log(`[Telegram API] Получено только ${posts.length} постов, пробуем web scraping для дополнения...`);
       }
     } catch (apiError) {
       console.log('No posts from Telegram API, trying web scraping...');
