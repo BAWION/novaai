@@ -348,6 +348,20 @@ export class DatabaseStorage implements IStorage {
     return updatedModule;
   }
 
+  async getCourseByModuleId(moduleId: number): Promise<{ id: number; slug: string; title: string } | undefined> {
+    const [result] = await db
+      .select({
+        id: courses.id,
+        slug: courses.slug,
+        title: courses.title
+      })
+      .from(courses)
+      .innerJoin(courseModules, eq(courses.id, courseModules.courseId))
+      .where(eq(courseModules.id, moduleId));
+    
+    return result;
+  }
+
   // Lesson methods
   async getLesson(id: number): Promise<Lesson | undefined> {
     const [lesson] = await db.select().from(lessons).where(eq(lessons.id, id));
