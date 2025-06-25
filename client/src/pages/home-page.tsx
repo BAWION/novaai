@@ -257,52 +257,8 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Courses Catalog Section */}
-        <section id="courses" className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 bg-black/20">
-          <div className="container mx-auto">
-            <div className="text-center mb-8 sm:mb-12 md:mb-16">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">Каталог курсов</h2>
-              <p className="text-base sm:text-lg md:text-xl text-white/70 max-w-2xl mx-auto">
-                Выберите курс для изучения ИИ и машинного обучения
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
-              <Glassmorphism className="h-full p-4 sm:p-6 rounded-xl border border-white/5">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full bg-primary/20 flex items-center justify-center text-primary mb-3 sm:mb-4">
-                  <i className="fas fa-brain text-xl sm:text-2xl"></i>
-                </div>
-                <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3">AI Literacy 101</h3>
-                <p className="text-sm sm:text-base text-white/70 mb-4">Основы искусственного интеллекта для начинающих</p>
-                <a href="/courses" className="inline-block py-2 px-4 rounded bg-primary hover:bg-primary/90 transition-colors text-white no-underline font-medium text-sm">
-                  Изучить курс
-                </a>
-              </Glassmorphism>
-              
-              <Glassmorphism className="h-full p-4 sm:p-6 rounded-xl border border-white/5">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full bg-primary/20 flex items-center justify-center text-primary mb-3 sm:mb-4">
-                  <i className="fas fa-code text-xl sm:text-2xl"></i>
-                </div>
-                <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3">Python для ML</h3>
-                <p className="text-sm sm:text-base text-white/70 mb-4">Программирование на Python для машинного обучения</p>
-                <a href="/courses" className="inline-block py-2 px-4 rounded bg-primary hover:bg-primary/90 transition-colors text-white no-underline font-medium text-sm">
-                  Изучить курс
-                </a>
-              </Glassmorphism>
-              
-              <Glassmorphism className="h-full p-4 sm:p-6 rounded-xl border border-white/5">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full bg-primary/20 flex items-center justify-center text-primary mb-3 sm:mb-4">
-                  <i className="fas fa-robot text-xl sm:text-2xl"></i>
-                </div>
-                <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3">No-Code AI</h3>
-                <p className="text-sm sm:text-base text-white/70 mb-4">Создание ИИ-решений без программирования</p>
-                <a href="/courses" className="inline-block py-2 px-4 rounded bg-primary hover:bg-primary/90 transition-colors text-white no-underline font-medium text-sm">
-                  Изучить курс
-                </a>
-              </Glassmorphism>
-            </div>
-          </div>
-        </section>
+        {/* Courses Library Section */}
+        <CourseCatalogSection />
         
         {/* Platform Demo */}
         <section className="py-12 px-6 bg-black/30">
@@ -918,6 +874,9 @@ interface Course {
   level?: string;
   duration?: number;
   slug?: string;
+  moduleCount?: number;
+  estimatedHours?: number;
+  progress?: number;
 }
 
 // Course Catalog Section Component
@@ -944,7 +903,7 @@ function CourseCatalogSection() {
   ];
 
   // Get course level color and icon
-  const getLevelInfo = (level: string) => {
+  const getLevelInfo = (level: string | undefined) => {
     switch (level?.toLowerCase()) {
       case "beginner":
       case "начальный":
@@ -961,8 +920,8 @@ function CourseCatalogSection() {
   };
 
   // Get course category
-  const getCourseCategory = (title: string, description: string) => {
-    const text = `${title} ${description}`.toLowerCase();
+  const getCourseCategory = (title: string, description: string | undefined) => {
+    const text = `${title} ${description || ""}`.toLowerCase();
     if (text.includes("python")) return "python";
     if (text.includes("автоматизация") || text.includes("zapier") || text.includes("make")) return "automation";
     if (text.includes("no-code") || text.includes("без кода")) return "no-code";
@@ -1110,16 +1069,21 @@ function CourseCatalogSection() {
                       </div>
                     )}
 
-                    {/* Course Action Button */}
-                    <motion.a
-                      href={`/courses/${course.slug || course.id}`}
-                      className="inline-flex items-center justify-center w-full py-3 px-6 rounded-lg bg-gradient-to-r from-primary/80 to-secondary/80 hover:from-primary hover:to-secondary text-white font-medium transition-all duration-300 group-hover:shadow-lg group-hover:shadow-primary/25"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      {course.progress > 0 ? "Продолжить изучение" : "Начать курс"}
-                      <i className="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform duration-300"></i>
-                    </motion.a>
+                    {/* Course Info Summary */}
+                    <div className="pt-2 border-t border-white/10">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-white/60">Уровень:</span>
+                        <span className={`px-2 py-1 rounded-full text-xs bg-gradient-to-r ${levelInfo.color}`}>
+                          {levelInfo.text}
+                        </span>
+                      </div>
+                      {course.duration && (
+                        <div className="flex items-center justify-between text-sm mt-2">
+                          <span className="text-white/60">Продолжительность:</span>
+                          <span className="text-white/80">{course.duration} мин</span>
+                        </div>
+                      )}
+                    </div>
                   </Glassmorphism>
                 </motion.div>
               );
