@@ -83,34 +83,24 @@ export default function HomePage() {
   // Ключевые возможности платформы
   const keyFeatures = [
     {
-      icon: "fa-graduation-cap",
-      title: "Персонализированное обучение",
-      description: "AI-система подбирает оптимальный путь обучения на основе ваших целей и опыта"
+      icon: "fa-dna",
+      title: "Skills DNA",
+      description: "Многоуровневая диагностика навыков с визуализацией на радарной диаграмме. Отслеживайте рост компетенций в реальном времени после каждого урока"
     },
     {
-      icon: "fa-laptop-code",
-      title: "Практические задания",
-      description: "Интерактивные лаборатории для мгновенного применения навыков с автоматической проверкой и моментальной обратной связью"
+      icon: "fa-brain",
+      title: "Умный подбор курсов",
+      description: "ИИ анализирует ваш Skills DNA профиль и автоматически рекомендует оптимальные курсы для закрытия пробелов в знаниях"
     },
     {
-      icon: "fa-certificate",
-      title: "NFT сертификаты",
-      description: "Подтверждение квалификации с помощью защищенных от подделки сертификатов на блокчейне"
+      icon: "fa-chart-line",
+      title: "Адаптивный прогресс",
+      description: "Каждый завершенный урок мгновенно обновляет ваш Skills DNA. Видите влияние обучения на развитие навыков сразу"
     },
     {
-      icon: "fa-users",
-      title: "Сообщество специалистов",
-      description: "Общение с единомышленниками, участие в хакатонах и совместная работа над проектами"
-    },
-    {
-      icon: "fa-rocket",
-      title: "Карьерная поддержка",
-      description: "Трудоустройство в компании-партнеры и помощь в построении карьеры в AI и Data Science"
-    },
-    {
-      icon: "fa-briefcase",
-      title: "Business AI Module",
-      description: "Инструменты для внедрения ИИ в бизнес-процессы и расчета ROI"
+      icon: "fa-robot",
+      title: "ИИ-тьютор",
+      description: "Персональный наставник на базе OpenAI GPT-4o помогает в изучении материала, отвечает на вопросы и дает подсказки 24/7"
     }
   ];
 
@@ -232,7 +222,7 @@ export default function HomePage() {
             <div className="text-center mb-8 sm:mb-12 md:mb-16">
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">Почему выбирают NovaAI </h2>
               <p className="text-base sm:text-lg md:text-xl text-white/70 max-w-2xl mx-auto">
-                Платформа, где <span className="font-bold text-white">ИИ сам проектирует и обновляет</span> образовательный контент, а вы <span className="font-bold text-white">мгновенно применяете</span> новые навыки
+                Платформа с <span className="font-bold text-white">Skills DNA диагностикой</span> и <span className="font-bold text-white">умным подбором курсов</span> для персонализированного обучения ИИ
               </p>
             </div>
             
@@ -272,40 +262,40 @@ export default function HomePage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="max-w-lg">
                     <h2 className="text-3xl font-bold mb-6">
-                      Ваш персональный путь <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">в мир AI</span>
+                      <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">Skills DNA</span> — ваш навигатор в мире ИИ
                     </h2>
                     <p className="text-white/80 text-lg mb-8">
-                      NovaAI University — это единственная на российском рынке онлайн-экосистема, где ИИ сам проектирует, обновляет и персонализирует обучение для пользователей от школьника до Senior-разработчика.
+                      NovaAI University создает персональную карту навыков Skills DNA, которая обновляется после каждого урока и автоматически подбирает оптимальные курсы для вашего роста.
                     </p>
                     <ul className="space-y-4 mb-8">
                       <li className="flex gap-3 items-start">
                         <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-primary flex-shrink-0 mt-1">
-                          <i className="fas fa-robot text-sm"></i>
+                          <i className="fas fa-dna text-sm"></i>
                         </div>
-                        <p className="text-white/80"><span className="font-bold text-white">ИИ-контент</span>: система сама создает, обновляет и адаптирует образовательные материалы</p>
+                        <p className="text-white/80"><span className="font-bold text-white">Skills DNA диагностика</span>: многоуровневая оценка навыков с визуализацией на радарной диаграмме</p>
                       </li>
                       <li className="flex gap-3 items-start">
                         <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-primary flex-shrink-0 mt-1">
-                          <i className="fas fa-bolt text-sm"></i>
+                          <i className="fas fa-brain text-sm"></i>
                         </div>
-                        <p className="text-white/80"><span className="font-bold text-white">Мгновенное применение</span>: практические задания для немедленного закрепления навыков</p>
+                        <p className="text-white/80"><span className="font-bold text-white">Умный подбор курсов</span>: ИИ анализирует ваш профиль и рекомендует оптимальные курсы</p>
                       </li>
                       <li className="flex gap-3 items-start">
                         <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-primary flex-shrink-0 mt-1">
                           <i className="fas fa-chart-line text-sm"></i>
                         </div>
-                        <p className="text-white/80"><span className="font-bold text-white">Адаптивная траектория</span>: система подстраивается под ваши цели и опыт</p>
+                        <p className="text-white/80"><span className="font-bold text-white">Живое обновление навыков</span>: Skills DNA обновляется после каждого завершенного урока</p>
                       </li>
                     </ul>
                     <a href="/onboarding-intro" className="inline-block py-2 px-6 rounded bg-primary hover:bg-primary/90 transition-colors text-white no-underline font-medium">
-                      Персонализировать свой путь
+                      Создать Skills DNA профиль
                     </a>
                   </div>
                   <div className="relative overflow-hidden rounded-lg border border-white/10 bg-black/30 h-full flex items-center justify-center">
                     <div className="text-center p-8">
-                      <i className="fas fa-chart-line text-6xl text-primary/60 mb-6 block"></i>
-                      <h3 className="text-xl font-bold mb-4">Адаптивное обучение</h3>
-                      <p className="text-white/70">Платформа формирует индивидуальную траекторию обучения и рекомендует наиболее релевантные курсы</p>
+                      <i className="fas fa-dna text-6xl text-primary/60 mb-6 block"></i>
+                      <h3 className="text-xl font-bold mb-4">Skills DNA в действии</h3>
+                      <p className="text-white/70">Система анализирует ваши навыки и автоматически обновляет радарную диаграмму после каждого урока</p>
                     </div>
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-black/0 pointer-events-none"></div>
                   </div>
