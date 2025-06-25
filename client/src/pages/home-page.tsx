@@ -907,15 +907,15 @@ function CourseCatalogSection() {
     switch (level?.toLowerCase()) {
       case "beginner":
       case "начальный":
-        return { color: "from-green-500 to-emerald-500", text: "Начальный" };
+        return { color: "from-green-500 to-emerald-500", text: "Базовый" };
       case "intermediate":
       case "средний":
         return { color: "from-yellow-500 to-orange-500", text: "Средний" };
       case "advanced":
       case "продвинутый":
-        return { color: "from-red-500 to-pink-500", text: "Продвинутый" };
+        return { color: "from-red-500 to-pink-500", text: "Эксперт" };
       default:
-        return { color: "from-blue-500 to-purple-500", text: "Все уровни" };
+        return { color: "from-blue-500 to-purple-500", text: "Любой" };
     }
   };
 
@@ -1085,7 +1085,7 @@ function CourseCatalogSection() {
                       <span className="text-xs text-white/60 uppercase tracking-wider">
                         {categories.find(cat => cat.id === getCourseCategory(course.title, course.description))?.name || 'Общее'}
                       </span>
-                      <span className={`px-1.5 py-0.5 rounded text-xs font-medium bg-gradient-to-r ${levelInfo.color}`}>
+                      <span className={`px-1.5 py-0.5 rounded text-xs font-medium bg-gradient-to-r ${levelInfo.color} whitespace-nowrap min-w-[70px] text-center flex-shrink-0`}>
                         {levelInfo.text}
                       </span>
                     </div>
