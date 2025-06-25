@@ -941,7 +941,7 @@ function CourseCatalogSection() {
         <div className="container mx-auto">
           <div className="text-center">
             <div className="w-12 h-12 rounded-full border-4 border-primary/30 border-t-primary animate-spin mx-auto"></div>
-            <p className="text-white/70 mt-4">Загружаем каталог курсов...</p>
+            <p className="text-white/70 mt-4">Загружаем библиотеку курсов...</p>
           </div>
         </div>
       </section>
@@ -959,7 +959,7 @@ function CourseCatalogSection() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            Каталог <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">курсов</span>
+            Библиотека <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">курсов</span>
           </motion.h2>
           <motion.p 
             className="text-lg sm:text-xl text-white/70 max-w-3xl mx-auto"
@@ -967,7 +967,7 @@ function CourseCatalogSection() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
           >
-            Откройте для себя обширную библиотеку курсов по искусственному интеллекту, машинному обучению и современным технологиям
+            Исследуйте нашу коллекцию образовательных курсов по искусственному интеллекту, программированию и инновационным технологиям
           </motion.p>
         </div>
 
