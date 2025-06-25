@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, lazy, Suspense } from "react";
 import { Switch, Route, useLocation } from "wouter";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/context/auth-context";
@@ -154,8 +154,8 @@ function Router() {
           {/* Курсы с ИИ-ассистентом */}
           <ProtectedRoute path="/course-ai/:courseId?" component={CourseAI} />
           
-          {/* Детальная страница курса - публичный доступ */}
-          <Route path="/courses/:slug" component={CoursePage} />
+          {/* Детальная страница курса - защищенный доступ */}
+          <ProtectedRoute path="/courses/:slug" component={CoursePage} />
           
           {/* Управление курсами */}
           <ProtectedRoute path="/course-management" component={CourseManagement} />
