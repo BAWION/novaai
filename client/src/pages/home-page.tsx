@@ -956,6 +956,33 @@ function CourseCatalogSection() {
     return hoursData[course.title] || course.estimatedHours || Math.floor(Math.random() * 15) + 8;
   };
 
+  const getCourseTags = (course: Course) => {
+    // Реальные теги для каждого курса
+    const courseTags: { [key: string]: string[] } = {
+      "AI Literacy 101": ["Основы", "Теория", "Концепции"],
+      "Основы искусственного интеллекта": ["Основы", "Теория", "Концепции"],
+      "Python Basics": ["Программирование", "Практика", "Синтаксис"],
+      "Основы Python": ["Программирование", "Практика", "Синтаксис"],
+      "Prompt Engineering": ["GPT", "Промпты", "Оптимизация"],
+      "Промпт-инжиниринг": ["GPT", "Промпты", "Оптимизация"],
+      "Этика ИИ": ["Этика", "Ответственность", "Общество"],
+      "No-Code AI": ["Автоматизация", "Интеграции", "API"],
+      "Создание Telegram-ботов на Replit без кода": ["Боты", "Telegram", "Без кода"],
+      "Автоматизация Make.com+ChatGPT": ["Make.com", "ChatGPT", "Воркфлоу"]
+    };
+
+    // Общие теги на основе категории
+    const categoryTag = getCourseCategory(course.title, course.description);
+    const defaultTags = {
+      "ai": ["Машинное обучение", "Нейросети"],
+      "python": ["Алгоритмы", "Данные"],
+      "automation": ["Интеграции", "API"],
+      "no-code": ["Визуальное программирование", "Инструменты"]
+    };
+
+    return courseTags[course.title] || defaultTags[categoryTag] || ["Технологии", "Обучение"];
+  };
+
   // Get course category
   const getCourseCategory = (title: string, description: string | undefined) => {
     const text = `${title} ${description || ""}`.toLowerCase();
@@ -1058,7 +1085,7 @@ function CourseCatalogSection() {
                       <span className="text-xs text-white/60 uppercase tracking-wider">
                         {categories.find(cat => cat.id === getCourseCategory(course.title, course.description))?.name || 'Общее'}
                       </span>
-                      <span className={`px-2 py-1 rounded text-xs font-medium bg-gradient-to-r ${levelInfo.color}`}>
+                      <span className={`px-1.5 py-0.5 rounded text-xs font-medium bg-gradient-to-r ${levelInfo.color}`}>
                         {levelInfo.text}
                       </span>
                     </div>
@@ -1081,7 +1108,7 @@ function CourseCatalogSection() {
 
                     {/* Progress Bar (if available) */}
                     {course.progress !== undefined && course.progress > 0 && (
-                      <div className="mb-2">
+                      <div className="mb-3">
                         <div className="flex justify-between items-center mb-1">
                           <span className="text-xs text-white/60">Прогресс</span>
                           <span className="text-xs text-primary">{course.progress}%</span>
@@ -1096,6 +1123,18 @@ function CourseCatalogSection() {
                         </div>
                       </div>
                     )}
+
+                    {/* Course Tags */}
+                    <div className="flex flex-wrap gap-1">
+                      {getCourseTags(course).slice(0, 3).map((tag, tagIndex) => (
+                        <span 
+                          key={tagIndex}
+                          className="px-1.5 py-0.5 bg-white/10 text-white/70 text-xs rounded"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
                   </Glassmorphism>
                 </motion.div>
               );
