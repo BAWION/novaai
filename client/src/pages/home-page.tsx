@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link, useLocation } from "wouter";
 import { ParticlesBackground } from "@/components/particles-background";
+import { useQuery } from "@tanstack/react-query";
 // Removed AppIntegrationTest import
 import { screenshots } from "../screenshots";
 
@@ -256,7 +257,8 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Раздел с тестом интеграции удален */}
+        {/* Courses Catalog Section */}
+        <CourseCatalogSection />
         
         {/* Platform Demo */}
         <section className="py-12 px-6 bg-black/30">
@@ -863,3 +865,247 @@ export default function HomePage() {
     </div>
   );
 }
+
+// Course Catalog Section Component
+function CourseCatalogSection() {
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  
+  // Fetch courses data
+  const { data: courses, isLoading } = useQuery({
+    queryKey: ["/api/courses"],
+    queryFn: async () => {
+      const response = await fetch("/api/courses");
+      if (!response.ok) throw new Error("Failed to fetch courses");
+      return response.json();
+    },
+  });
+
+  // Course categories for filtering
+  const categories = [
+    { id: "all", name: "Все курсы", icon: "fa-book-open" },
+    { id: "ai", name: "Искусственный интеллект", icon: "fa-brain" },
+    { id: "python", name: "Python", icon: "fa-code" },
+    { id: "automation", name: "Автоматизация", icon: "fa-robot" },
+    { id: "no-code", name: "No-Code", icon: "fa-magic" },
+  ];
+
+  // Get course level color and icon
+  const getLevelInfo = (level) => {
+    switch (level?.toLowerCase()) {
+      case "beginner":
+      case "начальный":
+        return { color: "from-green-500 to-emerald-500", icon: "fa-seedling", text: "Начальный" };
+      case "intermediate":
+      case "средний":
+        return { color: "from-yellow-500 to-orange-500", icon: "fa-chart-line", text: "Средний" };
+      case "advanced":
+      case "продвинутый":
+        return { color: "from-red-500 to-pink-500", icon: "fa-rocket", text: "Продвинутый" };
+      default:
+        return { color: "from-blue-500 to-purple-500", icon: "fa-star", text: "Все уровни" };
+    }
+  };
+
+  // Get course category
+  const getCourseCategory = (title, description) => {
+    const text = `${title} ${description}`.toLowerCase();
+    if (text.includes("python")) return "python";
+    if (text.includes("автоматизация") || text.includes("zapier") || text.includes("make")) return "automation";
+    if (text.includes("no-code") || text.includes("без кода")) return "no-code";
+    if (text.includes("ai") || text.includes("ии") || text.includes("нейрон") || text.includes("машинное")) return "ai";
+    return "ai"; // default to AI category
+  };
+
+  // Filter courses by category
+  const filteredCourses = courses?.filter(course => {
+    if (selectedCategory === "all") return true;
+    return getCourseCategory(course.title, course.description || "") === selectedCategory;
+  }) || [];
+
+  if (isLoading) {
+    return (
+      <section id="courses" className="py-16 sm:py-20 px-4 sm:px-6 bg-gradient-to-b from-black/40 to-black/20">
+        <div className="container mx-auto">
+          <div className="text-center">
+            <div className="w-12 h-12 rounded-full border-4 border-primary/30 border-t-primary animate-spin mx-auto"></div>
+            <p className="text-white/70 mt-4">Загружаем каталог курсов...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section id="courses" className="py-16 sm:py-20 px-4 sm:px-6 bg-gradient-to-b from-black/40 to-black/20">
+      <div className="container mx-auto">
+        {/* Section Header */}
+        <div className="text-center mb-12 sm:mb-16">
+          <motion.h2 
+            className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            Каталог <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">курсов</span>
+          </motion.h2>
+          <motion.p 
+            className="text-lg sm:text-xl text-white/70 max-w-3xl mx-auto"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+          >
+            Откройте для себя обширную библиотеку курсов по искусственному интеллекту, машинному обучению и современным технологиям
+          </motion.p>
+        </div>
+
+        {/* Category Filter */}
+        <motion.div 
+          className="flex flex-wrap justify-center gap-3 sm:gap-4 mb-8 sm:mb-12"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          {categories.map((category, index) => (
+            <motion.button
+              key={category.id}
+              onClick={() => setSelectedCategory(category.id)}
+              className={`px-4 sm:px-6 py-2 sm:py-3 rounded-full font-medium transition-all duration-300 ${
+                selectedCategory === category.id
+                  ? "bg-gradient-to-r from-primary to-secondary text-white shadow-lg shadow-primary/25"
+                  : "bg-white/10 text-white/70 hover:bg-white/20 hover:text-white"
+              }`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.3 + index * 0.1 }}
+            >
+              <i className={`fas ${category.icon} mr-2`}></i>
+              {category.name}
+            </motion.button>
+          ))}
+        </motion.div>
+
+        {/* Courses Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+          <AnimatePresence mode="wait">
+            {filteredCourses.map((course, index) => {
+              const levelInfo = getLevelInfo(course.level);
+              
+              return (
+                <motion.div
+                  key={course.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -30 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  whileHover={{ y: -8 }}
+                  className="group"
+                >
+                  <Glassmorphism className="h-full p-6 rounded-xl border border-white/10 bg-black/20 backdrop-blur-md overflow-hidden relative">
+                    {/* Course Level Badge */}
+                    <div className="absolute top-4 right-4">
+                      <div className={`px-3 py-1 rounded-full bg-gradient-to-r ${levelInfo.color} text-white text-xs font-medium flex items-center gap-1`}>
+                        <i className={`fas ${levelInfo.icon}`}></i>
+                        {levelInfo.text}
+                      </div>
+                    </div>
+
+                    {/* Course Icon */}
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-primary/30 to-secondary/30 flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform duration-300">
+                      <i className="fas fa-graduation-cap text-2xl sm:text-3xl"></i>
+                    </div>
+
+                    {/* Course Title */}
+                    <h3 className="text-xl sm:text-2xl font-bold mb-3 text-white group-hover:text-primary transition-colors duration-300">
+                      {course.title}
+                    </h3>
+
+                    {/* Course Description */}
+                    <p className="text-white/70 text-sm sm:text-base mb-6 line-clamp-3">
+                      {course.description || "Изучите современные технологии и методики с нашими экспертными преподавателями"}
+                    </p>
+
+                    {/* Course Stats */}
+                    <div className="flex items-center gap-4 mb-6 text-sm text-white/60">
+                      <div className="flex items-center gap-1">
+                        <i className="fas fa-book text-primary"></i>
+                        <span>{course.moduleCount || 0} модулей</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <i className="fas fa-clock text-primary"></i>
+                        <span>{course.estimatedHours || "2-4"} часа</span>
+                      </div>
+                    </div>
+
+                    {/* Progress Bar (if available) */}
+                    {course.progress !== undefined && (
+                      <div className="mb-6">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-sm text-white/70">Прогресс</span>
+                          <span className="text-sm text-primary font-medium">{course.progress}%</span>
+                        </div>
+                        <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+                          <motion.div 
+                            className="h-full bg-gradient-to-r from-primary to-secondary rounded-full"
+                            initial={{ width: 0 }}
+                            animate={{ width: `${course.progress}%` }}
+                            transition={{ duration: 1, delay: index * 0.2 }}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Course Action Button */}
+                    <motion.a
+                      href={`/courses/${course.slug || course.id}`}
+                      className="inline-flex items-center justify-center w-full py-3 px-6 rounded-lg bg-gradient-to-r from-primary/80 to-secondary/80 hover:from-primary hover:to-secondary text-white font-medium transition-all duration-300 group-hover:shadow-lg group-hover:shadow-primary/25"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      {course.progress > 0 ? "Продолжить изучение" : "Начать курс"}
+                      <i className="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform duration-300"></i>
+                    </motion.a>
+                  </Glassmorphism>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
+        </div>
+
+        {/* Empty State */}
+        {filteredCourses.length === 0 && (
+          <motion.div 
+            className="text-center py-12"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            <i className="fas fa-search text-6xl text-white/30 mb-4"></i>
+            <h3 className="text-xl font-bold text-white/70 mb-2">Курсы не найдены</h3>
+            <p className="text-white/50">Попробуйте выбрать другую категорию</p>
+          </motion.div>
+        )}
+
+        {/* Call to Action */}
+        <motion.div 
+          className="text-center mt-12 sm:mt-16"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.8 }}
+        >
+          <p className="text-white/70 mb-6">Не нашли подходящий курс?</p>
+          <a 
+            href="/onboarding-intro" 
+            className="inline-flex items-center py-3 px-8 rounded-lg border-2 border-primary/50 hover:bg-primary/10 text-primary font-medium transition-all duration-300 hover:border-primary"
+          >
+            Пройти диагностику навыков
+            <i className="fas fa-chart-pie ml-2"></i>
+          </a>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+export default HomePage;
