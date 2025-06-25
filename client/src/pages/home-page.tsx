@@ -1043,7 +1043,7 @@ function CourseCatalogSection() {
         {/* Courses Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           <AnimatePresence mode="wait">
-            {filteredCourses.map((course, index) => {
+            {filteredCourses.map((course: Course, index: number) => {
               const levelInfo = getLevelInfo(course.level);
               
               return (
