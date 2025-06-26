@@ -1,102 +1,10 @@
 {
   "version": 2,
   "outputDirectory": "dist/public",
-  "routes": [
+  "rewrites": [
     {
-      "src": "^/assets/(.*\\.js)$",
-      "headers": {
-        "cache-control": "public, max-age=31536000, immutable",
-        "content-type": "application/javascript; charset=utf-8"
-      },
-      "dest": "/assets/$1"
-    },
-    {
-      "src": "^/assets/(.*\\.css)$",
-      "headers": {
-        "cache-control": "public, max-age=31536000, immutable",
-        "content-type": "text/css; charset=utf-8"
-      },
-      "dest": "/assets/$1"
-    },
-    {
-      "src": "^/assets/(.*\\.map)$",
-      "headers": {
-        "cache-control": "public, max-age=31536000, immutable",
-        "content-type": "application/json"
-      },
-      "dest": "/assets/$1"
-    },
-    {
-      "src": "^/assets/(.*\\.png)$",
-      "headers": {
-        "cache-control": "public, max-age=31536000, immutable",
-        "content-type": "image/png"
-      },
-      "dest": "/assets/$1"
-    },
-    {
-      "src": "^/assets/(.*\\.jpg)$",
-      "headers": {
-        "cache-control": "public, max-age=31536000, immutable",
-        "content-type": "image/jpeg"
-      },
-      "dest": "/assets/$1"
-    },
-    {
-      "src": "^/assets/(.*\\.svg)$",
-      "headers": {
-        "cache-control": "public, max-age=31536000, immutable",
-        "content-type": "image/svg+xml; charset=utf-8"
-      },
-      "dest": "/assets/$1"
-    },
-    {
-      "src": "^/assets/(.*\\.woff2?)$",
-      "headers": {
-        "cache-control": "public, max-age=31536000, immutable",
-        "content-type": "font/woff2"
-      },
-      "dest": "/assets/$1"
-    },
-    {
-      "src": "^/manifest\\.json$",
-      "headers": {
-        "content-type": "application/manifest+json",
-        "cache-control": "public, max-age=3600"
-      },
-      "dest": "/manifest.json"
-    },
-    {
-      "src": "^/service-worker\\.js$",
-      "headers": {
-        "cache-control": "no-cache",
-        "content-type": "application/javascript; charset=utf-8"
-      },
-      "dest": "/service-worker.js"
-    },
-    {
-      "src": "^/icons/(.*\\.png)$",
-      "headers": {
-        "cache-control": "public, max-age=31536000, immutable",
-        "content-type": "image/png"
-      },
-      "dest": "/icons/$1"
-    },
-    {
-      "src": "^/icons/(.*\\.svg)$",
-      "headers": {
-        "cache-control": "public, max-age=31536000, immutable",
-        "content-type": "image/svg+xml"
-      },
-      "dest": "/icons/$1"
-    },
-    {
-      "src": "/api/(.*)",
-      "dest": "https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/api/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/api/(.*)",
+      "destination": "https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/api/$1"
     }
   ]
 }
