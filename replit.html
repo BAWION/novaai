@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NovaAI University</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #0A0E17;
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    .container {
+      max-width: 800px;
+      padding: 2rem;
+    }
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      color: #6E3AFF;
+    }
+    p {
+      font-size: 1.2rem;
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+    .btn {
+      display: inline-block;
+      background-color: #6E3AFF;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      text-decoration: none;
+      margin: 0.5rem;
+      transition: background-color 0.3s;
+    }
+    .btn:hover {
+      background-color: #5020C2;
+    }
+    .loader {
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top: 4px solid #6E3AFF;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 2rem auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>NovaAI University</h1>
+    <div class="loader"></div>
+    <p>Образовательная платформа NovaAI загружается...</p>
+    <p>Если страница не загрузилась автоматически, пожалуйста, нажмите кнопку ниже:</p>
+    <a href="/" class="btn">Перейти на главную страницу</a>
+    
+    <script>
+      // Перенаправление на основной сайт через 2 секунды
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 2000);
+    </script>
+  </div>
+</body>
+</html>
