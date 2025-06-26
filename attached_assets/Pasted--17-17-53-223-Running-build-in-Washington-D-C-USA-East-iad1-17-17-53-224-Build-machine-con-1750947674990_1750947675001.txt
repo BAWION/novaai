@@ -1,0 +1,59 @@
+[17:17:53.223] Running build in Washington, D.C., USA (East) – iad1
+[17:17:53.224] Build machine configuration: 2 cores, 8 GB
+[17:17:53.237] Cloning github.com/BAWION/novacademy (Branch: main, Commit: 15fe50d)
+[17:17:53.244] Skipping build cache, deployment was triggered without cache.
+[17:17:54.994] Cloning completed: 1.757s
+[17:17:55.474] Running "vercel build"
+[17:17:55.899] Vercel CLI 43.3.0
+[17:17:56.515] Installing dependencies...
+[17:18:01.248] npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+[17:18:01.664] npm warn deprecated react-particles@2.12.2: @tsparticles/react is the new version, please use that
+[17:18:02.519] npm warn deprecated @esbuild-kit/esm-loader@2.6.5: Merged into tsx: https://tsx.is
+[17:18:02.538] npm warn deprecated @esbuild-kit/core-utils@3.3.2: Merged into tsx: https://tsx.is
+[17:18:06.733] npm warn deprecated tsparticles-engine@2.12.0: starting from tsparticles v3 the packages are now moved to @tsparticles/package-name instead of tsparticles-package-name
+[17:18:18.909] 
+[17:18:18.910] added 855 packages in 22s
+[17:18:18.911] 
+[17:18:18.911] 176 packages are looking for funding
+[17:18:18.911]   run `npm fund` for details
+[17:18:19.076] 
+[17:18:19.076] > rest-express@1.0.0 build
+[17:18:19.077] > npm run build:client && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+[17:18:19.077] 
+[17:18:19.191] 
+[17:18:19.193] > rest-express@1.0.0 build:client
+[17:18:19.193] > vite build
+[17:18:19.193] 
+[17:18:19.448] [36mvite v5.4.14 [32mbuilding for production...[36m[39m
+[17:18:19.509] transforming...
+[17:18:19.755] Browserslist: browsers data (caniuse-lite) is 8 months old. Please run:
+[17:18:19.755]   npx update-browserslist-db@latest
+[17:18:19.755]   Why you should do it regularly: https://github.com/browserslist/update-db#readme
+[17:18:21.562] 
+[17:18:21.563] /space-bg.jpg referenced in /space-bg.jpg didn't resolve at build time, it will remain unchanged to be resolved at runtime
+[17:18:32.009] [32m✓[39m 4404 modules transformed.
+[17:18:33.295] [1m[33m[plugin:vite:reporter][39m[22m [33m[plugin vite:reporter] 
+[17:18:33.296] (!) /vercel/path0/client/src/lib/pwa-utils.ts is dynamically imported by /vercel/path0/client/src/components/pwa/offline-status.tsx, /vercel/path0/client/src/hooks/use-pwa.tsx but also statically imported by /vercel/path0/client/src/components/pwa/install-prompt.tsx, /vercel/path0/client/src/hooks/use-pwa.tsx, /vercel/path0/client/src/main.tsx, dynamic import will not move module into another chunk.
+[17:18:33.296] [39m
+[17:18:33.300] rendering chunks...
+[17:18:33.377] computing gzip size...
+[17:18:33.435] [2m../dist/public/[22m[32mindex.html                 [39m[1m[2m    4.56 kB[22m[1m[22m[2m │ gzip:   2.06 kB[22m
+[17:18:33.435] [2m../dist/public/[22m[2massets/[22m[35mindex-OogRD-RO.css  [39m[1m[2m  165.89 kB[22m[1m[22m[2m │ gzip:  24.98 kB[22m
+[17:18:33.436] [2m../dist/public/[22m[2massets/[22m[36mindex-BUaxEZKq.js   [39m[1m[33m2,191.75 kB[39m[22m[2m │ gzip: 616.16 kB[22m
+[17:18:33.436] [33m
+[17:18:33.436] (!) Some chunks are larger than 500 kB after minification. Consider:
+[17:18:33.436] - Using dynamic import() to code-split the application
+[17:18:33.436] - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+[17:18:33.436] - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+[17:18:33.436] [32m✓ built in 13.97s[39m
+[17:18:33.536] 
+[17:18:33.536]   dist/index.js  448.2kb
+[17:18:33.536] 
+[17:18:33.538] ⚡ Done in 35ms
+[17:18:33.622] Build Completed in /vercel/output [37s]
+[17:18:33.645] Deploying outputs...
+[17:18:35.013] 
+[17:18:35.157] Deployment completed
+[17:18:54.598] Uploading build cache [99.13 MB]...
+[17:18:55.682] Build cache uploaded: 1.085s
+[17:18:57.907] Exiting build container
