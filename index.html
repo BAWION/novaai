@@ -1,94 +1,101 @@
 <!DOCTYPE html>
 <html lang="ru">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-    <title>NovaAI University</title>
-    <meta name="description" content="AI-образовательная платформа с адаптивным обучением и персонализированными курсами">
-    <meta name="theme-color" content="#6E3AFF">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="NovaAI">
-    <meta name="application-name" content="NovaAI University">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NovaAI University - Skills DNA навигатор в мире ИИ</title>
+    <meta name="description" content="Персонализированное обучение ИИ с системой Skills DNA. Диагностика навыков, умный подбор курсов, адаптивный прогресс и ИИ-тьютор для эффективного изучения искусственного интеллекта.">
+    <meta name="keywords" content="ИИ обучение, Skills DNA, искусственный интеллект, персонализированные курсы, машинное обучение, ChatGPT, диагностика навыков">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://novaai.university/">
+    <meta property="og:title" content="NovaAI University - Skills DNA навигатор в мире ИИ">
+    <meta property="og:description" content="Персонализированное обучение ИИ с системой Skills DNA. Диагностика навыков, умный подбор курсов и ИИ-тьютор.">
+    <meta property="og:image" content="/icons/icon-512x512.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://novaai.university/">
+    <meta property="twitter:title" content="NovaAI University - Skills DNA навигатор в мире ИИ">
+    <meta property="twitter:description" content="Персонализированное обучение ИИ с системой Skills DNA. Диагностика навыков, умный подбор курсов и ИИ-тьютор.">
+    <meta property="twitter:image" content="/icons/icon-512x512.png">
+
+    <!-- PWA -->
     <link rel="manifest" href="/manifest.json">
-    <link rel="icon" type="image/png" href="/icons/icon-192x192.png">
+    <meta name="theme-color" content="#6366f1">
     <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-192x192.png">
+    
     <script type="module" crossorigin src="/assets/index-ChRyQbe6.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index-CjBIAhSX.css">
-    <style>
-      .loading-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        height: 100vh;
-        width: 100%;
-        position: fixed;
-        top: 0;
-        left: 0;
-        background-color: #0A0E17;
-        z-index: 9999;
-      }
-      
-      .loading-spinner {
-        width: 60px;
-        height: 60px;
-        border: 4px solid rgba(110, 58, 255, 0.3);
-        border-radius: 50%;
-        border-top: 4px solid #6E3AFF;
-        animation: spin 1s linear infinite;
-      }
-      
-      .loading-text {
-        margin-top: 20px;
-        color: white;
-        font-family: 'Inter', sans-serif;
-        font-size: 18px;
-        font-weight: 500;
-      }
-      
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-    </style>
-  </head>
-  <body class="font-inter text-white min-h-screen">
-    <div id="root">
-      <div class="loading-container">
-        <div class="loading-spinner"></div>
-        <div class="loading-text">Загрузка NovaAI University...</div>
-      </div>
-    </div>
-    <!-- Инициализация Service Worker -->
+</head>
+<body>
+    <div id="root"></div>
+    
+    <!-- Service Worker Registration -->
     <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function() {
-          navigator.serviceWorker.register('/service-worker.js')
-            .then(function(registration) {
-              console.log('ServiceWorker registered successfully');
-            }).catch(function(err) {
-              console.log('ServiceWorker registration failed: ', err);
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(function(registration) {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch(function(registrationError) {
+                        console.log('SW registration failed: ', registrationError);
+                    });
             });
-        });
-      }
-      
-      window.addEventListener('load', function() {
-        const loadingContainer = document.querySelector('.loading-container');
-        if (loadingContainer) {
-          setTimeout(() => {
-            loadingContainer.style.opacity = '0';
-            loadingContainer.style.transition = 'opacity 0.3s ease';
-            setTimeout(() => {
-              loadingContainer.style.display = 'none';
-            }, 300);
-          }, 500);
         }
-      });
     </script>
-    <!-- This is a replit script which adds a banner on the top of the page when opened in development mode outside the replit environment -->
-    <script type="text/javascript" src="https://replit.com/public/js/replit-dev-banner.js"></script>
-  </body>
+    
+    <!-- Critical CSS for above-the-fold content -->
+    <style>
+        /* Loading state styles */
+        #root {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        /* Prevent flash of unstyled content */
+        .loading-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        /* Hide loading placeholder once React loads */
+        #root:not(:empty) + .loading-placeholder {
+            display: none;
+        }
+    </style>
+    
+    <!-- Fallback for users with JavaScript disabled -->
+    <noscript>
+        <div style="text-align: center; padding: 50px; font-family: Arial, sans-serif;">
+            <h1>NovaAI University</h1>
+            <p>Для работы с платформой необходимо включить JavaScript в вашем браузере.</p>
+            <p>Skills DNA — ваш навигатор в мире ИИ</p>
+        </div>
+    </noscript>
+    
+    <!-- Loading placeholder -->
+    <div class="loading-placeholder">
+        <div style="text-align: center;">
+            <h1 style="margin-bottom: 20px;">NovaAI University</h1>
+            <p>Skills DNA — ваш навигатор в мире ИИ</p>
+            <div style="margin-top: 20px;">Загрузка...</div>
+        </div>
+    </div>
+</body>
 </html>
