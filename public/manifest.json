@@ -1,7 +1,7 @@
 {
   "name": "NovaAI University",
   "short_name": "NovaAI",
-  "description": "AI-образовательная платформа с адаптивным обучением",
+  "description": "AI-powered educational platform with adaptive learning",
   "start_url": "/?pwa=true&fullscreen=true",
   "scope": "/",
   "display": "fullscreen",
