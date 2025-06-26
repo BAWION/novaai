@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>NovaAI University</title>
+  <style>
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #0A0E17;
+      color: #ffffff;
+      min-height: 100vh;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .container {
+      max-width: 500px;
+      padding: 30px;
+      border-radius: 12px;
+      background-color: rgba(110, 58, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    h1 {
+      color: #6E3AFF;
+      margin-bottom: 20px;
+    }
+    .loader {
+      margin: 20px auto;
+      width: 60px;
+      height: 60px;
+      border: 4px solid rgba(110, 58, 255, 0.3);
+      border-radius: 50%;
+      border-top: 4px solid #6E3AFF;
+      animation: spin 1s linear infinite;
+    }
+    p {
+      margin: 20px 0;
+      line-height: 1.6;
+    }
+    button {
+      background-color: #6E3AFF;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #5B30CC;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+  <script>
+    // Перенаправление на основное приложение
+    window.onload = function() {
+      // Проверка прямой загрузки билда
+      tryDirectLoad();
+      
+      // Перенаправление через 3 секунды
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 3000);
+    }
+    
+    function tryDirectLoad() {
+      fetch('/assets/index-ChRyQbe6.js')
+        .then(response => {
+          if (response.ok) {
+            // Файл найден, пробуем запустить приложение напрямую
+            const script = document.createElement('script');
+            script.type = 'module';
+            script.src = '/assets/index-ChRyQbe6.js';
+            document.body.appendChild(script);
+            
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = '/assets/index-CjBIAhSX.css';
+            document.head.appendChild(link);
+            
+            // Создаем корневой элемент
+            const root = document.createElement('div');
+            root.id = 'root';
+            document.body.appendChild(root);
+          }
+        })
+        .catch(error => {
+          console.error('Не удалось загрузить ресурсы:', error);
+        });
+    }
+  </script>
+</head>
+<body>
+  <div class="container">
+    <h1>NovaAI University</h1>
+    <div class="loader"></div>
+    <p>Загрузка образовательной платформы...</p>
+  </div>
+</body>
+</html>
