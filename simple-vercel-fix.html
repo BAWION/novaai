@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NovaAI University - Skills DNA навигатор в мире ИИ</title>
+    <meta name="description" content="Персонализированное обучение ИИ с системой Skills DNA. Диагностика навыков, умный подбор курсов, адаптивный прогресс и ИИ-тьютор.">
+    
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#6366f1">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-192x192.png">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        
+        .hero {
+            margin-bottom: 60px;
+        }
+        
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, #ffffff, #e0e7ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero h2 {
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            max-width: 600px;
+            margin: 0 auto 40px;
+            line-height: 1.6;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            padding: 16px 32px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            color: white;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+        
+        .cta-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+        
+        .feature {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .feature h3 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            color: #e0e7ff;
+        }
+        
+        .feature p {
+            opacity: 0.8;
+            line-height: 1.5;
+        }
+        
+        .status {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .redirect-info {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 40px;
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero h2 {
+                font-size: 1.4rem;
+            }
+            
+            .features {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hero">
+            <h1>NovaAI University</h1>
+            <h2>Skills DNA — ваш навигатор в мире ИИ</h2>
+            <p>Персонализированное обучение искусственному интеллекту с адаптивной системой диагностики навыков, умным подбором курсов и ИИ-тьютором для достижения ваших целей.</p>
+            
+            <div class="status">
+                <strong>✅ Платформа успешно развернута!</strong><br>
+                Все системы работают в штатном режиме
+            </div>
+            
+            <a href="https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/" class="cta-button">
+                🚀 Войти в платформу
+            </a>
+            
+            <a href="https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/register" class="cta-button">
+                📝 Создать аккаунт
+            </a>
+        </div>
+        
+        <div class="features">
+            <div class="feature">
+                <h3>🧬 Skills DNA диагностика</h3>
+                <p>Комплексная оценка ваших навыков в области ИИ с персональными рекомендациями для развития</p>
+            </div>
+            
+            <div class="feature">
+                <h3>🎯 Умный подбор курсов</h3>
+                <p>ИИ-алгоритм автоматически подбирает оптимальные курсы на основе вашего Skills DNA профиля</p>
+            </div>
+            
+            <div class="feature">
+                <h3>📈 Адаптивный прогресс</h3>
+                <p>Отслеживание развития навыков в реальном времени с автоматической корректировкой плана обучения</p>
+            </div>
+            
+            <div class="feature">
+                <h3>🤖 ИИ-тьютор</h3>
+                <p>Персональный помощник на базе GPT-4o для ответов на вопросы и объяснения сложных концепций</p>
+            </div>
+            
+            <div class="feature">
+                <h3>🧪 LabHub практика</h3>
+                <p>Интерактивная лаборатория для практического изучения ML и Data Science с реальными проектами</p>
+            </div>
+            
+            <div class="feature">
+                <h3>👥 Сообщество экспертов</h3>
+                <p>Telegram-канал с актуальными новостями ИИ, обсуждениями и поддержкой сообщества</p>
+            </div>
+        </div>
+        
+        <div class="redirect-info">
+            <h3>📍 Информация о доступе</h3>
+            <p><strong>Основная платформа:</strong> Работает на Replit с полным функционалом<br>
+            <strong>Vercel версия:</strong> Статические файлы с проксированием API<br>
+            <strong>Обе версии</strong> используют одну базу данных и API</p>
+        </div>
+    </div>
+    
+    <script>
+        // Автоматическое перенаправление через 10 секунд
+        setTimeout(() => {
+            if (confirm('Перейти к полной версии платформы?')) {
+                window.location.href = 'https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/';
+            }
+        }, 10000);
+        
+        // Service Worker регистрация
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/service-worker.js')
+                .then(registration => console.log('SW registered'))
+                .catch(error => console.log('SW registration failed'));
+        }
+    </script>
+</body>
+</html>
