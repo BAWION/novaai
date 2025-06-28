@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <title>Нет подключения — NovaAI University</title>
+  <meta name="theme-color" content="#6E3AFF">
+  <link rel="icon" type="image/png" href="/icons/icon-192x192.png">
+  <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #0e101c;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    
+    .offline-container {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 2rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+    
+    h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      font-size: 2rem;
+      margin-top: 1rem;
+      background: linear-gradient(to right, #6E3AFF, #2EBAE1);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .icon {
+      width: 120px;
+      height: 120px;
+      margin-bottom: 1.5rem;
+    }
+    
+    p {
+      color: rgba(255, 255, 255, 0.8);
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+    
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.75rem 1.5rem;
+      background: linear-gradient(to right, #6E3AFF, #2EBAE1);
+      border-radius: 8px;
+      color: white;
+      font-weight: 500;
+      text-decoration: none;
+      margin-top: 1rem;
+      transition: all 0.2s ease;
+      border: none;
+      cursor: pointer;
+    }
+    
+    .button:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+    
+    .cached-courses {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      width: 100%;
+    }
+    
+    .cached-courses h2 {
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+      font-weight: 500;
+    }
+    
+    .no-items {
+      color: rgba(255, 255, 255, 0.5);
+      font-style: italic;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+    }
+    
+    #course-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .course-item {
+      background: rgba(255, 255, 255, 0.07);
+      border-radius: 8px;
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.2s ease;
+    }
+    
+    .course-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .course-item a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    
+    .course-item .info {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.875rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="offline-container">
+    <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M18.364 5.636a9 9 0 010 12.728m-3.536-3.536a5 5 0 010-7.072m-3.183 1.757a3 3 0 000 3.558M9.172 16.172a3 3 0 01-4.242-4.243M5.88 13.88a5 5 0 01-1.414-2.758M3.515 9.515a9 9 0 01-.726-2.118" stroke="url(#gradient)" />
+      <defs>
+        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#6E3AFF" />
+          <stop offset="100%" stop-color="#2EBAE1" />
+        </linearGradient>
+      </defs>
+    </svg>
+    
+    <h1>Нет подключения к интернету</h1>
+    
+    <p>К сожалению, вы не подключены к интернету. Но вы можете просматривать ранее загруженные курсы и уроки, которые были сохранены для офлайн-просмотра.</p>
+    
+    <button class="button" onclick="location.reload()">
+      Проверить подключение
+    </button>
+    
+    <div class="cached-courses">
+      <h2>Доступные офлайн уроки:</h2>
+      
+      <div id="offline-content">
+        <div class="no-items">
+          Нет загруженных уроков. Чтобы сохранить урок для офлайн просмотра, используйте кнопку "Сохранить для офлайн" на странице урока при наличии подключения к интернету.
+        </div>
+        
+        <ul id="course-list" style="display: none;">
+          <!-- Здесь будут отображаться сохраненные уроки -->
+          <!-- Пример:
+          <li class="course-item">
+            <a href="/courses/python/lessons/101">Введение в Python: Базовые типы данных</a>
+            <span class="info">Сохранено: 23.04.2025</span>
+          </li>
+          -->
+        </ul>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // При загрузке страницы проверяем наличие сохраненных в кэше уроков
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        // В реальном приложении здесь будет код для проверки кэша и отображения сохраненных уроков
+        const cachedCourses = []; // Здесь будет получение списка из кэша
+        
+        if (cachedCourses && cachedCourses.length > 0) {
+          document.querySelector('.no-items').style.display = 'none';
+          const courseList = document.getElementById('course-list');
+          courseList.style.display = 'block';
+          
+          cachedCourses.forEach(course => {
+            const listItem = document.createElement('li');
+            listItem.className = 'course-item';
+            
+            const link = document.createElement('a');
+            link.href = course.url;
+            link.textContent = course.title;
+            
+            const info = document.createElement('span');
+            info.className = 'info';
+            info.textContent = `Сохранено: ${new Date(course.cached).toLocaleDateString()}`;
+            
+            listItem.appendChild(link);
+            listItem.appendChild(info);
+            courseList.appendChild(listItem);
+          });
+        }
+      } catch (error) {
+        console.error('Ошибка при загрузке кэшированных уроков:', error);
+      }
+    });
+  </script>
+</body>
+</html>
