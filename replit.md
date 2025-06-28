@@ -104,10 +104,11 @@ NovaAI University is a comprehensive AI-powered educational platform built with 
 - Environment variable configuration
 
 ### Production Deployment
-- **Primary**: Replit deployment with full-stack hosting
-- **Frontend Alternative**: Vercel deployment with API proxy
-- Build optimization with code splitting
-- Static asset optimization and caching
+- **Primary**: Vercel (frontend) + Replit (API backend)
+- **Automation**: GitHub auto-deployment with instant update scripts
+- **Quick Deploy**: `node instant-deploy.js "changes"` for 10-second updates
+- Build optimization with code splitting on Vercel
+- API proxying from Vercel to Replit backend
 
 ### Database Management
 - Drizzle ORM for type-safe database operations
@@ -117,6 +118,13 @@ NovaAI University is a comprehensive AI-powered educational platform built with 
 
 ## Changelog
 
+- June 28, 2025: НАСТРОЕНО АВТОМАТИЧЕСКОЕ РАЗВЕРТЫВАНИЕ
+  - Создана система мгновенного обновления через GitHub + Vercel
+  - Разработаны скрипты автоматизации: instant-deploy.js, sync-to-github.js, quick-update.sh
+  - Настроено API проксирование с Vercel на Replit backend
+  - Время обновления сайта сокращено до 10 секунд + 2-3 минуты автосборки
+  - Команда обновления: `node instant-deploy.js "описание изменений"`
+  - Устранена необходимость ручной загрузки файлов в GitHub
 - June 25, 2025: ОБНОВЛЕНА ГЛАВНАЯ СТРАНИЦА - ПОЛНЫЙ ФУНКЦИОНАЛ
   - Заменены устаревшие описания платформы на современные возможности Skills DNA
   - Добавлены все 6 ключевых функций: Skills DNA диагностика, умный подбор курсов, адаптивный прогресс, ИИ-тьютор, LabHub, Сообщество
