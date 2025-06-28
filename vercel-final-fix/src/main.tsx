@@ -17,6 +17,7 @@ const registerSimpleServiceWorker = () => {
     });
   }
 };
+import { registerServiceWorker } from "./lib/pwa-utils";
 import { setupFullscreenEvents, isMobile } from "./lib/fullscreen-helper";
 import { setupMobileOptimization } from "./lib/mobile-helper";
 
@@ -75,9 +76,9 @@ if (typeof window !== 'undefined') {
   }
 }
 
-// Регистрируем упрощенный Service Worker только в продакшене
+// Регистрируем исправленный Service Worker для стабильной работы на Vercel
 if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
-  registerSimpleServiceWorker();
+  registerServiceWorker();
 }
 
 createRoot(document.getElementById("root")!).render(<App />);

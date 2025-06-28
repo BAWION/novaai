@@ -1,0 +1,40 @@
+
+﻿
+index-D6W3B_6T.js:48 ServiceWorker registration successful with scope: https://novaai-academy.vercel.app/
+index-D6W3B_6T.js:48 AuthProvider: проверка статуса аутентификации...
+service-worker.js:94 Uncaught (in promise) TypeError: Failed to execute 'put' on 'Cache': Request scheme 'chrome-extension' is unsupported
+    at service-worker.js:94:25
+(anonymous)	@	service-worker.js:94
+Promise.then		
+(anonymous)	@	service-worker.js:93
+Promise.then		
+(anonymous)	@	service-worker.js:87
+Promise.then		
+(anonymous)	@	service-worker.js:79
+index-D6W3B_6T.js:48 
+ GET https://novaai-academy.vercel.app/api/auth/me 401 (Unauthorized)
+(anonymous)	@	index-D6W3B_6T.js:48
+(anonymous)	@	index-D6W3B_6T.js:48
+ib	@	index-D6W3B_6T.js:40
+xd	@	index-D6W3B_6T.js:40
+(anonymous)	@	index-D6W3B_6T.js:40
+w	@	index-D6W3B_6T.js:25
+P	@	index-D6W3B_6T.js:25
+index-D6W3B_6T.js:48 AuthProvider: пользователь не авторизован, статус: 401
+index-D6W3B_6T.js:48 particlesJS is not available. You might need to include particles.js library.
+(anonymous)	@	index-D6W3B_6T.js:48
+ib	@	index-D6W3B_6T.js:40
+xd	@	index-D6W3B_6T.js:40
+JE	@	index-D6W3B_6T.js:40
+Il	@	index-D6W3B_6T.js:38
+wZ	@	index-D6W3B_6T.js:40
+tc	@	index-D6W3B_6T.js:40
+VL	@	index-D6W3B_6T.js:40
+w	@	index-D6W3B_6T.js:25
+P	@	index-D6W3B_6T.js:25
+index-D6W3B_6T.js:552 API Request: POST /api/events 
+{eventType: 'page_view', data: {…}, userId: undefined}
+index-D6W3B_6T.js:552 [API-DEBUG] Cookies при отправке запроса: нет кук
+index-D6W3B_6T.js:552 API Response: POST /api/events - Status: 201 
+index-D6W3B_6T.js:552 [API-DEBUG] Заголовки ответа для POST /api/events: access-control-allow-credentials: true, access-control-allow-headers: X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, access-control-allow-methods: GET, POST, PUT, DELETE, OPTIONS, access-control-allow-origin: *, cache-control: public, max-age=0, must-revalidate, content-length: 363, content-type: application/json; charset=utf-8, date: Sat, 28 Jun 2025 20:30:42 GMT, etag: W/"16b-ruODssDVlyFlLXs0410YBbC9V88", replit-cluster: janeway, server: Vercel, strict-transport-security: max-age=63072000; includeSubDomains; preload, x-powered-by: Express, x-robots-tag: none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex, none, noindex, noarchive, nofollow, nositelinkssearchbox, noimageindex, x-vercel-cache: MISS, x-vercel-id: iad1::jz5j2-1751142642275-4cdf8710c3f4
+novaai-academy.vercel.app/:1 Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner.
