@@ -2,6 +2,8 @@
 
 Фронтенд образовательной платформы NovaAI University с автоматическим проксированием API на Replit.
 
+**FORCE UPDATE**: 2025-06-28 21:15 - Fixed service worker registration to use service-worker-simple.js
+
 ## Настройки для Vercel
 
 - **Framework Preset**: Vite
