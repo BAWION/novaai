@@ -117,14 +117,14 @@ NovaAI University is a comprehensive AI-powered educational platform built with 
 
 ## Changelog
 
-- June 28, 2025: ✅ УСПЕШНЫЙ ДЕПЛОЙ НА VERCEL ЗАВЕРШЕН
-  - Гибридная архитектура работает: фронтенд Vercel + бэкенд Replit
-  - Фронтенд: https://novaai-academy-b8xm1eucb-vitaliy-s-projects-51482000.vercel.app
-  - Бэкенд: https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev
-  - Сборка vite build прошла успешно за 11.80 секунд
-  - API запросы автоматически проксируются через vercel.json
-  - Платформа NovaAI University полностью развернута в продакшен
-  - Готова к использованию студентами и настройке кастомного домена
+- June 28, 2025: ИСПРАВЛЕНЫ ПРОБЛЕМЫ ОТОБРАЖЕНИЯ И СЕРВИС-ВОРКЕРА
+  - Создан github-upload-DISPLAY-FIXED.zip с решением проблем наложения элементов
+  - Исправлен сервис-воркер: убраны ошибки chrome-extension схем
+  - Добавлены CSS правила для корректного позиционирования и z-index
+  - Предотвращен горизонтальный скролл через overflow-x: hidden
+  - Упрощена регистрация сервис-воркера для стабильной работы на Vercel
+  - Гибридная архитектура: https://novaai-academy.vercel.app + Replit API
+  - Готов к финальному деплою с исправленным интерфейсом
 - June 26, 2025: КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ VERCEL ДЕПЛОЯ ЗАВЕРШЕНО
   - Выявлена и устранена проблема устаревших JavaScript файлов на Vercel
   - Создан vercel-quick-fix.zip (867KB) с актуальной версией интерфейса
