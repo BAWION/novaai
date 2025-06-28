@@ -75,8 +75,8 @@ if (typeof window !== 'undefined') {
   }
 }
 
-// Регистрируем упрощенный Service Worker для стабильной работы на Vercel
-if (process.env.NODE_ENV === 'production') {
+// Регистрируем упрощенный Service Worker только в продакшене
+if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
   registerSimpleServiceWorker();
 }
 
