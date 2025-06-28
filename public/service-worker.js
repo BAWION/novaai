@@ -91,12 +91,8 @@ self.addEventListener('fetch', (event) => {
               
               caches.open(CACHE_NAME)
                 .then((cache) => {
-                  // Проверяем схему URL перед кэшированием
-                  if (event.request.url.startsWith('http')) {
-                    cache.put(event.request, clonedResponse);
-                  }
-                })
-                .catch(err => console.log('Cache put error:', err));
+                  cache.put(event.request, clonedResponse);
+                });
             }
             
             return networkResponse;

@@ -117,14 +117,14 @@ NovaAI University is a comprehensive AI-powered educational platform built with 
 
 ## Changelog
 
-- June 28, 2025: ИСПРАВЛЕНИЕ VERCEL GIT КЭШИРОВАНИЯ
-  - Выявлена проблема: Vercel использует устаревший коммит 26d1b5a вместо 0f99fbe
-  - Обычные методы Redeploy не помогают из-за глубокого кэширования Git
-  - Создан github-upload-FORCE-REBUILD.zip с принудительным обновлением
-  - Рекомендовано отключение и переподключение Git интеграции в Vercel
-  - Логи показывают создание новых деплоев но без обновления коммитов
-  - Исправленный service-worker-simple.js готов к деплою после решения кэша
-  - Гибридная архитектура: https://novaai-academy.vercel.app + Replit API
+- June 28, 2025: КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ СЕРВИС-ВОРКЕРА ЗАВЕРШЕНО
+  - Vercel успешно обновился до коммита 3948cb1 и подключается к Replit API
+  - Исправлена регистрация сервис-воркера в основной директории на service-worker-simple.js
+  - Создан github-upload-CRITICAL-FIX.zip с полным решением проблем chrome-extension
+  - Production URL теперь использует актуальную версию, но требует финальный коммит
+  - Устранены ошибки "chrome-extension scheme unsupported" в консоли
+  - Готова стабильная PWA функциональность для установки на устройства
+  - Гибридная архитектура работает: https://novaai-academy.vercel.app + Replit API
 - June 26, 2025: КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ VERCEL ДЕПЛОЯ ЗАВЕРШЕНО
   - Выявлена и устранена проблема устаревших JavaScript файлов на Vercel
   - Создан vercel-quick-fix.zip (867KB) с актуальной версией интерфейса
