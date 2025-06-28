@@ -172,11 +172,18 @@ app.use((req, res, next) => {
 // Регистрируем API маршруты
 registerRoutes(app);
 
-// Настраиваем Vite для фронтенда
+// Настраиваем единый сервер на порту 5000
 const server = app.listen(5000, "0.0.0.0", () => {
-  log(`Server running on http://0.0.0.0:5000`);
+  log(`🚀 NovaAI University Server running on http://0.0.0.0:5000`);
+  log(`✅ API готов, фронтенд и бэкенд объединены`);
 });
 
+// Настраиваем Vite для разработки
 (async () => {
-  await setupVite(app, server);
+  try {
+    await setupVite(app, server);
+    log(`✅ Vite setup completed`);
+  } catch (error) {
+    log(`❌ Vite setup failed: ${error instanceof Error ? error.message : String(error)}`);
+  }
 })();
