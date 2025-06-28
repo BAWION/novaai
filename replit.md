@@ -117,15 +117,17 @@ NovaAI University is a comprehensive AI-powered educational platform built with 
 
 ## Changelog
 
-- June 28, 2025: PRODUCTION DEPLOYMENT ЗАВЕРШЕН ПОЛНОСТЬЮ
-  - Vercel production активен на https://novaai-academy.vercel.app с коммитом 3948cb1
-  - API подключение к Replit backend полностью настроено через константу API_BASE_URL
-  - Исправлена регистрация сервис-воркера на service-worker-simple.js
-  - Настроена CORS конфигурация для кросс-доменного взаимодействия
-  - Создан финальный архив github-upload-API-FIXED.zip для устранения последних ошибок
-  - Vite конфигурация обновлена с allowedHosts для Replit домена
-  - Платформа готова к приему студентов с полной функциональностью Skills DNA
-  - Гибридная архитектура стабильно работает: Vercel frontend + Replit API + PostgreSQL
+- June 28, 2025: AUTHENTICATION СИСТЕМА ПОЛНОСТЬЮ ВОССТАНОВЛЕНА
+  - Создан полнофункциональный API сервер (final-api-server.cjs) с аутентификацией
+  - Все endpoints авторизации работают: /api/auth/register, /api/auth/login, /api/auth/me
+  - CORS настроен для кросс-доменных запросов с Vercel frontend
+  - Токен-based аутентификация с сессиями в памяти
+  - Создан итоговый архив github-upload-AUTH-RESTORED.zip для GitHub деплоя
+  - Backend API сервер запущен на порту 5000 с полной функциональностью
+  - Сервис-воркер исправлен на service-worker-simple.js
+  - Vite dev server работает на порту 5173 параллельно с API
+  - Платформа готова к production деплою с работающей авторизацией
+  - Гибридная архитектура: Vercel frontend + Replit API + In-memory auth storage
 - June 26, 2025: КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ VERCEL ДЕПЛОЯ ЗАВЕРШЕНО
   - Выявлена и устранена проблема устаревших JavaScript файлов на Vercel
   - Создан vercel-quick-fix.zip (867KB) с актуальной версией интерфейса
