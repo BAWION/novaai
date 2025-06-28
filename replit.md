@@ -117,14 +117,14 @@ NovaAI University is a comprehensive AI-powered educational platform built with 
 
 ## Changelog
 
-- June 26, 2025: РЕАЛИЗОВАНА ГИБРИДНАЯ АРХИТЕКТУРА ДЛЯ VERCEL + REPLIT
-  - Создан архив github-upload-FRONTEND-ONLY.zip (8.9MB) с полным фронтендом
-  - Настроено автоматическое проксирование API на Replit бэкенд
-  - Фронтенд на Vercel получает все функции через API проксирование
-  - Не требуются переменные окружения на Vercel (DATABASE_URL, API ключи)
+- June 28, 2025: ИСПРАВЛЕНЫ ОШИБКИ СТРУКТУРЫ ФАЙЛОВ ДЛЯ VERCEL ДЕПЛОЯ
+  - Создан финальный архив github-upload-FINAL-FIXED.zip (8.2MB) с правильной структурой
+  - package.json размещен в корне для правильной сборки Vercel
+  - Исправлена проблема "ENOENT: no such file or directory, open '/vercel/path0/package.json'"
+  - Настроено автоматическое проксирование API на Replit через vercel.json
+  - Фронтенд готов к деплою на Vercel без переменных окружения
   - Бэкенд остается на Replit с полной функциональностью
-  - Пользователи получают быстрый фронтенд + мощный бэкенд без компромиссов
-  - Архив готов для загрузки в GitHub репозиторий BAWION/novacademy
+  - Гибридная архитектура: быстрый фронтенд Vercel + мощный бэкенд Replit
 - June 26, 2025: КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ VERCEL ДЕПЛОЯ ЗАВЕРШЕНО
   - Выявлена и устранена проблема устаревших JavaScript файлов на Vercel
   - Создан vercel-quick-fix.zip (867KB) с актуальной версией интерфейса
