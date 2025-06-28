@@ -1,0 +1,42 @@
+[22:45:28.636] Running build in Washington, D.C., USA (East) – iad1
+[22:45:28.657] Build machine configuration: 2 cores, 8 GB
+[22:45:28.730] Cloning github.com/BAWION/novaai (Branch: main, Commit: 9e49ed2)
+[22:45:29.168] Previous build caches not available
+[22:45:29.672] Cloning completed: 942.000ms
+[22:45:30.356] Running "vercel build"
+[22:45:30.809] Vercel CLI 43.3.0
+[22:45:31.418] Running "install" command: `npm install`...
+[22:46:37.122] npm warn deprecated path-match@1.2.4: This package is archived and no longer maintained. For support, visit https://github.com/expressjs/express/discussions
+[22:46:39.421] npm warn deprecated @esbuild-kit/core-utils@3.3.2: Merged into tsx: https://tsx.is
+[22:46:39.422] npm warn deprecated @esbuild-kit/esm-loader@2.6.5: Merged into tsx: https://tsx.is
+[22:46:40.175] npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+[22:46:42.391] npm warn deprecated react-particles@2.12.2: @tsparticles/react is the new version, please use that
+[22:46:47.896] npm warn deprecated tsparticles-engine@2.12.0: starting from tsparticles v3 the packages are now moved to @tsparticles/package-name instead of tsparticles-package-name
+[22:47:01.749] 
+[22:47:01.749] added 1010 packages, and audited 1011 packages in 1m
+[22:47:01.750] 
+[22:47:01.750] 193 packages are looking for funding
+[22:47:01.750]   run `npm fund` for details
+[22:47:01.791] 
+[22:47:01.792] 17 vulnerabilities (8 moderate, 9 high)
+[22:47:01.792] 
+[22:47:01.793] To address all issues (including breaking changes), run:
+[22:47:01.793]   npm audit fix --force
+[22:47:01.793] 
+[22:47:01.793] Run `npm audit` for details.
+[22:47:02.119] 
+[22:47:02.119] > rest-express@1.0.0 build
+[22:47:02.120] > vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+[22:47:02.120] 
+[22:47:02.371] [36mvite v5.4.19 [32mbuilding for production...[36m[39m
+[22:47:02.403] [32m✓[39m 0 modules transformed.
+[22:47:02.405] [31mx[39m Build failed in 9ms
+[22:47:02.406] [31merror during build:
+[22:47:02.406] [31mCould not resolve entry module "client/index.html".[31m
+[22:47:02.406]     at getRollupError (file:///vercel/path0/node_modules/rollup/dist/es/shared/parseAst.js:401:41)
+[22:47:02.407]     at error (file:///vercel/path0/node_modules/rollup/dist/es/shared/parseAst.js:397:42)
+[22:47:02.407]     at ModuleLoader.loadEntryModule (file:///vercel/path0/node_modules/rollup/dist/es/shared/node-entry.js:21448:20)
+[22:47:02.407]     at async Promise.all (index 0)[39m
+[22:47:02.421] Error: Command "npm run build" exited with 1
+[22:47:02.823] 
+[22:47:05.638] Exiting build container

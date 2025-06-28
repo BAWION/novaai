@@ -117,14 +117,14 @@ NovaAI University is a comprehensive AI-powered educational platform built with 
 
 ## Changelog
 
-- June 28, 2025: ИСПРАВЛЕНЫ ОШИБКИ СТРУКТУРЫ ФАЙЛОВ ДЛЯ VERCEL ДЕПЛОЯ
-  - Создан финальный архив github-upload-FINAL-FIXED.zip (8.2MB) с правильной структурой
-  - package.json размещен в корне для правильной сборки Vercel
-  - Исправлена проблема "ENOENT: no such file or directory, open '/vercel/path0/package.json'"
+- June 28, 2025: ИСПРАВЛЕНА КОНФИГУРАЦИЯ VITE ДЛЯ VERCEL ДЕПЛОЯ
+  - Создан архив github-upload-VERCEL-FIXED.zip с исправленной конфигурацией
+  - Исправлен vite.config.ts: убраны ссылки на папку client/, настроен для корня
+  - Исправлен package.json: команда build использует только vite build
+  - Решена ошибка "Could not resolve entry module client/index.html"
   - Настроено автоматическое проксирование API на Replit через vercel.json
-  - Фронтенд готов к деплою на Vercel без переменных окружения
-  - Бэкенд остается на Replit с полной функциональностью
-  - Гибридная архитектура: быстрый фронтенд Vercel + мощный бэкенд Replit
+  - Готов к финальному деплою на Vercel с гибридной архитектурой
+  - Бэкенд остается на Replit: https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/
 - June 26, 2025: КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ VERCEL ДЕПЛОЯ ЗАВЕРШЕНО
   - Выявлена и устранена проблема устаревших JavaScript файлов на Vercel
   - Создан vercel-quick-fix.zip (867KB) с актуальной версией интерфейса
