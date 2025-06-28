@@ -1,0 +1,53 @@
+[00:13:59.514] Running build in Washington, D.C., USA (East) – iad1
+[00:13:59.514] Build machine configuration: 2 cores, 8 GB
+[00:13:59.530] Cloning github.com/BAWION/novaai (Branch: main, Commit: 3948cb1)
+[00:14:00.060] Cloning completed: 530.000ms
+[00:14:00.959] Restored build cache from previous deployment (jGjXJyVp6VSj7ZYYC4JZn7NN6kc7)
+[00:14:01.751] Running "vercel build"
+[00:14:02.407] Vercel CLI 43.3.0
+[00:14:03.225] Running "install" command: `npm install`...
+[00:14:07.698] 
+[00:14:07.699] up to date, audited 1011 packages in 4s
+[00:14:07.699] 
+[00:14:07.699] 193 packages are looking for funding
+[00:14:07.700]   run `npm fund` for details
+[00:14:07.743] 
+[00:14:07.743] 17 vulnerabilities (8 moderate, 9 high)
+[00:14:07.744] 
+[00:14:07.744] To address all issues (including breaking changes), run:
+[00:14:07.744]   npm audit fix --force
+[00:14:07.744] 
+[00:14:07.744] Run `npm audit` for details.
+[00:14:08.014] 
+[00:14:08.016] > rest-express@1.0.0 build
+[00:14:08.016] > vite build
+[00:14:08.016] 
+[00:14:08.294] [36mvite v5.4.19 [32mbuilding for production...[36m[39m
+[00:14:08.640] transforming...
+[00:14:18.740] [32m✓[39m 4421 modules transformed.
+[00:14:19.387] rendering chunks...
+[00:14:20.113] [1m[33m[plugin:vite:reporter][39m[22m [33m[plugin vite:reporter] 
+[00:14:20.114] (!) /vercel/path0/src/lib/pwa-utils.ts is dynamically imported by /vercel/path0/src/components/pwa/offline-status.tsx, /vercel/path0/src/hooks/use-pwa.tsx but also statically imported by /vercel/path0/src/components/pwa/install-prompt.tsx, /vercel/path0/src/hooks/use-pwa.tsx, dynamic import will not move module into another chunk.
+[00:14:20.114] [39m
+[00:14:20.115] [1m[33m[plugin:vite:reporter][39m[22m [33m[plugin vite:reporter] 
+[00:14:20.115] (!) /vercel/path0/src/api/diagnosis-api.ts is dynamically imported by /vercel/path0/src/context/auth-context.tsx but also statically imported by /vercel/path0/src/components/skills-dna-profile.tsx, /vercel/path0/src/hooks/use-skills-dna.tsx, /vercel/path0/src/pages/dashboard.tsx, /vercel/path0/src/pages/deep-diagnosis.tsx, /vercel/path0/src/pages/quick-diagnosis.tsx, dynamic import will not move module into another chunk.
+[00:14:20.116] [39m
+[00:14:20.245] computing gzip size...
+[00:14:20.467] [2mdist/[22m[32mindex.html                                      [39m[1m[2m    4.56 kB[22m[1m[22m[2m │ gzip:   2.06 kB[22m
+[00:14:20.468] [2mdist/[22m[2massets/[22m[35mindex-C_t3JajK.css                       [39m[1m[2m   11.29 kB[22m[1m[22m[2m │ gzip:   3.16 kB[22m
+[00:14:20.468] [2mdist/[22m[2massets/[22m[36mtelegram-bots-course-page-DCX2Cz3V.js    [39m[1m[2m    7.43 kB[22m[1m[22m[2m │ gzip:   2.36 kB[22m
+[00:14:20.469] [2mdist/[22m[2massets/[22m[36mmake-automation-course-page-DUv0PR7U.js  [39m[1m[2m    9.11 kB[22m[1m[22m[2m │ gzip:   2.77 kB[22m
+[00:14:20.469] [2mdist/[22m[2massets/[22m[36mindex-ivrcig0Z.js                        [39m[1m[33m2,295.21 kB[39m[22m[2m │ gzip: 632.90 kB[22m
+[00:14:20.473] [33m
+[00:14:20.473] (!) Some chunks are larger than 500 kB after minification. Consider:
+[00:14:20.474] - Using dynamic import() to code-split the application
+[00:14:20.474] - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+[00:14:20.474] - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+[00:14:20.482] [32m✓ built in 11.88s[39m
+[00:14:20.984] Build Completed in /vercel/output [18s]
+[00:14:21.013] Deploying outputs...
+[00:14:22.578] 
+[00:14:22.721] Deployment completed
+[00:14:46.826] Uploading build cache [116.84 MB]...
+[00:14:48.162] Build cache uploaded: 1.335s
+[00:14:50.416] Exiting build container
