@@ -58,14 +58,33 @@
   }
 }
 
-/* Базовые стили для мобильной совместимости */
+/* Базовые стили для стабильной работы */
 html, body {
   -webkit-tap-highlight-color: transparent;
-  touch-action: pan-y; /* Разрешаем вертикальный скроллинг */
-  height: 100%; /* Важно для корректной работы скролла */
-  margin: 0; /* Убираем отступы */
-  padding: 0; /* Убираем отступы */
-  overflow-y: auto !important; /* Принудительно разрешаем вертикальный скролл */
+  touch-action: pan-y;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; /* Предотвращаем горизонтальный скролл */
+  overflow-y: auto;
+  position: relative; /* Исправляем проблемы с позиционированием */
+}
+
+/* Исправление проблем с наложением элементов */
+#root {
+  min-height: 100vh;
+  position: relative;
+  z-index: 1;
+}
+
+/* Исправление для модальных окон и оверлеев */
+[data-radix-portal] {
+  z-index: 9999 !important;
+}
+
+/* Исправление для Toast уведомлений */
+[data-sonner-toaster] {
+  z-index: 10000 !important;
 }
 
 /* Класс для элементов, которые должны реагировать на нажатие */

@@ -1,7 +1,22 @@
+import React from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
-import { registerServiceWorker } from "./lib/pwa-utils";
+
+// Упрощенная регистрация сервис-воркера для Vercel
+const registerSimpleServiceWorker = () => {
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/service-worker-simple.js')
+        .then((registration) => {
+          console.log('ServiceWorker registration successful with scope: ', registration.scope);
+        })
+        .catch((error) => {
+          console.log('ServiceWorker registration failed: ', error);
+        });
+    });
+  }
+};
 import { setupFullscreenEvents, isMobile } from "./lib/fullscreen-helper";
 import { setupMobileOptimization } from "./lib/mobile-helper";
 
@@ -60,10 +75,9 @@ if (typeof window !== 'undefined') {
   }
 }
 
-// Регистрируем Service Worker для PWA функционала
-// Только в production окружении, чтобы избежать проблем с кэшированием в режиме разработки
-if (import.meta.env.PROD) {
-  registerServiceWorker();
+// Регистрируем упрощенный Service Worker для стабильной работы на Vercel
+if (process.env.NODE_ENV === 'production') {
+  registerSimpleServiceWorker();
 }
 
 createRoot(document.getElementById("root")!).render(<App />);
