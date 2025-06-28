@@ -1,192 +1,104 @@
-# Исправление ошибок развертывания NovaAI University на Vercel
+# Полное руководство по исправлению деплоя на Vercel
 
-## Диагностированные проблемы
+## Проблема
+Текущая структура проекта использует единый репозиторий (монорепозиторий) для клиентской и серверной частей, что вызывает проблемы при деплое на Vercel, который предназначен для фронтенд-приложений или серверного рендеринга.
 
-1. **Неправильный Content-Type для manifest.json**
-   - Vercel обслуживает файл с неверным MIME-типом
-   - Должен быть: `application/manifest+json`
+## Решение 1: Правильная настройка Vercel проекта
 
-2. **Конфликт CORS заголовков**
-   - HTML использует crossorigin атрибуты
-   - Vercel не настроен для PWA манифестов
+1. **Удалите текущий проект Vercel** и создайте новый с нуля
+2. **Укажите правильные настройки при импорте:**
+   - Framework Preset: **Vite**
+   - Root Directory: **client**
+   - Build Command: **npm run build** (или оставьте по умолчанию)
+   - Output Directory: **dist** (или оставьте по умолчанию)
+   - Install Command: **npm install** (или оставьте по умолчанию)
 
-3. **Неоптимальная структура маршрутов**
-   - Статические ресурсы могут конфликтовать с API
+3. **Добавьте необходимые переменные окружения:**
+   ```
+   VITE_API_URL=https://nova-alpha-seven.replit.app/api
+   ```
 
-## Немедленные исправления
+4. **Создайте файл `vercel.json` в директории `client`:**
+   ```json
+   {
+     "rewrites": [
+       {
+         "source": "/api/:path*",
+         "destination": "https://nova-alpha-seven.replit.app/api/:path*"
+       },
+       {
+         "source": "/(.*)",
+         "destination": "/index.html"
+       }
+     ],
+     "headers": [
+       {
+         "source": "/api/(.*)",
+         "headers": [
+           { "key": "Access-Control-Allow-Credentials", "value": "true" },
+           { "key": "Access-Control-Allow-Origin", "value": "*" },
+           { "key": "Access-Control-Allow-Methods", "value": "GET,POST,PUT,DELETE,OPTIONS" },
+           { "key": "Access-Control-Allow-Headers", "value": "X-Requested-With, Content-Type, Accept, Authorization" }
+         ]
+       }
+     ]
+   }
+   ```
 
-### Шаг 1: Обновите vercel.json
-Замените содержимое файла `vercel.json`:
+## Решение 2: Статический деплой (если первый способ не работает)
 
-```json
-{
-  "version": 2,
-  "builds": [
-    {
-      "src": "dist/public/**",
-      "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    {
-      "src": "^/manifest\\.json$",
-      "headers": {
-        "content-type": "application/manifest+json",
-        "cache-control": "public, max-age=3600"
-      },
-      "dest": "/manifest.json"
-    },
-    {
-      "src": "^/icons/(.*\\.png)$",
-      "headers": {
-        "content-type": "image/png",
-        "cache-control": "public, max-age=31536000, immutable"
-      },
-      "dest": "/icons/$1"
-    },
-    {
-      "src": "^/service-worker\\.js$",
-      "headers": {
-        "content-type": "application/javascript",
-        "cache-control": "no-cache"
-      },
-      "dest": "/service-worker.js"
-    },
-    {
-      "src": "^/assets/(.*)",
-      "headers": {
-        "cache-control": "public, max-age=31536000, immutable"
-      },
-      "dest": "/assets/$1"
-    },
-    {
-      "src": "/api/(.*)",
-      "dest": "https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/api/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
-  ]
-}
-```
+1. **Соберите проект локально:**
+   ```bash
+   npm run build
+   ```
 
-### Шаг 2: Обновите структуру проекта
-Добавьте файл `vercel.json` в корень проекта и убедитесь что:
-- `dist/public/manifest.json` существует
-- `dist/public/icons/` содержит все иконки
-- `dist/public/service-worker.js` создан
+2. **Создайте zip-архив с содержимым папки `dist/public`**
+   - Добавьте в архив файл vercel.json из решения 1
 
-### Шаг 3: Проверьте файлы манифеста
+3. **Загрузите архив в новый пустой репозиторий на GitHub**
 
-#### manifest.json должен содержать:
-```json
-{
-  "name": "NovaAI University",
-  "short_name": "NovaAI",
-  "description": "AI-powered educational platform with adaptive learning",
-  "start_url": "/",
-  "scope": "/",
-  "display": "standalone",
-  "background_color": "#0A0E17",
-  "theme_color": "#6E3AFF",
-  "orientation": "portrait-primary",
-  "icons": [
-    {
-      "src": "/icons/icon-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icons/icon-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ]
-}
-```
+4. **Создайте новый проект Vercel**:
+   - Framework Preset: **Other**
+   - Root Directory: **(пусто, оставьте корневую директорию)**
+   - Build Command: **(пусто, отключите сборку)**
+   - Output Directory: **(пусто, используйте корневую директорию)**
 
-### Шаг 4: Пересоберите проект
-```bash
-npm run build
-```
+## Решение 3: Альтернативные платформы деплоя
 
-### Шаг 5: Повторно разверните на Vercel
-```bash
-vercel --prod
-```
+Если проблемы с Vercel не удаётся решить, рассмотрите альтернативные платформы:
 
-## Проверка после исправления
+1. **Netlify**:
+   - Проще в настройке для проектов с отдельным бэкендом
+   - Лучше поддерживает редиректы и API проксирование
 
-### 1. Проверьте manifest.json в браузере:
-- Откройте: `https://ваш-домен.vercel.app/manifest.json`
-- Content-Type должен быть: `application/manifest+json`
-- Файл должен загружаться без ошибок CORS
+2. **GitHub Pages + Cloudflare**:
+   - Бесплатный хостинг для статики
+   - Использование Cloudflare Workers для проксирования API-запросов
 
-### 2. Проверьте PWA в DevTools:
-- F12 → Application → Manifest
-- Должен отображаться без ошибок
-- Иконки должны загружаться корректно
+## Специальное решение: Прямая загрузка собранных файлов
 
-### 3. Проверьте консоль браузера:
-- Не должно быть ошибок синтаксиса JSON
-- Не должно быть ошибок CORS для manifest.json
+1. **Соберите проект локально:**
+   ```bash
+   npm run build
+   ```
 
-## Альтернативное решение
+2. **Откройте Vercel Dashboard** и перейдите в настройки проекта
 
-Если проблемы продолжаются, используйте упрощенную конфигурацию:
+3. **Перейдите в раздел "Storage"** и выберите "Upload Files"
 
-### Создайте `public/_headers`:
-```
-/manifest.json
-  Content-Type: application/manifest+json
-  Cache-Control: public, max-age=3600
+4. **Загрузите все файлы из папки `dist/public`** вместе с vercel.json
 
-/icons/*
-  Cache-Control: public, max-age=31536000, immutable
+5. **Настройте редиректы в разделе "Settings > Rewrites"** на основе конфигурации из vercel.json
 
-/assets/*
-  Cache-Control: public, max-age=31536000, immutable
-```
+## Проверка успешности деплоя
 
-### Обновите vercel.json до минимальной версии:
-```json
-{
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/api/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
-  ]
-}
-```
+После деплоя убедитесь что:
 
-## Ожидаемый результат
+1. Главная страница открывается без ошибок 404
+2. API-запросы правильно проксируются на бэкенд 
+3. Навигация между страницами работает (проверьте client-side routing)
+4. Приложение работает в мобильной версии и на десктопе
 
-После применения исправлений:
-- ✅ manifest.json загружается без ошибок
-- ✅ PWA манифест корректно обрабатывается браузером
-- ✅ Иконки приложения отображаются правильно
-- ✅ API запросы успешно проксируются на Replit
-- ✅ Консоль браузера чистая от ошибок конфигурации
+## Запасной план
 
-## Команды для быстрого развертывания
-
-```bash
-# 1. Сборка с исправлениями
-npm run build
-
-# 2. Развертывание
-vercel --prod
-
-# 3. Проверка
-curl -I https://ваш-домен.vercel.app/manifest.json
-```
-
-Content-Type в ответе должен быть: `application/manifest+json`
+Если все способы не работают, разделите приложение на два отдельных репозитория - frontend и backend, и потом деплойте их отдельно.
