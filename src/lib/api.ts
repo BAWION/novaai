@@ -14,7 +14,12 @@ export async function apiRequest(
   endpoint: string,
   data?: any
 ): Promise<Response> {
-  const url = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  // Перенаправляем API запросы на единый сервер порт 5000
+  const baseUrl = window.location.hostname.includes('replit') 
+    ? `${window.location.protocol}//${window.location.hostname.replace('5173', '5000')}`
+    : 'http://localhost:5000';
+  
+  const url = endpoint.startsWith('/') ? `${baseUrl}${endpoint}` : `${baseUrl}/${endpoint}`;
   
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
