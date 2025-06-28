@@ -1,3 +1,6 @@
+// API Configuration
+export const API_BASE_URL = 'https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev';
+
 export type CourseTrack = 'zero-to-hero' | 'applied-ds' | 'research-ai' | 'nlp-expert';
 export type UserRole = 'student' | 'professional' | 'teacher' | 'researcher';
 export type SkillLevel = 1 | 2 | 3 | 4 | 5;

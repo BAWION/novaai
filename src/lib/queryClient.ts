@@ -1,4 +1,5 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
+import { API_BASE_URL } from "./constants";
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
@@ -18,7 +19,10 @@ export async function apiRequest(
     // Расширенное логирование состояния документа и кук для отладки проблем аутентификации
     console.log(`[API-DEBUG] Cookies при отправке запроса:`, document.cookie ? document.cookie : 'нет кук');
     
-    const res = await fetch(url, {
+    // Обеспечиваем полный URL для API запросов
+    const fullUrl = url.startsWith('/api/') ? `${API_BASE_URL}${url}` : url;
+    
+    const res = await fetch(fullUrl, {
       method,
       headers: data ? { "Content-Type": "application/json" } : {},
       body: data ? JSON.stringify(data) : undefined,
@@ -55,7 +59,10 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const res = await fetch(queryKey[0] as string, {
+    const url = queryKey[0] as string;
+    const fullUrl = url.startsWith('/api/') ? `${API_BASE_URL}${url}` : url;
+    
+    const res = await fetch(fullUrl, {
       credentials: "include",
     });
 
