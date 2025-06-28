@@ -168,3 +168,15 @@ app.use((req, res, next) => {
 
   next();
 });
+
+// Регистрируем API маршруты
+registerRoutes(app);
+
+// Настраиваем Vite для фронтенда
+const server = app.listen(5000, "0.0.0.0", () => {
+  log(`Server running on http://0.0.0.0:5000`);
+});
+
+(async () => {
+  await setupVite(app, server);
+})();
