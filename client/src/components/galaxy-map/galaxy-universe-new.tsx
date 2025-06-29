@@ -203,6 +203,10 @@ function GalaxyUniverse() {
         centerX: galaxy.position.x,
         centerY: galaxy.position.y
       });
+      
+      // Показываем уведомление о входе в галактику
+      setNewDiscovery({ type: "galaxy", name: galaxy.name });
+      setTimeout(() => setNewDiscovery(null), 3000);
     }
   };
 
@@ -593,12 +597,7 @@ function GalaxyUniverse() {
 
         {/* Галактики - показываем только на Universe view */}
         <AnimatePresence>
-          {viewConfig.state === 'universe' && (() => {
-            console.log('DEBUG: Состояние viewConfig:', viewConfig.state);
-            console.log('DEBUG: Количество галактик:', galaxies.length);
-            console.log('DEBUG: Галактики:', galaxies.map(g => ({ id: g.id, name: g.name, position: g.position, discovered: g.discovered })));
-            return galaxies;
-          })().map((galaxy) => (
+          {viewConfig.state === 'universe' && galaxies.map((galaxy) => (
             <motion.div
               key={galaxy.id}
               className="absolute cursor-pointer z-30"
@@ -609,15 +608,22 @@ function GalaxyUniverse() {
               animate={{
                 x: galaxy.position.x,
                 y: galaxy.position.y,
-                rotate: galaxy.rotation,
+                rotate: [galaxy.rotation, galaxy.rotation + 360],
                 scale: viewConfig.selectedGalaxy === galaxy.id ? 1.2 : 1,
                 opacity: 1,
               }}
               initial={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0, opacity: 0 }}
               transition={{
-                duration: 0.3,
-                ease: "easeOut"
+                rotate: {
+                  duration: 20 + Math.random() * 10,
+                  repeat: Infinity,
+                  ease: "linear"
+                },
+                scale: {
+                  duration: 0.3,
+                  ease: "easeOut"
+                }
               }}
               onDoubleClick={() => handleGalaxyDoubleClick(galaxy.id)}
               onMouseEnter={() => {
@@ -628,15 +634,26 @@ function GalaxyUniverse() {
                 whileHover={{ scale: 1.1 }}
                 className="relative"
               >
-                {/* Спиральная галактика */}
-                <div 
+                {/* Спиральная галактика с пульсацией */}
+                <motion.div 
                   className="rounded-full relative border-2"
                   style={{
                     width: galaxy.size,
                     height: galaxy.size,
                     background: `radial-gradient(circle, ${galaxy.color}80 0%, ${galaxy.color}60 40%, ${galaxy.color}20 70%)`,
-                    boxShadow: `0 0 40px ${galaxy.color}60, inset 0 0 20px ${galaxy.color}40`,
                     borderColor: galaxy.color,
+                  }}
+                  animate={{
+                    boxShadow: [
+                      `0 0 30px ${galaxy.color}40, inset 0 0 15px ${galaxy.color}30`,
+                      `0 0 50px ${galaxy.color}70, inset 0 0 25px ${galaxy.color}50`,
+                      `0 0 30px ${galaxy.color}40, inset 0 0 15px ${galaxy.color}30`
+                    ]
+                  }}
+                  transition={{
+                    duration: 3 + Math.random() * 2,
+                    repeat: Infinity,
+                    ease: "easeInOut"
                   }}
                 >
                   {/* Центральное ядро */}
@@ -662,20 +679,27 @@ function GalaxyUniverse() {
                       }}
                     />
                   ))}
-                </div>
+                </motion.div>
 
-                {/* Название галактики */}
+                {/* Компактное название галактики */}
                 <motion.div
-                  className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 whitespace-nowrap text-center"
-                  initial={{ opacity: 0, y: 10 }}
+                  className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 whitespace-nowrap text-center"
+                  initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ 
                     opacity: 1,
-                    y: 0,
+                    scale: 1,
                   }}
+                  whileHover={{ scale: 1.05 }}
                 >
-                  <div className="bg-space-800/80 backdrop-blur-sm px-2 py-1 rounded border border-white/20">
-                    <p className="text-xs font-orbitron text-white">{galaxy.name}</p>
-                    <p className="text-xs text-white/60">{galaxy.courses.length} планет</p>
+                  <div className="bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 shadow-lg">
+                    <p className="text-xs font-semibold text-white tracking-wide">{galaxy.domain}</p>
+                    <div className="flex items-center justify-center gap-1 mt-0.5">
+                      <div 
+                        className="w-1.5 h-1.5 rounded-full"
+                        style={{ backgroundColor: galaxy.color }}
+                      />
+                      <p className="text-xs text-white/70">5 планет</p>
+                    </div>
                   </div>
                 </motion.div>
               </motion.div>
