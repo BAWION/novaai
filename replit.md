@@ -117,6 +117,14 @@ NovaAI University is a comprehensive AI-powered educational platform built with 
 
 ## Changelog
 
+- June 29, 2025: ✅ УСПЕШНО РЕШЕНЫ ВСЕ ПРОБЛЕМЫ ДЕПЛОЯ VERCEL
+  - Исправлена структура проекта: удалена дублированная папка src/
+  - Добавлена папка client/ в GitHub репозиторий с правильной структурой
+  - Обновлен vercel.json: outputDirectory изменен с "dist" на "dist/public"
+  - Настроен правильный tailwind.config.ts для сканирования client/src/
+  - Создан корректный корневой index.html файл
+  - РЕЗУЛЬТАТ: Платформа работает идентично на Replit и Vercel gulcheev.com
+  - Все стили CSS загружаются корректно, API проксируется на Replit backend
 - June 29, 2025: ИСПРАВЛЕНЫ ПРОБЛЕМЫ ДЕПЛОЯ VERCEL И ДОСТУПА  
   - Заменено некорректное регулярное выражение /(.*\\.(css|js)) на отдельные правила
   - Создано два отдельных правила для CSS и JS файлов в headers
