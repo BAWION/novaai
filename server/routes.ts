@@ -1447,6 +1447,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/course-management', courseManagementRouter);
   app.use('/api/course-init', courseInitRouter);
   app.use('/api/telegram', telegramRouter);
+  app.use('/api/telegram', telegramAuthRouter);
 
   // Admin панель - архитектура курсов
   app.get('/api/admin/course-architecture', async (req, res) => {
