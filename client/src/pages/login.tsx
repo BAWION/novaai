@@ -94,24 +94,6 @@ export default function Login() {
       if (container) {
         container.appendChild(script);
         
-        // Добавляем стили для кнопки Telegram после загрузки
-        script.onload = () => {
-          setTimeout(() => {
-            const style = document.createElement('style');
-            style.textContent = `
-              #telegram-login-widget iframe {
-                width: 100% !important;
-                height: 50px !important;
-                border-radius: 8px !important;
-              }
-              #telegram-login-widget {
-                width: 100% !important;
-              }
-            `;
-            document.head.appendChild(style);
-          }, 100);
-        };
-        
         // Таймаут для показа fallback, если Widget не загрузился за 3 секунды
         setTimeout(() => {
           const iframe = container.querySelector('iframe');
