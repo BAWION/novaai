@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <title>Galaxion - AI Educational Platform</title>
+    <meta name="description" content="AI-образовательная платформа с адаптивным обучением и персонализированными курсами. NovaAI - ваш мудрый наставник в мире искусственного интеллекта.">
+    <meta name="theme-color" content="#6E3AFF">
+    <link rel="manifest" href="/manifest.json" crossorigin="use-credentials">
+    <link rel="icon" type="image/png" href="/icons/icon-192x192.png">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Galaxion">
+    <meta name="application-name" content="Galaxion">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+      html {
+        height: 100%;
+        -webkit-tap-highlight-color: transparent;
+      }
+      body {
+        min-height: 100vh;
+        margin: 0;
+        padding: 0;
+        background-color: #0A0E17;
+      }
+      #root {
+        height: 100%;
+      }
+      /* Стили для отключения скролла в случае скрытой клавиатуры на iOS */
+      body.no-scroll {
+        position: fixed;
+        width: 100%;
+        height: 100vh;
+        overflow: hidden;
+      }
+      /* Стили для iOS безопасных зон */
+      @supports (padding-top: env(safe-area-inset-top)) {
+        body {
+          padding-top: env(safe-area-inset-top);
+          padding-bottom: env(safe-area-inset-bottom);
+          padding-left: env(safe-area-inset-left);
+          padding-right: env(safe-area-inset-right);
+        }
+      }
+      /* Стили для экрана загрузки */
+      .loading-screen {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        width: 100vw;
+        background-color: #0A0E17;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 9999;
+      }
+      .loading-logo {
+        width: 120px;
+        height: 120px;
+        margin-bottom: 20px;
+      }
+      .loading-text {
+        font-family: 'Orbitron', sans-serif;
+        color: white;
+        font-size: 24px;
+        margin-bottom: 20px;
+      }
+      .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid rgba(110, 58, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: #6E3AFF;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    </style>
+  </head>
+  <body class="font-inter text-white">
+    <div id="root">
+      <!-- Загрузочный экран, который будет показан до инициализации React -->
+      <div class="loading-screen">
+        <div class="loading-logo">
+          <!-- Простой SVG логотип -->
+          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="50" cy="50" r="45" fill="#0A0E17" stroke="#6E3AFF" stroke-width="2"/>
+            <path d="M30,50 L45,35 L45,65 Z" fill="#6E3AFF"/>
+            <path d="M55,35 L55,65 L70,50 Z" fill="#6E3AFF"/>
+          </svg>
+        </div>
+        <div class="loading-text">Galaxion</div>
+        <div class="loading-spinner"></div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.tsx"></script>
+    <!-- Удаляем баннер Replit при продакшн деплое -->
+    <script>
+      // Проверка что мы не на replit.com
+      if (window.location.hostname.indexOf('replit') === -1) {
+        // Проверка наличия manifest.json
+        fetch('/manifest.json')
+          .then(response => {
+            if (!response.ok) {
+              console.warn('Manifest file not found or not accessible');
+            }
+          })
+          .catch(err => {
+            console.error('Error loading manifest:', err);
+          });
+      } else {
+        // Добавляем скрипт баннера только в dev среде
+        const script = document.createElement('script');
+        script.src = 'https://replit.com/public/js/replit-dev-banner.js';
+        document.body.appendChild(script);
+      }
+    </script>
+  </body>
+</html>
