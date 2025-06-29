@@ -39,11 +39,12 @@ interface Planet {
   name: string;
 }
 
-type ViewState = 'universe' | 'galaxy' | 'planet';
+type ViewState = 'universe' | 'galaxy' | 'system';
 
 interface ViewConfig {
   state: ViewState;
   selectedGalaxy?: string;
+  selectedSystem?: string;
   selectedPlanet?: Planet;
   zoom: number;
   centerX: number;
@@ -190,55 +191,84 @@ function GalaxyUniverse() {
     }
   }, [courses]);
 
-  // Навигационные функции
-  const handleGalaxyClick = (galaxyId: string) => {
+  // Навигационные функции - точно по спецификации
+  const handleGalaxyDoubleClick = (galaxyId: string) => {
     const galaxy = galaxies.find(g => g.id === galaxyId);
     if (galaxy && galaxy.discovered) {
+      // Камера "ныряет" внутрь выбранной галактики
       setViewConfig({
         state: 'galaxy',
         selectedGalaxy: galaxyId,
-        zoom: 3,
+        zoom: 2,
         centerX: galaxy.position.x,
         centerY: galaxy.position.y
       });
     }
   };
 
+  const handleSystemDoubleClick = (systemId: string) => {
+    // Переход к деталям звездной системы (System view)
+    setViewConfig(prev => ({
+      ...prev,
+      state: 'system',
+      selectedSystem: systemId,
+      zoom: 4,
+    }));
+  };
+
   const handlePlanetClick = (planet: Planet) => {
-    setViewConfig({
-      state: 'planet',
-      selectedGalaxy: planet.galaxy,
-      selectedPlanet: planet,
-      zoom: 6,
-      centerX: planet.position.x,
-      centerY: planet.position.y
-    });
-    
-    setTimeout(() => {
-      navigate(`/courses/${planet.course.id}`);
-    }, 1000);
+    // Щелчок по планете открывает карточку курса
+    console.log('Открываем карточку курса:', planet.name);
+    // Можно показать панель сбоку или оверлей
+    navigate(`/courses/${planet.course.id}`);
   };
 
   const handleBackToUniverse = () => {
     setViewConfig({
       state: 'universe',
+      selectedGalaxy: undefined,
+      selectedSystem: undefined,
+      selectedPlanet: undefined,
       zoom: 1,
       centerX: 0,
       centerY: 0
     });
   };
 
-  const handleBackToGalaxy = () => {
-    if (viewConfig.selectedGalaxy) {
-      const galaxy = galaxies.find(g => g.id === viewConfig.selectedGalaxy);
-      if (galaxy) {
-        setViewConfig({
-          state: 'galaxy',
-          selectedGalaxy: galaxy.id,
-          zoom: 3,
-          centerX: galaxy.position.x,
-          centerY: galaxy.position.y
-        });
+  // Скролл-навигация согласно спецификации
+  const handleScrollNavigation = (event: React.WheelEvent) => {
+    event.preventDefault();
+    
+    if (event.deltaY > 0) {
+      // Скролл-аут - возвращаемся к предыдущему уровню
+      if (viewConfig.state === 'system') {
+        const galaxy = galaxies.find(g => g.id === viewConfig.selectedGalaxy);
+        if (galaxy) {
+          setViewConfig({
+            state: 'galaxy',
+            selectedGalaxy: galaxy.id,
+            selectedSystem: undefined,
+            zoom: 2,
+            centerX: galaxy.position.x,
+            centerY: galaxy.position.y
+          });
+        }
+      } else if (viewConfig.state === 'galaxy') {
+        handleBackToUniverse();
+      }
+    } else {
+      // Скролл-ин - приближаемся (если возможно)
+      if (viewConfig.state === 'universe' && viewConfig.selectedGalaxy) {
+        const galaxy = galaxies.find(g => g.id === viewConfig.selectedGalaxy);
+        if (galaxy) {
+          setViewConfig({
+            state: 'galaxy',
+            selectedGalaxy: galaxy.id,
+            zoom: 2,
+            centerX: galaxy.position.x,
+            centerY: galaxy.position.y
+          });
+        }
       }
     }
   };
