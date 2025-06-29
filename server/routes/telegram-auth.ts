@@ -85,18 +85,10 @@ router.post("/auth", async (req, res) => {
       // Создаем профиль пользователя
       await storage.createUserProfile({
         userId: user.id,
-        displayName: displayName,
-        bio: "Новый пользователь Galaxion",
-        location: null,
-        website: null,
+        role: "student",
         pythonLevel: 1,
         experience: "beginner",
-        interests: [],
-        preferredLearningStyle: "visual",
-        goals: [],
-        timezone: "UTC",
-        language: "ru",
-        profileImageUrl: telegramData.photo_url
+        preferredLearningStyle: "visual"
       });
     } else {
       // Обновляем данные существующего пользователя
@@ -110,12 +102,11 @@ router.post("/auth", async (req, res) => {
     }
 
     // Устанавливаем сессию
-    req.session.userId = user.id;
+    req.session.authenticated = true;
     req.session.user = {
       id: user.id,
       username: user.username,
-      role: user.role,
-      authProvider: "telegram"
+      displayName: user.displayName || ""
     };
 
     console.log(`[Telegram Auth] Пользователь ${user.username} (ID: ${user.id}) успешно авторизован через Telegram`);
