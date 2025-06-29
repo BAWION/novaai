@@ -178,7 +178,7 @@ export function Sidebar() {
             className="w-12 h-12 rounded-full bg-gradient-to-br from-[#6E3AFF] to-[#2EBAE1] flex items-center justify-center flex-shrink-0"
             style={{ willChange: 'contents' }}
           >
-            <span className="text-white font-bold text-xl">N</span>
+            <span className="text-white font-bold text-xl">G</span>
           </div>
           
           <div 
