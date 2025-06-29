@@ -405,27 +405,7 @@ function GalaxyUniverse() {
         </motion.div>
       </div>
 
-      {/* Enhanced Home Button */}
-      <div className="absolute top-4 right-4 z-50">
-        <motion.button
-          onClick={handleBackToUniverse}
-          className="p-3 bg-gradient-to-br from-primary/25 to-purple-600/25 hover:from-primary/35 hover:to-purple-600/35 backdrop-blur-sm border border-primary/40 rounded-xl text-white transition-all duration-300 shadow-lg"
-          whileHover={{ 
-            scale: 1.05, 
-            boxShadow: "0 0 25px rgba(110, 58, 255, 0.5)",
-            borderColor: "rgba(110, 58, 255, 0.6)"
-          }}
-          whileTap={{ scale: 0.95 }}
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-        >
-          <div className="flex items-center gap-2">
-            <Home className="w-4 h-4" />
-            <span className="text-xs font-orbitron">ДОМОЙ</span>
-          </div>
-        </motion.button>
-      </div>
+
 
       {/* Живое звездное небо с туманностями */}
       <div className="absolute inset-0">
@@ -716,6 +696,8 @@ function GalaxyUniverse() {
               const radius = 80 + systemIndex * 30;
               const galaxy = galaxies.find(g => g.id === viewConfig.selectedGalaxy);
               
+              if (!galaxy) return null;
+              
               return (
                 <motion.div
                   key={`system-${systemIndex}`}
@@ -725,8 +707,8 @@ function GalaxyUniverse() {
                     top: '50%',
                   }}
                   animate={{
-                    x: galaxy ? galaxy.position.x + Math.cos(angle) * radius : 0,
-                    y: galaxy ? galaxy.position.y + Math.sin(angle) * radius : 0,
+                    x: galaxy.position.x + Math.cos(angle) * radius,
+                    y: galaxy.position.y + Math.sin(angle) * radius,
                     scale: 1,
                     opacity: 1
                   }}
@@ -739,8 +721,8 @@ function GalaxyUniverse() {
                       selectedGalaxy: viewConfig.selectedGalaxy,
                       selectedSystem: `system-${systemIndex}`,
                       zoom: 4,
-                      centerX: galaxy ? galaxy.position.x + Math.cos(angle) * radius : 0,
-                      centerY: galaxy ? galaxy.position.y + Math.sin(angle) * radius : 0
+                      centerX: galaxy.position.x + Math.cos(angle) * radius,
+                      centerY: galaxy.position.y + Math.sin(angle) * radius
                     });
                   }}
                 >
@@ -796,7 +778,9 @@ function GalaxyUniverse() {
             
             if (!showPlanet) return null;
 
-            // Орбитальное движение
+            // Орбитальное движение (проверяем что galaxy существует)
+            if (!galaxy) return null;
+            
             const orbitRadius = Math.sqrt(
               Math.pow(planet.position.x - galaxy.position.x, 2) + 
               Math.pow(planet.position.y - galaxy.position.y, 2)
