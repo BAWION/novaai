@@ -34,10 +34,10 @@ export function Navbar() {
         <Link href="/">
           <a className="flex items-center">
             <div className="h-10 w-10 rounded-full bg-gradient-to-br from-[#6E3AFF] to-[#2EBAE1] flex items-center justify-center shadow-[0_0_15px_rgba(110,58,255,0.5)]">
-              <span className="font-orbitron font-bold text-lg">N</span>
+              <span className="font-orbitron font-bold text-lg">G</span>
             </div>
             <span className="ml-2 font-orbitron font-medium text-lg md:text-xl">
-              NovaAI University
+              Galaxion
             </span>
           </a>
         </Link>
