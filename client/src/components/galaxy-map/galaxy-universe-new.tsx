@@ -341,7 +341,34 @@ function GalaxyUniverse() {
   return (
     <div 
       className="w-full h-[600px] relative bg-gradient-to-b from-space-900 via-space-800 to-space-900 rounded-xl overflow-hidden"
-      onWheel={handleScrollNavigation}
+      onWheel={(e) => {
+        e.preventDefault();
+        const delta = e.deltaY * 0.008; // Более медленное изменение зума
+        const newZoom = Math.max(0.15, Math.min(20, viewConfig.zoom + delta));
+        
+        setViewConfig(prev => ({ ...prev, zoom: newZoom }));
+        
+        // Автоматический возврат на предыдущий уровень при глубоком зуме-ауте (увеличенные пороги)
+        if (newZoom < 0.25 && viewConfig.state === 'system') {
+          setTimeout(() => {
+            const galaxy = galaxies.find(g => g.id === viewConfig.selectedGalaxy);
+            if (galaxy) {
+              setViewConfig({
+                state: 'galaxy',
+                selectedGalaxy: galaxy.id,
+                selectedSystem: undefined,
+                zoom: 1.2,
+                centerX: galaxy.position.x,
+                centerY: galaxy.position.y
+              });
+            }
+          }, 1000); // Увеличенная задержка
+        } else if (newZoom < 0.2 && viewConfig.state === 'galaxy') {
+          setTimeout(() => {
+            handleBackToUniverse();
+          }, 1000);
+        }
+      }}
     >
       {/* Advanced Breadcrumb Navigation */}
       <div className="absolute top-4 left-4 z-50">
