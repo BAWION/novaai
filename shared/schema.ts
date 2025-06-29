@@ -37,7 +37,7 @@ export const entityTypeEnum = pgEnum('entity_type', ['course', 'module', 'lesson
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: varchar("username", { length: 255 }).notNull().unique(),
-  password: text("password"), // Теперь nullable для Telegram пользователей
+  password: text("password"), // Nullable для Telegram пользователей
   displayName: varchar("display_name", { length: 255 }),
   email: varchar("email", { length: 255 }),
   avatarUrl: text("avatar_url"),
@@ -47,8 +47,6 @@ export const users = pgTable("users", {
   telegramId: varchar("telegram_id", { length: 50 }).unique(),
   telegramUsername: varchar("telegram_username", { length: 255 }),
   authProvider: varchar("auth_provider", { length: 50 }).default("email"), // "email", "telegram", "google", etc.
-  // Дополнительные поля
-  hashedPassword: text("hashed_password"), // Новое имя для password
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
