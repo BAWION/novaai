@@ -306,26 +306,78 @@ function GalaxyUniverse() {
 
   return (
     <div className="w-full h-[600px] relative bg-gradient-to-b from-space-900 via-space-800 to-space-900 rounded-xl overflow-hidden">
-      {/* Звездное небо */}
+      {/* Живое звездное небо с туманностями */}
       <div className="absolute inset-0">
-        {Array.from({ length: 100 }).map((_, i) => (
+        {/* Звезды */}
+        {Array.from({ length: 150 }).map((_, i) => (
           <motion.div
-            key={i}
-            className="absolute w-1 h-1 bg-white rounded-full opacity-70"
+            key={`star-${i}`}
+            className="absolute rounded-full opacity-70"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
+              width: Math.random() > 0.8 ? '2px' : '1px',
+              height: Math.random() > 0.8 ? '2px' : '1px',
+              backgroundColor: Math.random() > 0.7 ? '#93C5FD' : '#FFFFFF',
             }}
             animate={{
               opacity: [0.3, 1, 0.3],
+              scale: [1, 1.2, 1],
             }}
             transition={{
-              duration: 2 + Math.random() * 3,
+              duration: 2 + Math.random() * 4,
+              repeat: Infinity,
+              delay: Math.random() * 3
+            }}
+          />
+        ))}
+        
+        {/* Туманности */}
+        {Array.from({ length: 5 }).map((_, i) => (
+          <motion.div
+            key={`nebula-${i}`}
+            className="absolute rounded-full opacity-20"
+            style={{
+              left: `${20 + Math.random() * 60}%`,
+              top: `${20 + Math.random() * 60}%`,
+              width: `${100 + Math.random() * 200}px`,
+              height: `${100 + Math.random() * 200}px`,
+              background: `radial-gradient(circle, ${['#6366F1', '#8B5CF6', '#EC4899', '#06B6D4', '#10B981'][i]}30 0%, transparent 70%)`,
+            }}
+            animate={{
+              scale: [1, 1.1, 1],
+              opacity: [0.1, 0.3, 0.1],
+            }}
+            transition={{
+              duration: 8 + Math.random() * 4,
               repeat: Infinity,
               delay: Math.random() * 2
             }}
           />
         ))}
+        
+        {/* Пролетающие метеоры */}
+        <AnimatePresence>
+          {newDiscovery && (
+            <motion.div
+              className="absolute w-1 h-1 bg-white rounded-full opacity-90"
+              style={{
+                left: '-10px',
+                top: `${Math.random() * 50 + 20}%`,
+              }}
+              initial={{ x: -10, opacity: 0 }}
+              animate={{ 
+                x: window.innerWidth + 50, 
+                opacity: [0, 1, 1, 0],
+                boxShadow: ['0 0 5px #FFF', '0 0 15px #FFF', '0 0 5px #FFF']
+              }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 2, ease: "easeOut" }}
+            >
+              <div className="absolute -left-4 -top-0.5 w-8 h-0.5 bg-gradient-to-r from-transparent to-white opacity-60" />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Основная область с зумом и панорамированием */}
@@ -473,14 +525,26 @@ function GalaxyUniverse() {
           ))}
         </AnimatePresence>
 
-        {/* Планеты (курсы) */}
+        {/* Планеты (курсы) с орбитальным движением */}
         <AnimatePresence>
-          {planets.map((planet) => {
+          {planets.map((planet, index) => {
             const galaxy = galaxies.find(g => g.id === planet.galaxy);
             const showPlanet = viewConfig.state === 'universe' || 
                              (viewConfig.state === 'galaxy' && viewConfig.selectedGalaxy === planet.galaxy);
             
-            return showPlanet && galaxy?.discovered ? (
+            if (!showPlanet || !galaxy?.discovered) return null;
+
+            // Орбитальное движение
+            const orbitRadius = Math.sqrt(
+              Math.pow(planet.position.x - galaxy.position.x, 2) + 
+              Math.pow(planet.position.y - galaxy.position.y, 2)
+            );
+            const baseAngle = Math.atan2(
+              planet.position.y - galaxy.position.y, 
+              planet.position.x - galaxy.position.x
+            );
+            
+            return (
               <motion.div
                 key={planet.id}
                 className="absolute cursor-pointer z-30"
@@ -489,11 +553,14 @@ function GalaxyUniverse() {
                   top: '50%',
                 }}
                 animate={{
-                  x: planet.position.x,
-                  y: planet.position.y,
+                  x: galaxy.position.x + Math.cos(baseAngle + (Date.now() / 10000) * (1 + index * 0.3)) * orbitRadius,
+                  y: galaxy.position.y + Math.sin(baseAngle + (Date.now() / 10000) * (1 + index * 0.3)) * orbitRadius,
                   scale: viewConfig.selectedPlanet?.id === planet.id ? 1.5 : 1,
                 }}
-                initial={{ scale: 0 }}
+                initial={{ 
+                  scale: 0,
+                  rotate: 0
+                }}
                 exit={{ scale: 0 }}
                 transition={{
                   duration: 0.3,
@@ -505,9 +572,23 @@ function GalaxyUniverse() {
                   whileHover={{ scale: 1.2 }}
                   className="relative"
                 >
-                  {/* Планета */}
-                  <div
-                    className="rounded-full border-2"
+                  {/* Орбитальная траектория (видна при наведении) */}
+                  <motion.div
+                    className="absolute border border-white/10 rounded-full pointer-events-none"
+                    style={{
+                      width: orbitRadius * 2,
+                      height: orbitRadius * 2,
+                      left: -orbitRadius + (planet.size / 2),
+                      top: -orbitRadius + (planet.size / 2),
+                      transform: `translate(${galaxy.position.x - planet.position.x}px, ${galaxy.position.y - planet.position.y}px)`,
+                    }}
+                    initial={{ opacity: 0 }}
+                    whileHover={{ opacity: 0.3 }}
+                  />
+
+                  {/* Планета с материализацией */}
+                  <motion.div
+                    className="rounded-full border-2 relative overflow-hidden"
                     style={{
                       width: planet.size,
                       height: planet.size,
@@ -515,17 +596,101 @@ function GalaxyUniverse() {
                       borderColor: planet.completed ? '#059669' : planet.visited ? '#D97706' : '#2563EB',
                       boxShadow: `0 0 15px ${planet.completed ? '#10B981' : planet.visited ? '#F59E0B' : '#3B82F6'}60`,
                     }}
-                  />
+                    animate={{
+                      rotate: 360,
+                    }}
+                    transition={{
+                      duration: 20 + index * 5,
+                      repeat: Infinity,
+                      ease: "linear"
+                    }}
+                  >
+                    {/* Поверхность планеты */}
+                    <div className="absolute inset-0 opacity-30">
+                      <div 
+                        className="w-full h-full rounded-full"
+                        style={{
+                          background: `radial-gradient(circle at 30% 30%, transparent 0%, ${planet.completed ? '#10B981' : planet.visited ? '#F59E0B' : '#3B82F6'}40 100%)`
+                        }}
+                      />
+                    </div>
+
+                    {/* Золотая корона для завершенных курсов */}
+                    {planet.completed && (
+                      <motion.div
+                        className="absolute inset-0 rounded-full"
+                        style={{
+                          border: '2px solid #FFD700',
+                          boxShadow: '0 0 10px #FFD700'
+                        }}
+                        animate={{
+                          rotate: -360,
+                        }}
+                        transition={{
+                          duration: 15,
+                          repeat: Infinity,
+                          ease: "linear"
+                        }}
+                      />
+                    )}
+
+                    {/* Пульсация для активных курсов */}
+                    {planet.visited && !planet.completed && (
+                      <motion.div
+                        className="absolute inset-0 rounded-full"
+                        style={{
+                          backgroundColor: '#F59E0B',
+                        }}
+                        animate={{
+                          opacity: [0, 0.3, 0],
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                        }}
+                      />
+                    )}
+                  </motion.div>
                   
                   {/* Название планеты */}
-                  <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
-                    <div className="bg-space-800/80 backdrop-blur-sm px-2 py-1 rounded border border-white/20 text-center">
+                  <motion.div 
+                    className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 whitespace-nowrap"
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                  >
+                    <div className="bg-space-800/90 backdrop-blur-sm px-3 py-1 rounded-lg border border-white/20 text-center">
                       <p className="text-xs font-orbitron text-white">{planet.name}</p>
+                      <p className="text-xs text-white/60">{planet.course.modules || 1} модулей</p>
                     </div>
-                  </div>
+                  </motion.div>
+
+                  {/* Мини астероиды-уроки для детального вида */}
+                  {viewConfig.state === 'galaxy' && viewConfig.selectedGalaxy === planet.galaxy && (
+                    <>
+                      {Array.from({ length: planet.course.modules || 1 }).map((_, moduleIndex) => (
+                        <motion.div
+                          key={`asteroid-${planet.id}-${moduleIndex}`}
+                          className="absolute w-2 h-2 bg-gray-400 rounded-full"
+                          style={{
+                            left: planet.size + 15 + moduleIndex * 8,
+                            top: planet.size / 2 - 1,
+                          }}
+                          animate={{
+                            y: [0, -3, 0],
+                          }}
+                          transition={{
+                            duration: 1.5,
+                            repeat: Infinity,
+                            delay: moduleIndex * 0.2
+                          }}
+                        />
+                      ))}
+                    </>
+                  )}
                 </motion.div>
               </motion.div>
-            ) : null;
+            );
           })}
         </AnimatePresence>
       </motion.div>
@@ -556,36 +721,180 @@ function GalaxyUniverse() {
         </button>
       </div>
 
-      {/* Сканирование и статистика */}
+      {/* Приборная панель корабля Галаксион */}
       <div className="absolute bottom-4 left-4 z-50">
-        <div className="bg-space-800/80 backdrop-blur-sm p-3 rounded-lg border border-white/20">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={simulateDiscovery}
-              className="px-3 py-1 bg-primary/20 hover:bg-primary/30 border border-primary/30 rounded text-xs text-white transition-colors"
-            >
-              <Telescope className="w-4 h-4 inline mr-1" />
-              Сканировать
-            </button>
-            <div className="text-xs text-white/70">
-              {galaxies.filter(g => g.discovered).length}/{galaxies.length} галактик
+        <motion.div 
+          className="bg-gradient-to-br from-space-800/90 to-space-900/90 backdrop-blur-sm p-4 rounded-xl border border-primary/30 shadow-2xl"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.5 }}
+        >
+          {/* Заголовок панели */}
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-3 h-3 bg-primary rounded-full animate-pulse" />
+            <p className="text-xs font-orbitron text-white">ГАЛАКСИОН - ПАНЕЛЬ УПРАВЛЕНИЯ</p>
+          </div>
+
+          {/* Индикаторы */}
+          <div className="space-y-2 mb-3">
+            {/* Топливо мотивации */}
+            <div className="flex items-center gap-2">
+              <div className="text-xs text-white/70 w-16">Мотивация</div>
+              <div className="flex-1 h-2 bg-space-700 rounded-full overflow-hidden">
+                <motion.div 
+                  className="h-full bg-gradient-to-r from-blue-500 to-green-500"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${Math.min(85 + Math.random() * 15, 100)}%` }}
+                  transition={{ duration: 2 }}
+                />
+              </div>
+              <div className="text-xs text-white/60">85%</div>
+            </div>
+
+            {/* Уровень исследователя */}
+            <div className="flex items-center gap-2">
+              <div className="text-xs text-white/70 w-16">Уровень</div>
+              <div className="text-xs text-primary font-orbitron">КОСМИЧЕСКИЙ ИССЛЕДОВАТЕЛЬ</div>
+            </div>
+
+            {/* Открытые галактики */}
+            <div className="flex items-center gap-2">
+              <div className="text-xs text-white/70 w-16">Галактики</div>
+              <div className="text-xs text-white/80">
+                {galaxies.filter(g => g.discovered).length}/{galaxies.length} открыто
+              </div>
+            </div>
+
+            {/* Планеты с курсами */}
+            <div className="flex items-center gap-2">
+              <div className="text-xs text-white/70 w-16">Планеты</div>
+              <div className="text-xs text-white/80">
+                {planets.length} обнаружено
+              </div>
             </div>
           </div>
-        </div>
+
+          {/* Кнопки управления */}
+          <div className="flex gap-2">
+            <motion.button
+              onClick={simulateDiscovery}
+              className="flex-1 px-3 py-2 bg-primary/20 hover:bg-primary/30 border border-primary/30 rounded-lg text-xs text-white transition-colors flex items-center justify-center gap-1"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Telescope className="w-3 h-3" />
+              Сканировать
+            </motion.button>
+            
+            <motion.button
+              onClick={handleBackToUniverse}
+              className="px-3 py-2 bg-space-700/50 hover:bg-space-600/50 border border-white/20 rounded-lg text-xs text-white/70 transition-colors"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Домой
+            </motion.button>
+          </div>
+
+          {/* Мини-карта */}
+          {viewConfig.state !== 'universe' && (
+            <div className="mt-3 pt-3 border-t border-white/10">
+              <div className="text-xs text-white/60 mb-2">Мини-карта</div>
+              <div className="w-24 h-16 bg-space-900/50 rounded border border-white/10 relative overflow-hidden">
+                {/* Упрощенное представление текущего вида */}
+                <div className="absolute inset-1">
+                  <div className="w-full h-full bg-gradient-to-br from-primary/20 to-purple-500/20 rounded" />
+                  <div className="absolute top-1/2 left-1/2 w-1 h-1 bg-white rounded-full transform -translate-x-1/2 -translate-y-1/2" />
+                </div>
+              </div>
+            </div>
+          )}
+        </motion.div>
       </div>
 
-      {/* Уведомления об открытиях */}
+      {/* Toast уведомления об открытиях */}
       <AnimatePresence>
         {newDiscovery && (
           <motion.div
-            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50"
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
+            className="absolute top-4 right-4 z-50 w-80"
+            initial={{ x: 300, opacity: 0, scale: 0.8 }}
+            animate={{ x: 0, opacity: 1, scale: 1 }}
+            exit={{ x: 300, opacity: 0, y: -20 }}
+            transition={{ type: "spring", damping: 25, stiffness: 120 }}
           >
-            <div className="bg-primary/90 backdrop-blur-sm p-4 rounded-lg border border-primary/30 text-center">
-              <p className="text-white font-orbitron">Новое открытие!</p>
-              <p className="text-white/80">{newDiscovery.name}</p>
+            <div className="bg-gradient-to-br from-primary/90 to-purple-600/90 backdrop-blur-sm p-4 rounded-xl border border-primary/40 shadow-2xl">
+              {/* Искры эффекта */}
+              <div className="absolute inset-0 overflow-hidden rounded-xl">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className="absolute w-1 h-1 bg-white rounded-full"
+                    style={{
+                      left: `${20 + Math.random() * 60}%`,
+                      top: `${20 + Math.random() * 60}%`,
+                    }}
+                    animate={{
+                      scale: [0, 1, 0],
+                      opacity: [0, 1, 0],
+                    }}
+                    transition={{
+                      duration: 1.5,
+                      delay: i * 0.2,
+                      repeat: 2,
+                    }}
+                  />
+                ))}
+              </div>
+
+              <div className="relative z-10">
+                <div className="flex items-center gap-3 mb-2">
+                  <motion.div
+                    className="w-8 h-8 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center"
+                    animate={{ rotate: [0, 360] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                  >
+                    <Telescope className="w-4 h-4 text-white" />
+                  </motion.div>
+                  <div>
+                    <p className="text-white font-orbitron text-sm font-bold">НОВОЕ ОТКРЫТИЕ!</p>
+                    <p className="text-white/80 text-xs">Сканирование завершено</p>
+                  </div>
+                </div>
+                
+                <div className="bg-white/10 rounded-lg p-3 mb-3">
+                  <p className="text-white font-medium">{newDiscovery.name}</p>
+                  <p className="text-white/70 text-xs mt-1">
+                    {newDiscovery.type === 'galaxy' ? 'Новая галактика обнаружена' : 'Новая планета найдена'}
+                  </p>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <div className="text-xs text-white/60">
+                    +100 XP исследователя
+                  </div>
+                  <motion.button
+                    className="text-xs text-white/80 hover:text-white transition-colors"
+                    onClick={() => setNewDiscovery(null)}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                  >
+                    Закрыть
+                  </motion.button>
+                </div>
+              </div>
+
+              {/* Дымный хвост */}
+              <motion.div
+                className="absolute -bottom-2 left-1/2 w-0.5 h-8 bg-gradient-to-b from-primary/50 to-transparent"
+                animate={{
+                  opacity: [0.8, 0],
+                  scaleY: [1, 0],
+                }}
+                transition={{
+                  duration: 2,
+                  delay: 3,
+                }}
+              />
             </div>
           </motion.div>
         )}
