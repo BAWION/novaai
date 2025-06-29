@@ -124,10 +124,13 @@ NovaAI University is a comprehensive AI-powered educational platform built with 
   - Удалена несовместимая зависимость react-d3-radar (требовала React 15 вместо 18)
   - Исправлена команда сборки: только frontend (vite build) для статического деплоя
   - Исправлен outputDirectory: "dist" для соответствия фактическому пути сборки Vite
-  - НАЙДЕНА РЕАЛЬНАЯ ПРОБЛЕМА: Vercel возвращает 401 ошибку - сайт защищен паролем
+  - НАЙДЕНА РЕАЛЬНАЯ ПРОБЛЕМА: Vercel Authentication включен в настройках Security
+  - Vercel Authentication блокирует доступ к сайту (401 ошибка + SSO защита)
   - Добавлено "public": true в vercel.json для принудительного публичного доступа
   - API проксирование на Replit backend через rewrites в vercel.json
-  - После снятия Password Protection в Vercel CSS стили заработают автоматически
+  - РЕШЕНИЕ: отключить "Vercel Authentication" в Settings → Security → Deployment Protection
+  - УСПЕШНО РАЗВЕРНУТО: сайт доступен с HTTP/2 200, CSS стили применяются корректно
+  - Финальный URL: https://novaai-academy-enf68lhvz-vitaliy-s-projects-51482000.vercel.app
 - June 28, 2025: ИСПРАВЛЕНА КОНФИГУРАЦИЯ VERCEL ДЕПЛОЯ
   - Обновлен vercel.json с правильной outputDirectory: "dist/public"
   - Добавлены заголовки кэширования для CSS/JS файлов для корректного отображения стилей
