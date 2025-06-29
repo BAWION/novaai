@@ -604,7 +604,7 @@ function GalaxyUniverse() {
 
         {/* Галактики - показываем только на Universe view */}
         <AnimatePresence>
-          {viewConfig.state === 'universe' && galaxies.map((galaxy) => (
+          {viewConfig.state === 'universe' && galaxies.map((galaxy, galaxyIndex) => (
             <motion.div
               key={galaxy.id}
               className="absolute cursor-pointer z-30"
@@ -641,7 +641,7 @@ function GalaxyUniverse() {
                 whileHover={{ scale: 1.1 }}
                 className="relative"
               >
-                {/* Спиральная галактика с пульсацией */}
+                {/* Спиральная галактика с вращением и пульсацией */}
                 <motion.div 
                   className="rounded-full relative border-2"
                   style={{
@@ -651,6 +651,7 @@ function GalaxyUniverse() {
                     borderColor: galaxy.color,
                   }}
                   animate={{
+                    rotate: 360,
                     boxShadow: [
                       `0 0 30px ${galaxy.color}40, inset 0 0 15px ${galaxy.color}30`,
                       `0 0 50px ${galaxy.color}70, inset 0 0 25px ${galaxy.color}50`,
@@ -658,9 +659,16 @@ function GalaxyUniverse() {
                     ]
                   }}
                   transition={{
-                    duration: 3 + Math.random() * 2,
-                    repeat: Infinity,
-                    ease: "easeInOut"
+                    rotate: {
+                      duration: 60 + galaxyIndex * 20, // Разная скорость вращения для каждой галактики
+                      repeat: Infinity,
+                      ease: "linear"
+                    },
+                    boxShadow: {
+                      duration: 3 + Math.random() * 2,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }
                   }}
                 >
                   {/* Центральное ядро */}
@@ -674,9 +682,9 @@ function GalaxyUniverse() {
                   />
                   
                   {/* Спиральные рукава */}
-                  {[0, 120, 240].map((rotation, index) => (
+                  {[0, 120, 240].map((rotation, armIndex) => (
                     <div
-                      key={index}
+                      key={armIndex}
                       className="absolute top-1/2 left-1/2 origin-left"
                       style={{
                         width: galaxy.size * 0.4,
@@ -688,13 +696,23 @@ function GalaxyUniverse() {
                   ))}
                 </motion.div>
 
-                {/* Компактное название галактики */}
+                {/* Компактное название галактики - остается горизонтальным */}
                 <motion.div
                   className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 whitespace-nowrap text-center"
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ 
                     opacity: 1,
                     scale: 1,
+                    rotate: -360, // Противоположное вращение для сохранения горизонтальности
+                  }}
+                  transition={{
+                    opacity: { duration: 0.5 },
+                    scale: { duration: 0.5 },
+                    rotate: {
+                      duration: 60 + galaxy.id * 20, // Совпадает с вращением галактики
+                      repeat: Infinity,
+                      ease: "linear"
+                    }
                   }}
                   whileHover={{ scale: 1.05 }}
                 >
