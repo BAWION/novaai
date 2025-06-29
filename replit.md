@@ -123,6 +123,7 @@ NovaAI University is a comprehensive AI-powered educational platform built with 
   - Устранена ошибка "Header at index 1 has invalid source pattern" при деплое
   - Удалена несовместимая зависимость react-d3-radar (требовала React 15 вместо 18)
   - Исправлена команда сборки: только frontend (vite build) для статического деплоя
+  - Исправлен outputDirectory: "dist" вместо "dist/public" для корректного обнаружения файлов
   - API проксирование на Replit backend через rewrites в vercel.json
   - Конфигурация готова для полноценного продакшн деплоя
 - June 28, 2025: ИСПРАВЛЕНА КОНФИГУРАЦИЯ VERCEL ДЕПЛОЯ
