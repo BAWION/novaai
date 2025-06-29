@@ -719,7 +719,17 @@ function GalaxyUniverse() {
                   <div 
                     className="bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10 shadow-lg"
                     style={{
-                      transform: `rotate(${[-2, 1, -1, 2, 0][galaxyIndex] || 0}deg)` // Небольшие фиксированные углы для каждой галактики
+                      transform: `rotate(${(() => {
+                        // ml=0, nlp=1, cv=2, ethics=3, robotics=4
+                        switch(galaxy.id) {
+                          case 'robotics': return 180; // Робототехника - 180°
+                          case 'ethics': return 180;   // ИИ Этика - 180°  
+                          case 'cv': return 190;       // Компьютерное зрение - 190°
+                          case 'ml': return -2;        // Машинное обучение - оставляем как было
+                          case 'nlp': return 1;        // Языковые технологии - оставляем как было
+                          default: return 0;
+                        }
+                      })()}deg)`
                     }}
                   >
                     <p className="text-xs font-semibold text-white tracking-wide">{galaxy.domain}</p>
