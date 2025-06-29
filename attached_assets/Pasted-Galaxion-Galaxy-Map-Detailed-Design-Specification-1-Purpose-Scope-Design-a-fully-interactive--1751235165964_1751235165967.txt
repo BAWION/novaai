@@ -1,0 +1,500 @@
+Galaxion Galaxy Map – Detailed Design Specification
+
+1. Purpose & Scope
+
+Design a fully‑interactive 3‑D "Galaxy Universe" map that visualises the learner’s journey through AI knowledge. The map must feel like a living cosmos while remaining performant in modern browsers (desktop & mobile) and integrating seamlessly with NovaAI University’s existing React + TS front‑end and REST/WS back‑end.
+
+2. Hierarchical Model
+
+Level
+
+Term
+
+Real‑world Analogy
+
+Map Element
+
+Progress Granularity
+
+0
+
+
+
+
+
+
+
+
+
+Universe
+
+Entire platform
+
+Root scene
+
+Global
+
+
+
+1
+
+Galaxy
+
+AI domain (ML, CV …)
+
+Spiral galaxy mesh
+
+% courses in domain
+
+2
+
+Star System
+
+Group of courses
+
+Star + orbiting bodies
+
+Group completion
+
+3
+
+Planet
+
+Individual course
+
+Textured sphere
+
+Course progress
+
+4
+
+Asteroid
+
+Mini‑lesson / lab
+
+Small rock mesh
+
+Lesson progress
+
+5
+
+Station
+
+Checkpoint/test
+
+Space station prefab
+
+Pass/fail
+
+2.1 TypeScript Interfaces
+
+interface Vector3 { x: number; y: number; z: number }
+
+interface Station {
+  id: string;
+  name: string;
+  checkpointType: 'quiz' | 'project' | 'exam';
+  status: 'locked' | 'open' | 'passed';
+  position: Vector3;
+}
+interface Asteroid { id: string; name: string; lessonId: string; status: 'todo' | 'doing' | 'done'; position: Vector3; }
+interface Planet {
+  id: string;
+  name: string;
+  courseId: string;
+  difficulty: 'basic' | 'intermediate' | 'advanced';
+  status: 'locked' | 'in_progress' | 'completed';
+  size: number; // radius
+  position: Vector3;
+  rotationSpeeds: Vector3;
+  rings?: boolean;
+  atmosphere?: boolean;
+  asteroids: Asteroid[];
+  stations: Station[];
+}
+interface StarSystem {
+  id: string;
+  name: string;
+  position: Vector3;
+  color: string;
+  planets: Planet[];
+}
+interface Galaxy {
+  id: string;
+  name: string;
+  aiDomain: 'ML' | 'NLP' | 'CV' | 'Robotics' | 'Ethics';
+  color: string;
+  spiralArms: number;
+  rotationSpeed: number;
+  starSystems: StarSystem[];
+}
+
+3. Coordinate System, Scaling & Universe‑first UX Flow
+
+3.1 Universe‑first principle
+
+The map always opens in Universe view. Сразу после логина пользователь видит пять анимированных галактик‑доменов и корабль‑курсор «Галаксион» в центре. Такой «широкий кадр» создаёт эффект масштаба и подчёркивает концепцию межгалактического путешествия.
+
+Переход на более глубокие уровни происходит жестами (scroll / pinch) или двойным кликом по узлу.
+
+В HUD добавляется кнопка 🏠 Home — мгновенный возврат в Universe view, чтобы пользователь не «потерялся».
+
+3.2 Zoom tiers
+
+Tier
+
+Camera distance
+
+Показываем
+
+Основной триггер перехода
+
+Universe (default)
+
+≥ 900
+
+Галактики как спирали; корабль‑курсор; общие метрики доменов
+
+При запуске, при нажатии Home
+
+Galaxy
+
+300‑600
+
+Звезда‑якорь + star systems; общее облако планет‑курсов
+
+Scroll / pinch, dbl‑click на галактику
+
+System
+
+80‑300
+
+Планеты, астероиды, станции, орбиты
+
+Scroll / pinch, dbl‑click на систему
+
+Camera tween между уровнями осуществляется через three/examples/jsm/misc/CameraControls (easeInOutCubic, 1.2 s). В момент старта Universe view также применяем небольшой parallax‑shift (±4 deg) для «живости».
+
+3.3 Universe layout
+
+Bounds: логический куб −500↔500 по каждой оси.
+
+Galaxy placement: для каждого домена генерируем лог‑спираль (θ, r = a·e^{bθ}) с уникальными параметрами a, b → визуально разные рукава.
+
+Z‑offset: каждая галактика получает собственный слой глубины (−50 → +50), что усиливает 3‑D‑эффект при лёгком наклоне камеры.
+
+3.4 LOD & performance hints
+
+Universe view использует low‑poly instanced meshes (≤300 verts/galaxy). В Galaxy/System включаем high‑poly версии.
+
+При быстром возвращении «Home» применяем setTimeout(() => disposeHiRes()), чтобы выгрузить тяжёлые материалы и сэкономить VRAM.
+
+4. Visual Design
+
+(визуальные детали см. выше)
+
+4.4 UI Logic & Component Map
+
+Ниже приведён текстовый каркас того, как пользователь будет воспринимать и управлять Картой на каждом уровне зума.
+
+Экран
+
+Зона
+
+Компонент
+
+Лейаут
+
+События / состояния
+
+Universe
+
+Центр
+
+Корабль‑курсор «Галаксион»
+
+position: fixed; translateZ(1200)
+
+hover ⇒ подсветка, drag ⇒ ход корабля; dbl‑click на галактику ⇒ toGalaxy()
+
+
+
+Сцена
+
+Галактики‑домены (InstancedMeshes)
+
+авто‑плейсмент лог‑спираль
+
+opacity = completion%; click ⇒ фокус
+
+
+
+HUD‑лево
+
+Легенда статусов
+
+vertical stack
+
+статичный
+
+
+
+HUD‑право
+
+Кнопки Zoom +/‑
+
+icon‑buttons
+
+mousedown ⇒ camera.zoom()
+
+
+
+HUD‑право‑верх
+
+🏠 Home
+
+floating‑button
+
+click ⇒ return to Universe
+
+Galaxy
+
+Центр
+
+Star Systems
+
+flex‑orbit layout
+
+hover ⇒ tooltip «группа курсов»; dbl‑click ⇒ toSystem()
+
+
+
+Сцена
+
+Туманность‑рукав
+
+particle system
+
+цвет = цвет домена
+
+
+
+HUD‑право
+
+Mini‑map
+
+fixed square, 2‑D orthographic
+
+показывает активный рукав, кликабелен
+
+System
+
+Центр
+
+Планета‑курс
+
+stacked‑orbit (SVG path)
+
+hover ⇒ progress tooltip; click ⇒ openCoursePanel(courseId)
+
+
+
+Orbit
+
+Asteroids / Stations
+
+small instanced sprites
+
+click ⇒ openLesson / openQuiz
+
+
+
+HUD‑право‑низ
+
+Toast‑центр уведомлений
+
+container under 140 px
+
+push events: NEW_PLANET, ACHIEVEMENT
+
+UI State Machine (pseudocode)
+
+graph TD
+  U(Universe) -->|dbl‑click galaxy| G(Galaxy)
+  G -->|dbl‑click system| S(System)
+  S -->|click 🏠| U
+  G -->|click 🏠| U
+  S -->|scroll out| G
+  G -->|scroll out| U
+
+Interaction Priorities
+
+Core task first: курс всегда открывается максимум в 2 клика (Universe → Galaxy → System → CoursePanel overlay).
+
+Never get lost: кнопка Home и breadcrumb на верхней полосе показывают Galaxy / System путь.
+
+Feedback within 100 ms: hover‑tooltips и glow должны откликаться мгновенно (GPU‑instanced sprites + pointer raycaster).
+
+5. Navigation & Camera. Navigation & Camera
+
+Action
+
+Input
+
+Behaviour
+
+Orbit
+
+LMB drag / one‑finger drag
+
+Rotate around focus node
+
+Pan
+
+RMB drag / two‑finger drag
+
+Move camera parallel to plane
+
+Zoom
+
+Scroll / pinch
+
+Interpolate between tiers
+
+Jump
+
+Double‑click node
+
+Tween camera to node and update focus
+
+Path Animation: When user selects a distant node, ship travels Bézier curve; camera follows.
+
+Mini‑map: 2‑D overlay with orthographic snapshot of current galaxy.
+
+6. Interaction States
+
+Hover: Tooltip with node name + progress.
+
+Click: Opens course/lesson panel (existing React route).
+
+Locked Course: Display lock icon & tooltip "Complete prerequisites to unlock".
+
+7. Progress Integration
+
+Subscribe to /ws/progress (WebSocket) for real‑time updates; update mesh materials accordingly.
+
+Mutation on course completion triggers POST /api/map/event → broadcast "planet_completed" for notification system.
+
+8. Notification System (Galaxy‑Style Toasts)
+
+NEW_GALAXY_DISCOVERED → animated ring expansion at galaxy position + toast with telescope SFX.
+
+NEW_PLANET_AVAILABLE → materialisation shader (dissolve) + UI toast.
+
+ACHIEVEMENT_UNLOCKED → confetti particles in cockpit HUD.
+
+9. Performance & Optimisation
+
+GPU frustum culling via Three.js MeshStandardMaterial LOD.
+
+Use InstancedMesh for asteroids (≤500 per system).
+
+Lazy‑load textures with THREE.TextureLoader + compressed KTX2.
+
+Downscale shadow map on mobile (< 768px).
+
+10. API Endpoints (REST)
+
+Method
+
+Path
+
+Payload
+
+Returns
+
+GET
+
+/api/map/universe
+
+–
+
+Full Galaxy[] (without user data)
+
+GET
+
+/api/map/user/:id
+
+–
+
+Completed IDs & progress metrics
+
+POST
+
+/api/map/event
+
+{ userId, eventType, nodeId }
+
+200/201
+
+WebSocket topic progress/:userId publishes { nodeId, status }.
+
+11. Milestones
+
+Week 1 – Static Universe prototype with dummy data.
+
+Week 2 – Interactive camera + hover tooltips.
+
+Week 3 – Real course data mapping + progress colours.
+
+Week 4 – Ship animation, pathfinding, notifications.
+
+Week 5 – Mobile optimisation & polish.
+
+12. Sample JSON Snippet
+
+{
+  "galaxies": [
+    {
+      "id": "ml",
+      "name": "Machine Learning",
+      "color": "#9b5de5",
+      "spiralArms": 4,
+      "rotationSpeed": 0.01,
+      "starSystems": [
+        {
+          "id": "ml-core",
+          "name": "ML Core",
+          "position": { "x": 120, "y": 40, "z": -50 },
+          "color": "#ffc6ff",
+          "planets": [
+            {
+              "id": "pytorch",
+              "name": "PyTorch Basics",
+              "courseId": "course_101",
+              "difficulty": "basic",
+              "status": "in_progress",
+              "size": 1.2,
+              "position": { "x": 10, "y": 0, "z": 0 },
+              "rotationSpeeds": { "x": 0, "y": 0.02, "z": 0 },
+              "asteroids": [],
+              "stations": [
+                { "id": "quiz1", "name": "Quiz 1", "checkpointType": "quiz", "status": "open", "position": { "x": 2, "y": 0.5, "z": 0 } }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+Next Steps
+
+Confirm hierarchy & API contracts.
+
+Approve milestone timeline.
+
+Begin Three.js scaffold (UniverseCanvas.tsx).
+
+Please leave comments inline or request changes! ✨🚀
