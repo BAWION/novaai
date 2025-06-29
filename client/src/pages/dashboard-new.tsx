@@ -96,10 +96,10 @@ export default function Dashboard() {
               transition={{ duration: 0.5, delay: 0.2 }}
             >
               <h2 className="font-orbitron text-xl font-semibold mb-4">
-                Ваши образовательные орбиты
+                Вселенная Галаксион - Ваши образовательные галактики
               </h2>
               <div className="bg-space-800/50 rounded-xl p-4">
-                <OrbitalLayout />
+                <GalaxyUniverse />
               </div>
             </motion.div>
           </div>

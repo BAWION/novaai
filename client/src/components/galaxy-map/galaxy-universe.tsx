@@ -405,7 +405,7 @@ export default function GalaxyUniverse() {
                 >
                   {/* Иконка курса */}
                   <div className="w-full h-full flex items-center justify-center">
-                    <i className={`fas fa-${planet.course.icon} text-white text-xs`} />
+                    <i className={`fas fa-${planet.course.icon || 'brain'} text-white text-xs`} />
                   </div>
                 </div>
 
