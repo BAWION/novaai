@@ -117,6 +117,11 @@ NovaAI University is a comprehensive AI-powered educational platform built with 
 
 ## Changelog
 
+- June 29, 2025: ИСПРАВЛЕН СИНТАКСИС VERCEL.JSON ДЛЯ CSS/JS ЗАГОЛОВКОВ
+  - Заменено некорректное регулярное выражение /(.*\\.(css|js)) на отдельные правила
+  - Создано два отдельных правила для CSS и JS файлов в headers
+  - Устранена ошибка "Header at index 1 has invalid source pattern" при деплое
+  - Конфигурация готова для корректного кэширования статических ресурсов
 - June 28, 2025: ИСПРАВЛЕНА КОНФИГУРАЦИЯ VERCEL ДЕПЛОЯ
   - Обновлен vercel.json с правильной outputDirectory: "dist/public"
   - Добавлены заголовки кэширования для CSS/JS файлов для корректного отображения стилей
