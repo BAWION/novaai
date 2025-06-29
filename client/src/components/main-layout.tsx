@@ -93,7 +93,7 @@ export function MainLayout({ children }: MainLayoutProps) {
               <a className="flex items-center space-x-2">
                 <Brain className="h-8 w-8 text-indigo-400" />
                 <span className="font-orbitron text-xl md:text-2xl bg-clip-text text-transparent bg-gradient-to-r from-[#B28DFF] via-[#8BE0F7] to-[#B28DFF]">
-                  NovaAI
+                  Galaxion
                 </span>
               </a>
             </Link>

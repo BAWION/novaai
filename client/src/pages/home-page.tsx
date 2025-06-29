@@ -128,8 +128,8 @@ export default function HomePage() {
       {/* Header/Navigation */}
       <header className="w-full py-4 px-4 sm:px-6 backdrop-blur-sm bg-black/30 fixed top-0 z-50 fixed-header">
         <div className="container mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">NovaAI Academy</span>
+          <div className="flex items-center">
+            <span className="text-2xl font-orbitron font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">Galaxion</span>
           </div>
           <nav className="hidden md:flex gap-6 items-center">
             <a href="#features" className="text-white/70 hover:text-white transition-colors">Возможности</a>
@@ -162,7 +162,7 @@ export default function HomePage() {
                   Освойте <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-purple-500 to-secondary">искусственный интеллект</span> и стройте карьеру будущего
                 </h1>
                 <p className="text-base sm:text-lg md:text-xl text-white/80 mb-6 sm:mb-8 max-w-xl">
-                  NovaAI Academy — это <span className="font-bold text-white">преимущественно бесплатная</span> образовательная платформа для <span className="font-bold text-white">всех уровней</span> — от школьников до Senior-разработчиков, с адаптивной AI-системой обучения.
+                  Galaxion — это <span className="font-bold text-white">преимущественно бесплатная</span> образовательная платформа для <span className="font-bold text-white">всех уровней</span> — от школьников до Senior-разработчиков, с адаптивной AI-системой обучения от NovaAI.
                 </p>
                 <div className="flex flex-wrap gap-3 sm:gap-4">
                   <a href="/onboarding-intro" className="inline-block py-2 sm:py-3 px-4 sm:px-8 text-base sm:text-lg rounded bg-primary hover:bg-primary/90 active:bg-primary/80 transition-colors text-white no-underline font-medium tap-highlight-none">
@@ -230,7 +230,7 @@ export default function HomePage() {
         <section id="features" className="py-12 sm:py-16 md:py-20 px-4 sm:px-6">
           <div className="container mx-auto">
             <div className="text-center mb-8 sm:mb-12 md:mb-16">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">Почему выбирают NovaAI </h2>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">Почему выбирают Galaxion </h2>
               <p className="text-base sm:text-lg md:text-xl text-white/70 max-w-2xl mx-auto">
                 Платформа с <span className="font-bold text-white">Skills DNA диагностикой</span> и <span className="font-bold text-white">умным подбором курсов</span> для персонализированного обучения ИИ
               </p>
@@ -275,7 +275,7 @@ export default function HomePage() {
                       <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">Skills DNA</span> — ваш навигатор в мире ИИ
                     </h2>
                     <p className="text-white/80 text-lg mb-8">
-                      NovaAI University создает персональную карту навыков Skills DNA, которая обновляется после каждого урока и автоматически подбирает оптимальные курсы для вашего роста.
+                      Galaxion создает персональную карту навыков Skills DNA, которая обновляется после каждого урока и автоматически подбирает оптимальные курсы для вашего роста с помощью ИИ-ассистента NovaAI.
                     </p>
                     <ul className="space-y-4 mb-8">
                       <li className="flex gap-3 items-start">
@@ -709,7 +709,7 @@ export default function HomePage() {
         <div className="container mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
             <div>
-              <h3 className="text-xl font-bold mb-4">NovaAI Academy</h3>
+              <h3 className="text-xl font-bold mb-4">Galaxion</h3>
               <p className="text-white/70 mb-4">
                 Образовательная платформа нового поколения для изучения искусственного интеллекта и науки о данных.
               </p>
