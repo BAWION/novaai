@@ -1,0 +1,55 @@
+[03:56:43.082] Running build in Washington, D.C., USA (East) – iad1
+[03:56:43.083] Build machine configuration: 2 cores, 8 GB
+[03:56:43.116] Cloning github.com/BAWION/novaai (Branch: main, Commit: 6b83235)
+[03:56:44.696] Cloning completed: 1.580s
+[03:56:45.192] Restored build cache from previous deployment (5Yjt5Vpzkg9i1PPf1NuyxjHJwA7z)
+[03:56:45.962] Running "vercel build"
+[03:56:46.405] Vercel CLI 43.3.0
+[03:56:46.991] Running "install" command: `npm install`...
+[03:56:50.855] 
+[03:56:50.855] up to date, audited 1011 packages in 4s
+[03:56:50.855] 
+[03:56:50.855] 193 packages are looking for funding
+[03:56:50.855]   run `npm fund` for details
+[03:56:50.897] 
+[03:56:50.897] 17 vulnerabilities (8 moderate, 9 high)
+[03:56:50.897] 
+[03:56:50.898] To address issues that do not require attention, run:
+[03:56:50.898]   npm audit fix
+[03:56:50.898] 
+[03:56:50.899] To address all issues (including breaking changes), run:
+[03:56:50.899]   npm audit fix --force
+[03:56:50.899] 
+[03:56:50.899] Run `npm audit` for details.
+[03:56:51.155] 
+[03:56:51.155] > rest-express@1.0.0 build
+[03:56:51.158] > vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+[03:56:51.158] 
+[03:56:51.453] [36mvite v5.4.19 [32mbuilding for production...[36m[39m
+[03:56:51.812] transforming...
+[03:57:01.855] [32m✓[39m 4421 modules transformed.
+[03:57:02.496] rendering chunks...
+[03:57:03.241] [1m[33m[plugin:vite:reporter][39m[22m [33m[plugin vite:reporter] 
+[03:57:03.242] (!) /vercel/path0/src/lib/pwa-utils.ts is dynamically imported by /vercel/path0/src/components/pwa/offline-status.tsx, /vercel/path0/src/hooks/use-pwa.tsx but also statically imported by /vercel/path0/src/components/pwa/install-prompt.tsx, /vercel/path0/src/hooks/use-pwa.tsx, dynamic import will not move module into another chunk.
+[03:57:03.242] [39m
+[03:57:03.244] [1m[33m[plugin:vite:reporter][39m[22m [33m[plugin vite:reporter] 
+[03:57:03.245] (!) /vercel/path0/src/api/diagnosis-api.ts is dynamically imported by /vercel/path0/src/context/auth-context.tsx but also statically imported by /vercel/path0/src/components/skills-dna-profile.tsx, /vercel/path0/src/hooks/use-skills-dna.tsx, /vercel/path0/src/pages/dashboard.tsx, /vercel/path0/src/pages/deep-diagnosis.tsx, /vercel/path0/src/pages/quick-diagnosis.tsx, dynamic import will not move module into another chunk.
+[03:57:03.245] [39m
+[03:57:03.339] computing gzip size...
+[03:57:03.421] [2mdist/[22m[32mindex.html                                      [39m[1m[2m    4.56 kB[22m[1m[22m[2m │ gzip:   2.06 kB[22m
+[03:57:03.422] [2mdist/[22m[2massets/[22m[35mindex-C_t3JajK.css                       [39m[1m[2m   11.29 kB[22m[1m[22m[2m │ gzip:   3.16 kB[22m
+[03:57:03.422] [2mdist/[22m[2massets/[22m[36mtelegram-bots-course-page-DCX2Cz3V.js    [39m[1m[2m    7.43 kB[22m[1m[22m[2m │ gzip:   2.36 kB[22m
+[03:57:03.429] [2mdist/[22m[2massets/[22m[36mmake-automation-course-page-DUv0PR7U.js  [39m[1m[2m    9.11 kB[22m[1m[22m[2m │ gzip:   2.77 kB[22m
+[03:57:03.429] [2mdist/[22m[2massets/[22m[36mindex-ivrcig0Z.js                        [39m[1m[33m2,295.21 kB[39m[22m[2m │ gzip: 632.90 kB[22m
+[03:57:03.430] [33m
+[03:57:03.430] (!) Some chunks are larger than 500 kB after minification. Consider:
+[03:57:03.430] - Using dynamic import() to code-split the application
+[03:57:03.431] - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+[03:57:03.431] - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+[03:57:03.433] [32m✓ built in 11.65s[39m
+[03:57:03.517] ✘ [ERROR] The entry point "server/index.ts" cannot be marked as external
+[03:57:03.517] 
+[03:57:03.519] 1 error
+[03:57:03.529] Error: Command "npm run build" exited with 1
+[03:57:03.905] 
+[03:57:07.159] Exiting build container
