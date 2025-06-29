@@ -199,7 +199,7 @@ function GalaxyUniverse() {
       setViewConfig({
         state: 'galaxy',
         selectedGalaxy: galaxyId,
-        zoom: 2,
+        zoom: 1.5, // Уменьшаем начальный зум для galaxy view
         centerX: galaxy.position.x,
         centerY: galaxy.position.y
       });
@@ -252,7 +252,7 @@ function GalaxyUniverse() {
             state: 'galaxy',
             selectedGalaxy: galaxy.id,
             selectedSystem: undefined,
-            zoom: 2,
+            zoom: 1.5, // Более мягкий зум для возврата в galaxy view
             centerX: galaxy.position.x,
             centerY: galaxy.position.y
           });
@@ -268,7 +268,7 @@ function GalaxyUniverse() {
           setViewConfig({
             state: 'galaxy',
             selectedGalaxy: galaxy.id,
-            zoom: 2,
+            zoom: 1.5, // Более мягкий зум для скролл-ин в galaxy view
             centerX: galaxy.position.x,
             centerY: galaxy.position.y
           });
@@ -720,7 +720,7 @@ function GalaxyUniverse() {
                       state: 'system',
                       selectedGalaxy: viewConfig.selectedGalaxy,
                       selectedSystem: `system-${systemIndex}`,
-                      zoom: 4,
+                      zoom: 2.5, // Уменьшаем начальный зум для systems для более дальнего просмотра
                       centerX: galaxy.position.x + Math.cos(angle) * radius,
                       centerY: galaxy.position.y + Math.sin(angle) * radius
                     });
