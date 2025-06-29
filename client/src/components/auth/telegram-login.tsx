@@ -113,7 +113,7 @@ export function TelegramLogin({
     return () => {
       // Очистка при размонтировании
       if (window.TelegramLoginWidget) {
-        window.TelegramLoginWidget = undefined;
+        window.TelegramLoginWidget = { dataOnauth: handleTelegramAuth };
       }
     };
   }, [botUsername, buttonSize, cornerRadius, requestAccess, usePic]);
