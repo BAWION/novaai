@@ -129,8 +129,9 @@ NovaAI University is a comprehensive AI-powered educational platform built with 
   - Добавлено "public": true в vercel.json для принудительного публичного доступа
   - API проксирование на Replit backend через rewrites в vercel.json
   - РЕШЕНИЕ: отключить "Vercel Authentication" в Settings → Security → Deployment Protection
-  - УСПЕШНО РАЗВЕРНУТО: сайт доступен с HTTP/2 200, CSS стили применяются корректно
-  - Финальный URL: https://novaai-academy-enf68lhvz-vitaliy-s-projects-51482000.vercel.app
+  - НАЙДЕНА ОСНОВНАЯ ПРОБЛЕМА СО СТИЛЯМИ: неправильный путь в tailwind.config.ts
+  - Исправлен путь: "./client/src/**/*" → "./src/**/*" для правильного сканирования компонентов
+  - Требуется коммит tailwind.config.ts для пересборки с корректными стилями Tailwind CSS
 - June 28, 2025: ИСПРАВЛЕНА КОНФИГУРАЦИЯ VERCEL ДЕПЛОЯ
   - Обновлен vercel.json с правильной outputDirectory: "dist/public"
   - Добавлены заголовки кэширования для CSS/JS файлов для корректного отображения стилей
