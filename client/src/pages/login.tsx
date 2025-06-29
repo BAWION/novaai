@@ -100,14 +100,22 @@ export default function Login() {
             const style = document.createElement('style');
             style.id = 'telegram-custom-styles';
             style.textContent = `
+              .telegram-button-container {
+                width: 100% !important;
+                display: flex !important;
+                justify-content: center !important;
+              }
               .telegram-button-container iframe {
                 width: 100% !important;
+                max-width: 100% !important;
                 height: 50px !important;
                 border-radius: 8px !important;
                 border: none !important;
               }
-              .telegram-button-container {
+              #telegram-login-widget {
                 width: 100% !important;
+                display: flex !important;
+                justify-content: center !important;
               }
             `;
             
