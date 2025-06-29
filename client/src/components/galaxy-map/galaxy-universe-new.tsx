@@ -623,7 +623,7 @@ function GalaxyUniverse() {
               exit={{ scale: 0, opacity: 0 }}
               transition={{
                 rotate: {
-                  duration: 20 + Math.random() * 10,
+                  duration: 80 + galaxyIndex * 15, // Разная скорость вращения для каждой галактики
                   repeat: Infinity,
                   ease: "linear"
                 },
