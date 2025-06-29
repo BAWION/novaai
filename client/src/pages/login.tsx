@@ -5,6 +5,7 @@ import { Glassmorphism } from "@/components/ui/glassmorphism";
 import { ParticlesBackground } from "@/components/particles-background";
 import { useAuth } from "@/context/auth-context";
 import { useToast } from "@/hooks/use-toast";
+import { TelegramLogin } from "@/components/auth/telegram-login";
 
 export default function Login() {
   const [location, navigate] = useLocation();
@@ -246,14 +247,15 @@ export default function Login() {
 
             {!showLoginForm ? (
               <>
-                <div className="mb-6">
-                  <button
-                    onClick={handleTelegramLogin}
-                    className="w-full bg-[#0088cc] hover:bg-[#0099dd] text-white py-3 px-4 rounded-lg flex items-center justify-center transition duration-300 tap-highlight-none btn-mobile"
-                  >
-                    <i className="fab fa-telegram mr-3 text-xl"></i>
-                    Войти через Telegram
-                  </button>
+                <div className="mb-6 flex justify-center">
+                  <TelegramLogin 
+                    botUsername="galaxion_auth_bot"
+                    buttonSize="large"
+                    cornerRadius={10}
+                    requestAccess={true}
+                    usePic={true}
+                    className="w-full flex justify-center"
+                  />
                 </div>
 
                 <div className="flex items-center my-6">

@@ -65,7 +65,7 @@ export function TelegramLogin({
         });
 
         // Обновляем контекст авторизации
-        await login(data.user.username, '', 'telegram');
+        await login(data.user);
         
         // Перенаправляем на главную страницу
         window.location.href = '/dashboard';
@@ -112,7 +112,9 @@ export function TelegramLogin({
 
     return () => {
       // Очистка при размонтировании
-      delete window.TelegramLoginWidget;
+      if (window.TelegramLoginWidget) {
+        window.TelegramLoginWidget = undefined;
+      }
     };
   }, [botUsername, buttonSize, cornerRadius, requestAccess, usePic]);
 
