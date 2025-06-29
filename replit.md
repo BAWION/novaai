@@ -117,14 +117,15 @@ Galaxion is a comprehensive AI-powered educational platform built with modern we
 
 ## Changelog
 
-- 2025-06-29: ДОБАВЛЕНА TELEGRAM АВТОРИЗАЦИЯ С ОТДЕЛЬНЫМ БОТОМ
-  - Создан отдельный секрет TELEGRAM_AUTH_BOT_TOKEN для бота авторизации
-  - Разделены функции ботов: TELEGRAM_BOT_TOKEN для новостей, TELEGRAM_AUTH_BOT_TOKEN для входа
-  - Реализован Telegram Login Widget с автоматической загрузкой
-  - Добавлена серверная обработка авторизации с криптографической проверкой подписи
-  - Настроен fallback-режим с информационными сообщениями при проблемах с доменом
-  - Создан гид telegram-bot-setup-guide.md для настройки домена в @BotFather
-  - Требуется настройка доменов galaxion.org и replit.dev в настройках бота
+- 2025-06-29: TELEGRAM АВТОРИЗАЦИЯ ГОТОВА К АКТИВАЦИИ
+  - Создан бот @Galaxion_Auth_bot (ID: 7095186689) с токеном TELEGRAM_AUTH_BOT_TOKEN
+  - Разделены функции: TELEGRAM_BOT_TOKEN для новостей, TELEGRAM_AUTH_BOT_TOKEN для входа
+  - Реализован Telegram Login Widget с корректным username: Galaxion_Auth_bot
+  - Настроена серверная обработка с криптографической проверкой hash подписи
+  - Создан fallback-режим с информативными сообщениями для пользователей
+  - Подготовлен telegram-bot-setup-guide.md с пошаговыми инструкциями
+  - ФИНАЛЬНЫЙ ШАГ: настройка доменов в @BotFather для активации авторизации
+  - Требуется добавить домены: galaxion.org, www.galaxion.org, и replit.dev в настройки бота
 
 - 2025-06-29: СОЗДАН АРХИВ ДЛЯ GITHUB СИНХРОНИЗАЦИИ
   - Автоматически создан пакет galaxion-update-2025-06-29T18-18-03
