@@ -1,36 +1,54 @@
-# Принудительный редеплой с актуальным коммитом
+# Принудительное исправление Vercel деплоя
 
-## Проблема:
-Vercel использует старый коммит 3948cb1 вместо нового 1489116 с обновленным vercel.json
+## Текущая проблема
+Vercel возвращает 401 + SSO защиту (`_vercel_sso_nonce` cookie).
+Это означает что проект защищен системой аутентификации.
 
-## Решение:
+## Решение 1: Отключение защиты в Vercel Dashboard
 
-### Вариант 1: Принудительный push
+### В панели Vercel:
+1. Откройте проект → **Settings**
+2. **Security** → найдите **"Deployment Protection"** или **"Access Control"**
+3. Отключите все типы защиты:
+   - Password Protection
+   - Vercel Authentication 
+   - Team-only access
+4. **Save changes**
+
+### Если не видите эти настройки:
+- **General** → Project Settings → убедитесь что проект **Public**
+- **Domains** → проверьте что домен не имеет ограничений доступа
+
+## Решение 2: Принудительный публичный деплой
+
+Закоммитим обновленный `vercel.json`:
+
 ```bash
-git push --force-with-lease origin main
-```
-
-### Вариант 2: Очистка кэша в Vercel
-1. Vercel Dashboard → Settings → General
-2. Найдите "Clear Build Cache" 
-3. Нажмите Clear и сделайте новый деплой
-
-### Вариант 3: Новый коммит
-```bash
-git commit --allow-empty -m "Force rebuild with latest vercel.json"
+git add vercel.json
+git commit -m "fix: принудительный публичный доступ через public: true"
 git push origin main
 ```
 
-### Вариант 4: Ручной редеплой
-1. В Vercel Deployments
-2. Найдите коммит 1489116 в списке
-3. Если его нет - нажмите "Create Deployment"
-4. Выберите ветку main и последний коммит
+## Решение 3: Пересоздание проекта (если ничего не помогает)
 
-## Проверка результата:
-В логах сборки должно появиться:
-```
-Cloning github.com/BAWION/novaai (Branch: main, Commit: 1489116)
+```bash
+# Удалить текущий проект в Vercel Dashboard
+# Создать новый:
+vercel --prod
+# При создании выбрать "Public" доступ
 ```
 
-Тогда CSS файлы будут загружаться правильно.
+## Проверка после исправления:
+```bash
+curl -I https://your-domain.vercel.app/
+# Должен возвращать: HTTP/2 200
+# Вместо: HTTP/2 401
+```
+
+## Текущий статус:
+- ✅ Сборка работает
+- ✅ API проксирование настроено  
+- ✅ vercel.json исправлен
+- ❌ Доступ заблокирован SSO/Password Protection
+
+**Основная задача**: Снять защиту доступа в Vercel Settings.
