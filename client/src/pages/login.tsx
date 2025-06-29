@@ -75,15 +75,36 @@ export default function Login() {
     if (!document.querySelector('script[src*="telegram-widget"]')) {
       const script = document.createElement('script');
       script.src = 'https://telegram.org/js/telegram-widget.js?22';
-      script.setAttribute('data-telegram-login', 'galaxion_auth_bot'); // Замените на username вашего бота
+      script.setAttribute('data-telegram-login', 'GalaxionAuthBot'); // Username вашего бота авторизации
       script.setAttribute('data-size', 'large');
       script.setAttribute('data-onauth', 'onTelegramAuth(user)');
       script.setAttribute('data-request-access', 'write');
       script.async = true;
       
+      // Обработчик ошибки загрузки
+      script.onerror = () => {
+        console.log('[Telegram Widget] Ошибка загрузки - показываем fallback');
+        const fallback = document.getElementById('telegram-fallback');
+        if (fallback) {
+          fallback.classList.remove('hidden');
+        }
+      };
+      
       const container = document.getElementById('telegram-login-widget');
       if (container) {
         container.appendChild(script);
+        
+        // Таймаут для показа fallback, если Widget не загрузился за 3 секунды
+        setTimeout(() => {
+          const iframe = container.querySelector('iframe');
+          if (!iframe) {
+            console.log('[Telegram Widget] Таймаут загрузки - показываем fallback');
+            const fallback = document.getElementById('telegram-fallback');
+            if (fallback) {
+              fallback.classList.remove('hidden');
+            }
+          }
+        }, 3000);
       }
     }
     
@@ -261,7 +282,22 @@ export default function Login() {
             {!showLoginForm ? (
               <>
                 <div className="mb-6">
-                  <div id="telegram-login-widget" className="flex justify-center"></div>
+                  <div id="telegram-login-widget" className="flex justify-center min-h-[46px]">
+                    {/* Telegram Login Widget загружается здесь автоматически */}
+                  </div>
+                  
+                  {/* Информационное сообщение, если Widget не загрузился */}
+                  <div id="telegram-fallback" className="hidden mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg text-blue-700 text-sm">
+                    <div className="flex items-center">
+                      <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                      </svg>
+                      <span>
+                        <strong>Telegram вход настраивается</strong><br/>
+                        Для активации требуется настройка домена в @BotFather
+                      </span>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="flex items-center my-6">

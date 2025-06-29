@@ -41,9 +41,9 @@ function verifyTelegramAuth(data: any, botToken: string): boolean {
 // Эндпоинт для авторизации через Telegram
 router.post("/auth", async (req, res) => {
   try {
-    const botToken = process.env.TELEGRAM_BOT_TOKEN;
+    const botToken = process.env.TELEGRAM_AUTH_BOT_TOKEN;
     if (!botToken) {
-      return res.status(500).json({ message: "Telegram bot token not configured" });
+      return res.status(500).json({ message: "Telegram auth bot token not configured" });
     }
 
     // Валидируем данные от Telegram
