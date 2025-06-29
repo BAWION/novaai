@@ -9,7 +9,7 @@
 ### 1. Найдите вашего бота в Telegram
 - Откройте Telegram и найдите @BotFather
 - Отправьте команду `/mybots`
-- Выберите вашего бота авторизации
+- Выберите бота "Galaxion Auth Bot" (@Galaxion_Auth_bot)
 
 ### 2. Настройте домен
 - Выберите "Bot Settings" → "Domain"
@@ -20,10 +20,10 @@
   49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev
   ```
 
-### 3. Получите username бота
-- В настройках бота найдите "Username" 
-- Скопируйте точное имя (например: @GalaxionAuthBot)
-- Сообщите username (без @) для обновления кода
+### 3. Username бота подтвержден
+- ✅ Username: Galaxion_Auth_bot
+- ✅ Код обновлен с правильным username
+- Осталось только настроить домены в пункте 2
 
 ### 4. Проверьте токен
 - Убедитесь, что TELEGRAM_AUTH_BOT_TOKEN корректно добавлен в секреты
