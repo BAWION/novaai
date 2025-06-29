@@ -1,0 +1,33 @@
+[03:49:15.438] Running build in Washington, D.C., USA (East) – iad1
+[03:49:15.439] Build machine configuration: 2 cores, 8 GB
+[03:49:15.478] Cloning github.com/BAWION/novaai (Branch: main, Commit: fa34929)
+[03:49:15.953] Cloning completed: 475.000ms
+[03:49:16.988] Restored build cache from previous deployment (5Yjt5Vpzkg9i1PPf1NuyxjHJwA7z)
+[03:49:17.731] Running "vercel build"
+[03:49:18.212] Vercel CLI 43.3.0
+[03:49:18.814] Warning: Detected "engines": { "node": ">=18.0.0" } in your `package.json` that will automatically upgrade when a new major Node.js Version is released. Learn More: http://vercel.link/node-version
+[03:49:18.817] Running "install" command: `npm install`...
+[03:49:21.290] npm error code ERESOLVE
+[03:49:21.291] npm error ERESOLVE unable to resolve dependency tree
+[03:49:21.291] npm error
+[03:49:21.292] npm error While resolving: novaai-university@1.0.0
+[03:49:21.292] npm error Found: react@18.3.1
+[03:49:21.292] npm error node_modules/react
+[03:49:21.292] npm error   react@"^18.3.1" from the root project
+[03:49:21.293] npm error
+[03:49:21.293] npm error Could not resolve dependency:
+[03:49:21.293] npm error peer react@"^15.0.0" from react-d3-radar@0.2.6
+[03:49:21.293] npm error node_modules/react-d3-radar
+[03:49:21.294] npm error   react-d3-radar@"^0.2.6" from the root project
+[03:49:21.294] npm error
+[03:49:21.294] npm error Fix the upstream dependency conflict, or retry
+[03:49:21.294] npm error this command with --force or --legacy-peer-deps
+[03:49:21.295] npm error to accept an incorrect (and potentially broken) dependency resolution.
+[03:49:21.295] npm error
+[03:49:21.295] npm error
+[03:49:21.295] npm error For a full report see:
+[03:49:21.301] npm error /vercel/.npm/_logs/2025-06-29T00_49_19_195Z-eresolve-report.txt
+[03:49:21.305] npm error A complete log of this run can be found in: /vercel/.npm/_logs/2025-06-29T00_49_19_195Z-debug-0.log
+[03:49:21.348] Error: Command "npm install" exited with 1
+[03:49:21.858] 
+[03:49:24.691] Exiting build container
