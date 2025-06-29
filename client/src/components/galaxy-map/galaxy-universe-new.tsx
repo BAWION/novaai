@@ -58,8 +58,8 @@ const INITIAL_GALAXIES: Galaxy[] = [
     name: 'Галактика Машинного Обучения',
     domain: 'Machine Learning',
     color: '#6E3AFF',
-    position: { x: -300, y: -200 },
-    size: 120,
+    position: { x: -150, y: -100 },
+    size: 140,
     discovered: true,
     courses: [],
     rotation: 0
@@ -69,8 +69,8 @@ const INITIAL_GALAXIES: Galaxy[] = [
     name: 'Галактика Языковых Технологий',
     domain: 'Natural Language Processing',
     color: '#2EBAE1',
-    position: { x: 300, y: -150 },
-    size: 100,
+    position: { x: 150, y: -75 },
+    size: 120,
     discovered: true,
     courses: [],
     rotation: 45
@@ -80,8 +80,8 @@ const INITIAL_GALAXIES: Galaxy[] = [
     name: 'Галактика Компьютерного Зрения',
     domain: 'Computer Vision',
     color: '#FF6B35',
-    position: { x: -200, y: 250 },
-    size: 110,
+    position: { x: -100, y: 125 },
+    size: 130,
     discovered: true,
     courses: [],
     rotation: 90
@@ -91,8 +91,8 @@ const INITIAL_GALAXIES: Galaxy[] = [
     name: 'Галактика Этики ИИ',
     domain: 'AI Ethics',
     color: '#9D4EDD',
-    position: { x: 250, y: 200 },
-    size: 90,
+    position: { x: 125, y: 100 },
+    size: 110,
     discovered: true,
     courses: [],
     rotation: 135
@@ -102,8 +102,8 @@ const INITIAL_GALAXIES: Galaxy[] = [
     name: 'Галактика Робототехники',
     domain: 'Robotics',
     color: '#F72585',
-    position: { x: 0, y: -350 },
-    size: 95,
+    position: { x: 0, y: -175 },
+    size: 115,
     discovered: true,
     courses: [],
     rotation: 180
@@ -593,10 +593,15 @@ function GalaxyUniverse() {
 
         {/* Галактики - показываем только на Universe view */}
         <AnimatePresence>
-          {viewConfig.state === 'universe' && galaxies.map((galaxy) => (
+          {viewConfig.state === 'universe' && (() => {
+            console.log('DEBUG: Состояние viewConfig:', viewConfig.state);
+            console.log('DEBUG: Количество галактик:', galaxies.length);
+            console.log('DEBUG: Галактики:', galaxies.map(g => ({ id: g.id, name: g.name, position: g.position, discovered: g.discovered })));
+            return galaxies;
+          })().map((galaxy) => (
             <motion.div
               key={galaxy.id}
-              className="absolute cursor-pointer z-20"
+              className="absolute cursor-pointer z-30"
               style={{
                 left: '50%',
                 top: '50%',
@@ -606,11 +611,12 @@ function GalaxyUniverse() {
                 y: galaxy.position.y,
                 rotate: galaxy.rotation,
                 scale: viewConfig.selectedGalaxy === galaxy.id ? 1.2 : 1,
+                opacity: 1,
               }}
-              initial={{ scale: 0, opacity: 0 }}
+              initial={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0, opacity: 0 }}
               transition={{
-                duration: 0.5,
+                duration: 0.3,
                 ease: "easeOut"
               }}
               onDoubleClick={() => handleGalaxyDoubleClick(galaxy.id)}
@@ -624,12 +630,13 @@ function GalaxyUniverse() {
               >
                 {/* Спиральная галактика */}
                 <div 
-                  className="rounded-full relative"
+                  className="rounded-full relative border-2"
                   style={{
                     width: galaxy.size,
                     height: galaxy.size,
-                    background: `radial-gradient(circle, ${galaxy.color}40 0%, ${galaxy.color}20 40%, transparent 70%)`,
-                    boxShadow: `0 0 30px ${galaxy.color}40`,
+                    background: `radial-gradient(circle, ${galaxy.color}80 0%, ${galaxy.color}60 40%, ${galaxy.color}20 70%)`,
+                    boxShadow: `0 0 40px ${galaxy.color}60, inset 0 0 20px ${galaxy.color}40`,
+                    borderColor: galaxy.color,
                   }}
                 >
                   {/* Центральное ядро */}
