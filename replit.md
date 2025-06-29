@@ -1,8 +1,8 @@
-# NovaAI University - AI Educational Platform
+# Galaxion - AI Educational Platform
 
 ## Overview
 
-NovaAI University is a comprehensive AI-powered educational platform built with modern web technologies. It offers adaptive learning experiences, personalized course recommendations, and skills assessment through an innovative Skills DNA system. The platform combines traditional educational content delivery with AI-powered tutoring and progress tracking.
+Galaxion is a comprehensive AI-powered educational platform built with modern web technologies. It offers adaptive learning experiences, personalized course recommendations, and skills assessment through an innovative Skills DNA system. The platform combines traditional educational content delivery with AI-powered tutoring and progress tracking through NovaAI - the intelligent assistant that guides learners throughout their educational journey.
 
 ## System Architecture
 
@@ -117,6 +117,10 @@ NovaAI University is a comprehensive AI-powered educational platform built with 
 
 ## Changelog
 
+- June 29, 2025: ПЕРЕИМЕНОВАНИЕ ПРОЕКТА И АРХИТЕКТУРЫ
+  - Проект переименован с "NovaAI University" на "Galaxion"
+  - NovaAI теперь является ИИ-ассистентом (мудрецом) внутри платформы
+  - Обновлена документация с новой архитектурой названий
 - June 29, 2025: ✅ УСПЕШНО РЕШЕНЫ ВСЕ ПРОБЛЕМЫ ДЕПЛОЯ VERCEL
   - Исправлена структура проекта: удалена дублированная папка src/
   - Добавлена папка client/ в GitHub репозиторий с правильной структурой
