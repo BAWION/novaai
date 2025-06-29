@@ -82,7 +82,7 @@ const INITIAL_GALAXIES: Galaxy[] = [
     color: '#FF6B35',
     position: { x: -200, y: 250 },
     size: 110,
-    discovered: false,
+    discovered: true,
     courses: [],
     rotation: 90
   },
@@ -104,7 +104,7 @@ const INITIAL_GALAXIES: Galaxy[] = [
     color: '#F72585',
     position: { x: 0, y: -350 },
     size: 95,
-    discovered: false,
+    discovered: true,
     courses: [],
     rotation: 180
   }
@@ -619,8 +619,7 @@ function GalaxyUniverse() {
                 console.log(`${galaxy.name} — ${Math.round(Math.random() * 100)}% пройдено`);
               }}
             >
-              {galaxy.discovered && (
-                <motion.div
+              <motion.div
                   whileHover={{ scale: 1.1 }}
                   className="relative"
                 >
@@ -674,7 +673,6 @@ function GalaxyUniverse() {
                     </div>
                   </motion.div>
                 </motion.div>
-              )}
             </motion.div>
           ))}
         </AnimatePresence>
@@ -766,7 +764,7 @@ function GalaxyUniverse() {
             // Планеты показываем только на System view
             const showPlanet = viewConfig.state === 'system' && viewConfig.selectedGalaxy === planet.galaxy;
             
-            if (!showPlanet || !galaxy?.discovered) return null;
+            if (!showPlanet) return null;
 
             // Орбитальное движение
             const orbitRadius = Math.sqrt(
