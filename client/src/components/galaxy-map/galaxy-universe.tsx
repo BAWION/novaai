@@ -97,7 +97,7 @@ const GALAXIES: Galaxy[] = [
   }
 ];
 
-export default function GalaxyUniverse() {
+function GalaxyUniverse() {
   const [, navigate] = useLocation();
   const [selectedGalaxy, setSelectedGalaxy] = useState<string | null>(null);
   const [showShip, setShowShip] = useState(true);
@@ -506,3 +506,5 @@ export default function GalaxyUniverse() {
     </div>
   );
 }
+
+export default GalaxyUniverse;
