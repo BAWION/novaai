@@ -716,7 +716,12 @@ function GalaxyUniverse() {
                   }}
                   whileHover={{ scale: 1.05 }}
                 >
-                  <div className="bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 shadow-lg">
+                  <div 
+                    className="bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10 shadow-lg"
+                    style={{
+                      transform: `rotate(${[-2, 1, -1, 2, 0][galaxyIndex] || 0}deg)` // Небольшие фиксированные углы для каждой галактики
+                    }}
+                  >
                     <p className="text-xs font-semibold text-white tracking-wide">{galaxy.domain}</p>
                     <div className="flex items-center justify-center gap-1 mt-0.5">
                       <div 
