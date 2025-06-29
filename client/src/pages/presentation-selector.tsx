@@ -162,7 +162,7 @@ export default function PresentationSelector() {
           transition={{ duration: 0.8, delay: 0.6 }}
         >
           <Card className="max-w-4xl mx-auto p-8 bg-white/5 backdrop-blur-md border-white/10">
-            <h3 className="text-2xl font-bold mb-4">О NovaAI University</h3>
+            <h3 className="text-2xl font-bold mb-4">О Galaxion</h3>
             <p className="text-white/80 text-lg leading-relaxed">
               Первая на российском рынке образовательная экосистема, где искусственный интеллект 
               самостоятельно проектирует, обновляет и персонализирует обучение для каждого пользователя. 

@@ -63,7 +63,7 @@ export default function OnboardingIntro() {
           className="text-center"
         >
           <h1 className="text-4xl font-orbitron bg-clip-text text-transparent bg-gradient-to-r from-[#B28DFF] via-[#8BE0F7] to-[#B28DFF]">
-            NovaAI University
+            Galaxion
           </h1>
           <p className="text-white/60 mt-2">
             Персонализированный AI-опыт обучения

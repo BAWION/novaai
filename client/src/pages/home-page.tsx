@@ -162,7 +162,7 @@ export default function HomePage() {
                   Освойте <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-purple-500 to-secondary">искусственный интеллект</span> и стройте карьеру будущего
                 </h1>
                 <p className="text-base sm:text-lg md:text-xl text-white/80 mb-6 sm:mb-8 max-w-xl">
-                  NovaAI Academy — это <span className="font-bold text-white">преимущественно бесплатная</span> образовательная платформа для <span className="font-bold text-white">всех уровней</span> — от школьников до Senior-разработчиков, с адаптивной AI-системой обучения.
+                  Galaxion — это <span className="font-bold text-white">преимущественно бесплатная</span> образовательная платформа для <span className="font-bold text-white">всех уровней</span> — от школьников до Senior-разработчиков, с адаптивной AI-системой обучения от NovaAI.
                 </p>
                 <div className="flex flex-wrap gap-3 sm:gap-4">
                   <a href="/onboarding-intro" className="inline-block py-2 sm:py-3 px-4 sm:px-8 text-base sm:text-lg rounded bg-primary hover:bg-primary/90 active:bg-primary/80 transition-colors text-white no-underline font-medium tap-highlight-none">
