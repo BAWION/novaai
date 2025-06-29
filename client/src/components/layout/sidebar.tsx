@@ -189,9 +189,7 @@ export function Sidebar() {
               willChange: 'max-width, opacity'
             }}
           >
-            <h1 className="font-orbitron font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#B28DFF] to-[#8BE0F7]">
-              NovaAI
-            </h1>
+            <h1 className="font-orbitron font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#B28DFF] to-[#8BE0F7]">Galaxion</h1>
             <p className="text-white/50 text-xs">Academy</p>
           </div>
         </div>
