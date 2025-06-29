@@ -335,7 +335,10 @@ function GalaxyUniverse() {
   }
 
   return (
-    <div className="w-full h-[600px] relative bg-gradient-to-b from-space-900 via-space-800 to-space-900 rounded-xl overflow-hidden">
+    <div 
+      className="w-full h-[600px] relative bg-gradient-to-b from-space-900 via-space-800 to-space-900 rounded-xl overflow-hidden"
+      onWheel={handleScrollNavigation}
+    >
       {/* Advanced Breadcrumb Navigation */}
       <div className="absolute top-4 left-4 z-50">
         <motion.div 
@@ -364,11 +367,11 @@ function GalaxyUniverse() {
                   </span>
                 </>
               )}
-              {viewConfig.state === 'planet' && viewConfig.selectedPlanet && (
+              {viewConfig.state === 'system' && viewConfig.selectedSystem && (
                 <>
                   <span className="text-white/50 mx-1">→</span>
                   <span className="text-yellow-400 flex items-center gap-1">
-                    🪐 {viewConfig.selectedPlanet.name}
+                    ⭐ Система {viewConfig.selectedSystem}
                   </span>
                 </>
               )}
@@ -386,7 +389,7 @@ function GalaxyUniverse() {
               <span>
                 {viewConfig.state === 'universe' && 'Межгалактическое сканирование активно'}
                 {viewConfig.state === 'galaxy' && 'Исследование звездных систем'}
-                {viewConfig.state === 'planet' && 'Детальное сканирование поверхности'}
+                {viewConfig.state === 'system' && 'Детальное сканирование планет'}
               </span>
             </div>
             
@@ -610,7 +613,11 @@ function GalaxyUniverse() {
                 duration: 0.5,
                 ease: "easeOut"
               }}
-              onClick={() => handleGalaxyClick(galaxy.id)}
+              onDoubleClick={() => handleGalaxyDoubleClick(galaxy.id)}
+              onMouseEnter={() => {
+                // При наведении показываем подпись с прогрессом
+                console.log(`${galaxy.name} — ${Math.round(Math.random() * 100)}% пройдено`);
+              }}
             >
               {galaxy.discovered && (
                 <motion.div
@@ -846,7 +853,19 @@ function GalaxyUniverse() {
       <div className="absolute top-4 right-4 z-50 flex gap-2">
         {viewConfig.state !== 'universe' && (
           <button
-            onClick={viewConfig.state === 'planet' ? handleBackToGalaxy : handleBackToUniverse}
+            onClick={viewConfig.state === 'system' ? () => {
+              const galaxy = galaxies.find(g => g.id === viewConfig.selectedGalaxy);
+              if (galaxy) {
+                setViewConfig({
+                  state: 'galaxy',
+                  selectedGalaxy: galaxy.id,
+                  selectedSystem: undefined,
+                  zoom: 2,
+                  centerX: galaxy.position.x,
+                  centerY: galaxy.position.y
+                });
+              }
+            } : handleBackToUniverse}
             className="p-2 bg-space-800/80 hover:bg-space-700/80 backdrop-blur-sm border border-white/20 rounded-lg text-white transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
