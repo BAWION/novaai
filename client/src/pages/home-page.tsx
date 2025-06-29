@@ -128,10 +128,7 @@ export default function HomePage() {
       {/* Header/Navigation */}
       <header className="w-full py-4 px-4 sm:px-6 backdrop-blur-sm bg-black/30 fixed top-0 z-50 fixed-header">
         <div className="container mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg">
-              <span className="font-orbitron font-bold text-lg text-white">G</span>
-            </div>
+          <div className="flex items-center">
             <span className="text-2xl font-orbitron font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">Galaxion</span>
           </div>
           <nav className="hidden md:flex gap-6 items-center">
