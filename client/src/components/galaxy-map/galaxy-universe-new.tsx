@@ -51,14 +51,14 @@ interface ViewConfig {
   centerY: number;
 }
 
-// Конфигурация галактик
+// Конфигурация галактик (увеличенные расстояния)
 const INITIAL_GALAXIES: Galaxy[] = [
   {
     id: 'ml',
     name: 'Галактика Машинного Обучения',
     domain: 'Machine Learning',
     color: '#6E3AFF',
-    position: { x: -150, y: -100 },
+    position: { x: -250, y: -180 },
     size: 140,
     discovered: true,
     courses: [],
@@ -69,7 +69,7 @@ const INITIAL_GALAXIES: Galaxy[] = [
     name: 'Галактика Языковых Технологий',
     domain: 'Natural Language Processing',
     color: '#2EBAE1',
-    position: { x: 150, y: -75 },
+    position: { x: 280, y: -150 },
     size: 120,
     discovered: true,
     courses: [],
@@ -80,7 +80,7 @@ const INITIAL_GALAXIES: Galaxy[] = [
     name: 'Галактика Компьютерного Зрения',
     domain: 'Computer Vision',
     color: '#FF6B35',
-    position: { x: -100, y: 125 },
+    position: { x: -200, y: 220 },
     size: 130,
     discovered: true,
     courses: [],
@@ -91,7 +91,7 @@ const INITIAL_GALAXIES: Galaxy[] = [
     name: 'Галактика Этики ИИ',
     domain: 'AI Ethics',
     color: '#9D4EDD',
-    position: { x: 125, y: 100 },
+    position: { x: 240, y: 200 },
     size: 110,
     discovered: true,
     courses: [],
@@ -167,9 +167,9 @@ function GalaxyUniverse() {
         if (galaxy) {
           galaxy.courses.push(course);
           
-          // Создаем планету для курса
+          // Создаем планету для курса (увеличенные расстояния)
           const angle = (galaxy.courses.length - 1) * (360 / Math.max(galaxy.courses.length, 6));
-          const distance = 60 + (galaxy.courses.length - 1) * 15;
+          const distance = 120 + (galaxy.courses.length - 1) * 30; // Удваиваем расстояния
           const planetX = galaxy.position.x + Math.cos(angle * Math.PI / 180) * distance;
           const planetY = galaxy.position.y + Math.sin(angle * Math.PI / 180) * distance;
 
@@ -288,7 +288,7 @@ function GalaxyUniverse() {
   const handleZoomOut = () => {
     setViewConfig(prev => ({
       ...prev,
-      zoom: Math.max(prev.zoom / 1.5, 0.5)
+      zoom: Math.max(prev.zoom / 1.5, 0.2) // Увеличиваем диапазон зума для дальнего отдаления
     }));
   };
 
@@ -693,7 +693,7 @@ function GalaxyUniverse() {
             // Генерируем звездные системы для выбранной галактики
             Array.from({ length: 5 }).map((_, systemIndex) => {
               const angle = (systemIndex * 72) * (Math.PI / 180); // 5 систем по кругу
-              const radius = 80 + systemIndex * 30;
+              const radius = 150 + systemIndex * 50; // Увеличенные расстояния между системами
               const galaxy = galaxies.find(g => g.id === viewConfig.selectedGalaxy);
               
               if (!galaxy) return null;
