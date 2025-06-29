@@ -104,10 +104,10 @@ Galaxion is a comprehensive AI-powered educational platform built with modern we
 - Environment variable configuration
 
 ### Production Deployment
-- **Primary**: Replit deployment with full-stack hosting
-- **Frontend Alternative**: Vercel deployment with API proxy
-- Build optimization with code splitting
-- Static asset optimization and caching
+- **Live Production**: https://www.galaxion.org/ (Vercel frontend + Replit API backend)
+- **Development**: Replit deployment with full-stack hosting
+- Architecture: Vercel for static frontend, Replit for API backend with proxy
+- Build optimization with code splitting and static asset optimization
 
 ### Database Management
 - Drizzle ORM for type-safe database operations
@@ -117,12 +117,13 @@ Galaxion is a comprehensive AI-powered educational platform built with modern we
 
 ## Changelog
 
-- June 29, 2025: ЗАВЕРШЕНО ПОЛНОЕ ПЕРЕИМЕНОВАНИЕ ПРОЕКТА И УЛУЧШЕН UX
+- June 29, 2025: ЗАВЕРШЕНО ПОЛНОЕ ПЕРЕИМЕНОВАНИЕ ПРОЕКТА И РАЗВЕРТЫВАНИЕ
   - Проект переименован с "NovaAI University" на "Galaxion"
   - NovaAI теперь является ИИ-ассистентом (мудрецом) внутри платформы
   - Обновлена документация с новой архитектурой названий
   - Улучшен логотип в навигации: убрана лишняя иконка, увеличен размер текста до 2xl
   - Полная интеграция нового брендинга во всех интерфейсах
+  - ПЛАТФОРМА УСПЕШНО РАЗВЕРНУТА НА: https://www.galaxion.org/
 - June 29, 2025: ✅ УСПЕШНО РЕШЕНЫ ВСЕ ПРОБЛЕМЫ ДЕПЛОЯ VERCEL
   - Исправлена структура проекта: удалена дублированная папка src/
   - Добавлена папка client/ в GitHub репозиторий с правильной структурой
