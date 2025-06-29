@@ -422,8 +422,7 @@ export default function KnowledgeVaultPage() {
     <DashboardLayout title="Хранилище знаний 💾">
       <div className="space-y-6">
         <div className="max-w-4xl">
-          <h1 className="text-3xl font-bold tracking-tight">Хранилище знаний</h1>
-          <p className="text-muted-foreground mt-2">
+          <p className="text-muted-foreground">
             Библиотека статей, туториалов и знаний по AI и Data Science с быстрым GPT-поиском.
             Сохраняйте интересные материалы, читайте и изучайте даже в оффлайн-режиме.
           </p>
