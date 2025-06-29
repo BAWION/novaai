@@ -660,7 +660,7 @@ function GalaxyUniverse() {
                   }}
                   transition={{
                     rotate: {
-                      duration: 60 + galaxyIndex * 20, // Разная скорость вращения для каждой галактики
+                      duration: 80 + galaxyIndex * 15, // Разная скорость вращения для каждой галактики
                       repeat: Infinity,
                       ease: "linear"
                     },
@@ -709,7 +709,7 @@ function GalaxyUniverse() {
                     opacity: { duration: 0.5 },
                     scale: { duration: 0.5 },
                     rotate: {
-                      duration: 60 + galaxy.id * 20, // Совпадает с вращением галактики
+                      duration: 80 + galaxyIndex * 15, // Совпадает с вращением галактики
                       repeat: Infinity,
                       ease: "linear"
                     }
