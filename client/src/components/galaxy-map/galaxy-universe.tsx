@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
-import { Rocket, Zap, Star, Globe, Telescope } from 'lucide-react';
+import { Rocket, Zap, Star, Globe, Telescope, ArrowLeft, ZoomIn, ZoomOut } from 'lucide-react';
 
 // Определение типов
 interface Course {
@@ -36,6 +36,18 @@ interface Planet {
   size: number;
   visited: boolean;
   completed: boolean;
+  name: string;
+}
+
+type ViewState = 'universe' | 'galaxy' | 'planet';
+
+interface ViewConfig {
+  state: ViewState;
+  selectedGalaxy?: string;
+  selectedPlanet?: Planet;
+  zoom: number;
+  centerX: number;
+  centerY: number;
 }
 
 // Конфигурация галактик
@@ -45,7 +57,7 @@ const GALAXIES: Galaxy[] = [
     name: 'Галактика Машинного Обучения',
     domain: 'Machine Learning',
     color: '#6E3AFF',
-    position: { x: -200, y: -150 },
+    position: { x: -300, y: -200 },
     size: 120,
     discovered: true,
     courses: [],
@@ -56,7 +68,7 @@ const GALAXIES: Galaxy[] = [
     name: 'Галактика Языковых Технологий',
     domain: 'Natural Language Processing',
     color: '#2EBAE1',
-    position: { x: 200, y: -100 },
+    position: { x: 300, y: -150 },
     size: 100,
     discovered: true,
     courses: [],
@@ -67,7 +79,7 @@ const GALAXIES: Galaxy[] = [
     name: 'Галактика Компьютерного Зрения',
     domain: 'Computer Vision',
     color: '#FF6B35',
-    position: { x: -100, y: 180 },
+    position: { x: -200, y: 250 },
     size: 110,
     discovered: false,
     courses: [],
@@ -78,7 +90,7 @@ const GALAXIES: Galaxy[] = [
     name: 'Галактика Этики ИИ',
     domain: 'AI Ethics',
     color: '#9D4EDD',
-    position: { x: 150, y: 150 },
+    position: { x: 250, y: 200 },
     size: 90,
     discovered: true,
     courses: [],
@@ -89,7 +101,7 @@ const GALAXIES: Galaxy[] = [
     name: 'Галактика Робототехники',
     domain: 'Robotics',
     color: '#F72585',
-    position: { x: 0, y: -250 },
+    position: { x: 0, y: -350 },
     size: 95,
     discovered: false,
     courses: [],
@@ -97,13 +109,35 @@ const GALAXIES: Galaxy[] = [
   }
 ];
 
+// Функция для генерации красивых названий планет
+const generatePlanetName = (course: Course, index: number): string => {
+  const prefixes = ['Планета', 'Мир', 'Звезда', 'Сфера', 'Обитель'];
+  const suffixes = ['Знаний', 'Мудрости', 'Открытий', 'Навыков', 'Понимания'];
+  
+  // Берем первое слово из названия курса
+  const firstWord = course.title.split(' ')[0];
+  const prefix = prefixes[index % prefixes.length];
+  
+  return `${prefix} ${firstWord}`;
+};
+
 function GalaxyUniverse() {
   const [, navigate] = useLocation();
-  const [selectedGalaxy, setSelectedGalaxy] = useState<string | null>(null);
-  const [showShip, setShowShip] = useState(true);
+  const containerRef = useRef<HTMLDivElement>(null);
+  
+  // Основное состояние навигации
+  const [viewConfig, setViewConfig] = useState<ViewConfig>({
+    state: 'universe',
+    zoom: 1,
+    centerX: 0,
+    centerY: 0
+  });
+  
   const [galaxies, setGalaxies] = useState<Galaxy[]>(GALAXIES);
   const [planets, setPlanets] = useState<Planet[]>([]);
   const [newDiscovery, setNewDiscovery] = useState<{ type: 'galaxy' | 'planet'; name: string } | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
   // Загружаем курсы
   const { data: courses = [], isLoading } = useQuery({
@@ -146,7 +180,8 @@ function GalaxyUniverse() {
             position: { x: planetX, y: planetY },
             size: 20 + (course.modules || 1) * 2,
             visited: (course.progress || 0) > 0,
-            completed: (course.progress || 0) >= 100
+            completed: (course.progress || 0) >= 100,
+            name: generatePlanetName(course, galaxy.courses.length - 1)
           });
         }
       });
