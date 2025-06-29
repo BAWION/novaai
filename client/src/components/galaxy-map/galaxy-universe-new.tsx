@@ -1174,30 +1174,7 @@ function GalaxyUniverse() {
         )}
       </AnimatePresence>
 
-      {/* Состояние текущего вида */}
-      <div className="absolute top-4 left-4 z-50">
-        <div className="bg-space-800/80 backdrop-blur-sm p-3 rounded-lg border border-white/20">
-          <p className="text-xs font-orbitron text-white mb-2">
-            {viewConfig.state === 'universe' && 'Обзор Вселенной'}
-            {viewConfig.state === 'galaxy' && `Галактика: ${galaxies.find(g => g.id === viewConfig.selectedGalaxy)?.name}`}
-            {viewConfig.state === 'system' && `Система: ${viewConfig.selectedSystem}`}
-          </p>
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 text-xs">
-              <div className="w-3 h-3 rounded-full border-2 border-blue-400 bg-blue-400/60" />
-              <span className="text-white/70">Доступно</span>
-            </div>
-            <div className="flex items-center gap-2 text-xs">
-              <div className="w-3 h-3 rounded-full border-2 border-yellow-400 bg-yellow-400/60" />
-              <span className="text-white/70">В процессе</span>
-            </div>
-            <div className="flex items-center gap-2 text-xs">
-              <div className="w-3 h-3 rounded-full border-2 border-green-400 bg-green-400/60" />
-              <span className="text-white/70">Завершено</span>
-            </div>
-          </div>
-        </div>
-      </div>
+
 
       {/* Enhanced Discovery Notifications */}
       <AnimatePresence>
