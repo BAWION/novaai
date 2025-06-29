@@ -94,45 +94,10 @@ export default function Login() {
       if (container) {
         container.appendChild(script);
         
-        // Добавляем стили для кастомизации Telegram кнопки
-        script.onload = () => {
-          setTimeout(() => {
-            const style = document.createElement('style');
-            style.id = 'telegram-custom-styles';
-            style.textContent = `
-              .telegram-button-container {
-                width: 100% !important;
-                display: flex !important;
-                justify-content: center !important;
-              }
-              .telegram-button-container iframe {
-                width: 100% !important;
-                max-width: 100% !important;
-                height: 50px !important;
-                border-radius: 8px !important;
-                border: none !important;
-              }
-              #telegram-login-widget {
-                width: 100% !important;
-                display: flex !important;
-                justify-content: center !important;
-              }
-            `;
-            
-            // Удаляем предыдущие стили если есть
-            const existingStyle = document.getElementById('telegram-custom-styles');
-            if (existingStyle) {
-              existingStyle.remove();
-            }
-            
-            document.head.appendChild(style);
-          }, 100);
-        };
-        
         // Таймаут для показа fallback, если Widget не загрузился за 3 секунды
         setTimeout(() => {
           const iframe = container.querySelector('iframe');
-          if (!iframe || iframe.src === 'about:blank') {
+          if (!iframe) {
             console.log('[Telegram Widget] Таймаут загрузки - показываем fallback');
             const fallback = document.getElementById('telegram-fallback');
             if (fallback) {
@@ -317,14 +282,11 @@ export default function Login() {
             {!showLoginForm ? (
               <>
                 <div className="mb-6">
-                  {/* Контейнер для Telegram Login Widget */}
-                  <div className="telegram-button-container">
-                    <div id="telegram-login-widget" className="flex justify-center">
-                      {/* Telegram Login Widget загружается здесь автоматически */}
-                    </div>
+                  <div id="telegram-login-widget" className="flex justify-center min-h-[46px]">
+                    {/* Telegram Login Widget загружается здесь автоматически */}
                   </div>
                   
-                  {/* Информационное сообщение при проблемах */}
+                  {/* Информационное сообщение, если Widget не загрузился */}
                   <div id="telegram-fallback" className="hidden mt-2 p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-700 text-sm">
                     <div className="flex items-center">
                       <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -332,7 +294,7 @@ export default function Login() {
                       </svg>
                       <span>
                         <strong>Настройка Telegram бота</strong><br/>
-                        Проверьте настройки домена в @BotFather
+                        Проверьте username бота в коде и настройки домена в @BotFather
                       </span>
                     </div>
                   </div>
