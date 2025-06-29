@@ -1,7 +1,7 @@
 {
-  "name": "NovaAI University",
-  "short_name": "NovaAI",
-  "description": "AI-образовательная платформа с адаптивным обучением",
+  "name": "Galaxion",
+  "short_name": "Galaxion",
+  "description": "AI-образовательная платформа с NovaAI ассистентом и адаптивным обучением",
   "start_url": "/?pwa=true&fullscreen=true",
   "scope": "/",
   "display": "fullscreen",
