@@ -615,64 +615,63 @@ function GalaxyUniverse() {
               }}
               onDoubleClick={() => handleGalaxyDoubleClick(galaxy.id)}
               onMouseEnter={() => {
-                // При наведении показываем подпись с прогрессом
                 console.log(`${galaxy.name} — ${Math.round(Math.random() * 100)}% пройдено`);
               }}
             >
               <motion.div
-                  whileHover={{ scale: 1.1 }}
-                  className="relative"
+                whileHover={{ scale: 1.1 }}
+                className="relative"
+              >
+                {/* Спиральная галактика */}
+                <div 
+                  className="rounded-full relative"
+                  style={{
+                    width: galaxy.size,
+                    height: galaxy.size,
+                    background: `radial-gradient(circle, ${galaxy.color}40 0%, ${galaxy.color}20 40%, transparent 70%)`,
+                    boxShadow: `0 0 30px ${galaxy.color}40`,
+                  }}
                 >
-                  {/* Спиральная галактика */}
+                  {/* Центральное ядро */}
                   <div 
-                    className="rounded-full relative"
+                    className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full"
                     style={{
-                      width: galaxy.size,
-                      height: galaxy.size,
-                      background: `radial-gradient(circle, ${galaxy.color}40 0%, ${galaxy.color}20 40%, transparent 70%)`,
-                      boxShadow: `0 0 30px ${galaxy.color}40`,
+                      width: galaxy.size * 0.3,
+                      height: galaxy.size * 0.3,
+                      background: `radial-gradient(circle, ${galaxy.color} 0%, ${galaxy.color}80 70%)`,
                     }}
-                  >
-                    {/* Центральное ядро */}
-                    <div 
-                      className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full"
+                  />
+                  
+                  {/* Спиральные рукава */}
+                  {[0, 120, 240].map((rotation, index) => (
+                    <div
+                      key={index}
+                      className="absolute top-1/2 left-1/2 origin-left"
                       style={{
-                        width: galaxy.size * 0.3,
-                        height: galaxy.size * 0.3,
-                        background: `radial-gradient(circle, ${galaxy.color} 0%, ${galaxy.color}80 70%)`,
+                        width: galaxy.size * 0.4,
+                        height: 2,
+                        background: `linear-gradient(to right, ${galaxy.color}, transparent)`,
+                        transform: `translate(-50%, -50%) rotate(${rotation}deg)`,
                       }}
                     />
-                    
-                    {/* Спиральные рукава */}
-                    {[0, 120, 240].map((rotation, index) => (
-                      <div
-                        key={index}
-                        className="absolute top-1/2 left-1/2 origin-left"
-                        style={{
-                          width: galaxy.size * 0.4,
-                          height: 2,
-                          background: `linear-gradient(to right, ${galaxy.color}, transparent)`,
-                          transform: `translate(-50%, -50%) rotate(${rotation}deg)`,
-                        }}
-                      />
-                    ))}
-                  </div>
+                  ))}
+                </div>
 
-                  {/* Название галактики */}
-                  <motion.div
-                    className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 whitespace-nowrap text-center"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ 
-                      opacity: 1,
-                      y: 0,
-                    }}
-                  >
-                    <div className="bg-space-800/80 backdrop-blur-sm px-2 py-1 rounded border border-white/20">
-                      <p className="text-xs font-orbitron text-white">{galaxy.name}</p>
-                      <p className="text-xs text-white/60">{galaxy.courses.length} планет</p>
-                    </div>
-                  </motion.div>
+                {/* Название галактики */}
+                <motion.div
+                  className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 whitespace-nowrap text-center"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ 
+                    opacity: 1,
+                    y: 0,
+                  }}
+                >
+                  <div className="bg-space-800/80 backdrop-blur-sm px-2 py-1 rounded border border-white/20">
+                    <p className="text-xs font-orbitron text-white">{galaxy.name}</p>
+                    <p className="text-xs text-white/60">{galaxy.courses.length} планет</p>
+                  </div>
                 </motion.div>
+              </motion.div>
             </motion.div>
           ))}
         </AnimatePresence>
