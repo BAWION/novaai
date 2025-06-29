@@ -117,12 +117,6 @@ Galaxion is a comprehensive AI-powered educational platform built with modern we
 
 ## Changelog
 
-- 2025-06-29: СОЗДАН АРХИВ ДЛЯ GITHUB СИНХРОНИЗАЦИИ
-  - Автоматически создан пакет galaxion-update-2025-06-29T18-09-08
-  - Готов к загрузке в GitHub репозиторий
-  - Содержит обновления навигации, компонентов и метаданных
-  - Цель: синхронизация https://www.galaxion.org/ с GitHub
-
 - June 29, 2025: ЗАВЕРШЕНО ПОЛНОЕ ПЕРЕИМЕНОВАНИЕ ПРОЕКТА И РАЗВЕРТЫВАНИЕ
   - ✅ Принудительное обновление файлов для Git commit
   - → Отправка изменений Galaxion в GitHub репозиторий
