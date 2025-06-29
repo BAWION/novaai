@@ -117,15 +117,16 @@ NovaAI University is a comprehensive AI-powered educational platform built with 
 
 ## Changelog
 
-- June 29, 2025: ИСПРАВЛЕНЫ ПРОБЛЕМЫ ДЕПЛОЯ VERCEL  
+- June 29, 2025: ИСПРАВЛЕНЫ ПРОБЛЕМЫ ДЕПЛОЯ VERCEL И CSS  
   - Заменено некорректное регулярное выражение /(.*\\.(css|js)) на отдельные правила
   - Создано два отдельных правила для CSS и JS файлов в headers
   - Устранена ошибка "Header at index 1 has invalid source pattern" при деплое
   - Удалена несовместимая зависимость react-d3-radar (требовала React 15 вместо 18)
   - Исправлена команда сборки: только frontend (vite build) для статического деплоя
-  - Исправлен outputDirectory: "dist" вместо "dist/public" для корректного обнаружения файлов
+  - Восстановлен правильный outputDirectory: "dist/public" согласно vite.config.ts
+  - Добавлены Content-Type заголовки для CSS и JS файлов для корректной загрузки стилей
   - API проксирование на Replit backend через rewrites в vercel.json
-  - Конфигурация готова для полноценного продакшн деплоя
+  - Конфигурация готова для полноценного продакшн деплоя с корректными стилями
 - June 28, 2025: ИСПРАВЛЕНА КОНФИГУРАЦИЯ VERCEL ДЕПЛОЯ
   - Обновлен vercel.json с правильной outputDirectory: "dist/public"
   - Добавлены заголовки кэширования для CSS/JS файлов для корректного отображения стилей
