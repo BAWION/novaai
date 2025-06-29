@@ -591,9 +591,9 @@ function GalaxyUniverse() {
           </div>
         </motion.div>
 
-        {/* Галактики */}
+        {/* Галактики - показываем только на Universe view */}
         <AnimatePresence>
-          {galaxies.map((galaxy) => (
+          {viewConfig.state === 'universe' && galaxies.map((galaxy) => (
             <motion.div
               key={galaxy.id}
               className="absolute cursor-pointer z-20"
@@ -679,12 +679,92 @@ function GalaxyUniverse() {
           ))}
         </AnimatePresence>
 
-        {/* Планеты (курсы) с орбитальным движением */}
+        {/* Звездные системы для Galaxy view */}
+        <AnimatePresence>
+          {viewConfig.state === 'galaxy' && viewConfig.selectedGalaxy && (
+            // Генерируем звездные системы для выбранной галактики
+            Array.from({ length: 5 }).map((_, systemIndex) => {
+              const angle = (systemIndex * 72) * (Math.PI / 180); // 5 систем по кругу
+              const radius = 80 + systemIndex * 30;
+              const galaxy = galaxies.find(g => g.id === viewConfig.selectedGalaxy);
+              
+              return (
+                <motion.div
+                  key={`system-${systemIndex}`}
+                  className="absolute cursor-pointer z-30"
+                  style={{
+                    left: '50%',
+                    top: '50%',
+                  }}
+                  animate={{
+                    x: galaxy ? galaxy.position.x + Math.cos(angle) * radius : 0,
+                    y: galaxy ? galaxy.position.y + Math.sin(angle) * radius : 0,
+                    scale: 1,
+                    opacity: 1
+                  }}
+                  initial={{ scale: 0, opacity: 0 }}
+                  exit={{ scale: 0, opacity: 0 }}
+                  transition={{ duration: 0.5, delay: systemIndex * 0.1 }}
+                  onDoubleClick={() => {
+                    setViewConfig({
+                      state: 'system',
+                      selectedGalaxy: viewConfig.selectedGalaxy,
+                      selectedSystem: `system-${systemIndex}`,
+                      zoom: 4,
+                      centerX: galaxy ? galaxy.position.x + Math.cos(angle) * radius : 0,
+                      centerY: galaxy ? galaxy.position.y + Math.sin(angle) * radius : 0
+                    });
+                  }}
+                >
+                  {/* Центральная звезда системы */}
+                  <motion.div
+                    className="w-8 h-8 rounded-full relative"
+                    style={{
+                      background: `radial-gradient(circle, #FFD700 0%, #FFA500 70%, transparent 100%)`,
+                      boxShadow: '0 0 20px #FFD700',
+                    }}
+                    animate={{
+                      rotate: 360,
+                    }}
+                    transition={{
+                      duration: 10,
+                      repeat: Infinity,
+                      ease: "linear"
+                    }}
+                  >
+                    {/* Солнечные лучи */}
+                    {[0, 45, 90, 135, 180, 225, 270, 315].map((rotation) => (
+                      <div
+                        key={rotation}
+                        className="absolute w-12 h-0.5 bg-gradient-to-r from-yellow-400 to-transparent"
+                        style={{
+                          left: '50%',
+                          top: '50%',
+                          transformOrigin: 'left center',
+                          transform: `translate(-50%, -50%) rotate(${rotation}deg)`,
+                        }}
+                      />
+                    ))}
+                  </motion.div>
+                  
+                  {/* Название системы */}
+                  <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+                    <div className="bg-space-800/90 backdrop-blur-sm px-2 py-1 rounded border border-white/20 text-center">
+                      <p className="text-xs font-orbitron text-white">Система {systemIndex + 1}</p>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })
+          )}
+        </AnimatePresence>
+
+        {/* Планеты (курсы) - показываем только на System view */}
         <AnimatePresence>
           {planets.map((planet, index) => {
             const galaxy = galaxies.find(g => g.id === planet.galaxy);
-            const showPlanet = viewConfig.state === 'universe' || 
-                             (viewConfig.state === 'galaxy' && viewConfig.selectedGalaxy === planet.galaxy);
+            // Планеты показываем только на System view
+            const showPlanet = viewConfig.state === 'system' && viewConfig.selectedGalaxy === planet.galaxy;
             
             if (!showPlanet || !galaxy?.discovered) return null;
 
@@ -1072,7 +1152,7 @@ function GalaxyUniverse() {
           <p className="text-xs font-orbitron text-white mb-2">
             {viewConfig.state === 'universe' && 'Обзор Вселенной'}
             {viewConfig.state === 'galaxy' && `Галактика: ${galaxies.find(g => g.id === viewConfig.selectedGalaxy)?.name}`}
-            {viewConfig.state === 'planet' && `Планета: ${viewConfig.selectedPlanet?.name}`}
+            {viewConfig.state === 'system' && `Система: ${viewConfig.selectedSystem}`}
           </p>
           <div className="space-y-1">
             <div className="flex items-center gap-2 text-xs">
