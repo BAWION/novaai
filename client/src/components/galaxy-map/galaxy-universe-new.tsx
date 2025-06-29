@@ -431,9 +431,6 @@ function GalaxyUniverse() {
           </div>
         </motion.div>
       </div>
-
-
-
       {/* Живое звездное небо с туманностями */}
       <div className="absolute inset-0">
         {/* Звезды */}
@@ -507,7 +504,6 @@ function GalaxyUniverse() {
           )}
         </AnimatePresence>
       </div>
-
       {/* Основная область с зумом и панорамированием */}
       <motion.div
         ref={containerRef}
@@ -596,7 +592,7 @@ function GalaxyUniverse() {
               animate={{ opacity: 1 }}
               transition={{ delay: 1 }}
             >
-              <p className="text-xs font-orbitron text-white whitespace-nowrap">ГАЛАКСИОН</p>
+              <p className="text-xs font-orbitron text-white whitespace-nowrap">Galaxion</p>
               <p className="text-xs text-white/60 text-center">Корабль Знаний</p>
             </motion.div>
           </div>
@@ -751,7 +747,7 @@ function GalaxyUniverse() {
         <AnimatePresence>
           {viewConfig.state === 'galaxy' && viewConfig.selectedGalaxy && (
             // Генерируем звездные системы для выбранной галактики
-            Array.from({ length: 5 }).map((_, systemIndex) => {
+            (Array.from({ length: 5 }).map((_, systemIndex) => {
               const angle = (systemIndex * 72) * (Math.PI / 180); // 5 систем по кругу
               const radius = 150 + systemIndex * 50; // Увеличенные расстояния между системами
               const galaxy = galaxies.find(g => g.id === viewConfig.selectedGalaxy);
@@ -825,7 +821,7 @@ function GalaxyUniverse() {
                   </div>
                 </motion.div>
               );
-            })
+            }))
           )}
         </AnimatePresence>
 
@@ -1000,9 +996,6 @@ function GalaxyUniverse() {
           })}
         </AnimatePresence>
       </motion.div>
-
-
-
       {/* Приборная панель корабля Галаксион */}
       <div className="absolute bottom-4 left-4 z-50">
         <motion.div 
@@ -1138,7 +1131,6 @@ function GalaxyUniverse() {
           )}
         </motion.div>
       </div>
-
       {/* Toast уведомления об открытиях */}
       <AnimatePresence>
         {newDiscovery && (
@@ -1226,9 +1218,6 @@ function GalaxyUniverse() {
           </motion.div>
         )}
       </AnimatePresence>
-
-
-
       {/* Enhanced Discovery Notifications */}
       <AnimatePresence>
         {newDiscovery && (
