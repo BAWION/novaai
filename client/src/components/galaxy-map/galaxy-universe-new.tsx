@@ -957,43 +957,7 @@ function GalaxyUniverse() {
         </AnimatePresence>
       </motion.div>
 
-      {/* Навигационные кнопки */}
-      <div className="absolute top-4 right-4 z-50 flex gap-2">
-        {viewConfig.state !== 'universe' && (
-          <button
-            onClick={viewConfig.state === 'system' ? () => {
-              const galaxy = galaxies.find(g => g.id === viewConfig.selectedGalaxy);
-              if (galaxy) {
-                setViewConfig({
-                  state: 'galaxy',
-                  selectedGalaxy: galaxy.id,
-                  selectedSystem: undefined,
-                  zoom: 2,
-                  centerX: galaxy.position.x,
-                  centerY: galaxy.position.y
-                });
-              }
-            } : handleBackToUniverse}
-            className="p-2 bg-space-800/80 hover:bg-space-700/80 backdrop-blur-sm border border-white/20 rounded-lg text-white transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </button>
-        )}
-        
-        <button
-          onClick={handleZoomIn}
-          className="p-2 bg-space-800/80 hover:bg-space-700/80 backdrop-blur-sm border border-white/20 rounded-lg text-white transition-colors"
-        >
-          <ZoomIn className="w-4 h-4" />
-        </button>
-        
-        <button
-          onClick={handleZoomOut}
-          className="p-2 bg-space-800/80 hover:bg-space-700/80 backdrop-blur-sm border border-white/20 rounded-lg text-white transition-colors"
-        >
-          <ZoomOut className="w-4 h-4" />
-        </button>
-      </div>
+
 
       {/* Приборная панель корабля Галаксион */}
       <div className="absolute bottom-4 left-4 z-50">
@@ -1049,7 +1013,7 @@ function GalaxyUniverse() {
           </div>
 
           {/* Кнопки управления */}
-          <div className="flex gap-2">
+          <div className="flex gap-2 mb-2">
             <motion.button
               onClick={simulateDiscovery}
               className="flex-1 px-3 py-2 bg-primary/20 hover:bg-primary/30 border border-primary/30 rounded-lg text-xs text-white transition-colors flex items-center justify-center gap-1"
@@ -1067,6 +1031,51 @@ function GalaxyUniverse() {
               whileTap={{ scale: 0.95 }}
             >
               Домой
+            </motion.button>
+          </div>
+
+          {/* Навигационные кнопки */}
+          <div className="flex gap-2">
+            {viewConfig.state !== 'universe' && (
+              <motion.button
+                onClick={viewConfig.state === 'system' ? () => {
+                  const galaxy = galaxies.find(g => g.id === viewConfig.selectedGalaxy);
+                  if (galaxy) {
+                    setViewConfig({
+                      state: 'galaxy',
+                      selectedGalaxy: galaxy.id,
+                      selectedSystem: undefined,
+                      zoom: 2,
+                      centerX: galaxy.position.x,
+                      centerY: galaxy.position.y
+                    });
+                  }
+                } : handleBackToUniverse}
+                className="flex-1 px-3 py-2 bg-space-700/50 hover:bg-space-600/50 border border-white/20 rounded-lg text-xs text-white/70 transition-colors flex items-center justify-center gap-1"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <ArrowLeft className="w-3 h-3" />
+                Назад
+              </motion.button>
+            )}
+            
+            <motion.button
+              onClick={handleZoomIn}
+              className="px-3 py-2 bg-space-700/50 hover:bg-space-600/50 border border-white/20 rounded-lg text-xs text-white/70 transition-colors"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <ZoomIn className="w-3 h-3" />
+            </motion.button>
+            
+            <motion.button
+              onClick={handleZoomOut}
+              className="px-3 py-2 bg-space-700/50 hover:bg-space-600/50 border border-white/20 rounded-lg text-xs text-white/70 transition-colors"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <ZoomOut className="w-3 h-3" />
             </motion.button>
           </div>
 
