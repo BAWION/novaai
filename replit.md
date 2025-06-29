@@ -129,9 +129,10 @@ NovaAI University is a comprehensive AI-powered educational platform built with 
   - Добавлено "public": true в vercel.json для принудительного публичного доступа
   - API проксирование на Replit backend через rewrites в vercel.json
   - РЕШЕНИЕ: отключить "Vercel Authentication" в Settings → Security → Deployment Protection
-  - НАЙДЕНА ОСНОВНАЯ ПРОБЛЕМА СО СТИЛЯМИ: неправильный путь в tailwind.config.ts
+  - НАЙДЕНА И ИСПРАВЛЕНА ОСНОВНАЯ ПРОБЛЕМА: неправильный путь в tailwind.config.ts
   - Исправлен путь: "./client/src/**/*" → "./src/**/*" для правильного сканирования компонентов
-  - Требуется коммит tailwind.config.ts для пересборки с корректными стилями Tailwind CSS
+  - ПОДТВЕРЖДЕНО: стили теперь работают корректно в Replit превью
+  - Требуется коммит для применения исправления на Vercel
 - June 28, 2025: ИСПРАВЛЕНА КОНФИГУРАЦИЯ VERCEL ДЕПЛОЯ
   - Обновлен vercel.json с правильной outputDirectory: "dist/public"
   - Добавлены заголовки кэширования для CSS/JS файлов для корректного отображения стилей
