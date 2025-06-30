@@ -920,10 +920,10 @@ function GalaxyUniverse() {
               transition={{ duration: 0.8 }}
             >
               {/* Орбитальные траектории */}
-              {[120, 160, 200, 240, 280, 320, 360, 400, 440].slice(0, Math.min(planets.length, 9)).map((radius, ringIndex) => (
+              {[140, 200, 280, 360, 440, 520].slice(0, Math.ceil(planets.length / 3)).map((radius, ringIndex) => (
                 <div
                   key={`orbit-ring-${ringIndex}`}
-                  className="absolute border border-white/6 rounded-full pointer-events-none"
+                  className="absolute border border-white/8 rounded-full pointer-events-none"
                   style={{
                     width: radius * 2,
                     height: radius * 2,
@@ -980,17 +980,25 @@ function GalaxyUniverse() {
 
               {/* Планеты-курсы с орбитами */}
               {planets.map((planet, index) => {
-                // Система орбитальных колец - каждая планета на своей орбите
-                const orbitRings = [120, 160, 200, 240, 280, 320, 360, 400, 440]; // 9 орбит
-                const radius = orbitRings[index] || orbitRings[index % orbitRings.length];
+                // Распределяем планеты по концентрическим орбитам как в солнечной системе
+                const planetsPerOrbit = 3; // Максимум планет на одной орбите
+                const orbitIndex = Math.floor(index / planetsPerOrbit); // Номер орбиты
+                const positionOnOrbit = index % planetsPerOrbit; // Позиция на орбите
                 
-                // Разное начальное положение для каждой планеты
-                const orbitSpeed = 0.00008 * (1 / Math.sqrt(radius / 120)); // Медленнее для дальних орбит
-                const baseAngle = (index * 41.5) * (Math.PI / 180); // Разные начальные углы для разнообразия
-                const angle = Date.now() * orbitSpeed + baseAngle;
+                const orbitRadii = [140, 200, 280, 360, 440, 520]; // Радиусы орбит
+                const radius = orbitRadii[orbitIndex] || orbitRadii[orbitRadii.length - 1];
                 
-                const x = Math.cos(angle) * radius;
-                const y = Math.sin(angle) * radius;
+                // Равномерное распределение по кругу для каждой орбиты
+                const planetsOnThisOrbit = Math.min(planets.length - orbitIndex * planetsPerOrbit, planetsPerOrbit);
+                const angleStep = (2 * Math.PI) / planetsOnThisOrbit; // Угол между планетами на орбите
+                const baseAngle = positionOnOrbit * angleStep; // Базовый угол для этой позиции
+                
+                // Медленное вращение орбиты
+                const orbitSpeed = 0.00005 * (1 / Math.sqrt(radius / 140));
+                const currentAngle = baseAngle + (Date.now() * orbitSpeed);
+                
+                const x = Math.cos(currentAngle) * radius;
+                const y = Math.sin(currentAngle) * radius;
                 
                 // Определяем размер планеты по объему курса (модули + уроки)
                 const modules = planet.course.modules || 1;
