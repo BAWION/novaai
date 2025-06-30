@@ -921,12 +921,12 @@ function GalaxyUniverse() {
             >
               {/* Орбитальные траектории */}
               {planets.map((_, index) => {
-                const orbitRadius = 200 + (index * 90);
+                const orbitRadius = 220 + (index * 100);
                 
                 return (
                   <div
                     key={`orbit-ring-${index}`}
-                    className="absolute border border-white/12 rounded-full pointer-events-none"
+                    className="absolute border border-white/15 rounded-full pointer-events-none"
                     style={{
                       width: orbitRadius * 2,
                       height: orbitRadius * 2,
@@ -984,12 +984,22 @@ function GalaxyUniverse() {
 
               {/* Планеты-курсы с орбитами */}
               {planets.map((planet, index) => {
-                // Простая система: каждая планета на своей орбите
-                const orbitRadius = 200 + (index * 90); // Каждая планета на отдельной орбите
+                // Каждая планета на своей орбите с четким позиционированием
+                const orbitRadius = 220 + (index * 100); // Увеличенное расстояние между орбитами
                 
-                // Простое распределение углов для избежания наложения
-                const baseAngles = [0, 60, 120, 180, 240, 300, 45, 135, 225, 315]; // Предопределенные углы
-                const planetAngle = (baseAngles[index % baseAngles.length] || (index * 40)) * (Math.PI / 180);
+                // Четкие углы по осям для избежания скучивания
+                const cardinalAngles = [
+                  0,    // Справа (3 часа)
+                  45,   // Северо-восток
+                  90,   // Сверху (12 часов)
+                  135,  // Северо-запад
+                  180,  // Слева (9 часов)
+                  225,  // Юго-запад
+                  270,  // Снизу (6 часов)
+                  315   // Юго-восток
+                ];
+                
+                const planetAngle = (cardinalAngles[index % cardinalAngles.length]) * (Math.PI / 180);
                 
                 const x = Math.cos(planetAngle) * orbitRadius;
                 const y = Math.sin(planetAngle) * orbitRadius;
@@ -1032,37 +1042,30 @@ function GalaxyUniverse() {
                     key={planet.id} 
                     className="absolute z-10"
                     style={{
-                      left: '50%',
-                      top: '50%',
+                      left: `calc(50% + ${x}px)`,
+                      top: `calc(50% + ${y}px)`,
+                      transform: 'translate(-50%, -50%)',
                     }}
-                    animate={{
-                      rotate: [0, 360],
-                    }}
-                    transition={{
-                      duration: 120 + (index * 30), // Медленнее: 120-390 секунд на оборот
-                      repeat: Infinity,
-                      ease: "linear"
-                    }}
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: index * 0.1, duration: 0.6 }}
                   >
-                    {/* Планета на орбите */}
+                    {/* Планета на фиксированной позиции */}
                     <motion.div
                       className={`rounded-full cursor-pointer relative bg-gradient-to-br ${getPlanetColor()}`}
                       style={{
                         width: planetSize,
                         height: planetSize,
-                        transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`,
                         boxShadow: `0 0 ${planetSize/2}px rgba(59, 130, 246, 0.4)`,
                       }}
                       onClick={() => handlePlanetClick(planet)}
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.95 }}
                       animate={{
-                        y: [0, -2, 0],
-                        rotate: [0, -360], // Противоположное вращение для сохранения ориентации
+                        y: [0, -3, 0], // Легкое покачивание
                       }}
                       transition={{
-                        y: { duration: 3 + index, repeat: Infinity, ease: "easeInOut" },
-                        rotate: { duration: 60 + (index * 20), repeat: Infinity, ease: "linear" },
+                        y: { duration: 4 + index, repeat: Infinity, ease: "easeInOut" },
                       }}
                     >
                       {/* Название планеты с размером курса */}
