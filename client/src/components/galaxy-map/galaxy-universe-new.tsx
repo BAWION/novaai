@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
-import { Rocket, ArrowLeft, ZoomIn, ZoomOut, Telescope, Home, Navigation } from 'lucide-react';
+import { Rocket, ArrowLeft, ZoomIn, ZoomOut, Telescope, Home, Navigation, Route } from 'lucide-react';
 
 // Типы данных
 interface Course {

@@ -46,6 +46,7 @@ import courseManagementRouter from "./routes/course-management-api";
 import courseInitRouter from "./routes/course-initialization";
 import telegramRouter from "./routes/telegram";
 import telegramAuthRouter from "./routes/telegram-auth";
+import roadmapRouter from "./routes/roadmap-api";
 
 // Add any middleware needed
 const authMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -122,6 +123,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/course-management', courseManagementRouter);
   // Добавляем маршрут для инициализации курсов
   app.use('/api/course-init', courseInitRouter);
+  // Добавляем маршрут для космической дорожной карты
+  app.use('/api/roadmap', roadmapRouter);
   
   // AI Tutor routes
   const aiTutorRouter = await import('./routes/ai-tutor.js');
