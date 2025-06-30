@@ -618,12 +618,12 @@ export default function Courses() {
                         console.log(`Переход на страницу курса: /courses/${courseSlug}`);
                         setLocation(`/courses/${courseSlug}`);
                       }}
-                      className="bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:from-[#4922B2] hover:to-[#1682A1] text-white py-3 px-6 rounded-lg font-medium transition duration-300 flex items-center"
+                      className="bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:from-[#4922B2] hover:to-[#1682A1] text-white py-3 px-6 rounded-lg font-medium transition duration-300 flex items-center min-w-[180px]"
                     >
                       <i className="fas fa-play-circle mr-2"></i>
                       {selectedCourse.progress ? 'Продолжить обучение' : 'Начать обучение'}
                     </button>
-                    <button className="border border-white/20 hover:bg-white/10 text-white py-3 px-6 rounded-lg font-medium transition duration-300 flex items-center">
+                    <button className="border border-white/20 hover:bg-white/10 text-white py-3 px-6 rounded-lg font-medium transition duration-300 flex items-center min-w-[180px]">
                       <i className="far fa-bookmark mr-2"></i>
                       Добавить в избранное
                     </button>
