@@ -1,0 +1,57 @@
+[00:12:46.734] Running build in Washington, D.C., USA (East) – iad1
+[00:12:46.735] Build machine configuration: 2 cores, 8 GB
+[00:12:46.801] Cloning github.com/BAWION/novaai (Branch: main, Commit: da0f142)
+[00:12:48.590] Cloning completed: 1.787s
+[00:12:49.153] Restored build cache from previous deployment (7vD2WjV3UPVD8KCg2qjF46KTvBuN)
+[00:12:50.032] Running "vercel build"
+[00:12:50.480] Vercel CLI 43.3.0
+[00:12:51.112] Running "install" command: `npm install`...
+[00:12:54.915] 
+[00:12:54.916] up to date, audited 1033 packages in 3s
+[00:12:54.917] 
+[00:12:54.917] 191 packages are looking for funding
+[00:12:54.917]   run `npm fund` for details
+[00:12:54.971] 
+[00:12:54.971] 15 vulnerabilities (1 low, 10 moderate, 4 high)
+[00:12:54.971] 
+[00:12:54.972] To address issues that do not require attention, run:
+[00:12:54.972]   npm audit fix
+[00:12:54.972] 
+[00:12:54.973] To address all issues (including breaking changes), run:
+[00:12:54.973]   npm audit fix --force
+[00:12:54.973] 
+[00:12:54.973] Run `npm audit` for details.
+[00:12:55.401] [36mvite v5.4.14 [32mbuilding for production...[36m[39m
+[00:12:55.757] transforming...
+[00:12:55.778] Browserslist: browsers data (caniuse-lite) is 8 months old. Please run:
+[00:12:55.779]   npx update-browserslist-db@latest
+[00:12:55.779]   Why you should do it regularly: https://github.com/browserslist/update-db#readme
+[00:12:58.154] 
+[00:12:58.154] /space-bg.jpg referenced in /space-bg.jpg didn't resolve at build time, it will remain unchanged to be resolved at runtime
+[00:13:09.244] [32m✓[39m 4412 modules transformed.
+[00:13:09.829] rendering chunks...
+[00:13:10.890] [1m[33m[plugin:vite:reporter][39m[22m [33m[plugin vite:reporter] 
+[00:13:10.891] (!) /vercel/path0/client/src/lib/pwa-utils.ts is dynamically imported by /vercel/path0/client/src/components/pwa/offline-status.tsx, /vercel/path0/client/src/hooks/use-pwa.tsx but also statically imported by /vercel/path0/client/src/components/pwa/install-prompt.tsx, /vercel/path0/client/src/hooks/use-pwa.tsx, /vercel/path0/client/src/main.tsx, dynamic import will not move module into another chunk.
+[00:13:10.891] [39m
+[00:13:10.945] [1m[33m[plugin:vite:reporter][39m[22m [33m[plugin vite:reporter] 
+[00:13:10.945] (!) /vercel/path0/client/src/api/diagnosis-api.ts is dynamically imported by /vercel/path0/client/src/context/auth-context.tsx but also statically imported by /vercel/path0/client/src/components/skills-dna-profile.tsx, /vercel/path0/client/src/hooks/use-skills-dna.tsx, /vercel/path0/client/src/pages/dashboard.tsx, /vercel/path0/client/src/pages/deep-diagnosis.tsx, /vercel/path0/client/src/pages/quick-diagnosis.tsx, dynamic import will not move module into another chunk.
+[00:13:10.946] [39m
+[00:13:11.210] computing gzip size...
+[00:13:11.272] [2m../dist/public/[22m[32mindex.html                                      [39m[1m[2m    4.64 kB[22m[1m[22m[2m │ gzip:   2.14 kB[22m
+[00:13:11.273] [2m../dist/public/[22m[2massets/[22m[35mindex-p2f5rlJG.css                       [39m[1m[2m  196.31 kB[22m[1m[22m[2m │ gzip:  28.32 kB[22m
+[00:13:11.273] [2m../dist/public/[22m[2massets/[22m[36mtelegram-bots-course-page-DdeEoVRT.js    [39m[1m[2m    7.41 kB[22m[1m[22m[2m │ gzip:   2.34 kB[22m
+[00:13:11.273] [2m../dist/public/[22m[2massets/[22m[36mmake-automation-course-page-BHijMLKc.js  [39m[1m[2m    9.09 kB[22m[1m[22m[2m │ gzip:   2.75 kB[22m
+[00:13:11.273] [2m../dist/public/[22m[2massets/[22m[36mindex-CZr3P6dE.js                        [39m[1m[33m2,318.35 kB[39m[22m[2m │ gzip: 640.34 kB[22m
+[00:13:11.273] [33m
+[00:13:11.273] (!) Some chunks are larger than 500 kB after minification. Consider:
+[00:13:11.274] - Using dynamic import() to code-split the application
+[00:13:11.274] - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+[00:13:11.274] - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+[00:13:11.274] [32m✓ built in 15.56s[39m
+[00:13:11.433] Build Completed in /vercel/output [20s]
+[00:13:11.456] Deploying outputs...
+[00:13:12.757] 
+[00:13:12.927] Deployment completed
+[00:13:37.398] Uploading build cache [124.69 MB]...
+[00:13:38.953] Build cache uploaded: 1.559s
+[00:13:41.230] Exiting build container
