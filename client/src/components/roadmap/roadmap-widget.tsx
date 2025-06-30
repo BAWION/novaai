@@ -339,14 +339,14 @@ export function RoadmapWidget() {
                       }}
                       transition={{ duration: 2, repeat: Infinity }}
                     >
-                      <div className={`w-16 h-16 rounded-full ${getStatusColor(roadmapData['root']?.status || 'available')} flex items-center justify-center text-white shadow-2xl border-2 border-white/30 relative`}>
+                      <div className={`w-12 h-12 lg:w-16 lg:h-16 rounded-full ${getStatusColor(roadmapData['root']?.status || 'available')} flex items-center justify-center text-white shadow-2xl border-2 border-white/30 relative`}>
                         <div className="absolute inset-0 rounded-full border border-white/20 animate-pulse" />
                         <i className={`fas ${getStatusIcon(roadmapData['root']?.status || 'available')} text-lg`}></i>
                       </div>
-                      <div className="mt-3 text-center">
-                        <p className="font-medium text-sm text-white">{roadmapData['root']?.title || 'AI Основы'}</p>
+                      <div className="mt-2 lg:mt-3 text-center">
+                        <p className="font-medium text-xs lg:text-sm text-white">{roadmapData['root']?.title || 'AI Основы'}</p>
                         <p className="text-xs text-primary font-semibold">{roadmapData['root']?.duration || '2 часа'}</p>
-                        <div className="w-16 h-2 bg-white/20 rounded-full mt-2">
+                        <div className="w-12 lg:w-16 h-1.5 lg:h-2 bg-white/20 rounded-full mt-1 lg:mt-2">
                           <div 
                             className={`h-full rounded-full bg-gradient-to-r ${getProgressBarColor(roadmapData['root']?.status || 'available')}`} 
                             style={{ width: `${roadmapData['root']?.progress || 0}%` }}
@@ -366,7 +366,7 @@ export function RoadmapWidget() {
                       animate={{ y: [-2, 2, -2] }}
                       transition={{ duration: 3, repeat: Infinity }}
                     >
-                      <div className={`w-14 h-14 rounded-full ${getStatusColor(roadmapData['python-basics']?.status || 'locked')} flex items-center justify-center text-white shadow-xl border border-white/20 relative`}>
+                      <div className={`w-10 h-10 lg:w-14 lg:h-14 rounded-full ${getStatusColor(roadmapData['python-basics']?.status || 'locked')} flex items-center justify-center text-white shadow-xl border border-white/20 relative`}>
                         {(roadmapData['python-basics']?.status || 'locked') === 'locked' && (
                           <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center">
                             <i className="fas fa-lock text-white/60 text-sm"></i>
@@ -374,10 +374,10 @@ export function RoadmapWidget() {
                         )}
                         <i className={`fas ${getStatusIcon(roadmapData['python-basics']?.status || 'locked')} text-base`}></i>
                       </div>
-                      <div className="mt-2 text-center">
-                        <p className="font-medium text-xs text-white">{roadmapData['python-basics']?.title || 'Python'}</p>
+                      <div className="mt-1 lg:mt-2 text-center">
+                        <p className="font-medium text-xs lg:text-xs text-white">{roadmapData['python-basics']?.title || 'Python'}</p>
                         <p className="text-xs text-primary font-semibold">{roadmapData['python-basics']?.duration || '3 часа'}</p>
-                        <div className="w-14 h-1.5 bg-white/20 rounded-full mt-1">
+                        <div className="w-10 lg:w-14 h-1 lg:h-1.5 bg-white/20 rounded-full mt-1">
                           <div 
                             className={`h-full rounded-full bg-gradient-to-r ${getProgressBarColor(roadmapData['python-basics']?.status || 'locked')}`} 
                             style={{ width: `${roadmapData['python-basics']?.progress || 0}%` }}
@@ -505,32 +505,32 @@ export function RoadmapWidget() {
                     </motion.div>
                   </div>
 
-                  {/* Легенда и прогресс */}
-                  <div className="absolute bottom-4 left-4 bg-space-800/90 backdrop-blur-sm rounded-lg p-3 border border-white/10">
-                    <div className="text-xs text-white/60 mb-2 font-semibold">СТАТУСЫ</div>
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
-                      <div className="flex items-center gap-2">
+                  {/* Мобильная легенда */}
+                  <div className="absolute bottom-2 left-2 lg:bottom-4 lg:left-4 bg-space-800/90 backdrop-blur-sm rounded-lg p-2 lg:p-3 border border-white/10">
+                    <div className="text-xs text-white/60 mb-1 lg:mb-2 font-semibold">СТАТУСЫ</div>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-2 lg:gap-x-4 gap-y-1 text-xs">
+                      <div className="flex items-center gap-1 lg:gap-2">
                         <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                        <span className="text-white/80">Завершен</span>
+                        <span className="text-white/80 text-xs">Завершен</span>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1 lg:gap-2">
                         <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                        <span className="text-white/80">В процессе</span>
+                        <span className="text-white/80 text-xs">В процессе</span>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1 lg:gap-2">
                         <div className="w-2 h-2 rounded-full bg-amber-500"></div>
-                        <span className="text-white/80">Доступен</span>
+                        <span className="text-white/80 text-xs">Доступен</span>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1 lg:gap-2">
                         <div className="w-2 h-2 rounded-full bg-gray-500"></div>
-                        <span className="text-white/80">Блокирован</span>
+                        <span className="text-white/80 text-xs">Блокирован</span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="absolute bottom-4 right-4 bg-space-800/90 backdrop-blur-sm rounded-lg p-3 border border-white/10">
-                    <div className="text-xs text-white/60 mb-2 font-semibold">ПРОГРЕСС</div>
-                    <div className="w-28 h-2 bg-white/20 rounded-full">
+                  <div className="absolute bottom-2 right-2 lg:bottom-4 lg:right-4 bg-space-800/90 backdrop-blur-sm rounded-lg p-2 lg:p-3 border border-white/10">
+                    <div className="text-xs text-white/60 mb-1 lg:mb-2 font-semibold">ПРОГРЕСС</div>
+                    <div className="w-20 lg:w-28 h-1.5 lg:h-2 bg-white/20 rounded-full">
                       <div 
                         className="h-full rounded-full bg-gradient-to-r from-green-500 to-purple-500"
                         style={{ width: `${getOverallProgress()}%` }}
@@ -548,15 +548,15 @@ export function RoadmapWidget() {
       </div>
       {/* Sidebar with module details */}
       <div className="w-full lg:w-4/12">
-        <Glassmorphism className="rounded-xl p-6">
+        <Glassmorphism className="rounded-xl p-4 lg:p-6">
           {selectedNode && roadmapData[selectedNode] && (
             <div>
               <div className="flex items-center mb-4">
-                <div className={`w-12 h-12 rounded-full ${getStatusColor(roadmapData[selectedNode].status)} flex items-center justify-center text-white shadow-lg mr-4`}>
-                  <i className={`fas ${getStatusIcon(roadmapData[selectedNode].status)} text-lg`}></i>
+                <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-full ${getStatusColor(roadmapData[selectedNode].status)} flex items-center justify-center text-white shadow-lg mr-3 lg:mr-4`}>
+                  <i className={`fas ${getStatusIcon(roadmapData[selectedNode].status)} text-sm lg:text-lg`}></i>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-white text-lg">{roadmapData[selectedNode].title}</h3>
+                  <h3 className="font-semibold text-white text-base lg:text-lg">{roadmapData[selectedNode].title}</h3>
                   <p className="text-white/60 text-sm">
                     {roadmapData[selectedNode].status === 'completed' && 'Завершено'}
                     {roadmapData[selectedNode].status === 'in-progress' && 'В процессе'}
