@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
 import { Rocket, ArrowLeft, ZoomIn, ZoomOut, Telescope, Home, Navigation, Route } from 'lucide-react';
-import { SmartRoadmapWidget } from '@/components/roadmap/smart-roadmap-widget';
 
 // Типы данных
 interface Course {
@@ -1375,15 +1374,80 @@ function GalaxyUniverse() {
         </motion.div>
       </div>
 
-      {/* Дорожная карта под вселенной */}
-      <motion.div
-        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-30 w-[95%] max-w-6xl"
-        initial={{ opacity: 0, y: 100 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 1.5 }}
-      >
-        <SmartRoadmapWidget />
-      </motion.div>
+      {/* Информационная панель дорожной карты */}
+      <AnimatePresence>
+        {roadmapMode && activeRoadmapData && (
+          <motion.div
+            className="absolute top-4 right-4 z-50 w-80"
+            initial={{ opacity: 0, x: 300 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 300 }}
+            transition={{ duration: 0.5 }}
+          >
+            <div className="bg-gradient-to-br from-space-800/95 to-space-900/95 backdrop-blur-md p-4 rounded-xl border border-primary/30 shadow-2xl">
+              <div className="flex items-center gap-2 mb-3">
+                <Route className="w-5 h-5 text-primary" />
+                <h3 className="text-white font-orbitron font-bold">Персональный маршрут</h3>
+              </div>
+              
+              {roadmapError ? (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-amber-400">
+                    <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse" />
+                    <span className="text-sm">Демонстрационный режим</span>
+                  </div>
+                  <p className="text-white/80 text-sm">
+                    Войдите в систему для персонализированной дорожной карты на основе вашего Skills DNA профиля
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-green-400">
+                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                    <span className="text-sm">Активный маршрут</span>
+                  </div>
+                  {roadmapLoading && (
+                    <p className="text-white/60 text-sm">Загрузка персонального маршрута...</p>
+                  )}
+                </div>
+              )}
+
+              <div className="mt-4 space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-white/70">Уровень:</span>
+                  <span className="text-primary">{(activeRoadmapData as any).currentLevel || 'Начинающий'}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-white/70">Время прохождения:</span>
+                  <span className="text-primary">{(activeRoadmapData as any).totalTime || '4-6 недель'}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-white/70">Рекомендованных курсов:</span>
+                  <span className="text-primary">{(activeRoadmapData as any).recommendedCourses?.length || 0}</span>
+                </div>
+              </div>
+
+              <div className="mt-4 pt-3 border-t border-white/10">
+                <h4 className="text-xs font-medium text-white/60 mb-2">ЛЕГЕНДА</h4>
+                <div className="space-y-1 text-xs">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-0.5 bg-gradient-to-r from-cyan-400 to-blue-500 rounded"></div>
+                    <span className="text-white/70">Рекомендованный путь</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-0.5 bg-gradient-to-r from-purple-400 to-indigo-500 rounded border-dashed border border-purple-400/50"></div>
+                    <span className="text-white/70">Дополнительный путь</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-full" style={{ boxShadow: '0 0 8px rgba(139, 224, 247, 0.6)' }}></div>
+                    <span className="text-white/70">Рекомендованный курс</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Toast уведомления об открытиях */}
       <AnimatePresence>
