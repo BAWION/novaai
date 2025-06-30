@@ -165,11 +165,11 @@ export default function HomePage() {
                   Galaxion — это <span className="font-bold text-white">преимущественно бесплатная</span> образовательная платформа для <span className="font-bold text-white">всех уровней</span> — от школьников до Senior-разработчиков, с адаптивной AI-системой обучения от NovaAI.
                 </p>
                 <div className="flex flex-wrap gap-3 sm:gap-4">
-                  <a href="/onboarding-intro" className="inline-block py-2 sm:py-3 px-4 sm:px-8 text-base sm:text-lg rounded-lg bg-primary hover:bg-primary/90 active:bg-primary/80 transition-all duration-150 text-white no-underline font-medium tap-highlight-none">
+                  <a href="/onboarding-intro" className="inline-flex items-center justify-center py-2 sm:py-3 px-4 sm:px-8 text-base sm:text-lg rounded-lg bg-primary hover:bg-primary/90 active:bg-primary/80 transition-all duration-150 text-white no-underline font-medium tap-highlight-none min-w-[160px] sm:min-w-[180px]">
                     Начать бесплатно
                     <i className="fas fa-arrow-right ml-2"></i>
                   </a>
-                  <a href="#screenshots" className="inline-block py-2 sm:py-3 px-4 sm:px-8 text-base sm:text-lg rounded-lg border border-white/30 hover:bg-white/10 active:bg-white/20 transition-all duration-150 text-white no-underline font-medium tap-highlight-none">
+                  <a href="#screenshots" className="inline-flex items-center justify-center py-2 sm:py-3 px-4 sm:px-8 text-base sm:text-lg rounded-lg border border-white/30 hover:bg-white/10 active:bg-white/20 transition-all duration-150 text-white no-underline font-medium tap-highlight-none min-w-[160px] sm:min-w-[180px]">
                     Посмотреть демо
                     <i className="fas fa-desktop ml-2"></i>
                   </a>
