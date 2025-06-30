@@ -422,9 +422,7 @@ export default function Dashboard() {
             <h2 className="font-orbitron text-xl font-semibold mb-2">
               Дорожная карта
             </h2>
-            <p className="text-white/70 text-sm">
-              Ваш персональный путь обучения в NovaAI University
-            </p>
+            <p className="text-white/70 text-sm">Ваш персональный путь обучения</p>
           </div>
           <RoadmapWidget />
         </motion.div>
