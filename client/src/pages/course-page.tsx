@@ -223,11 +223,11 @@ export default function CoursePage() {
   const currentLesson = findCurrentLesson();
 
   return (
-    <DashboardLayout title={course?.title || "Курс"}>
+    <DashboardLayout title="">
       <div className="max-w-7xl mx-auto py-6 px-4">
         {/* Хлебные крошки и заголовок */}
         <div className="mb-6">
-          <div className="flex items-center text-sm text-white/60 mb-2">
+          <div className="flex items-center text-sm text-white/60 mb-4">
             <button 
               className="hover:text-white transition"
               onClick={backToCatalog}
@@ -238,24 +238,28 @@ export default function CoursePage() {
             <span className="text-white">{course.title}</span>
           </div>
           
-          <div className="flex justify-between items-start">
-            <h1 className="text-2xl font-semibold">{course.title}</h1>
-            <div className="flex space-x-2">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+            <h1 className="text-xl sm:text-2xl font-semibold">{course.title}</h1>
+            <div className="flex flex-col sm:flex-row gap-2 sm:space-x-2">
               <Button 
                 onClick={() => setLocation(`/courses/${params?.slug}/competency-map`)}
                 variant="outline"
-                className="flex items-center space-x-2"
+                className="flex items-center justify-center space-x-2 text-sm py-2 px-3"
+                size="sm"
               >
-                <i className="fas fa-map"></i>
-                <span>Карта компетенций</span>
+                <i className="fas fa-map text-sm"></i>
+                <span className="hidden sm:inline">Карта компетенций</span>
+                <span className="sm:hidden">Компетенции</span>
               </Button>
               <Button 
                 onClick={backToCatalog}
                 variant="outline"
-                className="flex items-center space-x-2"
+                className="flex items-center justify-center space-x-2 text-sm py-2 px-3"
+                size="sm"
               >
-                <i className="fas fa-arrow-left"></i>
-                <span>Вернуться к каталогу</span>
+                <i className="fas fa-arrow-left text-sm"></i>
+                <span className="hidden sm:inline">Вернуться к каталогу</span>
+                <span className="sm:hidden">Назад</span>
               </Button>
             </div>
           </div>
