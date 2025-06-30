@@ -1057,7 +1057,7 @@ function GalaxyUniverse() {
                           <p className="text-xs font-medium text-white">{planet.name}</p>
                           <p className="text-xs text-white/60">
                             {modules} {modules === 1 ? 'модуль' : modules < 5 ? 'модуля' : 'модулей'} • 
-                            {planetSize >= 48 ? ' Большой' : planetSize >= 32 ? ' Средний' : ' Малый'} курс
+                            {planetSize >= 52 ? ' Большой' : planetSize >= 36 ? ' Средний' : ' Малый'} курс
                           </p>
                         </div>
                       </div>
@@ -1070,13 +1070,13 @@ function GalaxyUniverse() {
                       )}
 
                       {/* Кольца для больших планет */}
-                      {planetSize >= 48 && (
+                      {planetSize >= 52 && (
                         <>
                           <div 
                             className="absolute border border-white/30 rounded-full pointer-events-none"
                             style={{
-                              width: planetSize + 12,
-                              height: planetSize + 12,
+                              width: planetSize + 16,
+                              height: planetSize + 16,
                               left: '50%',
                               top: '50%',
                               transform: 'translate(-50%, -50%)',
@@ -1085,8 +1085,8 @@ function GalaxyUniverse() {
                           <div 
                             className="absolute border border-white/15 rounded-full pointer-events-none"
                             style={{
-                              width: planetSize + 20,
-                              height: planetSize + 20,
+                              width: planetSize + 28,
+                              height: planetSize + 28,
                               left: '50%',
                               top: '50%',
                               transform: 'translate(-50%, -50%)',
@@ -1096,12 +1096,12 @@ function GalaxyUniverse() {
                       )}
 
                       {/* Одно кольцо для средних планет */}
-                      {planetSize >= 32 && planetSize < 48 && (
+                      {planetSize >= 36 && planetSize < 52 && (
                         <div 
                           className="absolute border border-white/20 rounded-full pointer-events-none"
                           style={{
-                            width: planetSize + 8,
-                            height: planetSize + 8,
+                            width: planetSize + 12,
+                            height: planetSize + 12,
                             left: '50%',
                             top: '50%',
                             transform: 'translate(-50%, -50%)',
