@@ -151,9 +151,15 @@ function GalaxyUniverse() {
     queryKey: ['/api/courses'],
   });
 
-  // Обновляем позицию панели при изменении зума или перемещении карты
+  // Закрываем панель при смене уровня и обновляем позицию при перемещении карты
   useEffect(() => {
-    if (selectedSystemInfo) {
+    if (viewConfig.state !== 'galaxy') {
+      setSelectedSystemInfo(null);
+    }
+  }, [viewConfig.state]);
+
+  useEffect(() => {
+    if (selectedSystemInfo && viewConfig.state === 'galaxy') {
       const newPosition = calculatePanelPosition(selectedSystemInfo.systemIndex);
       setSelectedSystemInfo(prev => prev ? {
         ...prev,
@@ -244,12 +250,12 @@ function GalaxyUniverse() {
     const panelWidth = 256;
     const panelHeight = 288;
     
-    // Границы карты (оставляем отступы)
+    // Границы карты - панель должна оставаться в пределах видимого контейнера
     const mapBounds = {
-      left: 80,
-      right: containerWidth - 80,
-      top: 80,
-      bottom: containerHeight - 80
+      left: 40,
+      right: containerWidth - 40,
+      top: 40,
+      bottom: containerHeight - 40
     };
     
     let panelX = systemX + 120;
@@ -904,175 +910,162 @@ function GalaxyUniverse() {
           )}
         </AnimatePresence>
 
-        {/* Планеты (курсы) - показываем только на System view */}
+        {/* Орбитальная система планет-курсов */}
         <AnimatePresence>
-          {planets.map((planet, index) => {
-            const galaxy = galaxies.find(g => g.id === planet.galaxy);
-            // Планеты показываем только на System view
-            const showPlanet = viewConfig.state === 'system' && viewConfig.selectedGalaxy === planet.galaxy;
-            
-            if (!showPlanet) return null;
+          {viewConfig.state === 'system' && (
+            <motion.div
+              className="absolute inset-0"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8 }}
+            >
+              {/* Орбитальные траектории */}
+              {planets.map((planet, index) => {
+                const radius = 80 + index * 45;
+                return (
+                  <div
+                    key={`orbit-${index}`}
+                    className="absolute border border-white/10 rounded-full pointer-events-none"
+                    style={{
+                      width: radius * 2,
+                      height: radius * 2,
+                      left: '50%',
+                      top: '50%',
+                      transform: 'translate(-50%, -50%)',
+                    }}
+                  />
+                );
+              })}
 
-            // Орбитальное движение (проверяем что galaxy существует)
-            if (!galaxy) return null;
-            
-            const orbitRadius = Math.sqrt(
-              Math.pow(planet.position.x - galaxy.position.x, 2) + 
-              Math.pow(planet.position.y - galaxy.position.y, 2)
-            );
-            const baseAngle = Math.atan2(
-              planet.position.y - galaxy.position.y, 
-              planet.position.x - galaxy.position.x
-            );
-            
-            return (
+              {/* Центральная звезда */}
               <motion.div
-                key={planet.id}
-                className="absolute cursor-pointer z-30"
+                className="absolute w-16 h-16 bg-gradient-to-br from-yellow-200 to-orange-400 rounded-full shadow-2xl z-20"
                 style={{
                   left: '50%',
                   top: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  boxShadow: '0 0 60px rgba(251, 191, 36, 0.8), inset 0 0 30px rgba(251, 191, 36, 0.3)',
                 }}
                 animate={{
-                  x: galaxy.position.x + Math.cos(baseAngle + (Date.now() / 10000) * (1 + index * 0.3)) * orbitRadius,
-                  y: galaxy.position.y + Math.sin(baseAngle + (Date.now() / 10000) * (1 + index * 0.3)) * orbitRadius,
-                  scale: viewConfig.selectedPlanet?.id === planet.id ? 1.5 : 1,
+                  scale: [1, 1.05, 1],
+                  filter: [
+                    'brightness(1) hue-rotate(0deg)',
+                    'brightness(1.1) hue-rotate(5deg)',
+                    'brightness(1) hue-rotate(0deg)'
+                  ]
                 }}
-                initial={{ 
-                  scale: 0,
-                  rotate: 0
+                transition={{ duration: 4, repeat: Infinity }}
+              />
+
+              {/* Корабль Галаксион в центре */}
+              <motion.div
+                className="absolute z-30"
+                style={{
+                  left: '50%',
+                  top: '50%',
+                  transform: 'translate(-50%, -50%)',
                 }}
-                exit={{ scale: 0 }}
-                transition={{
-                  duration: 0.3,
-                  ease: "easeOut"
+                animate={{
+                  rotate: [0, 360],
                 }}
-                onClick={() => handlePlanetClick(planet)}
+                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
               >
-                <motion.div
-                  whileHover={{ scale: 1.2 }}
-                  className="relative"
-                >
-                  {/* Орбитальная траектория (видна при наведении) */}
+                <div className="relative w-8 h-8">
+                  <div className="absolute inset-0 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-lg transform rotate-45" />
+                  <div className="absolute inset-1 bg-gradient-to-br from-white/30 to-transparent rounded-sm transform rotate-45" />
                   <motion.div
-                    className="absolute border border-white/10 rounded-full pointer-events-none"
-                    style={{
-                      width: orbitRadius * 2,
-                      height: orbitRadius * 2,
-                      left: -orbitRadius + (planet.size / 2),
-                      top: -orbitRadius + (planet.size / 2),
-                      transform: `translate(${galaxy.position.x - planet.position.x}px, ${galaxy.position.y - planet.position.y}px)`,
-                    }}
-                    initial={{ opacity: 0 }}
-                    whileHover={{ opacity: 0.3 }}
+                    className="absolute -inset-1 bg-cyan-400/20 rounded-lg"
+                    animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0.8, 0.5] }}
+                    transition={{ duration: 2, repeat: Infinity }}
                   />
+                </div>
+              </motion.div>
 
-                  {/* Планета с материализацией */}
-                  <motion.div
-                    className="rounded-full border-2 relative overflow-hidden"
-                    style={{
-                      width: planet.size,
-                      height: planet.size,
-                      backgroundColor: planet.completed ? '#10B981' : planet.visited ? '#F59E0B' : '#3B82F6',
-                      borderColor: planet.completed ? '#059669' : planet.visited ? '#D97706' : '#2563EB',
-                      boxShadow: `0 0 15px ${planet.completed ? '#10B981' : planet.visited ? '#F59E0B' : '#3B82F6'}60`,
-                    }}
-                    animate={{
-                      rotate: 360,
-                    }}
-                    transition={{
-                      duration: 20 + index * 5,
-                      repeat: Infinity,
-                      ease: "linear"
-                    }}
-                  >
-                    {/* Поверхность планеты */}
-                    <div className="absolute inset-0 opacity-30">
-                      <div 
-                        className="w-full h-full rounded-full"
-                        style={{
-                          background: `radial-gradient(circle at 30% 30%, transparent 0%, ${planet.completed ? '#10B981' : planet.visited ? '#F59E0B' : '#3B82F6'}40 100%)`
-                        }}
-                      />
-                    </div>
-
-                    {/* Золотая корона для завершенных курсов */}
-                    {planet.completed && (
-                      <motion.div
-                        className="absolute inset-0 rounded-full"
-                        style={{
-                          border: '2px solid #FFD700',
-                          boxShadow: '0 0 10px #FFD700'
-                        }}
-                        animate={{
-                          rotate: -360,
-                        }}
-                        transition={{
-                          duration: 15,
-                          repeat: Infinity,
-                          ease: "linear"
-                        }}
-                      />
-                    )}
-
-                    {/* Пульсация для активных курсов */}
-                    {planet.visited && !planet.completed && (
-                      <motion.div
-                        className="absolute inset-0 rounded-full"
-                        style={{
-                          backgroundColor: '#F59E0B',
-                        }}
-                        animate={{
-                          opacity: [0, 0.3, 0],
-                        }}
-                        transition={{
-                          duration: 2,
-                          repeat: Infinity,
-                        }}
-                      />
-                    )}
-                  </motion.div>
+              {/* Планеты-курсы с орбитами */}
+              {planets.map((planet, index) => {
+                const radius = 80 + index * 45;
+                const angle = Date.now() * 0.0001 * (0.5 + index * 0.2) + index * (Math.PI / 4);
+                const x = Math.cos(angle) * radius;
+                const y = Math.sin(angle) * radius;
+                
+                // Определяем размер планеты по количеству модулей
+                const modules = planet.course.modules || 1;
+                const planetSize = Math.max(16, Math.min(32, 16 + modules * 2));
+                
+                // Цвета планет в зависимости от прогресса и типа
+                const getPlanetColor = () => {
+                  const progress = planet.course.progress || 0;
+                  if (progress >= 100) return 'from-green-400 to-emerald-600'; // Завершен
+                  if (progress > 0) return 'from-blue-400 to-indigo-600'; // В процессе
                   
-                  {/* Название планеты */}
-                  <motion.div 
-                    className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 whitespace-nowrap"
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                  >
-                    <div className="bg-space-800/90 backdrop-blur-sm px-3 py-1 rounded-lg border border-white/20 text-center">
-                      <p className="text-xs font-orbitron text-white">{planet.name}</p>
-                      <p className="text-xs text-white/60">{planet.course.modules || 1} модулей</p>
-                    </div>
-                  </motion.div>
+                  // Разные цвета по категориям курсов
+                  const colors = [
+                    'from-purple-400 to-violet-600', // Фиолетовый
+                    'from-orange-400 to-red-600',    // Оранжево-красный
+                    'from-cyan-400 to-teal-600',     // Голубой
+                    'from-pink-400 to-rose-600',     // Розовый
+                    'from-yellow-400 to-amber-600',  // Желтый
+                    'from-indigo-400 to-purple-600', // Индиго
+                    'from-emerald-400 to-green-600', // Изумрудный
+                    'from-slate-400 to-gray-600',    // Серый
+                  ];
+                  return colors[index % colors.length];
+                };
+                
+                return (
+                  <motion.div key={planet.id} className="absolute z-10">
+                    {/* Планета */}
+                    <motion.div
+                      className={`rounded-full cursor-pointer relative bg-gradient-to-br ${getPlanetColor()}`}
+                      style={{
+                        width: planetSize,
+                        height: planetSize,
+                        left: '50%',
+                        top: '50%',
+                        transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`,
+                        boxShadow: `0 0 ${planetSize/2}px rgba(59, 130, 246, 0.4)`,
+                      }}
+                      onClick={() => handlePlanetClick(planet)}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.95 }}
+                      animate={{
+                        y: [0, -1, 0],
+                      }}
+                      transition={{
+                        y: { duration: 3 + index, repeat: Infinity, ease: "easeInOut" },
+                      }}
+                    >
+                      {/* Название планеты */}
+                      <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-xs text-white/80 whitespace-nowrap text-center font-medium">
+                        {planet.name}
+                      </div>
+                      
+                      {/* Индикатор прогресса */}
+                      {planet.course.progress && planet.course.progress > 0 && (
+                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full text-xs flex items-center justify-center text-white font-bold">
+                          {planet.course.progress >= 100 ? '✓' : Math.round(planet.course.progress)}
+                        </div>
+                      )}
 
-                  {/* Мини астероиды-уроки для детального вида */}
-                  {viewConfig.state === 'galaxy' && viewConfig.selectedGalaxy === planet.galaxy && (
-                    <>
-                      {Array.from({ length: planet.course.modules || 1 }).map((_, moduleIndex) => (
-                        <motion.div
-                          key={`asteroid-${planet.id}-${moduleIndex}`}
-                          className="absolute w-2 h-2 bg-gray-400 rounded-full"
+                      {/* Кольца для больших планет */}
+                      {planetSize > 24 && (
+                        <div 
+                          className="absolute border border-white/20 rounded-full pointer-events-none"
                           style={{
-                            left: planet.size + 15 + moduleIndex * 8,
-                            top: planet.size / 2 - 1,
-                          }}
-                          animate={{
-                            y: [0, -3, 0],
-                          }}
-                          transition={{
-                            duration: 1.5,
-                            repeat: Infinity,
-                            delay: moduleIndex * 0.2
+                            width: planetSize + 8,
+                            height: planetSize + 8,
+                            left: '50%',
+                            top: '50%',
+                            transform: 'translate(-50%, -50%)',
                           }}
                         />
-                      ))}
-                    </>
-                  )}
-                </motion.div>
-              </motion.div>
-            );
-          })}
+                      )}
+                    </motion.div>
+                  </motion.div>
+                );
+              })}
+            </motion.div>
+          )}
         </AnimatePresence>
       </motion.div>
       {/* Приборная панель корабля Галаксион */}
