@@ -921,17 +921,15 @@ function GalaxyUniverse() {
             >
               {/* Орбитальные траектории */}
               {planets.map((_, index) => {
-                const baseRadius = 160;
-                const orbitSpacing = 70;
-                const radius = baseRadius + (index * orbitSpacing);
+                const orbitRadius = 200 + (index * 90);
                 
                 return (
                   <div
                     key={`orbit-ring-${index}`}
-                    className="absolute border border-white/8 rounded-full pointer-events-none"
+                    className="absolute border border-white/12 rounded-full pointer-events-none"
                     style={{
-                      width: radius * 2,
-                      height: radius * 2,
+                      width: orbitRadius * 2,
+                      height: orbitRadius * 2,
                       left: '50%',
                       top: '50%',
                       transform: 'translate(-50%, -50%)',
@@ -986,19 +984,15 @@ function GalaxyUniverse() {
 
               {/* Планеты-курсы с орбитами */}
               {planets.map((planet, index) => {
-                // Каждая планета на уникальной орбите
-                const baseRadius = 160; // Стартовый радиус
-                const orbitSpacing = 70; // Расстояние между орбитами
-                const radius = baseRadius + (index * orbitSpacing);
+                // Простая система: каждая планета на своей орбите
+                const orbitRadius = 200 + (index * 90); // Каждая планета на отдельной орбите
                 
-                // Медленное орбитальное вращение планет
-                const orbitSpeed = 0.00002 * (1 / Math.sqrt(radius / 160)); // Медленнее для дальних орбит
-                const baseAngle = (index * (360 / planets.length)) * (Math.PI / 180); // Равномерное начальное распределение
-                const timeOffset = index * 1000; // Уникальное время для каждой планеты
-                const currentAngle = (Date.now() + timeOffset) * orbitSpeed + baseAngle;
+                // Простое распределение углов для избежания наложения
+                const baseAngles = [0, 60, 120, 180, 240, 300, 45, 135, 225, 315]; // Предопределенные углы
+                const planetAngle = (baseAngles[index % baseAngles.length] || (index * 40)) * (Math.PI / 180);
                 
-                const x = Math.cos(currentAngle) * radius;
-                const y = Math.sin(currentAngle) * radius;
+                const x = Math.cos(planetAngle) * orbitRadius;
+                const y = Math.sin(planetAngle) * orbitRadius;
                 
                 // Определяем размер планеты по объему курса (модули + уроки)
                 const modules = planet.course.modules || 1;
@@ -1034,15 +1028,28 @@ function GalaxyUniverse() {
                 };
                 
                 return (
-                  <motion.div key={planet.id} className="absolute z-10">
-                    {/* Планета */}
+                  <motion.div 
+                    key={planet.id} 
+                    className="absolute z-10"
+                    style={{
+                      left: '50%',
+                      top: '50%',
+                    }}
+                    animate={{
+                      rotate: [0, 360],
+                    }}
+                    transition={{
+                      duration: 120 + (index * 30), // Медленнее: 120-390 секунд на оборот
+                      repeat: Infinity,
+                      ease: "linear"
+                    }}
+                  >
+                    {/* Планета на орбите */}
                     <motion.div
                       className={`rounded-full cursor-pointer relative bg-gradient-to-br ${getPlanetColor()}`}
                       style={{
                         width: planetSize,
                         height: planetSize,
-                        left: '50%',
-                        top: '50%',
                         transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`,
                         boxShadow: `0 0 ${planetSize/2}px rgba(59, 130, 246, 0.4)`,
                       }}
@@ -1050,10 +1057,12 @@ function GalaxyUniverse() {
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.95 }}
                       animate={{
-                        y: [0, -1, 0],
+                        y: [0, -2, 0],
+                        rotate: [0, -360], // Противоположное вращение для сохранения ориентации
                       }}
                       transition={{
                         y: { duration: 3 + index, repeat: Infinity, ease: "easeInOut" },
+                        rotate: { duration: 60 + (index * 20), repeat: Infinity, ease: "linear" },
                       }}
                     >
                       {/* Название планеты с размером курса */}
