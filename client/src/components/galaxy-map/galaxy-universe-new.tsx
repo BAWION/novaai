@@ -133,6 +133,9 @@ function GalaxyUniverse() {
     centerY: 0
   });
   
+  // Состояние режима дорожной карты
+  const [roadmapMode, setRoadmapMode] = useState(false);
+  
   const [galaxies, setGalaxies] = useState<Galaxy[]>(INITIAL_GALAXIES);
   const [planets, setPlanets] = useState<Planet[]>([]);
   const [newDiscovery, setNewDiscovery] = useState<{ type: 'galaxy' | 'planet'; name: string } | null>(null);
@@ -149,6 +152,13 @@ function GalaxyUniverse() {
   // Загружаем курсы
   const { data: courses = [], isLoading } = useQuery({
     queryKey: ['/api/courses'],
+  });
+
+  // Загружаем персональную дорожную карту
+  const { data: roadmapData, isLoading: roadmapLoading, error: roadmapError } = useQuery({
+    queryKey: ['/api/roadmap/personal'],
+    enabled: roadmapMode, // Загружаем только когда режим активен
+    retry: false,
   });
 
   // Закрываем панель при смене уровня и обновляем позицию при перемещении карты
@@ -982,6 +992,69 @@ function GalaxyUniverse() {
                 </div>
               </motion.div>
 
+              {/* Дорожная карта - светящиеся пути между планетами */}
+              {roadmapMode && roadmapData && roadmapData.connections && (
+                <svg className="absolute inset-0 w-full h-full pointer-events-none z-5" style={{ overflow: 'visible' }}>
+                  {roadmapData.connections.map((connection: any, connectionIndex: number) => {
+                    const fromPlanet = planets.find(p => p.course.id === connection.from);
+                    const toPlanet = planets.find(p => p.course.id === connection.to);
+                    
+                    if (!fromPlanet || !toPlanet) return null;
+                    
+                    const isHighlighted = connection.recommended;
+                    
+                    // Рассчитываем позиции планет по тем же координатам что и в основном коде
+                    const cardinalAngles = [0, 45, 90, 135, 180, 225, 270, 315];
+                    const fromIndex = planets.indexOf(fromPlanet);
+                    const toIndex = planets.indexOf(toPlanet);
+                    
+                    const fromOrbitRadius = 220 + (fromIndex * 100);
+                    const toOrbitRadius = 220 + (toIndex * 100);
+                    
+                    const fromAngle = (cardinalAngles[fromIndex % cardinalAngles.length]) * (Math.PI / 180);
+                    const toAngle = (cardinalAngles[toIndex % cardinalAngles.length]) * (Math.PI / 180);
+                    
+                    const fromX = 400 + Math.cos(fromAngle) * fromOrbitRadius;
+                    const fromY = 300 + Math.sin(fromAngle) * fromOrbitRadius;
+                    const toX = 400 + Math.cos(toAngle) * toOrbitRadius;
+                    const toY = 300 + Math.sin(toAngle) * toOrbitRadius;
+                    
+                    return (
+                      <motion.line
+                        key={`roadmap-${connection.from}-${connection.to}`}
+                        x1={fromX}
+                        y1={fromY}
+                        x2={toX}
+                        y2={toY}
+                        stroke={isHighlighted ? "#8BE0F7" : "#B28DFF"}
+                        strokeWidth={isHighlighted ? "4" : "2"}
+                        strokeDasharray={isHighlighted ? "0" : "8,4"}
+                        initial={{ pathLength: 0, opacity: 0 }}
+                        animate={{ 
+                          pathLength: 1, 
+                          opacity: isHighlighted ? 0.95 : 0.6,
+                          strokeDashoffset: isHighlighted ? 0 : [0, -12]
+                        }}
+                        transition={{
+                          pathLength: { duration: 2.5, delay: connectionIndex * 0.4 },
+                          opacity: { duration: 1, delay: connectionIndex * 0.4 },
+                          strokeDashoffset: isHighlighted ? {} : {
+                            duration: 4,
+                            repeat: Infinity,
+                            ease: "linear"
+                          }
+                        }}
+                        style={{
+                          filter: isHighlighted 
+                            ? 'drop-shadow(0 0 12px #8BE0F7) drop-shadow(0 0 24px rgba(139, 224, 247, 0.4))' 
+                            : 'drop-shadow(0 0 6px #B28DFF)',
+                        }}
+                      />
+                    );
+                  })}
+                </svg>
+              )}
+
               {/* Планеты-курсы с орбитами */}
               {planets.map((planet, index) => {
                 // Каждая планета на своей орбите с четким позиционированием
@@ -1056,7 +1129,9 @@ function GalaxyUniverse() {
                       style={{
                         width: planetSize,
                         height: planetSize,
-                        boxShadow: `0 0 ${planetSize/2}px rgba(59, 130, 246, 0.4)`,
+                        boxShadow: roadmapMode && roadmapData && roadmapData.recommendedCourses?.some((rec: any) => rec.id === planet.course.id)
+                          ? `0 0 ${planetSize}px rgba(139, 224, 247, 0.8), 0 0 ${planetSize*1.5}px rgba(139, 224, 247, 0.4)`
+                          : `0 0 ${planetSize/2}px rgba(59, 130, 246, 0.4)`,
                       }}
                       onClick={() => handlePlanetClick(planet)}
                       whileHover={{ scale: 1.1 }}
@@ -1205,6 +1280,21 @@ function GalaxyUniverse() {
               whileTap={{ scale: 0.95 }}
             >
               Домой
+            </motion.button>
+            
+            {/* Кнопка режима дорожной карты */}
+            <motion.button
+              onClick={() => setRoadmapMode(!roadmapMode)}
+              className={`px-3 py-2 border rounded-lg text-xs transition-colors ${
+                roadmapMode 
+                  ? 'bg-primary/30 hover:bg-primary/40 border-primary/50 text-white' 
+                  : 'bg-space-700/50 hover:bg-space-600/50 border-white/20 text-white/70'
+              }`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Route className="w-3 h-3 inline mr-1" />
+              {roadmapMode ? 'Обычный режим' : 'Мой маршрут'}
             </motion.button>
           </div>
 
