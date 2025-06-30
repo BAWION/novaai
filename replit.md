@@ -197,11 +197,11 @@ Galaxion is a comprehensive AI-powered educational platform built with modern we
   - ФИНАЛЬНЫЙ ШАГ: настройка доменов в @BotFather для активации авторизации
   - Требуется добавить домены: galaxion.org, www.galaxion.org, и replit.dev в настройки бота
 
-- 2025-06-29: СОЗДАН АРХИВ ДЛЯ GITHUB СИНХРОНИЗАЦИИ
-  - Автоматически создан пакет galaxion-update-2025-06-29T18-18-03
-  - Готов к загрузке в GitHub репозиторий
-  - Содержит обновления навигации, компонентов и метаданных
-  - Цель: синхронизация https://www.galaxion.org/ с GitHub
+- 2025-06-30: СОЗДАН ОПТИМИЗИРОВАННЫЙ GITHUB АРХИВ
+  - Архив galaxion-github-clean.zip (9.4 МБ) без лишних файлов
+  - Исключены migrations/, .env, node_modules/ (не нужны для фронтенд деплоя)
+  - Включены все изменения: Galaxion переименование, Telegram auth, Galaxy Map
+  - Готов к полной синхронизации GitHub репозитория
 
 - 2025-06-29: СОЗДАН АРХИВ ДЛЯ GITHUB СИНХРОНИЗАЦИИ
   - Автоматически создан пакет galaxion-update-2025-06-29T18-09-08
