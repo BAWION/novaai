@@ -312,21 +312,7 @@ export function SkillsDnaResultsWidget({ userId }: SkillsDnaResultsWidgetProps) 
               ))}
             </div>
             
-            {/* Кнопка подробного анализа внутри профиля навыков */}
-            <div className="pt-2 border-t border-white/10">
-              <Button 
-                onClick={handleViewFullProfile}
-                variant="ghost" 
-                size="sm"
-                className="w-full text-blue-300 hover:bg-blue-500/10 text-xs"
-              >
-                <span className="flex items-center">
-                  <Brain className="h-3 w-3 mr-1" />
-                  Подробный анализ
-                  <ChevronRight className="h-3 w-3 ml-1" />
-                </span>
-              </Button>
-            </div>
+            
           </div>
 
           {/* Areas for Development - Компактно */}
@@ -343,14 +329,7 @@ export function SkillsDnaResultsWidget({ userId }: SkillsDnaResultsWidgetProps) 
             ))}
           </div>
 
-          <Button 
-            onClick={handleViewFullProfile}
-            variant="outline" 
-            className="w-full border-blue-500/30 text-blue-300 hover:bg-blue-500/10 text-sm"
-          >
-            Подробный анализ Skills DNA
-            <ChevronRight className="h-4 w-4 ml-2" />
-          </Button>
+
         </CardContent>
       </Card>
 
