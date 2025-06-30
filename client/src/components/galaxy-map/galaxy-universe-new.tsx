@@ -567,54 +567,69 @@ function GalaxyUniverse({ fullScreen = false, onClose }: GalaxyUniverseProps) {
         </motion.div>
       </div>
       {/* Живое звездное небо с туманностями */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 pointer-events-none">
         {/* Звезды */}
-        {Array.from({ length: 150 }).map((_, i) => (
-          <motion.div
-            key={`star-${i}`}
-            className="absolute rounded-full opacity-70"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              width: Math.random() > 0.8 ? '2px' : '1px',
-              height: Math.random() > 0.8 ? '2px' : '1px',
-              backgroundColor: Math.random() > 0.7 ? '#93C5FD' : '#FFFFFF',
-            }}
-            animate={{
-              opacity: [0.3, 1, 0.3],
-              scale: [1, 1.2, 1],
-            }}
-            transition={{
-              duration: 2 + Math.random() * 4,
-              repeat: Infinity,
-              delay: Math.random() * 3
-            }}
-          />
-        ))}
+        {Array.from({ length: 150 }).map((_, i) => {
+          // Генерируем стабильные позиции на основе индекса
+          const stableRandom1 = (i * 1234) % 1000 / 1000;
+          const stableRandom2 = (i * 5678) % 1000 / 1000;
+          const stableRandom3 = (i * 9012) % 1000 / 1000;
+          const stableRandom4 = (i * 3456) % 1000 / 1000;
+          
+          return (
+            <motion.div
+              key={`star-${i}`}
+              className="absolute rounded-full opacity-70"
+              style={{
+                left: `${stableRandom1 * 100}%`,
+                top: `${stableRandom2 * 100}%`,
+                width: stableRandom3 > 0.8 ? '2px' : '1px',
+                height: stableRandom3 > 0.8 ? '2px' : '1px',
+                backgroundColor: stableRandom4 > 0.7 ? '#93C5FD' : '#FFFFFF',
+              }}
+              animate={{
+                opacity: [0.3, 1, 0.3],
+                scale: [1, 1.2, 1],
+              }}
+              transition={{
+                duration: 2 + stableRandom1 * 4,
+                repeat: Infinity,
+                delay: stableRandom2 * 3
+              }}
+            />
+          );
+        })}
         
         {/* Туманности */}
-        {Array.from({ length: 5 }).map((_, i) => (
-          <motion.div
-            key={`nebula-${i}`}
-            className="absolute rounded-full opacity-20"
-            style={{
-              left: `${20 + Math.random() * 60}%`,
-              top: `${20 + Math.random() * 60}%`,
-              width: `${100 + Math.random() * 200}px`,
-              height: `${100 + Math.random() * 200}px`,
-              background: `radial-gradient(circle, ${['#6366F1', '#8B5CF6', '#EC4899', '#06B6D4', '#10B981'][i]}30 0%, transparent 70%)`,
-            }}
-            animate={{
-              scale: [1, 1.1, 1],
-              opacity: [0.1, 0.3, 0.1],
-            }}
-            transition={{
-              duration: 8 + Math.random() * 4,
-              repeat: Infinity,
-              delay: Math.random() * 2
-            }}
-          />
-        ))}
+        {Array.from({ length: 5 }).map((_, i) => {
+          const stableRandom1 = (i * 7891) % 1000 / 1000;
+          const stableRandom2 = (i * 2345) % 1000 / 1000;
+          const stableRandom3 = (i * 6789) % 1000 / 1000;
+          const stableRandom4 = (i * 1357) % 1000 / 1000;
+          
+          return (
+            <motion.div
+              key={`nebula-${i}`}
+              className="absolute rounded-full opacity-20"
+              style={{
+                left: `${20 + stableRandom1 * 60}%`,
+                top: `${20 + stableRandom2 * 60}%`,
+                width: `${100 + stableRandom3 * 200}px`,
+                height: `${100 + stableRandom3 * 200}px`,
+                background: `radial-gradient(circle, ${['#6366F1', '#8B5CF6', '#EC4899', '#06B6D4', '#10B981'][i]}30 0%, transparent 70%)`,
+              }}
+              animate={{
+                scale: [1, 1.1, 1],
+                opacity: [0.1, 0.3, 0.1],
+              }}
+              transition={{
+                duration: 8 + stableRandom4 * 4,
+                repeat: Infinity,
+                delay: stableRandom1 * 2
+              }}
+            />
+          );
+        })}
         
         {/* Пролетающие метеоры */}
         <AnimatePresence>
