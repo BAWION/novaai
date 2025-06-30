@@ -1375,20 +1375,15 @@ function GalaxyUniverse() {
         </motion.div>
       </div>
 
-      {/* Умная дорожная карта */}
-      <AnimatePresence>
-        {roadmapMode && (
-          <motion.div
-            className="absolute top-4 right-4 z-50 w-96"
-            initial={{ opacity: 0, x: 300 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 300 }}
-            transition={{ duration: 0.5 }}
-          >
-            <SmartRoadmapWidget />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Дорожная карта под вселенной */}
+      <motion.div
+        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-30 w-[95%] max-w-6xl"
+        initial={{ opacity: 0, y: 100 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 1.5 }}
+      >
+        <SmartRoadmapWidget />
+      </motion.div>
 
       {/* Toast уведомления об открытиях */}
       <AnimatePresence>
