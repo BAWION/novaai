@@ -401,15 +401,7 @@ export default function Dashboard() {
                   По навыкам
                 </button>
               </div>
-              <button 
-                onClick={() => setIsFullscreenMap(true)}
-                className="px-3 py-1.5 text-sm bg-gradient-to-r from-[#6E3AFF]/20 to-[#2EBAE1]/20 border border-[#6E3AFF]/30 rounded-lg text-white/80 hover:text-white hover:bg-gradient-to-r hover:from-[#6E3AFF]/30 hover:to-[#2EBAE1]/30 transition-all duration-200"
-                title="Открыть карту во весь экран"
-              >
-                <i className="fas fa-expand-arrows-alt mr-1"></i>
-                <span className="hidden sm:inline">Карта</span>
-                <span className="sm:hidden">🗺️</span>
-              </button>
+              
             </div>
           </div>
           <GalaxyUniverse />
