@@ -387,9 +387,7 @@ function GalaxyUniverse() {
                 onClick={handleBackToUniverse}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-              >
-                🌌 ВСЕЛЕННАЯ
-              </motion.span>
+              >🌌 ВСЕЛЕННАЯ ИИ</motion.span>
               {viewConfig.state !== 'universe' && (
                 <>
                   <span className="text-white/50 mx-1">→</span>
