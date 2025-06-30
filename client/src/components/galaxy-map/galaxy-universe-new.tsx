@@ -921,11 +921,14 @@ function GalaxyUniverse() {
             >
               {/* Орбитальные траектории */}
               {planets.map((planet, index) => {
-                const radius = 80 + index * 45;
+                // Соответствует новой системе орбит
+                const baseRadius = 100;
+                const orbitSpacing = 60;
+                const radius = baseRadius + (index % 3) * orbitSpacing + Math.floor(index / 3) * 30;
                 return (
                   <div
                     key={`orbit-${index}`}
-                    className="absolute border border-white/10 rounded-full pointer-events-none"
+                    className="absolute border border-white/8 rounded-full pointer-events-none"
                     style={{
                       width: radius * 2,
                       height: radius * 2,
@@ -983,33 +986,46 @@ function GalaxyUniverse() {
 
               {/* Планеты-курсы с орбитами */}
               {planets.map((planet, index) => {
-                const radius = 80 + index * 45;
-                const angle = Date.now() * 0.0001 * (0.5 + index * 0.2) + index * (Math.PI / 4);
+                // Улучшенная система орбит - больше разнообразия
+                const baseRadius = 100;
+                const orbitSpacing = 60;
+                const radius = baseRadius + (index % 3) * orbitSpacing + Math.floor(index / 3) * 30;
+                
+                const angle = Date.now() * 0.0001 * (0.3 + index * 0.15) + index * (Math.PI / 5);
                 const x = Math.cos(angle) * radius;
                 const y = Math.sin(angle) * radius;
                 
-                // Определяем размер планеты по количеству модулей
+                // Определяем размер планеты по объему курса (модули + уроки)
                 const modules = planet.course.modules || 1;
-                const planetSize = Math.max(16, Math.min(32, 16 + modules * 2));
+                const estimatedLessons = modules * 2; // Примерно 2 урока на модуль
                 
-                // Цвета планет в зависимости от прогресса и типа
+                // Размеры планет: малый (20-28), средний (32-44), большой (48-60)
+                let planetSize;
+                if (estimatedLessons <= 4) {
+                  planetSize = 20 + estimatedLessons * 2; // Малые планеты: 20-28px
+                } else if (estimatedLessons <= 10) {
+                  planetSize = 28 + (estimatedLessons - 4) * 2; // Средние планеты: 32-44px
+                } else {
+                  planetSize = Math.min(60, 44 + (estimatedLessons - 10) * 1.5); // Большие планеты: 48-60px
+                }
+                
+                // Цвета планет в зависимости от прогресса и размера
                 const getPlanetColor = () => {
                   const progress = planet.course.progress || 0;
                   if (progress >= 100) return 'from-green-400 to-emerald-600'; // Завершен
                   if (progress > 0) return 'from-blue-400 to-indigo-600'; // В процессе
                   
-                  // Разные цвета по категориям курсов
-                  const colors = [
-                    'from-purple-400 to-violet-600', // Фиолетовый
-                    'from-orange-400 to-red-600',    // Оранжево-красный
-                    'from-cyan-400 to-teal-600',     // Голубой
-                    'from-pink-400 to-rose-600',     // Розовый
-                    'from-yellow-400 to-amber-600',  // Желтый
-                    'from-indigo-400 to-purple-600', // Индиго
-                    'from-emerald-400 to-green-600', // Изумрудный
-                    'from-slate-400 to-gray-600',    // Серый
-                  ];
-                  return colors[index % colors.length];
+                  // Цвета по размеру курса
+                  if (planetSize >= 48) {
+                    // Большие планеты - яркие цвета
+                    return ['from-red-400 to-orange-600', 'from-purple-400 to-indigo-600', 'from-blue-400 to-cyan-600'][index % 3];
+                  } else if (planetSize >= 32) {
+                    // Средние планеты - умеренные цвета
+                    return ['from-yellow-400 to-amber-600', 'from-pink-400 to-rose-600', 'from-emerald-400 to-green-600'][index % 3];
+                  } else {
+                    // Малые планеты - приглушенные цвета
+                    return ['from-slate-400 to-gray-600', 'from-stone-400 to-neutral-600', 'from-zinc-400 to-slate-600'][index % 3];
+                  }
                 };
                 
                 return (
@@ -1035,20 +1051,52 @@ function GalaxyUniverse() {
                         y: { duration: 3 + index, repeat: Infinity, ease: "easeInOut" },
                       }}
                     >
-                      {/* Название планеты */}
-                      <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-xs text-white/80 whitespace-nowrap text-center font-medium">
-                        {planet.name}
+                      {/* Название планеты с размером курса */}
+                      <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 text-center whitespace-nowrap">
+                        <div className="bg-space-800/90 backdrop-blur-sm px-2 py-1 rounded border border-white/20">
+                          <p className="text-xs font-medium text-white">{planet.name}</p>
+                          <p className="text-xs text-white/60">
+                            {modules} {modules === 1 ? 'модуль' : modules < 5 ? 'модуля' : 'модулей'} • 
+                            {planetSize >= 48 ? ' Большой' : planetSize >= 32 ? ' Средний' : ' Малый'} курс
+                          </p>
+                        </div>
                       </div>
                       
                       {/* Индикатор прогресса */}
                       {planet.course.progress && planet.course.progress > 0 && (
-                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full text-xs flex items-center justify-center text-white font-bold">
+                        <div className="absolute -top-2 -right-2 w-5 h-5 bg-primary rounded-full text-xs flex items-center justify-center text-white font-bold shadow-lg">
                           {planet.course.progress >= 100 ? '✓' : Math.round(planet.course.progress)}
                         </div>
                       )}
 
                       {/* Кольца для больших планет */}
-                      {planetSize > 24 && (
+                      {planetSize >= 48 && (
+                        <>
+                          <div 
+                            className="absolute border border-white/30 rounded-full pointer-events-none"
+                            style={{
+                              width: planetSize + 12,
+                              height: planetSize + 12,
+                              left: '50%',
+                              top: '50%',
+                              transform: 'translate(-50%, -50%)',
+                            }}
+                          />
+                          <div 
+                            className="absolute border border-white/15 rounded-full pointer-events-none"
+                            style={{
+                              width: planetSize + 20,
+                              height: planetSize + 20,
+                              left: '50%',
+                              top: '50%',
+                              transform: 'translate(-50%, -50%)',
+                            }}
+                          />
+                        </>
+                      )}
+
+                      {/* Одно кольцо для средних планет */}
+                      {planetSize >= 32 && planetSize < 48 && (
                         <div 
                           className="absolute border border-white/20 rounded-full pointer-events-none"
                           style={{
