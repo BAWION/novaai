@@ -164,17 +164,10 @@ export function SkillsDnaResultsWidget({ userId }: SkillsDnaResultsWidgetProps) 
         {/* Recommended Courses Section - Мобильная оптимизация */}
         <Card className="bg-space-800/70 border-blue-500/20">
           <CardHeader className="pb-4">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-white flex items-center text-lg">
-                <Book className="h-5 w-5 mr-2 flex-shrink-0" />
-                <span className="truncate">Рекомендуемые курсы</span>
-              </CardTitle>
-              <Button variant="ghost" size="sm" onClick={handleViewAllCourses} className="flex-shrink-0">
-                <span className="text-blue-300 hidden sm:inline">Все курсы</span>
-                <span className="text-blue-300 sm:hidden">Все</span>
-                <ChevronRight className="h-4 w-4 ml-1" />
-              </Button>
-            </div>
+            <CardTitle className="text-white flex items-center text-lg">
+              <Book className="h-5 w-5 mr-2 flex-shrink-0" />
+              <span className="truncate">Рекомендуемые курсы</span>
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {isCoursesLoading ? (
@@ -210,9 +203,18 @@ export function SkillsDnaResultsWidget({ userId }: SkillsDnaResultsWidgetProps) 
                   <Book className="h-6 w-6 text-indigo-400" />
                 </div>
                 <h3 className="text-white font-medium mb-2 text-base">Рекомендации скоро появятся</h3>
-                <p className="text-white/70 text-sm px-2">
+                <p className="text-white/70 text-sm px-2 mb-4">
                   Пройдите диагностику навыков для получения персонализированных рекомендаций
                 </p>
+                <Button 
+                  onClick={handleViewAllCourses}
+                  variant="outline" 
+                  size="sm"
+                  className="border-blue-500/30 text-blue-300 hover:bg-blue-500/10"
+                >
+                  Все курсы
+                  <ChevronRight className="h-4 w-4 ml-1" />
+                </Button>
               </div>
             )}
           </CardContent>
@@ -239,17 +241,10 @@ export function SkillsDnaResultsWidget({ userId }: SkillsDnaResultsWidgetProps) 
       {/* Skills DNA Results - Мобильная оптимизация */}
       <Card className="bg-space-800/70 border-blue-500/20">
         <CardHeader className="pb-4">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-white flex items-center text-lg">
-              <Brain className="h-5 w-5 mr-2 flex-shrink-0" />
-              <span className="truncate">Результаты диагностики Skills DNA</span>
-            </CardTitle>
-            <Button variant="ghost" size="sm" onClick={handleViewFullProfile} className="flex-shrink-0">
-              <span className="text-blue-300 hidden sm:inline">Подробный анализ</span>
-              <span className="text-blue-300 sm:hidden">Подробно</span>
-              <ChevronRight className="h-4 w-4 ml-1" />
-            </Button>
-          </div>
+          <CardTitle className="text-white flex items-center text-lg">
+            <Brain className="h-5 w-5 mr-2 flex-shrink-0" />
+            <span className="truncate">Результаты диагностики Skills DNA</span>
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Radar Chart Visualization - Адаптивный размер */}
@@ -315,6 +310,22 @@ export function SkillsDnaResultsWidget({ userId }: SkillsDnaResultsWidgetProps) 
                   </div>
                 </div>
               ))}
+            </div>
+            
+            {/* Кнопка подробного анализа внутри профиля навыков */}
+            <div className="pt-2 border-t border-white/10">
+              <Button 
+                onClick={handleViewFullProfile}
+                variant="ghost" 
+                size="sm"
+                className="w-full text-blue-300 hover:bg-blue-500/10 text-xs"
+              >
+                <span className="flex items-center">
+                  <Brain className="h-3 w-3 mr-1" />
+                  Подробный анализ
+                  <ChevronRight className="h-3 w-3 ml-1" />
+                </span>
+              </Button>
             </div>
           </div>
 
