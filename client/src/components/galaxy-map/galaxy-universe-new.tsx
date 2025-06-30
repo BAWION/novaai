@@ -496,6 +496,16 @@ function GalaxyUniverse({ fullScreen = false, onClose }: GalaxyUniverseProps) {
         }
       }}
     >
+      {/* Кнопка закрытия для полноэкранного режима */}
+      {fullScreen && onClose && (
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 z-[10000] w-10 h-10 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 flex items-center justify-center text-white hover:text-white/80 transition-all duration-200"
+          title="Закрыть полноэкранный режим"
+        >
+          <i className="fas fa-times text-lg"></i>
+        </button>
+      )}
       {/* Debug info for fullscreen mode */}
       {fullScreen && (
         <div className="absolute top-2 left-2 z-[9998] text-white text-sm bg-black/50 p-2 rounded">
