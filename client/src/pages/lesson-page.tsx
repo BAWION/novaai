@@ -575,11 +575,11 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                 </TabsContent>
                 
                 <TabsContent value="quiz">
-                  <Card className="shadow-lg">
+                  <Card className="shadow-lg border-white/10 bg-space-800/30 backdrop-blur-sm">
                     <CardHeader>
                       <CardTitle>Проверка знаний</CardTitle>
                       <CardDescription>
-                        Квиз по материалам урока "{lesson.title}"
+                        Тест по материалам урока
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
