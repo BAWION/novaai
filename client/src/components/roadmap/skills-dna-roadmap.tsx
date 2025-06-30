@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
+import { Link } from 'wouter';
 import { Glassmorphism } from '@/components/ui/glassmorphism';
 import { Route, Target, Zap, Lock, CheckCircle, Clock, ArrowRight } from 'lucide-react';
 
@@ -48,9 +49,10 @@ interface Connection {
 
 interface SkillsDnaRoadmapProps {
   className?: string;
+  onSwitchToTraditional?: () => void;
 }
 
-export function SkillsDnaRoadmap({ className = '' }: SkillsDnaRoadmapProps) {
+export function SkillsDnaRoadmap({ className = '', onSwitchToTraditional }: SkillsDnaRoadmapProps) {
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
   const [roadmapNodes, setRoadmapNodes] = useState<RoadmapNode[]>([]);
   const [connections, setConnections] = useState<Connection[]>([]);

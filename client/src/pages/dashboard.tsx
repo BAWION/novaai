@@ -420,13 +420,47 @@ export default function Dashboard() {
           transition={{ duration: 0.5, delay: 0.6 }}
           className="mt-8"
         >
-          <div className="mb-6">
-            <h2 className="font-orbitron text-xl font-semibold mb-2">
-              Дорожная карта
-            </h2>
-            <p className="text-white/70 text-sm">Ваш персональный путь обучения</p>
+          <div className="mb-6 flex justify-between items-center">
+            <div>
+              <h2 className="font-orbitron text-xl font-semibold mb-2">
+                Дорожная карта
+              </h2>
+              <p className="text-white/70 text-sm">Ваш персональный путь обучения</p>
+            </div>
+            
+            {/* Toggle between roadmap types */}
+            <div className="flex bg-space-800/50 rounded-lg p-1">
+              <button
+                onClick={() => setRoadmapType('traditional')}
+                className={`px-3 py-2 rounded-md text-xs transition-all ${
+                  roadmapType === 'traditional'
+                    ? 'bg-primary text-white'
+                    : 'text-white/60 hover:text-white'
+                }`}
+              >
+                <i className="fas fa-route mr-1"></i>
+                Стандартная
+              </button>
+              <button
+                onClick={() => setRoadmapType('skills-dna')}
+                className={`px-3 py-2 rounded-md text-xs transition-all ${
+                  roadmapType === 'skills-dna'
+                    ? 'bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] text-white'
+                    : 'text-white/60 hover:text-white'
+                }`}
+              >
+                <i className="fas fa-dna mr-1"></i>
+                Skills DNA
+              </button>
+            </div>
           </div>
-          <RoadmapWidget />
+          
+          {/* Render the selected roadmap type */}
+          {roadmapType === 'traditional' ? (
+            <RoadmapWidget />
+          ) : (
+            <SkillsDnaRoadmap />
+          )}
         </motion.div>
       </div>
     </DashboardLayout>
