@@ -35,6 +35,7 @@ export default function Dashboard() {
   const [, setLocation] = useLocation();
   const [showOnboardingPrompt, setShowOnboardingPrompt] = useState(true);
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+  const [isFullscreenMap, setIsFullscreenMap] = useState(false);
   
   // Получение рекомендуемых курсов
   const { data: rawRecommendedCourses = [] } = useQuery({
@@ -383,20 +384,31 @@ export default function Dashboard() {
             <h2 className="font-orbitron text-xl font-semibold">
               Все курсы
             </h2>
-            <div className="flex items-center bg-space-900/50 rounded-lg overflow-hidden">
+            <div className="flex items-center gap-2">
+              <div className="flex items-center bg-space-900/50 rounded-lg overflow-hidden">
+                <button 
+                  onClick={() => setViewMode('orbital')}
+                  className={`px-3 py-1.5 text-sm ${viewMode === 'orbital' ? 'bg-primary/30 text-white' : 'text-white/60'}`}
+                >
+                  <i className="fas fa-globe-americas mr-1"></i>
+                  Орбиты
+                </button>
+                <button 
+                  onClick={() => setViewMode('tracks')}
+                  className={`px-3 py-1.5 text-sm ${viewMode === 'tracks' ? 'bg-primary/30 text-white' : 'text-white/60'}`}
+                >
+                  <i className="fas fa-road mr-1"></i>
+                  По навыкам
+                </button>
+              </div>
               <button 
-                onClick={() => setViewMode('orbital')}
-                className={`px-3 py-1.5 text-sm ${viewMode === 'orbital' ? 'bg-primary/30 text-white' : 'text-white/60'}`}
+                onClick={() => setIsFullscreenMap(true)}
+                className="px-3 py-1.5 text-sm bg-gradient-to-r from-[#6E3AFF]/20 to-[#2EBAE1]/20 border border-[#6E3AFF]/30 rounded-lg text-white/80 hover:text-white hover:bg-gradient-to-r hover:from-[#6E3AFF]/30 hover:to-[#2EBAE1]/30 transition-all duration-200"
+                title="Открыть карту во весь экран"
               >
-                <i className="fas fa-globe-americas mr-1"></i>
-                Орбиты
-              </button>
-              <button 
-                onClick={() => setViewMode('tracks')}
-                className={`px-3 py-1.5 text-sm ${viewMode === 'tracks' ? 'bg-primary/30 text-white' : 'text-white/60'}`}
-              >
-                <i className="fas fa-road mr-1"></i>
-                По навыкам
+                <i className="fas fa-expand-arrows-alt mr-1"></i>
+                <span className="hidden sm:inline">Карта</span>
+                <span className="sm:hidden">🗺️</span>
               </button>
             </div>
           </div>
@@ -427,6 +439,62 @@ export default function Dashboard() {
           <RoadmapWidget />
         </motion.div>
       </div>
+
+      {/* Полноэкранная карта галактики */}
+      {isFullscreenMap && (
+        <div className="fixed inset-0 z-50 bg-black">
+          {/* Заголовок и кнопка закрытия */}
+          <div className="absolute top-0 left-0 right-0 z-10 bg-gradient-to-b from-black/80 via-black/40 to-transparent p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] flex items-center justify-center">
+                    <i className="fas fa-rocket text-white text-sm"></i>
+                  </div>
+                  <h1 className="text-white font-orbitron text-xl font-bold">
+                    Галактическая карта ИИ
+                  </h1>
+                </div>
+                <div className="hidden sm:block text-white/60 text-sm">
+                  Исследуйте вселенную знаний
+                </div>
+              </div>
+              <button
+                onClick={() => setIsFullscreenMap(false)}
+                className="w-10 h-10 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 flex items-center justify-center text-white hover:text-white/80 transition-all duration-200"
+                title="Закрыть полноэкранный режим"
+              >
+                <i className="fas fa-times text-lg"></i>
+              </button>
+            </div>
+          </div>
+
+          {/* Горизонтальная карта во весь экран */}
+          <div className="w-full h-full pt-16">
+            <GalaxyUniverse fullscreen={true} />
+          </div>
+
+          {/* Подсказки управления */}
+          <div className="absolute bottom-4 left-4 right-4 z-10">
+            <div className="bg-black/60 backdrop-blur-sm border border-white/20 rounded-lg p-3">
+              <div className="flex flex-wrap items-center justify-center gap-4 text-white/70 text-sm">
+                <div className="flex items-center gap-2">
+                  <i className="fas fa-mouse text-xs"></i>
+                  <span>Двойной клик - войти в галактику</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <i className="fas fa-scroll text-xs"></i>
+                  <span>Скролл - навигация по уровням</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <i className="fas fa-arrows-alt text-xs"></i>
+                  <span>Перетаскивание - перемещение по карте</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 }
