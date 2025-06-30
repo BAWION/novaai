@@ -422,75 +422,53 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
   // Если урок найден, отображаем его
   if (lesson) {
     return (
-      <DashboardLayout title={lesson.title}>
-        <div className="container mx-auto px-4 py-8">
-          {/* Навигационный заголовок */}
-          <div className="flex items-center mb-6">
+      <DashboardLayout title="">
+        <div className="container mx-auto px-4 py-6">
+          {/* Компактная навигация */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center text-sm text-white/60">
+              <button 
+                className="hover:text-white transition"
+                onClick={() => navigate("/courses")}
+              >
+                Курсы
+              </button>
+              <span className="mx-2">→</span>
+              <button 
+                className="hover:text-white transition"
+                onClick={() => navigate(`/courses/${courseContext}`)}
+              >
+                {courseInfo?.title || "Курс"}
+              </button>
+              <span className="mx-2">→</span>
+              <span className="text-white">{lesson.title}</span>
+            </div>
             <Button 
               variant="outline" 
               size="sm" 
               onClick={() => navigate(`/courses/${courseContext}`)}
-              className="mr-4"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Вернуться к курсу
+              К курсу
             </Button>
-            <div className="flex-1">
-              <div className="flex items-center text-sm text-muted-foreground mb-1">
-                <button 
-                  className="hover:text-primary transition"
-                  onClick={() => navigate("/courses")}
-                >
-                  Курсы
-                </button>
-                <span className="mx-2">→</span>
-                <button 
-                  className="hover:text-primary transition"
-                  onClick={() => navigate(`/courses/${courseContext}`)}
-                >
-                  {courseInfo?.title || "Курс"}
-                </button>
-                <span className="mx-2">→</span>
-                <span>{module?.title}</span>
-              </div>
-              <h1 className="text-2xl font-bold">{lesson?.title}</h1>
-            </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
             {/* Основное содержимое урока */}
             <div className="lg:col-span-4">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-5 mb-6">
-                  <TabsTrigger value="content">
-                    <div className="flex flex-col items-center">
-                      <BookOpen className="h-4 w-4 mb-1" />
-                      Урок
-                    </div>
+                <TabsList className="grid w-full grid-cols-3 mb-6 bg-space-800/30 border-white/10">
+                  <TabsTrigger value="content" className="flex items-center gap-2">
+                    <BookOpen className="h-4 w-4" />
+                    <span className="hidden sm:inline">Урок</span>
                   </TabsTrigger>
-                  <TabsTrigger value="quiz">
-                    <div className="flex flex-col items-center">
-                      <HelpCircle className="h-4 w-4 mb-1" />
-                      Квиз
-                    </div>
+                  <TabsTrigger value="quiz" className="flex items-center gap-2">
+                    <HelpCircle className="h-4 w-4" />
+                    <span className="hidden sm:inline">Квиз</span>
                   </TabsTrigger>
-                  <TabsTrigger value="microlesson">
-                    <div className="flex flex-col items-center">
-                      <LayersIcon className="h-4 w-4 mb-1" />
-                      Микро-уроки
-                    </div>
-                  </TabsTrigger>
-                  <TabsTrigger value="materials">
-                    <div className="flex flex-col items-center">
-                      <FileText className="h-4 w-4 mb-1" />
-                      Материалы
-                    </div>
-                  </TabsTrigger>
-                  <TabsTrigger value="notes">
-                    <div className="flex flex-col items-center">
-                      <Edit3 className="h-4 w-4 mb-1" />
-                      Заметки
-                    </div>
+                  <TabsTrigger value="notes" className="flex items-center gap-2">
+                    <Edit3 className="h-4 w-4" />
+                    <span className="hidden sm:inline">Заметки</span>
                   </TabsTrigger>
                 </TabsList>
                 
@@ -502,25 +480,31 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                       onComplete={handleLessonComplete}
                     />
                   ) : (
-                    <Card className="shadow-lg">
-                      <CardHeader>
+                    <Card className="shadow-lg border-white/10 bg-space-800/30 backdrop-blur-sm">
+                      <CardHeader className="pb-4">
                         <div className="flex justify-between items-center">
-                          <CardTitle>{lesson.title}</CardTitle>
-                          <div className="flex items-center gap-2">
-                            <Badge variant="outline">
+                          <div className="flex items-center gap-3">
+                            <Badge variant="outline" className="border-white/20">
                               {lesson.type === "text" ? "Текст" : 
                                lesson.type === "video" ? "Видео" : 
                                lesson.type === "quiz" ? "Тест" : 
                                "Интерактивный"}
                             </Badge>
+                            <div className="flex items-center text-white/60">
+                              <Clock className="h-4 w-4 mr-1" />
+                              <span>{lesson.estimatedDuration} мин</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={handleToggleAIAssistant}
+                            >
+                              Помощь ИИ
+                            </Button>
                           </div>
                         </div>
-                        <CardDescription>
-                          <div className="flex items-center mt-1">
-                            <Clock className="h-4 w-4 mr-1" />
-                            <span>{lesson.estimatedDuration} минут</span>
-                          </div>
-                        </CardDescription>
                       </CardHeader>
                       <CardContent className="prose prose-lg max-w-none dark:prose-invert bg-white dark:bg-zinc-800 p-6 rounded-lg shadow-sm">
                         {lesson.type === "text" ? (
@@ -661,50 +645,8 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                   </Card>
                 </TabsContent>
                 
-                <TabsContent value="microlesson">
-                  {user ? (
-                    <ProgressiveLessonStructure 
-                      lessonId={parseInt(lessonId || "0")}
-                      userId={user.id}
-                      onComplete={handleLessonComplete}
-                    />
-                  ) : (
-                    <Card className="shadow-lg">
-                      <CardHeader>
-                        <CardTitle>Требуется авторизация</CardTitle>
-                        <CardDescription>
-                          Для доступа к пошаговому изучению урока необходимо авторизоваться
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="flex flex-col items-center justify-center py-6">
-                          <p className="text-muted-foreground">
-                            Пожалуйста, войдите в систему для доступа к полной функциональности.
-                          </p>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
-                </TabsContent>
-                
-                <TabsContent value="materials">
-                  <Card className="shadow-lg">
-                    <CardHeader>
-                      <CardTitle>Материалы урока</CardTitle>
-                      <CardDescription>
-                        Дополнительные материалы и ресурсы для изучения
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-muted-foreground">
-                        Дополнительные материалы будут доступны в будущих версиях
-                      </p>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-                
                 <TabsContent value="notes">
-                  <Card className="shadow-lg">
+                  <Card className="shadow-lg border-white/10 bg-space-800/30 backdrop-blur-sm">
                     <CardHeader>
                       <div className="flex justify-between items-start">
                         <div>
