@@ -269,7 +269,7 @@ export function RoadmapWidget() {
           <div className="relative z-10 mb-8">
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
               <div>
-                <h2 className="text-2xl font-orbitron font-bold text-white mb-2">🌌 Персональный маршрут обучения</h2>
+                <h2 className="text-2xl font-orbitron font-bold text-white mb-2">🌌 Дорожная карта</h2>
                 <p className="text-white/70">Персонализированный путь во вселенной искусственного интеллекта</p>
               </div>
               <div className="bg-gradient-to-r from-space-800/80 to-space-700/80 backdrop-blur-sm rounded-xl p-4 border border-primary/30">
