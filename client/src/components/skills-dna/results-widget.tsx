@@ -133,7 +133,7 @@ export function SkillsDnaResultsWidget({ userId }: SkillsDnaResultsWidgetProps) 
 
   if (!skillsData || !skillsData.data || !Array.isArray(skillsData.data) || skillsData.data.length === 0) {
     return (
-      <div className="space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Skills DNA Section - Empty State - Мобильная оптимизация */}
         <Card className="bg-space-800/70 border-blue-500/20">
           <CardHeader className="pb-4">
@@ -237,7 +237,7 @@ export function SkillsDnaResultsWidget({ userId }: SkillsDnaResultsWidgetProps) 
   const overallProgress = skills.reduce((acc, skill) => acc + skill.value, 0) / skills.length;
 
   return (
-    <div className="space-y-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Skills DNA Results - Мобильная оптимизация */}
       <Card className="bg-space-800/70 border-blue-500/20">
         <CardHeader className="pb-4">
