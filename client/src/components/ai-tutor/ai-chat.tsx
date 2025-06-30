@@ -4,8 +4,9 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Send, Bot, User, Lightbulb, BookOpen, Brain, Sparkles, Zap, MessageCircle } from 'lucide-react';
+import { Loader2, Send, Bot, User, Lightbulb, MessageCircle, Brain, Zap, BookOpen } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ChatMessage {
   id: string;
@@ -17,13 +18,14 @@ interface ChatMessage {
 }
 
 export function AiChat() {
+  const isMobile = useIsMobile();
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: '1',
       type: 'ai',
       content: 'Привет! Я ваш ИИ-тьютор. Готов помочь с изучением искусственного интеллекта. О чем хотите узнать?',
       timestamp: new Date(),
-      suggestions: ['Что такое машинное обучение?', 'Как работают нейронные сети?']
+      suggestions: isMobile ? [] : ['Что такое машинное обучение?', 'Как работают нейронные сети?']
     }
   ]);
   
@@ -160,20 +162,15 @@ export function AiChat() {
                   </div>
                   
                   <div className="flex-1 min-w-0 space-y-2">
-                    <div className={`rounded-lg p-3 w-full relative ${
+                    <div className={`rounded-lg p-3 w-full ${
                       message.type === 'user'
                         ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg'
                         : 'bg-gradient-to-r from-gray-50 to-white text-gray-900 border border-gray-200 shadow-sm'
                     }`}>
-                      {message.type === 'ai' && (
-                        <div className="absolute -top-1 -left-1">
-                          <Brain className="h-4 w-4 text-blue-500 animate-pulse" />
-                        </div>
-                      )}
                       <div className="text-sm whitespace-pre-wrap break-words word-wrap overflow-hidden">
                         {formatMessage(message.content)}
                       </div>
-                      {message.type === 'ai' && (
+                      {message.type === 'ai' && !isMobile && (
                         <div className="mt-2 flex items-center gap-2 text-xs text-gray-500">
                           <Zap className="h-3 w-3" />
                           <span>Powered by AI</span>
@@ -181,13 +178,13 @@ export function AiChat() {
                       )}
                     </div>
                     
-                    {/* AI message suggestions and topics */}
+                    {/* AI message suggestions and topics - упрощенные для мобильной версии */}
                     {message.type === 'ai' && (
                       <div className="space-y-2 min-w-0">
-                        {message.suggestions && message.suggestions.length > 0 && (
+                        {message.suggestions && message.suggestions.length > 0 && !isMobile && (
                           <div className="p-3 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border border-yellow-200 min-w-0">
                             <div className="flex items-center gap-2 mb-2">
-                              <Lightbulb className="h-4 w-4 text-yellow-600 animate-bounce" />
+                              <Lightbulb className="h-4 w-4 text-yellow-600" />
                               <span className="text-sm font-medium text-yellow-800">Попробуйте спросить:</span>
                             </div>
                             <div className="flex flex-wrap gap-2 min-w-0">
@@ -195,7 +192,7 @@ export function AiChat() {
                                 <Badge
                                   key={index}
                                   variant="outline"
-                                  className="cursor-pointer hover:bg-yellow-100 hover:border-yellow-400 text-xs break-words max-w-full transition-all duration-200 hover:scale-105 border-yellow-300 text-yellow-900 bg-yellow-50"
+                                  className="cursor-pointer hover:bg-yellow-100 hover:border-yellow-400 text-xs break-words max-w-full transition-colors border-yellow-300 text-yellow-900 bg-yellow-50"
                                   onClick={() => handleSuggestionClick(suggestion)}
                                 >
                                   {suggestion}
@@ -205,23 +202,18 @@ export function AiChat() {
                           </div>
                         )}
                         
-                        {message.relatedTopics && message.relatedTopics.length > 0 && (
-                          <div className="p-2 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <BookOpen className="h-3 w-3 text-blue-600" />
-                              <span className="text-xs font-medium text-blue-800">Связанные темы:</span>
-                            </div>
-                            <div className="flex flex-wrap gap-1 min-w-0">
-                              {message.relatedTopics.map((topic, index) => (
-                                <Badge
-                                  key={index}
-                                  variant="secondary"
-                                  className="text-xs break-words max-w-full bg-blue-100 text-blue-800 hover:bg-blue-200 transition-colors"
-                                >
-                                  #{topic}
-                                </Badge>
-                              ))}
-                            </div>
+                        {message.suggestions && message.suggestions.length > 0 && isMobile && (
+                          <div className="flex flex-wrap gap-1 min-w-0">
+                            {message.suggestions.slice(0, 2).map((suggestion, index) => (
+                              <Badge
+                                key={index}
+                                variant="outline"
+                                className="cursor-pointer hover:bg-blue-100 text-xs break-words max-w-full bg-blue-50 text-blue-700 border-blue-200"
+                                onClick={() => handleSuggestionClick(suggestion)}
+                              >
+                                {suggestion}
+                              </Badge>
+                            ))}
                           </div>
                         )}
                       </div>
@@ -248,17 +240,27 @@ export function AiChat() {
 
         {/* Quick suggestions */}
         {suggestions.length > 0 && messages.length === 1 && (
-          <div className="mb-4 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200 min-w-0">
+          <div className={`mb-4 ${
+            isMobile 
+              ? 'p-3 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10' 
+              : 'p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200'
+          } min-w-0`}>
             <div className="flex items-center gap-2 mb-3">
-              <MessageCircle className="h-4 w-4 text-purple-600 animate-pulse" />
-              <span className="text-sm font-medium text-purple-800">🔥 Популярные вопросы:</span>
+              <MessageCircle className={`h-4 w-4 ${isMobile ? 'text-white/80' : 'text-purple-600'}`} />
+              <span className={`text-sm font-medium ${isMobile ? 'text-white' : 'text-purple-800'}`}>
+                {isMobile ? 'Популярные вопросы:' : '🔥 Популярные вопросы:'}
+              </span>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 min-w-0">
-              {suggestions.map((suggestion, index) => (
+            <div className={`grid ${isMobile ? 'grid-cols-1 gap-1' : 'grid-cols-1 sm:grid-cols-2 gap-2'} min-w-0`}>
+              {(isMobile ? suggestions.slice(0, 3) : suggestions).map((suggestion, index) => (
                 <Badge
                   key={index}
                   variant="outline"
-                  className="cursor-pointer hover:bg-purple-100 hover:border-purple-400 break-words max-w-full p-2 text-center transition-all duration-200 hover:scale-105 hover:shadow-md border-purple-300 text-purple-900 bg-purple-50"
+                  className={`cursor-pointer break-words max-w-full p-2 text-center transition-colors ${
+                    isMobile 
+                      ? 'hover:bg-white/20 border-white/30 text-white/90 bg-white/10 text-xs'
+                      : 'hover:bg-purple-100 hover:border-purple-400 border-purple-300 text-purple-900 bg-purple-50'
+                  }`}
                   onClick={() => handleSuggestionClick(suggestion)}
                 >
                   {suggestion}
