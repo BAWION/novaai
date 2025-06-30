@@ -293,479 +293,245 @@ export function RoadmapWidget() {
             </div>
           </div>
 
-          {/* Дорожная карта */}
+          {/* Галактическая дорожная карта */}
           <div className="relative z-10 overflow-x-auto">
             <div className="min-w-[1200px] h-[600px] relative">
               {Object.keys(roadmapData).length > 0 && (
                 <div className="relative w-full h-full">
-                  {/* Орбитальные пути */}
+                  {/* Космические соединительные пути */}
                   <svg className="absolute inset-0 w-full h-full" style={{ zIndex: 1 }}>
                     <defs>
-                      <linearGradient id="mainOrbit" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <linearGradient id="cosmicPath" x1="0%" y1="0%" x2="100%" y2="100%">
                         <stop offset="0%" style={{ stopColor: '#10B981', stopOpacity: 0.6 }} />
                         <stop offset="50%" style={{ stopColor: '#3B82F6', stopOpacity: 0.8 }} />
                         <stop offset="100%" style={{ stopColor: '#8B5CF6', stopOpacity: 0.6 }} />
                       </linearGradient>
-                      <linearGradient id="secondaryOrbit" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" style={{ stopColor: '#6366F1', stopOpacity: 0.5 }} />
-                        <stop offset="100%" style={{ stopColor: '#EC4899', stopOpacity: 0.5 }} />
-                      </linearGradient>
                     </defs>
                     
-                    {/* Соединительные пути */}
-                    <path
-                      d="M 600 80 Q 450 120 350 180 Q 320 200 320 230"
-                      stroke="url(#mainOrbit)"
-                      strokeWidth="3"
-                      fill="none"
-                      strokeDasharray="5,5"
-                      className="animate-pulse"
-                    />
-                    <path
-                      d="M 600 80 Q 750 120 850 180 Q 880 200 880 230"
-                      stroke="url(#mainOrbit)"
-                      strokeWidth="3"
-                      fill="none"
-                      strokeDasharray="5,5"
-                      className="animate-pulse"
-                    />
-                    <path
-                      d="M 320 280 Q 300 350 320 420"
-                      stroke="url(#secondaryOrbit)"
-                      strokeWidth="2"
-                      fill="none"
-                    />
-                    <path
-                      d="M 880 280 Q 900 350 880 420"
-                      stroke="url(#secondaryOrbit)"
-                      strokeWidth="2"
-                      fill="none"
-                    />
-                    <path
-                      d="M 360 450 Q 500 480 640 450"
-                      stroke="url(#secondaryOrbit)"
-                      strokeWidth="2"
-                      fill="none"
-                    />
+                    {/* Главные орбитальные пути */}
+                    <path d="M 600 100 L 350 220" stroke="url(#cosmicPath)" strokeWidth="2" fill="none" strokeDasharray="4,4" opacity="0.7" />
+                    <path d="M 600 100 L 850 220" stroke="url(#cosmicPath)" strokeWidth="2" fill="none" strokeDasharray="4,4" opacity="0.7" />
+                    <path d="M 350 280 L 350 400" stroke="url(#cosmicPath)" strokeWidth="2" fill="none" strokeDasharray="3,3" opacity="0.5" />
+                    <path d="M 850 280 L 850 400" stroke="url(#cosmicPath)" strokeWidth="2" fill="none" strokeDasharray="3,3" opacity="0.5" />
+                    <path d="M 350 460 L 600 520" stroke="url(#cosmicPath)" strokeWidth="1" fill="none" strokeDasharray="2,2" opacity="0.4" />
+                    <path d="M 850 460 L 600 520" stroke="url(#cosmicPath)" strokeWidth="1" fill="none" strokeDasharray="2,2" opacity="0.4" />
                   </svg>
 
-                  {/* Уровень 1: Стартовая планета */}
-                  <div className="absolute top-[50px] left-1/2 transform -translate-x-1/2 z-10">
+                  {/* Стартовая планета (центр) */}
+                  <div className="absolute top-[70px] left-1/2 transform -translate-x-1/2 z-10">
                     <motion.div 
                       className={`cursor-pointer ${selectedNode === 'root' ? 'scale-110' : ''}`}
-                      whileHover={{ scale: 1.05, rotate: 5 }}
+                      whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => setSelectedNode('root')}
                       animate={{ 
-                        boxShadow: roadmapData['root'].status === 'completed' 
-                          ? ["0 0 20px rgba(16, 185, 129, 0.5)", "0 0 40px rgba(16, 185, 129, 0.8)", "0 0 20px rgba(16, 185, 129, 0.5)"]
-                          : roadmapData['root'].status === 'in-progress'
-                          ? ["0 0 15px rgba(59, 130, 246, 0.5)", "0 0 25px rgba(59, 130, 246, 0.7)", "0 0 15px rgba(59, 130, 246, 0.5)"]
+                        boxShadow: roadmapData['root']?.status === 'completed' 
+                          ? ["0 0 20px rgba(16, 185, 129, 0.5)", "0 0 30px rgba(16, 185, 129, 0.7)", "0 0 20px rgba(16, 185, 129, 0.5)"]
                           : "0 0 10px rgba(107, 114, 128, 0.3)"
                       }}
                       transition={{ duration: 2, repeat: Infinity }}
                     >
-                      <div className={`w-16 h-16 rounded-full ${getStatusColor(roadmapData['root'].status)} flex items-center justify-center text-white shadow-2xl border-2 border-white/20 relative overflow-hidden`}>
-                        {/* Анимированные кольца */}
-                        <div className="absolute inset-0 rounded-full border-2 border-white/30 animate-ping" />
-                        <div className="absolute inset-1 rounded-full border border-white/20 animate-pulse" />
-                        <i className={`fas ${getStatusIcon(roadmapData['root'].status)} text-lg relative z-10`}></i>
+                      <div className={`w-16 h-16 rounded-full ${getStatusColor(roadmapData['root']?.status || 'available')} flex items-center justify-center text-white shadow-2xl border-2 border-white/30 relative`}>
+                        <div className="absolute inset-0 rounded-full border border-white/20 animate-pulse" />
+                        <i className={`fas ${getStatusIcon(roadmapData['root']?.status || 'available')} text-lg`}></i>
                       </div>
                       <div className="mt-3 text-center">
-                        <p className="font-medium text-sm text-white whitespace-nowrap">{roadmapData['root'].title}</p>
-                        <p className="text-xs text-primary font-semibold mt-1">{roadmapData['root'].duration}</p>
-                        <div className="w-16 h-2 bg-white/10 rounded-full mt-2">
+                        <p className="font-medium text-sm text-white">{roadmapData['root']?.title || 'AI Основы'}</p>
+                        <p className="text-xs text-primary font-semibold">{roadmapData['root']?.duration || '2 часа'}</p>
+                        <div className="w-16 h-2 bg-white/20 rounded-full mt-2">
                           <div 
-                            className={`h-full rounded-full bg-gradient-to-r ${getProgressBarColor(roadmapData['root'].status)}`} 
-                            style={{ width: `${roadmapData['root'].progress}%` }}
-                          ></div>
+                            className={`h-full rounded-full bg-gradient-to-r ${getProgressBarColor(roadmapData['root']?.status || 'available')}`} 
+                            style={{ width: `${roadmapData['root']?.progress || 0}%` }}
+                          />
                         </div>
                       </div>
                     </motion.div>
                   </div>
 
-                  {/* Уровень 2: Базовые планеты */}
-                  <div className="absolute top-[200px] left-[280px] z-10">
+                  {/* Базовые планеты */}
+                  <div className="absolute top-[200px] left-[320px] z-10">
                     <motion.div 
                       className={`cursor-pointer ${selectedNode === 'python-basics' ? 'scale-110' : ''}`}
-                      whileHover={{ scale: 1.05, rotate: -3 }}
+                      whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => setSelectedNode('python-basics')}
-                      animate={{ 
-                        y: [-2, 2, -2],
-                        boxShadow: roadmapData['python-basics'].status === 'completed' 
-                          ? ["0 0 15px rgba(16, 185, 129, 0.4)", "0 0 25px rgba(16, 185, 129, 0.6)", "0 0 15px rgba(16, 185, 129, 0.4)"]
-                          : roadmapData['python-basics'].status === 'available'
-                          ? ["0 0 10px rgba(245, 158, 11, 0.4)", "0 0 20px rgba(245, 158, 11, 0.6)", "0 0 10px rgba(245, 158, 11, 0.4)"]
-                          : "0 0 5px rgba(107, 114, 128, 0.3)"
-                      }}
+                      animate={{ y: [-2, 2, -2] }}
                       transition={{ duration: 3, repeat: Infinity }}
                     >
-                      <div className={`w-14 h-14 rounded-full ${getStatusColor(roadmapData['python-basics'].status)} flex items-center justify-center text-white shadow-xl border border-white/20 relative`}>
-                        {roadmapData['python-basics'].status === 'locked' && (
-                          <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center">
-                            <i className="fas fa-lock text-white/60 text-xs"></i>
+                      <div className={`w-14 h-14 rounded-full ${getStatusColor(roadmapData['python-basics']?.status || 'locked')} flex items-center justify-center text-white shadow-xl border border-white/20 relative`}>
+                        {(roadmapData['python-basics']?.status || 'locked') === 'locked' && (
+                          <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center">
+                            <i className="fas fa-lock text-white/60 text-sm"></i>
                           </div>
                         )}
-                        <i className={`fas ${getStatusIcon(roadmapData['python-basics'].status)} text-base`}></i>
+                        <i className={`fas ${getStatusIcon(roadmapData['python-basics']?.status || 'locked')} text-base`}></i>
                       </div>
                       <div className="mt-2 text-center">
-                        <p className="font-medium text-xs text-white whitespace-nowrap">{roadmapData['python-basics'].title}</p>
-                        <p className="text-xs text-primary font-semibold">{roadmapData['python-basics'].duration}</p>
-                        <div className="w-14 h-1.5 bg-white/10 rounded-full mt-1">
+                        <p className="font-medium text-xs text-white">{roadmapData['python-basics']?.title || 'Python'}</p>
+                        <p className="text-xs text-primary font-semibold">{roadmapData['python-basics']?.duration || '3 часа'}</p>
+                        <div className="w-14 h-1.5 bg-white/20 rounded-full mt-1">
                           <div 
-                            className={`h-full rounded-full bg-gradient-to-r ${getProgressBarColor(roadmapData['python-basics'].status)}`} 
-                            style={{ width: `${roadmapData['python-basics'].progress}%` }}
-                          ></div>
+                            className={`h-full rounded-full bg-gradient-to-r ${getProgressBarColor(roadmapData['python-basics']?.status || 'locked')}`} 
+                            style={{ width: `${roadmapData['python-basics']?.progress || 0}%` }}
+                          />
                         </div>
                       </div>
                     </motion.div>
                   </div>
 
-                  <div className="absolute top-[200px] left-[840px] z-10">
+                  <div className="absolute top-[200px] left-[820px] z-10">
                     <motion.div 
                       className={`cursor-pointer ${selectedNode === 'math-foundations' ? 'scale-110' : ''}`}
-                      whileHover={{ scale: 1.05, rotate: 3 }}
+                      whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => setSelectedNode('math-foundations')}
-                      animate={{ 
-                        y: [2, -2, 2],
-                        boxShadow: roadmapData['math-foundations'].status === 'completed' 
-                          ? ["0 0 15px rgba(16, 185, 129, 0.4)", "0 0 25px rgba(16, 185, 129, 0.6)", "0 0 15px rgba(16, 185, 129, 0.4)"]
-                          : roadmapData['math-foundations'].status === 'available'
-                          ? ["0 0 10px rgba(245, 158, 11, 0.4)", "0 0 20px rgba(245, 158, 11, 0.6)", "0 0 10px rgba(245, 158, 11, 0.4)"]
-                          : "0 0 5px rgba(107, 114, 128, 0.3)"
-                      }}
+                      animate={{ y: [2, -2, 2] }}
                       transition={{ duration: 3.5, repeat: Infinity }}
                     >
-                      <div className={`w-14 h-14 rounded-full ${getStatusColor(roadmapData['math-foundations'].status)} flex items-center justify-center text-white shadow-xl border border-white/20 relative`}>
-                        {roadmapData['math-foundations'].status === 'locked' && (
-                          <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center">
-                            <i className="fas fa-lock text-white/60 text-xs"></i>
+                      <div className={`w-14 h-14 rounded-full ${getStatusColor(roadmapData['math-foundations']?.status || 'locked')} flex items-center justify-center text-white shadow-xl border border-white/20 relative`}>
+                        {(roadmapData['math-foundations']?.status || 'locked') === 'locked' && (
+                          <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center">
+                            <i className="fas fa-lock text-white/60 text-sm"></i>
                           </div>
                         )}
-                        <i className={`fas ${getStatusIcon(roadmapData['math-foundations'].status)} text-base`}></i>
+                        <i className={`fas ${getStatusIcon(roadmapData['math-foundations']?.status || 'locked')} text-base`}></i>
                       </div>
                       <div className="mt-2 text-center">
-                        <p className="font-medium text-xs text-white whitespace-nowrap">{roadmapData['math-foundations'].title}</p>
-                        <p className="text-xs text-primary font-semibold">{roadmapData['math-foundations'].duration}</p>
-                        <div className="w-14 h-1.5 bg-white/10 rounded-full mt-1">
+                        <p className="font-medium text-xs text-white">{roadmapData['math-foundations']?.title || 'Математика'}</p>
+                        <p className="text-xs text-primary font-semibold">{roadmapData['math-foundations']?.duration || '4 часа'}</p>
+                        <div className="w-14 h-1.5 bg-white/20 rounded-full mt-1">
                           <div 
-                            className={`h-full rounded-full bg-gradient-to-r ${getProgressBarColor(roadmapData['math-foundations'].status)}`} 
-                            style={{ width: `${roadmapData['math-foundations'].progress}%` }}
-                          ></div>
+                            className={`h-full rounded-full bg-gradient-to-r ${getProgressBarColor(roadmapData['math-foundations']?.status || 'locked')}`} 
+                            style={{ width: `${roadmapData['math-foundations']?.progress || 0}%` }}
+                          />
                         </div>
                       </div>
                     </motion.div>
                   </div>
 
-                  {/* Vertical lines from root */}
-                  <div className="absolute top-[90px] left-[40%] w-0.5 h-[60px] bg-gradient-to-b from-green-500 to-emerald-500"></div>
-                  <div className="absolute top-[90px] left-[60%] w-0.5 h-[60px] bg-gradient-to-b from-green-500 to-emerald-500"></div>
-
-                  {/* Level 2: First branching */}
-                  <div className="absolute top-[150px] left-[30%] z-10">
-                    <motion.div 
-                      className={`cursor-pointer ${selectedNode === 'python-basics' ? 'scale-110' : ''}`}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => setSelectedNode('python-basics')}
-                    >
-                      <div className={`w-12 h-12 rounded-full ${getStatusColor(roadmapData['python-basics'].status)} flex items-center justify-center text-white shadow-lg`}>
-                        <i className={`fas ${getStatusIcon(roadmapData['python-basics'].status)} text-sm`}></i>
-                      </div>
-                      <div className="mt-2 text-center">
-                        <p className="font-medium text-xs whitespace-nowrap">{roadmapData['python-basics'].title}</p>
-                        <div className="w-12 h-1 bg-white/10 rounded-full mt-1">
-                          <div 
-                            className={`h-full rounded-full bg-gradient-to-r ${getProgressBarColor(roadmapData['python-basics'].status)}`} 
-                            style={{ width: `${roadmapData['python-basics'].progress}%` }}
-                          ></div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  </div>
-
-                  <div className="absolute top-[150px] left-[70%] z-10">
-                    <motion.div 
-                      className={`cursor-pointer ${selectedNode === 'math-foundations' ? 'scale-110' : ''}`}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => setSelectedNode('math-foundations')}
-                    >
-                      <div className={`w-12 h-12 rounded-full ${getStatusColor(roadmapData['math-foundations'].status)} flex items-center justify-center text-white shadow-lg`}>
-                        <i className={`fas ${getStatusIcon(roadmapData['math-foundations'].status)} text-sm`}></i>
-                      </div>
-                      <div className="mt-2 text-center">
-                        <p className="font-medium text-xs whitespace-nowrap">{roadmapData['math-foundations'].title}</p>
-                        <div className="w-12 h-1 bg-white/10 rounded-full mt-1">
-                          <div 
-                            className={`h-full rounded-full bg-gradient-to-r ${getProgressBarColor(roadmapData['math-foundations'].status)}`} 
-                            style={{ width: `${roadmapData['math-foundations'].progress}%` }}
-                          ></div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  </div>
-
-                  {/* Уровень 3: Специализированные планеты */}
-                  <div className="absolute top-[380px] left-[280px] z-10">
+                  {/* Специализированные планеты */}
+                  <div className="absolute top-[380px] left-[320px] z-10">
                     <motion.div 
                       className={`cursor-pointer ${selectedNode === 'data-structures' ? 'scale-110' : ''}`}
-                      whileHover={{ scale: 1.05, rotate: -2 }}
+                      whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => setSelectedNode('data-structures')}
-                      animate={{ 
-                        rotate: [0, 2, 0, -2, 0],
-                        boxShadow: roadmapData['data-structures'].status === 'completed' 
-                          ? ["0 0 12px rgba(16, 185, 129, 0.4)", "0 0 20px rgba(16, 185, 129, 0.6)", "0 0 12px rgba(16, 185, 129, 0.4)"]
-                          : roadmapData['data-structures'].status === 'available'
-                          ? ["0 0 8px rgba(245, 158, 11, 0.4)", "0 0 15px rgba(245, 158, 11, 0.6)", "0 0 8px rgba(245, 158, 11, 0.4)"]
-                          : "0 0 5px rgba(107, 114, 128, 0.3)"
-                      }}
+                      animate={{ rotate: [0, 2, 0, -2, 0] }}
                       transition={{ duration: 4, repeat: Infinity }}
                     >
-                      <div className={`w-12 h-12 rounded-full ${getStatusColor(roadmapData['data-structures'].status)} flex items-center justify-center text-white shadow-lg border border-white/20 relative`}>
-                        {roadmapData['data-structures'].status === 'locked' && (
-                          <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center">
+                      <div className={`w-12 h-12 rounded-full ${getStatusColor(roadmapData['data-structures']?.status || 'locked')} flex items-center justify-center text-white shadow-lg border border-white/20 relative`}>
+                        {(roadmapData['data-structures']?.status || 'locked') === 'locked' && (
+                          <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center">
                             <i className="fas fa-lock text-white/60 text-xs"></i>
                           </div>
                         )}
-                        <i className={`fas ${getStatusIcon(roadmapData['data-structures'].status)} text-sm`}></i>
+                        <i className={`fas ${getStatusIcon(roadmapData['data-structures']?.status || 'locked')} text-sm`}></i>
                       </div>
                       <div className="mt-2 text-center">
-                        <p className="font-medium text-xs text-white whitespace-nowrap">{roadmapData['data-structures'].title}</p>
-                        <p className="text-xs text-primary font-semibold">{roadmapData['data-structures'].duration}</p>
-                        <div className="w-12 h-1 bg-white/10 rounded-full mt-1">
-                          <div 
-                            className={`h-full rounded-full bg-gradient-to-r ${getProgressBarColor(roadmapData['data-structures'].status)}`} 
-                            style={{ width: `${roadmapData['data-structures'].progress}%` }}
-                          ></div>
-                        </div>
+                        <p className="font-medium text-xs text-white">{roadmapData['data-structures']?.title || 'Данные'}</p>
+                        <p className="text-xs text-primary font-semibold">{roadmapData['data-structures']?.duration || '2 часа'}</p>
                       </div>
                     </motion.div>
                   </div>
 
-                  <div className="absolute top-[380px] left-[840px] z-10">
+                  <div className="absolute top-[380px] left-[820px] z-10">
                     <motion.div 
                       className={`cursor-pointer ${selectedNode === 'ml-intro' ? 'scale-110' : ''}`}
-                      whileHover={{ scale: 1.05, rotate: 2 }}
+                      whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => setSelectedNode('ml-intro')}
-                      animate={{ 
-                        rotate: [0, -2, 0, 2, 0],
-                        boxShadow: roadmapData['ml-intro'].status === 'completed' 
-                          ? ["0 0 12px rgba(16, 185, 129, 0.4)", "0 0 20px rgba(16, 185, 129, 0.6)", "0 0 12px rgba(16, 185, 129, 0.4)"]
-                          : roadmapData['ml-intro'].status === 'available'
-                          ? ["0 0 8px rgba(245, 158, 11, 0.4)", "0 0 15px rgba(245, 158, 11, 0.6)", "0 0 8px rgba(245, 158, 11, 0.4)"]
-                          : "0 0 5px rgba(107, 114, 128, 0.3)"
-                      }}
+                      animate={{ rotate: [0, -2, 0, 2, 0] }}
                       transition={{ duration: 4.5, repeat: Infinity }}
                     >
-                      <div className={`w-12 h-12 rounded-full ${getStatusColor(roadmapData['ml-intro'].status)} flex items-center justify-center text-white shadow-lg border border-white/20 relative`}>
-                        {roadmapData['ml-intro'].status === 'locked' && (
-                          <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center">
+                      <div className={`w-12 h-12 rounded-full ${getStatusColor(roadmapData['ml-intro']?.status || 'locked')} flex items-center justify-center text-white shadow-lg border border-white/20 relative`}>
+                        {(roadmapData['ml-intro']?.status || 'locked') === 'locked' && (
+                          <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center">
                             <i className="fas fa-lock text-white/60 text-xs"></i>
                           </div>
                         )}
-                        <i className={`fas ${getStatusIcon(roadmapData['ml-intro'].status)} text-sm`}></i>
+                        <i className={`fas ${getStatusIcon(roadmapData['ml-intro']?.status || 'locked')} text-sm`}></i>
                       </div>
                       <div className="mt-2 text-center">
-                        <p className="font-medium text-xs text-white whitespace-nowrap">{roadmapData['ml-intro'].title}</p>
-                        <p className="text-xs text-primary font-semibold">{roadmapData['ml-intro'].duration}</p>
-                        <div className="w-12 h-1 bg-white/10 rounded-full mt-1">
-                          <div 
-                            className={`h-full rounded-full bg-gradient-to-r ${getProgressBarColor(roadmapData['ml-intro'].status)}`} 
-                            style={{ width: `${roadmapData['ml-intro'].progress}%` }}
-                          ></div>
-                        </div>
+                        <p className="font-medium text-xs text-white">{roadmapData['ml-intro']?.title || 'ML Основы'}</p>
+                        <p className="text-xs text-primary font-semibold">{roadmapData['ml-intro']?.duration || '5 часов'}</p>
                       </div>
                     </motion.div>
                   </div>
 
-                  {/* Уровень 4: Продвинутые спутники */}
-                  <div className="absolute top-[520px] left-[320px] z-10">
+                  {/* Продвинутые спутники */}
+                  <div className="absolute top-[500px] left-[360px] z-10">
                     <motion.div 
                       className={`cursor-pointer ${selectedNode === 'numpy-pandas' ? 'scale-110' : ''}`}
-                      whileHover={{ scale: 1.1, rotate: 5 }}
+                      whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                       onClick={() => setSelectedNode('numpy-pandas')}
-                      animate={{ 
-                        y: [-1, 1, -1],
-                        boxShadow: roadmapData['numpy-pandas'].status === 'completed' 
-                          ? ["0 0 8px rgba(16, 185, 129, 0.4)", "0 0 15px rgba(16, 185, 129, 0.6)", "0 0 8px rgba(16, 185, 129, 0.4)"]
-                          : roadmapData['numpy-pandas'].status === 'available'
-                          ? ["0 0 6px rgba(245, 158, 11, 0.4)", "0 0 12px rgba(245, 158, 11, 0.6)", "0 0 6px rgba(245, 158, 11, 0.4)"]
-                          : "0 0 3px rgba(107, 114, 128, 0.3)"
-                      }}
+                      animate={{ y: [-1, 1, -1] }}
                       transition={{ duration: 2.5, repeat: Infinity }}
                     >
-                      <div className={`w-10 h-10 rounded-full ${getStatusColor(roadmapData['numpy-pandas'].status)} flex items-center justify-center text-white shadow-md border border-white/20 relative`}>
-                        {roadmapData['numpy-pandas'].status === 'locked' && (
-                          <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center">
-                            <i className="fas fa-lock text-white/60 text-xs"></i>
-                          </div>
-                        )}
-                        <i className={`fas ${getStatusIcon(roadmapData['numpy-pandas'].status)} text-xs`}></i>
+                      <div className={`w-10 h-10 rounded-full ${getStatusColor(roadmapData['numpy-pandas']?.status || 'locked')} flex items-center justify-center text-white shadow-md`}>
+                        <i className={`fas ${getStatusIcon(roadmapData['numpy-pandas']?.status || 'locked')} text-xs`}></i>
                       </div>
                       <div className="mt-1 text-center">
-                        <p className="font-medium text-xs text-white whitespace-nowrap">{roadmapData['numpy-pandas'].title}</p>
-                        <p className="text-xs text-primary font-semibold">{roadmapData['numpy-pandas'].duration}</p>
+                        <p className="font-medium text-xs text-white">{roadmapData['numpy-pandas']?.title || 'NumPy'}</p>
+                        <p className="text-xs text-primary font-semibold">{roadmapData['numpy-pandas']?.duration || '1 час'}</p>
                       </div>
                     </motion.div>
                   </div>
 
-                  <div className="absolute top-[520px] left-[600px] z-10">
+                  <div className="absolute top-[500px] left-[580px] z-10">
                     <motion.div 
                       className={`cursor-pointer ${selectedNode === 'deep-learning' ? 'scale-110' : ''}`}
-                      whileHover={{ scale: 1.1, rotate: -5 }}
+                      whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                       onClick={() => setSelectedNode('deep-learning')}
-                      animate={{ 
-                        y: [1, -1, 1],
-                        boxShadow: roadmapData['deep-learning'].status === 'completed' 
-                          ? ["0 0 8px rgba(16, 185, 129, 0.4)", "0 0 15px rgba(16, 185, 129, 0.6)", "0 0 8px rgba(16, 185, 129, 0.4)"]
-                          : roadmapData['deep-learning'].status === 'available'
-                          ? ["0 0 6px rgba(245, 158, 11, 0.4)", "0 0 12px rgba(245, 158, 11, 0.6)", "0 0 6px rgba(245, 158, 11, 0.4)"]
-                          : "0 0 3px rgba(107, 114, 128, 0.3)"
-                      }}
+                      animate={{ y: [1, -1, 1] }}
                       transition={{ duration: 3, repeat: Infinity }}
                     >
-                      <div className={`w-10 h-10 rounded-full ${getStatusColor(roadmapData['deep-learning'].status)} flex items-center justify-center text-white shadow-md border border-white/20 relative`}>
-                        {roadmapData['deep-learning'].status === 'locked' && (
-                          <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center">
-                            <i className="fas fa-lock text-white/60 text-xs"></i>
-                          </div>
-                        )}
-                        <i className={`fas ${getStatusIcon(roadmapData['deep-learning'].status)} text-xs`}></i>
+                      <div className={`w-10 h-10 rounded-full ${getStatusColor(roadmapData['deep-learning']?.status || 'locked')} flex items-center justify-center text-white shadow-md`}>
+                        <i className={`fas ${getStatusIcon(roadmapData['deep-learning']?.status || 'locked')} text-xs`}></i>
                       </div>
                       <div className="mt-1 text-center">
-                        <p className="font-medium text-xs text-white whitespace-nowrap">{roadmapData['deep-learning'].title}</p>
-                        <p className="text-xs text-primary font-semibold">{roadmapData['deep-learning'].duration}</p>
+                        <p className="font-medium text-xs text-white">{roadmapData['deep-learning']?.title || 'Deep Learning'}</p>
+                        <p className="text-xs text-primary font-semibold">{roadmapData['deep-learning']?.duration || '6 часов'}</p>
                       </div>
                     </motion.div>
                   </div>
 
-                  {/* Легенда статусов */}
+                  {/* Легенда и прогресс */}
                   <div className="absolute bottom-4 left-4 bg-space-800/90 backdrop-blur-sm rounded-lg p-3 border border-white/10">
-                    <div className="text-xs text-white/60 mb-2 font-semibold">СТАТУС МОДУЛЕЙ</div>
-                    <div className="space-y-1 text-xs">
+                    <div className="text-xs text-white/60 mb-2 font-semibold">СТАТУСЫ</div>
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
                       <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-gradient-to-r from-green-500 to-emerald-500"></div>
+                        <div className="w-2 h-2 rounded-full bg-green-500"></div>
                         <span className="text-white/80">Завершен</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-gradient-to-r from-blue-500 to-purple-500"></div>
+                        <div className="w-2 h-2 rounded-full bg-blue-500"></div>
                         <span className="text-white/80">В процессе</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-gradient-to-r from-amber-500 to-orange-500"></div>
+                        <div className="w-2 h-2 rounded-full bg-amber-500"></div>
                         <span className="text-white/80">Доступен</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-gray-600"></div>
-                        <span className="text-white/80">Заблокирован</span>
+                        <div className="w-2 h-2 rounded-full bg-gray-500"></div>
+                        <span className="text-white/80">Блокирован</span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Прогресс пути */}
                   <div className="absolute bottom-4 right-4 bg-space-800/90 backdrop-blur-sm rounded-lg p-3 border border-white/10">
-                    <div className="text-xs text-white/60 mb-2 font-semibold">ПРОГРЕСС ПУТИ</div>
-                    <div className="w-32 h-2 bg-white/10 rounded-full">
+                    <div className="text-xs text-white/60 mb-2 font-semibold">ПРОГРЕСС</div>
+                    <div className="w-28 h-2 bg-white/20 rounded-full">
                       <div 
-                        className="h-full rounded-full bg-gradient-to-r from-green-500 via-blue-500 to-purple-500"
+                        className="h-full rounded-full bg-gradient-to-r from-green-500 to-purple-500"
                         style={{ width: `${getOverallProgress()}%` }}
-                      ></div>
+                      />
                     </div>
-                    <div className="text-xs text-primary font-semibold mt-1">{getOverallProgress()}% завершено</div>
+                    <div className="text-xs text-primary font-semibold mt-1">{getOverallProgress()}%</div>
                   </div>
 
-                  {/* Vertical lines to level 3 */}
-                  <div className="absolute top-[210px] left-[30%] w-0.5 h-[60px] bg-gradient-to-b from-[#6E3AFF] to-[#2EBAE1]"></div>
-                  <div className="absolute top-[210px] left-[70%] w-0.5 h-[60px] bg-gradient-to-b from-[#6E3AFF] to-[#2EBAE1]"></div>
 
-                  {/* Level 3: Second branching */}
-                  <div className="absolute top-[270px] left-[30%] z-10">
-                    <motion.div 
-                      className={`cursor-pointer ${selectedNode === 'data-structures' ? 'scale-110' : ''}`}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => setSelectedNode('data-structures')}
-                    >
-                      <div className={`w-12 h-12 rounded-full ${getStatusColor(roadmapData['data-structures'].status)} flex items-center justify-center text-white shadow-lg`}>
-                        <i className={`fas ${getStatusIcon(roadmapData['data-structures'].status)} text-sm`}></i>
-                      </div>
-                      <div className="mt-2 text-center">
-                        <p className="font-medium text-xs whitespace-nowrap">{roadmapData['data-structures'].title}</p>
-                        <div className="w-12 h-1 bg-white/10 rounded-full mt-1">
-                          <div 
-                            className={`h-full rounded-full bg-gradient-to-r ${getProgressBarColor(roadmapData['data-structures'].status)}`} 
-                            style={{ width: `${roadmapData['data-structures'].progress}%` }}
-                          ></div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  </div>
-
-                  <div className="absolute top-[270px] left-[70%] z-10">
-                    <motion.div 
-                      className={`cursor-pointer ${selectedNode === 'ml-intro' ? 'scale-110' : ''}`}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => setSelectedNode('ml-intro')}
-                    >
-                      <div className={`w-12 h-12 rounded-full ${getStatusColor(roadmapData['ml-intro'].status)} flex items-center justify-center text-white shadow-lg`}>
-                        <i className={`fas ${getStatusIcon(roadmapData['ml-intro'].status)} text-sm`}></i>
-                      </div>
-                      <div className="mt-2 text-center">
-                        <p className="font-medium text-xs whitespace-nowrap">{roadmapData['ml-intro'].title}</p>
-                        <div className="w-12 h-1 bg-white/10 rounded-full mt-1">
-                          <div 
-                            className={`h-full rounded-full bg-gradient-to-r ${getProgressBarColor(roadmapData['ml-intro'].status)}`} 
-                            style={{ width: `${roadmapData['ml-intro'].progress}%` }}
-                          ></div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  </div>
-
-                  {/* Vertical lines to level 4 */}
-                  <div className="absolute top-[330px] left-[30%] w-0.5 h-[60px] bg-white/30"></div>
-                  <div className="absolute top-[330px] left-[70%] w-0.5 h-[60px] bg-white/30"></div>
-
-                  {/* Level 4: Final nodes */}
-                  <div className="absolute top-[390px] left-[20%] z-10">
-                    <motion.div 
-                      className={`cursor-pointer ${selectedNode === 'numpy-pandas' ? 'scale-110' : ''}`}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => setSelectedNode('numpy-pandas')}
-                    >
-                      <div className={`w-10 h-10 rounded-full ${getStatusColor(roadmapData['numpy-pandas'].status)} flex items-center justify-center text-white shadow-lg`}>
-                        <i className={`fas ${getStatusIcon(roadmapData['numpy-pandas'].status)} text-xs`}></i>
-                      </div>
-                      <div className="mt-1 text-center">
-                        <p className="font-medium text-xs whitespace-nowrap">{roadmapData['numpy-pandas'].title}</p>
-                      </div>
-                    </motion.div>
-                  </div>
-
-                  <div className="absolute top-[390px] left-[50%] z-10">
-                    <motion.div 
-                      className={`cursor-pointer ${selectedNode === 'deep-learning' ? 'scale-110' : ''}`}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => setSelectedNode('deep-learning')}
-                    >
-                      <div className={`w-10 h-10 rounded-full ${getStatusColor(roadmapData['deep-learning'].status)} flex items-center justify-center text-white shadow-lg`}>
-                        <i className={`fas ${getStatusIcon(roadmapData['deep-learning'].status)} text-xs`}></i>
-                      </div>
-                      <div className="mt-1 text-center">
-                        <p className="font-medium text-xs whitespace-nowrap">{roadmapData['deep-learning'].title}</p>
-                      </div>
-                    </motion.div>
-                  </div>
                 </div>
               )}
             </div>
