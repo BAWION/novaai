@@ -382,24 +382,16 @@ export default function Dashboard() {
         >
           <div className="flex justify-between items-center mb-4">
             <h2 className="font-orbitron text-xl font-semibold">
-              Все курсы
+              Вселенная ИИ
             </h2>
-            <div className="flex items-center bg-space-900/50 rounded-lg overflow-hidden">
-              <button 
-                onClick={() => setViewMode('orbital')}
-                className={`px-3 py-1.5 text-sm ${viewMode === 'orbital' ? 'bg-primary/30 text-white' : 'text-white/60'}`}
-              >
-                <i className="fas fa-globe-americas mr-1"></i>
-                Орбиты
-              </button>
-              <button 
-                onClick={() => setViewMode('tracks')}
-                className={`px-3 py-1.5 text-sm ${viewMode === 'tracks' ? 'bg-primary/30 text-white' : 'text-white/60'}`}
-              >
-                <i className="fas fa-road mr-1"></i>
-                По навыкам
-              </button>
-            </div>
+            <button
+              onClick={() => setIsFullscreenMap(true)}
+              className="px-4 py-2 bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] text-white rounded-lg hover:opacity-90 transition-all duration-200 flex items-center gap-2 text-sm font-medium"
+              title="Открыть карту на весь экран"
+            >
+              <i className="fas fa-expand text-sm"></i>
+              Развернуть
+            </button>
           </div>
           <GalaxyUniverse />
           <div className="flex justify-end mt-2">
