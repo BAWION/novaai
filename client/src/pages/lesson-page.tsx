@@ -553,22 +553,46 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                           </div>
                         )}
                       </CardContent>
-                      <CardFooter className="flex justify-between border-t pt-6">
-                        <Button 
-                          variant="outline" 
-                          onClick={goToPreviousLesson}
-                          disabled={isFirstLesson}
-                        >
-                          <ArrowLeft className="mr-2 h-4 w-4" />
-                          Предыдущий урок
-                        </Button>
-                        <Button 
-                          onClick={goToNextLesson}
-                          disabled={isLastLesson}
-                        >
-                          Следующий урок
-                          <ArrowRight className="ml-2 h-4 w-4" />
-                        </Button>
+                      <CardFooter className="border-t pt-6">
+                        {/* Мобильная версия - вертикальные кнопки */}
+                        <div className="flex flex-col gap-3 w-full sm:hidden">
+                          <Button 
+                            variant="outline" 
+                            onClick={goToPreviousLesson}
+                            disabled={isFirstLesson}
+                            className="w-full"
+                          >
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Предыдущий урок
+                          </Button>
+                          <Button 
+                            onClick={goToNextLesson}
+                            disabled={isLastLesson}
+                            className="w-full"
+                          >
+                            Следующий урок
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                          </Button>
+                        </div>
+                        
+                        {/* Десктопная версия - горизонтальные кнопки */}
+                        <div className="hidden sm:flex justify-between w-full">
+                          <Button 
+                            variant="outline" 
+                            onClick={goToPreviousLesson}
+                            disabled={isFirstLesson}
+                          >
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Предыдущий урок
+                          </Button>
+                          <Button 
+                            onClick={goToNextLesson}
+                            disabled={isLastLesson}
+                          >
+                            Следующий урок
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                          </Button>
+                        </div>
                       </CardFooter>
                     </Card>
                   )}
