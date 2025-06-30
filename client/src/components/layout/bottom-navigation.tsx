@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const mainNavItems = [
-  { icon: "fa-tachometer-alt", label: "Главная", to: "/dashboard" },
+  { icon: "fa-tachometer-alt", label: "Мостик", to: "/dashboard" },
   { icon: "fa-book", label: "Курсы", to: "/courses" },
   { icon: "fa-robot", label: "ИИ-Тьютор", to: "/ai-tutor" },
 ];
