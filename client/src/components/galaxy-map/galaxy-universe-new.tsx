@@ -920,19 +920,25 @@ function GalaxyUniverse() {
               transition={{ duration: 0.8 }}
             >
               {/* Орбитальные траектории */}
-              {[120, 160, 200, 240, 280, 320, 360, 400, 440].slice(0, Math.min(planets.length, 9)).map((radius, ringIndex) => (
-                <div
-                  key={`orbit-ring-${ringIndex}`}
-                  className="absolute border border-white/6 rounded-full pointer-events-none"
-                  style={{
-                    width: radius * 2,
-                    height: radius * 2,
-                    left: '50%',
-                    top: '50%',
-                    transform: 'translate(-50%, -50%)',
-                  }}
-                />
-              ))}
+              {planets.map((_, index) => {
+                const baseRadius = 140;
+                const orbitSpacing = 50;
+                const radius = baseRadius + (index * orbitSpacing);
+                
+                return (
+                  <div
+                    key={`orbit-ring-${index}`}
+                    className="absolute border border-white/6 rounded-full pointer-events-none"
+                    style={{
+                      width: radius * 2,
+                      height: radius * 2,
+                      left: '50%',
+                      top: '50%',
+                      transform: 'translate(-50%, -50%)',
+                    }}
+                  />
+                );
+              })}
 
               {/* Центральная звезда */}
               <motion.div
@@ -980,13 +986,14 @@ function GalaxyUniverse() {
 
               {/* Планеты-курсы с орбитами */}
               {planets.map((planet, index) => {
-                // Система орбитальных колец - каждая планета на своей орбите
-                const orbitRings = [120, 160, 200, 240, 280, 320, 360, 400, 440]; // 9 орбит
-                const radius = orbitRings[index] || orbitRings[index % orbitRings.length];
+                // Каждая планета на уникальной орбите
+                const baseRadius = 140; // Стартовый радиус
+                const orbitSpacing = 50; // Расстояние между орбитами
+                const radius = baseRadius + (index * orbitSpacing);
                 
-                // Разное начальное положение для каждой планеты
-                const orbitSpeed = 0.00008 * (1 / Math.sqrt(radius / 120)); // Медленнее для дальних орбит
-                const baseAngle = (index * 41.5) * (Math.PI / 180); // Разные начальные углы для разнообразия
+                // Уникальные параметры для каждой планеты
+                const orbitSpeed = 0.00005 * (1 / Math.sqrt(radius / 140)); // Медленнее для дальних орбит
+                const baseAngle = (index * 71.5) * (Math.PI / 180); // Случайные начальные углы
                 const angle = Date.now() * orbitSpeed + baseAngle;
                 
                 const x = Math.cos(angle) * radius;
