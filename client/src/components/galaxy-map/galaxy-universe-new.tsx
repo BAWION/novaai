@@ -920,25 +920,22 @@ function GalaxyUniverse() {
               transition={{ duration: 0.8 }}
             >
               {/* Орбитальные траектории */}
-              {planets.map((planet, index) => {
-                // Соответствует новой системе орбит
-                const baseRadius = 100;
-                const orbitSpacing = 60;
-                const radius = baseRadius + (index % 3) * orbitSpacing + Math.floor(index / 3) * 30;
-                return (
-                  <div
-                    key={`orbit-${index}`}
-                    className="absolute border border-white/8 rounded-full pointer-events-none"
-                    style={{
-                      width: radius * 2,
-                      height: radius * 2,
-                      left: '50%',
-                      top: '50%',
-                      transform: 'translate(-50%, -50%)',
-                    }}
-                  />
-                );
-              })}
+              {Array.from(new Set(planets.map((_, index) => {
+                const orbitRings = [120, 180, 240, 300, 360, 420, 480, 540, 600];
+                return orbitRings[index % orbitRings.length];
+              }))).map((radius, ringIndex) => (
+                <div
+                  key={`orbit-ring-${ringIndex}`}
+                  className="absolute border border-white/6 rounded-full pointer-events-none"
+                  style={{
+                    width: radius * 2,
+                    height: radius * 2,
+                    left: '50%',
+                    top: '50%',
+                    transform: 'translate(-50%, -50%)',
+                  }}
+                />
+              ))}
 
               {/* Центральная звезда */}
               <motion.div
@@ -986,12 +983,15 @@ function GalaxyUniverse() {
 
               {/* Планеты-курсы с орбитами */}
               {planets.map((planet, index) => {
-                // Улучшенная система орбит - больше разнообразия
-                const baseRadius = 100;
-                const orbitSpacing = 60;
-                const radius = baseRadius + (index % 3) * orbitSpacing + Math.floor(index / 3) * 30;
+                // Система орбитальных колец как в солнечной системе
+                const orbitRings = [120, 180, 240, 300, 360, 420, 480, 540, 600]; // 9 орбит
+                const radius = orbitRings[index % orbitRings.length];
                 
-                const angle = Date.now() * 0.0001 * (0.3 + index * 0.15) + index * (Math.PI / 5);
+                // Равномерное распределение по орбите с медленным вращением
+                const orbitSpeed = 0.0001 * (1 / (radius / 120)); // Медленнее для дальних орбит
+                const baseAngle = (index * (360 / planets.length)) * (Math.PI / 180); // Равномерное начальное размещение
+                const angle = Date.now() * orbitSpeed + baseAngle;
+                
                 const x = Math.cos(angle) * radius;
                 const y = Math.sin(angle) * radius;
                 
@@ -999,14 +999,14 @@ function GalaxyUniverse() {
                 const modules = planet.course.modules || 1;
                 const estimatedLessons = modules * 2; // Примерно 2 урока на модуль
                 
-                // Размеры планет: малый (20-28), средний (32-44), большой (48-60)
+                // Увеличенные размеры планет для лучшей видимости: малый (24-32), средний (36-48), большой (52-64)
                 let planetSize;
                 if (estimatedLessons <= 4) {
-                  planetSize = 20 + estimatedLessons * 2; // Малые планеты: 20-28px
+                  planetSize = 24 + estimatedLessons * 2; // Малые планеты: 24-32px
                 } else if (estimatedLessons <= 10) {
-                  planetSize = 28 + (estimatedLessons - 4) * 2; // Средние планеты: 32-44px
+                  planetSize = 32 + (estimatedLessons - 4) * 2.5; // Средние планеты: 36-48px
                 } else {
-                  planetSize = Math.min(60, 44 + (estimatedLessons - 10) * 1.5); // Большие планеты: 48-60px
+                  planetSize = Math.min(64, 48 + (estimatedLessons - 10) * 1.5); // Большие планеты: 52-64px
                 }
                 
                 // Цвета планет в зависимости от прогресса и размера
@@ -1016,10 +1016,10 @@ function GalaxyUniverse() {
                   if (progress > 0) return 'from-blue-400 to-indigo-600'; // В процессе
                   
                   // Цвета по размеру курса
-                  if (planetSize >= 48) {
+                  if (planetSize >= 52) {
                     // Большие планеты - яркие цвета
                     return ['from-red-400 to-orange-600', 'from-purple-400 to-indigo-600', 'from-blue-400 to-cyan-600'][index % 3];
-                  } else if (planetSize >= 32) {
+                  } else if (planetSize >= 36) {
                     // Средние планеты - умеренные цвета
                     return ['from-yellow-400 to-amber-600', 'from-pink-400 to-rose-600', 'from-emerald-400 to-green-600'][index % 3];
                   } else {
