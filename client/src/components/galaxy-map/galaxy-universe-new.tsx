@@ -121,7 +121,12 @@ const generatePlanetName = (course: Course, index: number): string => {
   return `${prefix} ${firstWord}`;
 };
 
-function GalaxyUniverse() {
+interface GalaxyUniverseProps {
+  fullScreen?: boolean;
+  onClose?: () => void;
+}
+
+function GalaxyUniverse({ fullScreen = false, onClose }: GalaxyUniverseProps = {}) {
   const [, navigate] = useLocation();
   const containerRef = useRef<HTMLDivElement>(null);
   
@@ -454,7 +459,11 @@ function GalaxyUniverse() {
 
   return (
     <div 
-      className="w-full h-[600px] relative bg-gradient-to-b from-space-900 via-space-800 to-space-900 rounded-xl overflow-hidden"
+      className={`w-full relative bg-gradient-to-b from-space-900 via-space-800 to-space-900 overflow-hidden ${
+        fullScreen 
+          ? 'fixed inset-0 z-50' 
+          : 'h-[600px] rounded-xl'
+      }`}
       onWheel={(e) => {
         e.preventDefault();
         const delta = e.deltaY * 0.008; // Более медленное изменение зума
