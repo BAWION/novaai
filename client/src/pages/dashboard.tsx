@@ -20,6 +20,7 @@ import { diagnosisApi } from "@/api/diagnosis-api";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { RoadmapWidget } from "@/components/roadmap/roadmap-widget";
+import { SkillsDnaRoadmap } from "@/components/roadmap/skills-dna-roadmap";
 import { 
   Dialog,
   DialogContent,
@@ -35,6 +36,7 @@ export default function Dashboard() {
   const [, setLocation] = useLocation();
   const [showOnboardingPrompt, setShowOnboardingPrompt] = useState(true);
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+  const [roadmapType, setRoadmapType] = useState<'traditional' | 'skills-dna'>('skills-dna');
   
   // Получение рекомендуемых курсов
   const { data: rawRecommendedCourses = [] } = useQuery({
