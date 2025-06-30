@@ -135,15 +135,15 @@ export function AiChat() {
   };
 
   return (
-    <Card className="h-[600px] flex flex-col">
-      <CardHeader className="pb-3">
+    <Card className={`${isMobile ? 'h-[70vh]' : 'h-[600px]'} flex flex-col`}>
+      <CardHeader className={`${isMobile ? 'pb-2 px-3 py-3' : 'pb-3'}`}>
         <CardTitle className="flex items-center gap-2">
           <Bot className="h-5 w-5 text-blue-600" />
-          ИИ-Тьютор
+          <span className={isMobile ? 'text-lg' : ''}>ИИ-Тьютор</span>
         </CardTitle>
       </CardHeader>
       
-      <CardContent className="flex-1 flex flex-col p-4 pt-0 overflow-hidden">
+      <CardContent className={`flex-1 flex flex-col ${isMobile ? 'p-3 pt-0' : 'p-4 pt-0'} overflow-hidden`}>
         {/* Messages */}
         <ScrollArea ref={scrollAreaRef} className="flex-1 pr-4 mb-4">
           <div className="space-y-4 w-full">
@@ -277,16 +277,22 @@ export function AiChat() {
               <Input
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                placeholder="💭 Спросите что-то интересное об ИИ..."
+                placeholder={isMobile ? "Спросите об ИИ..." : "💭 Спросите что-то интересное об ИИ..."}
                 disabled={isLoading}
-                className="pr-10 border-2 border-gray-200 focus:border-blue-400 transition-colors"
+                className={`${isMobile ? '' : 'pr-10'} border-2 border-gray-200 focus:border-blue-400 transition-colors`}
               />
-              <Brain className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              {!isMobile && (
+                <Brain className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              )}
             </div>
             <Button 
               type="submit" 
               disabled={isLoading || !inputValue.trim()}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all duration-200 hover:scale-105"
+              className={`transition-colors ${
+                isMobile 
+                  ? 'bg-blue-600 hover:bg-blue-700' 
+                  : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all duration-200 hover:scale-105'
+              }`}
             >
               {isLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -295,9 +301,11 @@ export function AiChat() {
               )}
             </Button>
           </form>
-          <div className="text-xs text-gray-500 mt-2 text-center">
-            ✨ Powered by OpenAI GPT-4o | 🧠 Адаптивное обучение
-          </div>
+          {!isMobile && (
+            <div className="text-xs text-gray-500 mt-2 text-center">
+              ✨ Powered by OpenAI GPT-4o | 🧠 Адаптивное обучение
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
