@@ -210,7 +210,6 @@ export default function Dashboard() {
         onOpenChange={handleWelcomeModalChange} 
         userName={user?.displayName || "студент"}
       />
-      
       {/* Модальное окно для подробного анализа Skills DNA */}
       <Dialog open={isSkillsDnaDialogOpen} onOpenChange={setIsSkillsDnaDialogOpen}>
         <DialogContent className="sm:max-w-4xl bg-space-900 border-space-700 text-white">
@@ -234,7 +233,6 @@ export default function Dashboard() {
           </div>
         </DialogContent>
       </Dialog>
-      
       <div className="flex flex-col gap-6">
         {/* Header with breadcrumb & search */}
         <motion.div
@@ -320,7 +318,7 @@ export default function Dashboard() {
             Мой образовательный путь
           </h1>
           <div className="flex items-center gap-2 mt-1">
-            <p className="text-white/70 text-md">Персонализированная траектория развития в NovaAI</p>
+            <p className="text-white/70 text-md">Персонализированная траектория развития </p>
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger>
