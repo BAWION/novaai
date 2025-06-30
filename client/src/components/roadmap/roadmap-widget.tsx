@@ -295,7 +295,7 @@ export function RoadmapWidget() {
 
           {/* Галактическая дорожная карта */}
           <div className="relative z-10 overflow-x-auto">
-            <div className="min-w-[1200px] h-[600px] relative">
+            <div className="min-w-[800px] lg:min-w-[1200px] h-[500px] lg:h-[600px] relative">
               {Object.keys(roadmapData).length > 0 && (
                 <div className="relative w-full h-full">
                   {/* Космические соединительные пути */}
@@ -308,17 +308,25 @@ export function RoadmapWidget() {
                       </linearGradient>
                     </defs>
                     
-                    {/* Главные орбитальные пути */}
-                    <path d="M 600 100 L 350 220" stroke="url(#cosmicPath)" strokeWidth="2" fill="none" strokeDasharray="4,4" opacity="0.7" />
-                    <path d="M 600 100 L 850 220" stroke="url(#cosmicPath)" strokeWidth="2" fill="none" strokeDasharray="4,4" opacity="0.7" />
-                    <path d="M 350 280 L 350 400" stroke="url(#cosmicPath)" strokeWidth="2" fill="none" strokeDasharray="3,3" opacity="0.5" />
-                    <path d="M 850 280 L 850 400" stroke="url(#cosmicPath)" strokeWidth="2" fill="none" strokeDasharray="3,3" opacity="0.5" />
-                    <path d="M 350 460 L 600 520" stroke="url(#cosmicPath)" strokeWidth="1" fill="none" strokeDasharray="2,2" opacity="0.4" />
-                    <path d="M 850 460 L 600 520" stroke="url(#cosmicPath)" strokeWidth="1" fill="none" strokeDasharray="2,2" opacity="0.4" />
+                    {/* Адаптивные орбитальные пути */}
+                    <path d="M 400 80 L 250 160" stroke="url(#cosmicPath)" strokeWidth="2" fill="none" strokeDasharray="4,4" opacity="0.7" className="hidden lg:block" />
+                    <path d="M 400 80 L 550 160" stroke="url(#cosmicPath)" strokeWidth="2" fill="none" strokeDasharray="4,4" opacity="0.7" className="hidden lg:block" />
+                    <path d="M 250 220 L 250 300" stroke="url(#cosmicPath)" strokeWidth="2" fill="none" strokeDasharray="3,3" opacity="0.5" className="hidden lg:block" />
+                    <path d="M 550 220 L 550 300" stroke="url(#cosmicPath)" strokeWidth="2" fill="none" strokeDasharray="3,3" opacity="0.5" className="hidden lg:block" />
+                    <path d="M 250 360 L 400 400" stroke="url(#cosmicPath)" strokeWidth="1" fill="none" strokeDasharray="2,2" opacity="0.4" className="hidden lg:block" />
+                    <path d="M 550 360 L 400 400" stroke="url(#cosmicPath)" strokeWidth="1" fill="none" strokeDasharray="2,2" opacity="0.4" className="hidden lg:block" />
+                    
+                    {/* Мобильные пути */}
+                    <path d="M 600 100 L 350 220" stroke="url(#cosmicPath)" strokeWidth="2" fill="none" strokeDasharray="4,4" opacity="0.7" className="lg:hidden" />
+                    <path d="M 600 100 L 850 220" stroke="url(#cosmicPath)" strokeWidth="2" fill="none" strokeDasharray="4,4" opacity="0.7" className="lg:hidden" />
+                    <path d="M 350 280 L 350 400" stroke="url(#cosmicPath)" strokeWidth="2" fill="none" strokeDasharray="3,3" opacity="0.5" className="lg:hidden" />
+                    <path d="M 850 280 L 850 400" stroke="url(#cosmicPath)" strokeWidth="2" fill="none" strokeDasharray="3,3" opacity="0.5" className="lg:hidden" />
+                    <path d="M 350 460 L 600 520" stroke="url(#cosmicPath)" strokeWidth="1" fill="none" strokeDasharray="2,2" opacity="0.4" className="lg:hidden" />
+                    <path d="M 850 460 L 600 520" stroke="url(#cosmicPath)" strokeWidth="1" fill="none" strokeDasharray="2,2" opacity="0.4" className="lg:hidden" />
                   </svg>
 
                   {/* Стартовая планета (центр) */}
-                  <div className="absolute top-[70px] left-1/2 transform -translate-x-1/2 z-10">
+                  <div className="absolute top-[50px] lg:top-[70px] left-1/2 transform -translate-x-1/2 z-10">
                     <motion.div 
                       className={`cursor-pointer ${selectedNode === 'root' ? 'scale-110' : ''}`}
                       whileHover={{ scale: 1.05 }}
@@ -349,7 +357,7 @@ export function RoadmapWidget() {
                   </div>
 
                   {/* Базовые планеты */}
-                  <div className="absolute top-[200px] left-[320px] z-10">
+                  <div className="absolute top-[150px] lg:top-[200px] left-[200px] lg:left-[320px] z-10">
                     <motion.div 
                       className={`cursor-pointer ${selectedNode === 'python-basics' ? 'scale-110' : ''}`}
                       whileHover={{ scale: 1.05 }}
@@ -379,7 +387,7 @@ export function RoadmapWidget() {
                     </motion.div>
                   </div>
 
-                  <div className="absolute top-[200px] left-[820px] z-10">
+                  <div className="absolute top-[150px] lg:top-[200px] left-[520px] lg:left-[820px] z-10">
                     <motion.div 
                       className={`cursor-pointer ${selectedNode === 'math-foundations' ? 'scale-110' : ''}`}
                       whileHover={{ scale: 1.05 }}
@@ -410,7 +418,7 @@ export function RoadmapWidget() {
                   </div>
 
                   {/* Специализированные планеты */}
-                  <div className="absolute top-[380px] left-[320px] z-10">
+                  <div className="absolute top-[280px] lg:top-[380px] left-[200px] lg:left-[320px] z-10">
                     <motion.div 
                       className={`cursor-pointer ${selectedNode === 'data-structures' ? 'scale-110' : ''}`}
                       whileHover={{ scale: 1.05 }}
@@ -434,7 +442,7 @@ export function RoadmapWidget() {
                     </motion.div>
                   </div>
 
-                  <div className="absolute top-[380px] left-[820px] z-10">
+                  <div className="absolute top-[280px] lg:top-[380px] left-[520px] lg:left-[820px] z-10">
                     <motion.div 
                       className={`cursor-pointer ${selectedNode === 'ml-intro' ? 'scale-110' : ''}`}
                       whileHover={{ scale: 1.05 }}
@@ -459,7 +467,7 @@ export function RoadmapWidget() {
                   </div>
 
                   {/* Продвинутые спутники */}
-                  <div className="absolute top-[500px] left-[360px] z-10">
+                  <div className="absolute top-[380px] lg:top-[500px] left-[260px] lg:left-[360px] z-10">
                     <motion.div 
                       className={`cursor-pointer ${selectedNode === 'numpy-pandas' ? 'scale-110' : ''}`}
                       whileHover={{ scale: 1.1 }}
@@ -478,7 +486,7 @@ export function RoadmapWidget() {
                     </motion.div>
                   </div>
 
-                  <div className="absolute top-[500px] left-[580px] z-10">
+                  <div className="absolute top-[380px] lg:top-[500px] left-[460px] lg:left-[580px] z-10">
                     <motion.div 
                       className={`cursor-pointer ${selectedNode === 'deep-learning' ? 'scale-110' : ''}`}
                       whileHover={{ scale: 1.1 }}
