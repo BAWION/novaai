@@ -470,9 +470,29 @@ export default function Dashboard() {
           </div>
 
           {/* Горизонтальная карта во весь экран */}
-          <GalaxyUniverse fullScreen={true} onClose={() => setIsFullscreenMap(false)} />
+          <div className="w-full h-full pt-16">
+            <GalaxyUniverse fullScreen={true} onClose={() => setIsFullscreenMap(false)} />
+          </div>
 
-
+          {/* Подсказки управления */}
+          <div className="absolute bottom-4 left-4 right-4 z-10">
+            <div className="bg-black/60 backdrop-blur-sm border border-white/20 rounded-lg p-3">
+              <div className="flex flex-wrap items-center justify-center gap-4 text-white/70 text-sm">
+                <div className="flex items-center gap-2">
+                  <i className="fas fa-mouse text-xs"></i>
+                  <span>Двойной клик - войти в галактику</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <i className="fas fa-scroll text-xs"></i>
+                  <span>Скролл - навигация по уровням</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <i className="fas fa-arrows-alt text-xs"></i>
+                  <span>Перетаскивание - перемещение по карте</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </DashboardLayout>
