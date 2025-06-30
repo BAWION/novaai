@@ -138,10 +138,12 @@ function GalaxyUniverse() {
   const [newDiscovery, setNewDiscovery] = useState<{ type: 'galaxy' | 'planet'; name: string } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const [showCourseModal, setShowCourseModal] = useState(false);
-  const [modalCourses, setModalCourses] = useState<Course[]>([]);
-  const [modalSystemName, setModalSystemName] = useState('');
-  const [modalGalaxyName, setModalGalaxyName] = useState('');
+  const [selectedSystemInfo, setSelectedSystemInfo] = useState<{
+    systemId: string;
+    courses: Course[];
+    position: { x: number; y: number };
+    galaxyName: string;
+  } | null>(null);
 
   // Загружаем курсы
   const { data: courses = [], isLoading } = useQuery({
@@ -214,23 +216,32 @@ function GalaxyUniverse() {
     }
   };
 
-  const handleSystemDoubleClick = (systemId: string) => {
+  const handleSystemClick = (systemId: string, systemPosition: { x: number; y: number }) => {
     const galaxy = galaxies.find(g => g.id === viewConfig.selectedGalaxy);
     if (galaxy && galaxy.courses.length > 0) {
-      // Показываем модальное окно со списком курсов
-      setModalCourses(galaxy.courses);
-      setModalSystemName(`Система ${systemId}`);
-      setModalGalaxyName(galaxy.name);
-      setShowCourseModal(true);
-    } else {
-      // Если курсов нет, переход к деталям звездной системы
-      setViewConfig(prev => ({
-        ...prev,
-        state: 'system',
-        selectedSystem: systemId,
-        zoom: 4,
-      }));
+      // Показываем встроенную панель со списком курсов
+      setSelectedSystemInfo({
+        systemId,
+        courses: galaxy.courses,
+        position: systemPosition,
+        galaxyName: galaxy.name
+      });
     }
+  };
+
+  const handleSystemDoubleClick = (systemId: string, systemPosition: { x: number; y: number }) => {
+    // Закрываем информационную панель
+    setSelectedSystemInfo(null);
+    
+    // Переход к деталям звездной системы (System view)
+    setViewConfig({
+      state: 'system',
+      selectedGalaxy: viewConfig.selectedGalaxy,
+      selectedSystem: systemId,
+      zoom: 2.5,
+      centerX: systemPosition.x,
+      centerY: systemPosition.y
+    });
   };
 
   const handlePlanetClick = (planet: Planet) => {
@@ -782,7 +793,14 @@ function GalaxyUniverse() {
                   initial={{ scale: 0, opacity: 0 }}
                   exit={{ scale: 0, opacity: 0 }}
                   transition={{ duration: 0.5, delay: systemIndex * 0.1 }}
-                  onDoubleClick={() => handleSystemDoubleClick(`system-${systemIndex}`)}
+                  onClick={() => handleSystemClick(`system-${systemIndex}`, {
+                    x: galaxy.position.x + Math.cos(angle) * radius,
+                    y: galaxy.position.y + Math.sin(angle) * radius
+                  })}
+                  onDoubleClick={() => handleSystemDoubleClick(`system-${systemIndex}`, {
+                    x: galaxy.position.x + Math.cos(angle) * radius,
+                    y: galaxy.position.y + Math.sin(angle) * radius
+                  })}
                 >
                   {/* Центральная звезда системы */}
                   <motion.div
@@ -1283,36 +1301,44 @@ function GalaxyUniverse() {
         )}
       </AnimatePresence>
 
-      {/* Модальное окно со списком курсов системы */}
+      {/* Встроенная панель со списком курсов системы */}
       <AnimatePresence>
-        {showCourseModal && (
+        {selectedSystemInfo && (
           <motion.div
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setShowCourseModal(false)}
+            className="absolute z-[90] pointer-events-none"
+            style={{
+              left: '50%',
+              top: '50%',
+            }}
+            initial={{ opacity: 0, scale: 0.8, x: selectedSystemInfo.position.x + 140, y: selectedSystemInfo.position.y - 130 }}
+            animate={{ 
+              opacity: 1, 
+              scale: 1,
+              x: selectedSystemInfo.position.x + 120, // Панель справа от системы
+              y: selectedSystemInfo.position.y - 150, // Немного выше системы
+            }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.3 }}
           >
             <motion.div
-              className="bg-gradient-to-br from-space-800/95 to-space-900/95 backdrop-blur-md p-6 rounded-2xl border border-primary/30 shadow-2xl max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto"
-              initial={{ scale: 0.8, opacity: 0, y: 50 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.8, opacity: 0, y: 50 }}
-              onClick={(e) => e.stopPropagation()}
+              className="bg-gradient-to-br from-space-800/95 to-space-900/95 backdrop-blur-md p-4 rounded-xl border border-primary/30 shadow-2xl w-80 max-h-96 overflow-y-auto pointer-events-auto"
+              initial={{ x: 20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: 20, opacity: 0 }}
             >
-              {/* Заголовок модального окна */}
-              <div className="flex items-center justify-between mb-6">
+              {/* Заголовок панели */}
+              <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h2 className="text-2xl font-orbitron text-white font-bold mb-2">
-                    Планеты-курсы системы
-                  </h2>
+                  <h3 className="text-lg font-orbitron text-white font-bold">
+                    Планеты-курсы
+                  </h3>
                   <p className="text-primary text-sm">
-                    {modalGalaxyName}
+                    {selectedSystemInfo.galaxyName}
                   </p>
                 </div>
                 <motion.button
-                  onClick={() => setShowCourseModal(false)}
-                  className="w-10 h-10 bg-space-700/50 hover:bg-space-600/50 border border-white/20 rounded-full flex items-center justify-center text-white/70 hover:text-white transition-colors"
+                  onClick={() => setSelectedSystemInfo(null)}
+                  className="w-8 h-8 bg-space-700/50 hover:bg-space-600/50 border border-white/20 rounded-full flex items-center justify-center text-white/70 hover:text-white transition-colors"
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                 >
@@ -1320,9 +1346,9 @@ function GalaxyUniverse() {
                 </motion.button>
               </div>
 
-              {/* Список курсов */}
-              <div className="space-y-4">
-                {modalCourses.map((course, index) => {
+              {/* Компактный список курсов */}
+              <div className="space-y-3">
+                {selectedSystemInfo.courses.map((course, index) => {
                   const progress = course.progress || 0;
                   const isCompleted = progress >= 100;
                   const isStarted = progress > 0;
@@ -1330,20 +1356,20 @@ function GalaxyUniverse() {
                   return (
                     <motion.div
                       key={course.id}
-                      className="bg-space-700/30 hover:bg-space-700/50 border border-white/10 hover:border-primary/30 rounded-xl p-4 cursor-pointer transition-all group"
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
+                      className="bg-space-700/30 hover:bg-space-700/50 border border-white/10 hover:border-primary/30 rounded-lg p-3 cursor-pointer transition-all group"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
                       onClick={() => {
                         navigate(`/courses/${course.id}`);
-                        setShowCourseModal(false);
+                        setSelectedSystemInfo(null);
                       }}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
-                      <div className="flex items-start gap-4">
-                        {/* Иконка планеты */}
-                        <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg ${
+                      <div className="flex items-center gap-3">
+                        {/* Мини-иконка планеты */}
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${
                           isCompleted ? 'bg-gradient-to-br from-green-500 to-emerald-600' :
                           isStarted ? 'bg-gradient-to-br from-primary to-blue-600' :
                           'bg-gradient-to-br from-gray-500 to-gray-600'
@@ -1352,37 +1378,17 @@ function GalaxyUniverse() {
                         </div>
 
                         {/* Информация о курсе */}
-                        <div className="flex-1">
-                          <div className="flex items-start justify-between mb-2">
-                            <div>
-                              <h3 className="text-white font-medium group-hover:text-primary transition-colors">
-                                {course.title}
-                              </h3>
-                              <p className="text-white/60 text-sm mt-1">
-                                {generatePlanetName(course, index)}
-                              </p>
-                            </div>
-                            
-                            {/* Статус */}
-                            <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              isCompleted ? 'bg-green-500/20 text-green-400' :
-                              isStarted ? 'bg-primary/20 text-primary' :
-                              'bg-gray-500/20 text-gray-400'
-                            }`}>
-                              {isCompleted ? 'Завершено' : isStarted ? 'В процессе' : 'Не начат'}
-                            </div>
-                          </div>
-
-                          {/* Описание */}
-                          {course.description && (
-                            <p className="text-white/50 text-sm mb-3 line-clamp-2">
-                              {course.description}
-                            </p>
-                          )}
-
-                          {/* Прогресс-бар */}
-                          <div className="flex items-center gap-3">
-                            <div className="flex-1 h-2 bg-space-600 rounded-full overflow-hidden">
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-white font-medium text-sm group-hover:text-primary transition-colors truncate">
+                            {course.title}
+                          </h4>
+                          <p className="text-white/60 text-xs mt-1 truncate">
+                            {generatePlanetName(course, index)}
+                          </p>
+                          
+                          {/* Мини прогресс-бар */}
+                          <div className="flex items-center gap-2 mt-1">
+                            <div className="flex-1 h-1 bg-space-600 rounded-full overflow-hidden">
                               <motion.div
                                 className={`h-full ${
                                   isCompleted ? 'bg-gradient-to-r from-green-500 to-emerald-500' :
@@ -1390,22 +1396,12 @@ function GalaxyUniverse() {
                                 }`}
                                 initial={{ width: 0 }}
                                 animate={{ width: `${progress}%` }}
-                                transition={{ duration: 1, delay: index * 0.2 }}
+                                transition={{ duration: 0.8, delay: index * 0.1 }}
                               />
                             </div>
-                            <span className="text-white/60 text-sm w-12 text-right">
+                            <span className="text-white/60 text-xs w-8 text-right">
                               {Math.round(progress)}%
                             </span>
-                          </div>
-
-                          {/* Дополнительная информация */}
-                          <div className="flex items-center gap-4 mt-2 text-xs text-white/40">
-                            {course.modules && (
-                              <span>{course.modules} модулей</span>
-                            )}
-                            {course.level && (
-                              <span className="capitalize">{course.level}</span>
-                            )}
                           </div>
                         </div>
                       </div>
@@ -1414,16 +1410,11 @@ function GalaxyUniverse() {
                 })}
               </div>
 
-              {/* Кнопка закрытия внизу */}
-              <div className="flex justify-center mt-6">
-                <motion.button
-                  onClick={() => setShowCourseModal(false)}
-                  className="px-6 py-2 bg-space-700/50 hover:bg-space-600/50 border border-white/20 rounded-lg text-white/70 hover:text-white transition-colors"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Закрыть
-                </motion.button>
+              {/* Подсказка */}
+              <div className="mt-4 pt-3 border-t border-white/10">
+                <p className="text-white/50 text-xs text-center">
+                  Двойной клик по системе для входа в планетарный вид
+                </p>
               </div>
             </motion.div>
           </motion.div>
