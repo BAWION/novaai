@@ -782,16 +782,7 @@ function GalaxyUniverse() {
                   initial={{ scale: 0, opacity: 0 }}
                   exit={{ scale: 0, opacity: 0 }}
                   transition={{ duration: 0.5, delay: systemIndex * 0.1 }}
-                  onDoubleClick={() => {
-                    setViewConfig({
-                      state: 'system',
-                      selectedGalaxy: viewConfig.selectedGalaxy,
-                      selectedSystem: `system-${systemIndex}`,
-                      zoom: 2.5, // Уменьшаем начальный зум для systems для более дальнего просмотра
-                      centerX: galaxy.position.x + Math.cos(angle) * radius,
-                      centerY: galaxy.position.y + Math.sin(angle) * radius
-                    });
-                  }}
+                  onDoubleClick={() => handleSystemDoubleClick(`system-${systemIndex}`)}
                 >
                   {/* Центральная звезда системы */}
                   <motion.div
