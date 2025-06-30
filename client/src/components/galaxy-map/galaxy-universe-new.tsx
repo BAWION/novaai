@@ -920,10 +920,7 @@ function GalaxyUniverse() {
               transition={{ duration: 0.8 }}
             >
               {/* Орбитальные траектории */}
-              {Array.from(new Set(planets.map((_, index) => {
-                const orbitRings = [120, 180, 240, 300, 360, 420, 480, 540, 600];
-                return orbitRings[index % orbitRings.length];
-              }))).map((radius, ringIndex) => (
+              {[120, 160, 200, 240, 280, 320, 360, 400, 440].slice(0, Math.min(planets.length, 9)).map((radius, ringIndex) => (
                 <div
                   key={`orbit-ring-${ringIndex}`}
                   className="absolute border border-white/6 rounded-full pointer-events-none"
@@ -983,13 +980,13 @@ function GalaxyUniverse() {
 
               {/* Планеты-курсы с орбитами */}
               {planets.map((planet, index) => {
-                // Система орбитальных колец как в солнечной системе
-                const orbitRings = [120, 180, 240, 300, 360, 420, 480, 540, 600]; // 9 орбит
-                const radius = orbitRings[index % orbitRings.length];
+                // Система орбитальных колец - каждая планета на своей орбите
+                const orbitRings = [120, 160, 200, 240, 280, 320, 360, 400, 440]; // 9 орбит
+                const radius = orbitRings[index] || orbitRings[index % orbitRings.length];
                 
-                // Равномерное распределение по орбите с медленным вращением
-                const orbitSpeed = 0.0001 * (1 / (radius / 120)); // Медленнее для дальних орбит
-                const baseAngle = (index * (360 / planets.length)) * (Math.PI / 180); // Равномерное начальное размещение
+                // Разное начальное положение для каждой планеты
+                const orbitSpeed = 0.00008 * (1 / Math.sqrt(radius / 120)); // Медленнее для дальних орбит
+                const baseAngle = (index * 41.5) * (Math.PI / 180); // Разные начальные углы для разнообразия
                 const angle = Date.now() * orbitSpeed + baseAngle;
                 
                 const x = Math.cos(angle) * radius;
