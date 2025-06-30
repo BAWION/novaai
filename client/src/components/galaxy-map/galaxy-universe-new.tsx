@@ -919,12 +919,15 @@ function GalaxyUniverse() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8 }}
             >
-              {/* Орбитальные траектории - только уникальные орбиты */}
-              {[0, 1, 2, 3, 4].map((orbitIndex) => {
-                const radius = 80 + orbitIndex * 40; // Соответствует орбитам планет
+              {/* Орбитальные траектории */}
+              {planets.map((planet, index) => {
+                // Соответствует новой системе орбит
+                const baseRadius = 100;
+                const orbitSpacing = 60;
+                const radius = baseRadius + (index % 3) * orbitSpacing + Math.floor(index / 3) * 30;
                 return (
                   <div
-                    key={`orbit-${orbitIndex}`}
+                    key={`orbit-${index}`}
                     className="absolute border border-white/8 rounded-full pointer-events-none"
                     style={{
                       width: radius * 2,
@@ -936,29 +939,6 @@ function GalaxyUniverse() {
                   />
                 );
               })}
-              
-              {/* Орбитальные траектории планет */}
-              {Array.from({ length: 6 }).map((_, i) => (
-                <motion.div
-                  key={`orbit-${i}`}
-                  className="absolute border border-white/8 rounded-full pointer-events-none"
-                  style={{
-                    width: (70 + i * 35) * 2,
-                    height: (70 + i * 35) * 2,
-                    left: '50%',
-                    top: '50%',
-                    transform: 'translate(-50%, -50%)',
-                  }}
-                  animate={{ 
-                    opacity: [0.3, 0.6, 0.3],
-                  }}
-                  transition={{ 
-                    duration: 4 + i * 0.5,
-                    repeat: Infinity,
-                    delay: i * 0.2
-                  }}
-                />
-              ))}
 
               {/* Центральная звезда */}
               <motion.div
@@ -980,37 +960,44 @@ function GalaxyUniverse() {
                 transition={{ duration: 4, repeat: Infinity }}
               />
 
-
+              {/* Корабль Галаксион в центре */}
+              <motion.div
+                className="absolute z-30"
+                style={{
+                  left: '50%',
+                  top: '50%',
+                  transform: 'translate(-50%, -50%)',
+                }}
+                animate={{
+                  rotate: [0, 360],
+                }}
+                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+              >
+                <div className="relative w-8 h-8">
+                  <div className="absolute inset-0 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-lg transform rotate-45" />
+                  <div className="absolute inset-1 bg-gradient-to-br from-white/30 to-transparent rounded-sm transform rotate-45" />
+                  <motion.div
+                    className="absolute -inset-1 bg-cyan-400/20 rounded-lg"
+                    animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0.8, 0.5] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  />
+                </div>
+              </motion.div>
 
               {/* Планеты-курсы с орбитами */}
               {planets.map((planet, index) => {
-                // Более разнообразное распределение по орбитам
-                const totalPlanets = planets.length;
-                const orbitCount = Math.min(6, Math.ceil(totalPlanets / 2)); // От 3 до 6 орбит в зависимости от количества планет
+                // Улучшенная система орбит - больше разнообразия
+                const baseRadius = 100;
+                const orbitSpacing = 60;
+                const radius = baseRadius + (index % 3) * orbitSpacing + Math.floor(index / 3) * 30;
                 
-                // Распределяем планеты по орбитам с учетом их размера
-                const modules = planet.course.modules || 1;
-                const estimatedLessons = modules * 2;
-                
-                // Большие курсы на дальних орбитах, малые ближе к солнцу
-                let orbitIndex;
-                if (estimatedLessons <= 4) {
-                  orbitIndex = index % 2; // Малые планеты на ближних орбитах (0, 1)
-                } else if (estimatedLessons <= 10) {
-                  orbitIndex = 2 + (index % 2); // Средние планеты на средних орбитах (2, 3)
-                } else {
-                  orbitIndex = 4 + (index % 2); // Большие планеты на дальних орбитах (4, 5)
-                }
-                
-                const radius = 70 + orbitIndex * 35; // Орбиты: 70, 105, 140, 175, 210, 245px
-                
-                // Равномерное угловое распределение с некоторой случайностью
-                const baseAngle = (index * 137.5 * Math.PI / 180) % (2 * Math.PI); // Золотой угол для равномерного распределения
-                const speedFactor = 1.2 - orbitIndex * 0.15; // Ближние орбиты быстрее
-                const angle = Date.now() * 0.0001 * speedFactor + baseAngle;
-                
+                const angle = Date.now() * 0.0001 * (0.3 + index * 0.15) + index * (Math.PI / 5);
                 const x = Math.cos(angle) * radius;
                 const y = Math.sin(angle) * radius;
+                
+                // Определяем размер планеты по объему курса (модули + уроки)
+                const modules = planet.course.modules || 1;
+                const estimatedLessons = modules * 2; // Примерно 2 урока на модуль
                 
                 // Размеры планет: малый (20-28), средний (32-44), большой (48-60)
                 let planetSize;
