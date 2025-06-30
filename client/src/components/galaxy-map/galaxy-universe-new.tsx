@@ -1321,24 +1321,25 @@ function GalaxyUniverse() {
             transition={{ duration: 0.3 }}
           >
             <motion.div
-              className="bg-gradient-to-br from-space-800/95 to-space-900/95 backdrop-blur-md p-4 rounded-xl border border-primary/30 shadow-2xl w-80 max-h-96 overflow-y-auto pointer-events-auto"
+              className="system-info-panel bg-gradient-to-br from-space-800/95 to-space-900/95 backdrop-blur-md p-3 rounded-lg border border-primary/30 shadow-2xl w-64 max-h-72 overflow-y-auto pointer-events-auto"
               initial={{ x: 20, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: 20, opacity: 0 }}
+              onWheel={(e) => e.stopPropagation()}
             >
               {/* Заголовок панели */}
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center justify-between mb-3">
                 <div>
-                  <h3 className="text-lg font-orbitron text-white font-bold">
+                  <h3 className="text-sm font-orbitron text-white font-bold">
                     Планеты-курсы
                   </h3>
-                  <p className="text-primary text-sm">
+                  <p className="text-primary text-xs">
                     {selectedSystemInfo.galaxyName}
                   </p>
                 </div>
                 <motion.button
                   onClick={() => setSelectedSystemInfo(null)}
-                  className="w-8 h-8 bg-space-700/50 hover:bg-space-600/50 border border-white/20 rounded-full flex items-center justify-center text-white/70 hover:text-white transition-colors"
+                  className="w-6 h-6 bg-space-700/50 hover:bg-space-600/50 border border-white/20 rounded-full flex items-center justify-center text-white/70 hover:text-white transition-colors text-xs"
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                 >
@@ -1347,7 +1348,7 @@ function GalaxyUniverse() {
               </div>
 
               {/* Компактный список курсов */}
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {selectedSystemInfo.courses.map((course, index) => {
                   const progress = course.progress || 0;
                   const isCompleted = progress >= 100;
@@ -1356,7 +1357,7 @@ function GalaxyUniverse() {
                   return (
                     <motion.div
                       key={course.id}
-                      className="bg-space-700/30 hover:bg-space-700/50 border border-white/10 hover:border-primary/30 rounded-lg p-3 cursor-pointer transition-all group"
+                      className="bg-space-700/30 hover:bg-space-700/50 border border-white/10 hover:border-primary/30 rounded-md p-2 cursor-pointer transition-all group"
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
@@ -1367,9 +1368,9 @@ function GalaxyUniverse() {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2">
                         {/* Мини-иконка планеты */}
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${
+                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-xs ${
                           isCompleted ? 'bg-gradient-to-br from-green-500 to-emerald-600' :
                           isStarted ? 'bg-gradient-to-br from-primary to-blue-600' :
                           'bg-gradient-to-br from-gray-500 to-gray-600'
@@ -1379,15 +1380,15 @@ function GalaxyUniverse() {
 
                         {/* Информация о курсе */}
                         <div className="flex-1 min-w-0">
-                          <h4 className="text-white font-medium text-sm group-hover:text-primary transition-colors truncate">
+                          <h4 className="text-white font-medium text-xs group-hover:text-primary transition-colors truncate">
                             {course.title}
                           </h4>
-                          <p className="text-white/60 text-xs mt-1 truncate">
+                          <p className="text-white/60 text-xs mt-0.5 truncate">
                             {generatePlanetName(course, index)}
                           </p>
                           
                           {/* Мини прогресс-бар */}
-                          <div className="flex items-center gap-2 mt-1">
+                          <div className="flex items-center gap-1 mt-1">
                             <div className="flex-1 h-1 bg-space-600 rounded-full overflow-hidden">
                               <motion.div
                                 className={`h-full ${
@@ -1399,7 +1400,7 @@ function GalaxyUniverse() {
                                 transition={{ duration: 0.8, delay: index * 0.1 }}
                               />
                             </div>
-                            <span className="text-white/60 text-xs w-8 text-right">
+                            <span className="text-white/60 text-xs w-6 text-right">
                               {Math.round(progress)}%
                             </span>
                           </div>
@@ -1411,9 +1412,9 @@ function GalaxyUniverse() {
               </div>
 
               {/* Подсказка */}
-              <div className="mt-4 pt-3 border-t border-white/10">
-                <p className="text-white/50 text-xs text-center">
-                  Двойной клик по системе для входа в планетарный вид
+              <div className="mt-2 pt-2 border-t border-white/10">
+                <p className="text-white/40 text-xs text-center">
+                  Двойной клик → планетарный вид
                 </p>
               </div>
             </motion.div>
