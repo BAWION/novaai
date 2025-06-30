@@ -244,18 +244,29 @@ function GalaxyUniverse() {
     const panelWidth = 256;
     const panelHeight = 288;
     
+    // Границы карты (оставляем отступы)
+    const mapBounds = {
+      left: 80,
+      right: containerWidth - 80,
+      top: 80,
+      bottom: containerHeight - 80
+    };
+    
     let panelX = systemX + 120;
     let panelY = systemY - 150;
     
-    // Корректируем позицию по границам экрана
-    if (panelX + panelWidth > containerWidth - 50) {
+    // Корректируем позицию по границам карты
+    if (panelX + panelWidth > mapBounds.right) {
       panelX = systemX - panelWidth - 20;
     }
+    if (panelX < mapBounds.left) {
+      panelX = mapBounds.left;
+    }
     
-    if (panelY < 50) {
-      panelY = 50;
-    } else if (panelY + panelHeight > containerHeight - 50) {
-      panelY = containerHeight - panelHeight - 50;
+    if (panelY < mapBounds.top) {
+      panelY = mapBounds.top;
+    } else if (panelY + panelHeight > mapBounds.bottom) {
+      panelY = mapBounds.bottom - panelHeight;
     }
     
     return { x: panelX, y: panelY };
@@ -1377,7 +1388,7 @@ function GalaxyUniverse() {
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <h3 className="text-sm font-orbitron text-white font-bold">
-                    Планеты-курсы
+                    Система {selectedSystemInfo.systemIndex + 1}
                   </h3>
                   <p className="text-primary text-xs">
                     {selectedSystemInfo.galaxyName}
