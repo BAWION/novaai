@@ -143,12 +143,24 @@ function GalaxyUniverse() {
     courses: Course[];
     position: { x: number; y: number };
     galaxyName: string;
+    systemIndex: number;
   } | null>(null);
 
   // Загружаем курсы
   const { data: courses = [], isLoading } = useQuery({
     queryKey: ['/api/courses'],
   });
+
+  // Обновляем позицию панели при изменении зума или перемещении карты
+  useEffect(() => {
+    if (selectedSystemInfo) {
+      const newPosition = calculatePanelPosition(selectedSystemInfo.systemIndex);
+      setSelectedSystemInfo(prev => prev ? {
+        ...prev,
+        position: newPosition
+      } : null);
+    }
+  }, [viewConfig.zoom, viewConfig.centerX, viewConfig.centerY]);
 
   // Распределяем курсы по галактикам и создаем планеты
   useEffect(() => {
@@ -216,15 +228,51 @@ function GalaxyUniverse() {
     }
   };
 
+  const calculatePanelPosition = (systemIndex: number) => {
+    const galaxy = galaxies.find(g => g.id === viewConfig.selectedGalaxy);
+    if (!galaxy) return { x: 0, y: 0 };
+    
+    const angle = (systemIndex * 72) * (Math.PI / 180);
+    const radius = 150 + systemIndex * 50;
+    
+    // Позиция системы с учетом всех трансформаций карты
+    const systemX = window.innerWidth / 2 + viewConfig.centerX + (galaxy.position.x + Math.cos(angle) * radius) * viewConfig.zoom;
+    const systemY = window.innerHeight / 2 + viewConfig.centerY + (galaxy.position.y + Math.sin(angle) * radius) * viewConfig.zoom;
+    
+    const containerWidth = window.innerWidth;
+    const containerHeight = window.innerHeight;
+    const panelWidth = 256;
+    const panelHeight = 288;
+    
+    let panelX = systemX + 120;
+    let panelY = systemY - 150;
+    
+    // Корректируем позицию по границам экрана
+    if (panelX + panelWidth > containerWidth - 50) {
+      panelX = systemX - panelWidth - 20;
+    }
+    
+    if (panelY < 50) {
+      panelY = 50;
+    } else if (panelY + panelHeight > containerHeight - 50) {
+      panelY = containerHeight - panelHeight - 50;
+    }
+    
+    return { x: panelX, y: panelY };
+  };
+
   const handleSystemClick = (systemId: string, systemPosition: { x: number; y: number }) => {
     const galaxy = galaxies.find(g => g.id === viewConfig.selectedGalaxy);
     if (galaxy && galaxy.courses.length > 0) {
-      // Показываем встроенную панель со списком курсов
+      const systemIndex = parseInt(systemId.split('-')[1]) || 0;
+      const panelPosition = calculatePanelPosition(systemIndex);
+      
       setSelectedSystemInfo({
         systemId,
         courses: galaxy.courses,
-        position: systemPosition,
-        galaxyName: galaxy.name
+        position: panelPosition,
+        galaxyName: galaxy.name,
+        systemIndex
       });
     }
   };
@@ -1305,20 +1353,18 @@ function GalaxyUniverse() {
       <AnimatePresence>
         {selectedSystemInfo && (
           <motion.div
-            className="absolute z-[90] pointer-events-none"
-            style={{
-              left: '50%',
-              top: '50%',
-            }}
-            initial={{ opacity: 0, scale: 0.8, x: selectedSystemInfo.position.x + 140, y: selectedSystemInfo.position.y - 130 }}
+            className="fixed z-[90] pointer-events-none"
+            initial={{ opacity: 0, scale: 0.8 }}
             animate={{ 
               opacity: 1, 
               scale: 1,
-              x: selectedSystemInfo.position.x + 120, // Панель справа от системы
-              y: selectedSystemInfo.position.y - 150, // Немного выше системы
             }}
             exit={{ opacity: 0, scale: 0.8 }}
             transition={{ duration: 0.3 }}
+            style={{
+              left: selectedSystemInfo.position.x,
+              top: selectedSystemInfo.position.y,
+            }}
           >
             <motion.div
               className="system-info-panel bg-gradient-to-br from-space-800/95 to-space-900/95 backdrop-blur-md p-3 rounded-lg border border-primary/30 shadow-2xl w-64 max-h-72 overflow-y-auto pointer-events-auto"
