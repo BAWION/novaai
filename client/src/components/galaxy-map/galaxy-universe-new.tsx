@@ -919,15 +919,12 @@ function GalaxyUniverse() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8 }}
             >
-              {/* Орбитальные траектории */}
-              {planets.map((planet, index) => {
-                // Соответствует новой системе орбит
-                const baseRadius = 100;
-                const orbitSpacing = 60;
-                const radius = baseRadius + (index % 3) * orbitSpacing + Math.floor(index / 3) * 30;
+              {/* Орбитальные траектории - только уникальные орбиты */}
+              {[0, 1, 2, 3, 4].map((orbitIndex) => {
+                const radius = 80 + orbitIndex * 40; // Соответствует орбитам планет
                 return (
                   <div
-                    key={`orbit-${index}`}
+                    key={`orbit-${orbitIndex}`}
                     className="absolute border border-white/8 rounded-full pointer-events-none"
                     style={{
                       width: radius * 2,
@@ -939,6 +936,18 @@ function GalaxyUniverse() {
                   />
                 );
               })}
+              
+              {/* Орбита корабля Галаксион */}
+              <div
+                className="absolute border border-cyan-400/20 rounded-full pointer-events-none"
+                style={{
+                  width: 280 * 2,
+                  height: 280 * 2,
+                  left: '50%',
+                  top: '50%',
+                  transform: 'translate(-50%, -50%)',
+                }}
+              />
 
               {/* Центральная звезда */}
               <motion.div
@@ -960,7 +969,7 @@ function GalaxyUniverse() {
                 transition={{ duration: 4, repeat: Infinity }}
               />
 
-              {/* Корабль Галаксион в центре */}
+              {/* Корабль Галаксион на внешней орбите */}
               <motion.div
                 className="absolute z-30"
                 style={{
@@ -968,30 +977,84 @@ function GalaxyUniverse() {
                   top: '50%',
                   transform: 'translate(-50%, -50%)',
                 }}
-                animate={{
-                  rotate: [0, 360],
-                }}
-                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
               >
-                <div className="relative w-8 h-8">
-                  <div className="absolute inset-0 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-lg transform rotate-45" />
-                  <div className="absolute inset-1 bg-gradient-to-br from-white/30 to-transparent rounded-sm transform rotate-45" />
+                <motion.div
+                  animate={{
+                    rotate: [0, 360],
+                  }}
+                  transition={{ 
+                    duration: 30, 
+                    repeat: Infinity, 
+                    ease: "linear" 
+                  }}
+                  style={{ 
+                    width: 280 * 2, 
+                    height: 280 * 2,
+                    position: 'relative'
+                  }}
+                >
                   <motion.div
-                    className="absolute -inset-1 bg-cyan-400/20 rounded-lg"
-                    animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0.8, 0.5] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  />
-                </div>
+                    className="absolute"
+                    style={{
+                      top: 0,
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                    }}
+                    animate={{
+                      rotate: [0, -360], // Противоположное вращение для сохранения ориентации
+                    }}
+                    transition={{
+                      duration: 30,
+                      repeat: Infinity,
+                      ease: "linear"
+                    }}
+                  >
+                    <div className="relative w-10 h-10">
+                      <div className="absolute inset-0 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-lg transform rotate-45" />
+                      <div className="absolute inset-1 bg-gradient-to-br from-white/30 to-transparent rounded-sm transform rotate-45" />
+                      <motion.div
+                        className="absolute -inset-2 bg-cyan-400/20 rounded-lg"
+                        animate={{ scale: [1, 1.3, 1], opacity: [0.4, 0.8, 0.4] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      />
+                      
+                      {/* Энергетический след */}
+                      <motion.div
+                        className="absolute -inset-3 border border-cyan-400/30 rounded-lg"
+                        animate={{ 
+                          rotate: [0, 360],
+                          scale: [1, 1.1, 1]
+                        }}
+                        transition={{ 
+                          rotate: { duration: 15, repeat: Infinity, ease: "linear" },
+                          scale: { duration: 3, repeat: Infinity }
+                        }}
+                      />
+                    </div>
+                    
+                    {/* Название корабля */}
+                    <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-center whitespace-nowrap">
+                      <div className="bg-space-800/90 backdrop-blur-sm px-2 py-1 rounded border border-cyan-400/30">
+                        <p className="text-xs font-orbitron text-cyan-400 font-bold">ГАЛАКСИОН</p>
+                        <p className="text-xs text-white/60">Исследовательский корабль</p>
+                      </div>
+                    </div>
+                  </motion.div>
+                </motion.div>
               </motion.div>
 
               {/* Планеты-курсы с орбитами */}
               {planets.map((planet, index) => {
-                // Улучшенная система орбит - больше разнообразия
-                const baseRadius = 100;
-                const orbitSpacing = 60;
-                const radius = baseRadius + (index % 3) * orbitSpacing + Math.floor(index / 3) * 30;
+                // Круговые орбиты с равномерным распределением
+                const orbitIndex = index % 5; // Максимум 5 орбит для планет
+                const radius = 80 + orbitIndex * 40; // Орбиты: 80, 120, 160, 200, 240px
                 
-                const angle = Date.now() * 0.0001 * (0.3 + index * 0.15) + index * (Math.PI / 5);
+                // Планеты на одной орбите распределены равномерно
+                const planetsOnOrbit = planets.filter((_, i) => i % 5 === orbitIndex).length;
+                const planetIndexOnOrbit = Math.floor(index / 5);
+                const angleOffset = (planetIndexOnOrbit * 2 * Math.PI) / Math.max(planetsOnOrbit, 1);
+                
+                const angle = Date.now() * 0.0001 * (1.5 - orbitIndex * 0.2) + angleOffset;
                 const x = Math.cos(angle) * radius;
                 const y = Math.sin(angle) * radius;
                 
