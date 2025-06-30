@@ -461,9 +461,10 @@ function GalaxyUniverse({ fullScreen = false, onClose }: GalaxyUniverseProps) {
     <div 
       className={`w-full relative bg-gradient-to-b from-space-900 via-space-800 to-space-900 overflow-hidden ${
         fullScreen 
-          ? 'fixed inset-0 z-50' 
+          ? 'fixed inset-0 z-[9999]' 
           : 'h-[600px] rounded-xl'
       }`}
+      style={fullScreen ? { backgroundColor: '#0f172a' } : {}}
       onWheel={(e) => {
         e.preventDefault();
         const delta = e.deltaY * 0.008; // Более медленное изменение зума
@@ -493,10 +494,17 @@ function GalaxyUniverse({ fullScreen = false, onClose }: GalaxyUniverseProps) {
         }
       }}
     >
+      {/* Debug info for fullscreen mode */}
+      {fullScreen && (
+        <div className="absolute top-2 left-2 z-[9998] text-white text-sm bg-black/50 p-2 rounded">
+          Полноэкранная карта активна
+        </div>
+      )}
+
       {/* Close button for fullscreen mode */}
       {fullScreen && onClose && (
         <motion.button
-          className="absolute top-4 right-4 z-50 bg-space-800/90 backdrop-blur-sm p-2 rounded-lg border border-white/20 text-white hover:bg-space-700/90 transition-colors"
+          className="absolute top-4 right-4 z-[9998] bg-space-800/90 backdrop-blur-sm p-2 rounded-lg border border-white/20 text-white hover:bg-space-700/90 transition-colors"
           onClick={onClose}
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -566,6 +574,19 @@ function GalaxyUniverse({ fullScreen = false, onClose }: GalaxyUniverseProps) {
           </div>
         </motion.div>
       </div>
+      {/* Простой тестовый фон для отладки */}
+      {fullScreen && (
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-blue-900 to-black">
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-2xl">
+            Галактическая карта загружается...
+          </div>
+          {/* Простые звезды для теста */}
+          <div className="absolute top-10 left-10 w-2 h-2 bg-white rounded-full"></div>
+          <div className="absolute top-20 right-20 w-1 h-1 bg-blue-300 rounded-full"></div>
+          <div className="absolute bottom-20 left-20 w-1 h-1 bg-yellow-300 rounded-full"></div>
+        </div>
+      )}
+
       {/* Живое звездное небо с туманностями */}
       <div className="absolute inset-0 pointer-events-none">
         {/* Звезды */}
