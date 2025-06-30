@@ -425,8 +425,9 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
       <DashboardLayout title="">
         <div className="container mx-auto px-4 py-6">
           {/* Компактная навигация */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center text-sm text-white/60">
+          <div className="mb-6">
+            {/* Хлебные крошки */}
+            <div className="flex items-center text-sm text-white/60 mb-4">
               <button 
                 className="hover:text-white transition"
                 onClick={() => navigate("/courses")}
@@ -443,14 +444,18 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
               <span className="mx-2">→</span>
               <span className="text-white">{lesson.title}</span>
             </div>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => navigate(`/courses/${courseContext}`)}
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              К курсу
-            </Button>
+            
+            {/* Кнопка "К курсу" только на десктопе */}
+            <div className="hidden sm:flex justify-end">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => navigate(`/courses/${courseContext}`)}
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                К курсу
+              </Button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
@@ -749,62 +754,76 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
             <div className="lg:col-span-1 space-y-4 order-2 lg:order-none">
               
               {/* Мобильная версия - горизонтальные кнопки */}
-              <div className="lg:hidden grid grid-cols-2 gap-3 mb-4">
+              <div className="lg:hidden space-y-3 mb-4">
+                {/* Кнопка К курсу для мобильной версии */}
                 <Button
                   variant="outline"
                   size="sm"
-                  className="justify-center border-dashed hover:border-solid transition-all duration-200"
-                  style={{ 
-                    minHeight: '55px', 
-                    height: 'auto', 
-                    padding: '8px 4px',
-                    whiteSpace: 'normal'
-                  }}
-                  onClick={() => setUseProgressiveLearning(!useProgressiveLearning)}
+                  className="w-full"
+                  onClick={() => navigate(`/courses/${courseContext}`)}
                 >
-                  <div className="flex flex-col items-center min-w-0">
-                    <LayersIcon className="h-4 w-4 mb-1 flex-shrink-0 text-purple-500" />
-                    <span 
-                      className="font-medium text-center"
-                      style={{ 
-                        fontSize: '11px',
-                        lineHeight: '1.2',
-                        wordBreak: 'break-word',
-                        overflowWrap: 'break-word'
-                      }}
-                    >
-                      {useProgressiveLearning ? "Обычный" : "Пошаговый"}
-                    </span>
-                  </div>
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  К курсу
                 </Button>
                 
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="justify-center border-dashed hover:border-solid transition-all duration-200"
-                  style={{ 
-                    minHeight: '55px', 
-                    height: 'auto', 
-                    padding: '8px 4px',
-                    whiteSpace: 'normal'
-                  }}
-                  onClick={handleToggleAIAssistant}
-                >
-                  <div className="flex flex-col items-center min-w-0">
-                    <HelpCircle className="h-4 w-4 mb-1 flex-shrink-0 text-blue-500" />
-                    <span 
-                      className="font-medium text-center"
-                      style={{ 
-                        fontSize: '11px',
-                        lineHeight: '1.2',
-                        wordBreak: 'break-word',
-                        overflowWrap: 'break-word'
-                      }}
-                    >
-                      AI-Помощь
-                    </span>
-                  </div>
-                </Button>
+                {/* Сетка функций */}
+                <div className="grid grid-cols-2 gap-3">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="justify-center border-dashed hover:border-solid transition-all duration-200"
+                    style={{ 
+                      minHeight: '55px', 
+                      height: 'auto', 
+                      padding: '8px 4px',
+                      whiteSpace: 'normal'
+                    }}
+                    onClick={() => setUseProgressiveLearning(!useProgressiveLearning)}
+                  >
+                    <div className="flex flex-col items-center min-w-0">
+                      <LayersIcon className="h-4 w-4 mb-1 flex-shrink-0 text-purple-500" />
+                      <span 
+                        className="font-medium text-center"
+                        style={{ 
+                          fontSize: '11px',
+                          lineHeight: '1.2',
+                          wordBreak: 'break-word',
+                          overflowWrap: 'break-word'
+                        }}
+                      >
+                        {useProgressiveLearning ? "Обычный" : "Пошаговый"}
+                      </span>
+                    </div>
+                  </Button>
+                  
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="justify-center border-dashed hover:border-solid transition-all duration-200"
+                    style={{ 
+                      minHeight: '55px', 
+                      height: 'auto', 
+                      padding: '8px 4px',
+                      whiteSpace: 'normal'
+                    }}
+                    onClick={handleToggleAIAssistant}
+                  >
+                    <div className="flex flex-col items-center min-w-0">
+                      <HelpCircle className="h-4 w-4 mb-1 flex-shrink-0 text-blue-500" />
+                      <span 
+                        className="font-medium text-center"
+                        style={{ 
+                          fontSize: '11px',
+                          lineHeight: '1.2',
+                          wordBreak: 'break-word',
+                          overflowWrap: 'break-word'
+                        }}
+                      >
+                        AI-Помощь
+                      </span>
+                    </div>
+                  </Button>
+                </div>
               </div>
               
               {/* Десктопная версия - полные карточки */}
