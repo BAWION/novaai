@@ -178,7 +178,7 @@ export function Sidebar() {
             className="w-12 h-12 rounded-full bg-gradient-to-br from-[#6E3AFF] to-[#2EBAE1] flex items-center justify-center flex-shrink-0"
             style={{ willChange: 'contents' }}
           >
-            <span className="text-white font-bold text-xl">N</span>
+            <span className="text-white font-bold text-xl">G</span>
           </div>
           
           <div 
@@ -189,9 +189,7 @@ export function Sidebar() {
               willChange: 'max-width, opacity'
             }}
           >
-            <h1 className="font-orbitron font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#B28DFF] to-[#8BE0F7]">
-              NovaAI
-            </h1>
+            <h1 className="font-orbitron font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#B28DFF] to-[#8BE0F7]">Galaxion</h1>
             <p className="text-white/50 text-xs">Academy</p>
           </div>
         </div>

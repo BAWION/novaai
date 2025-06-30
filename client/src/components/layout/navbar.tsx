@@ -37,7 +37,7 @@ export function Navbar() {
               <span className="font-orbitron font-bold text-lg">G</span>
             </div>
             <span className="ml-2 font-orbitron font-medium text-lg md:text-xl">
-              Galaxion
+              Galaxion 
             </span>
           </a>
         </Link>
