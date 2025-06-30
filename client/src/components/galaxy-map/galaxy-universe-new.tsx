@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
 import { Rocket, ArrowLeft, ZoomIn, ZoomOut, Telescope, Home, Navigation, Route } from 'lucide-react';
+import { SmartRoadmapWidget } from '@/components/roadmap/smart-roadmap-widget';
 
 // Типы данных
 interface Course {
