@@ -138,6 +138,10 @@ function GalaxyUniverse() {
   const [newDiscovery, setNewDiscovery] = useState<{ type: 'galaxy' | 'planet'; name: string } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [showCourseModal, setShowCourseModal] = useState(false);
+  const [modalCourses, setModalCourses] = useState<Course[]>([]);
+  const [modalSystemName, setModalSystemName] = useState('');
+  const [modalGalaxyName, setModalGalaxyName] = useState('');
 
   // Загружаем курсы
   const { data: courses = [], isLoading } = useQuery({
@@ -211,13 +215,22 @@ function GalaxyUniverse() {
   };
 
   const handleSystemDoubleClick = (systemId: string) => {
-    // Переход к деталям звездной системы (System view)
-    setViewConfig(prev => ({
-      ...prev,
-      state: 'system',
-      selectedSystem: systemId,
-      zoom: 4,
-    }));
+    const galaxy = galaxies.find(g => g.id === viewConfig.selectedGalaxy);
+    if (galaxy && galaxy.courses.length > 0) {
+      // Показываем модальное окно со списком курсов
+      setModalCourses(galaxy.courses);
+      setModalSystemName(`Система ${systemId}`);
+      setModalGalaxyName(galaxy.name);
+      setShowCourseModal(true);
+    } else {
+      // Если курсов нет, переход к деталям звездной системы
+      setViewConfig(prev => ({
+        ...prev,
+        state: 'system',
+        selectedSystem: systemId,
+        zoom: 4,
+      }));
+    }
   };
 
   const handlePlanetClick = (planet: Planet) => {
@@ -1275,6 +1288,153 @@ function GalaxyUniverse() {
                 ))}
               </div>
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Модальное окно со списком курсов системы */}
+      <AnimatePresence>
+        {showCourseModal && (
+          <motion.div
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowCourseModal(false)}
+          >
+            <motion.div
+              className="bg-gradient-to-br from-space-800/95 to-space-900/95 backdrop-blur-md p-6 rounded-2xl border border-primary/30 shadow-2xl max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto"
+              initial={{ scale: 0.8, opacity: 0, y: 50 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.8, opacity: 0, y: 50 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Заголовок модального окна */}
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-2xl font-orbitron text-white font-bold mb-2">
+                    Планеты-курсы системы
+                  </h2>
+                  <p className="text-primary text-sm">
+                    {modalGalaxyName}
+                  </p>
+                </div>
+                <motion.button
+                  onClick={() => setShowCourseModal(false)}
+                  className="w-10 h-10 bg-space-700/50 hover:bg-space-600/50 border border-white/20 rounded-full flex items-center justify-center text-white/70 hover:text-white transition-colors"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  ✕
+                </motion.button>
+              </div>
+
+              {/* Список курсов */}
+              <div className="space-y-4">
+                {modalCourses.map((course, index) => {
+                  const progress = course.progress || 0;
+                  const isCompleted = progress >= 100;
+                  const isStarted = progress > 0;
+                  
+                  return (
+                    <motion.div
+                      key={course.id}
+                      className="bg-space-700/30 hover:bg-space-700/50 border border-white/10 hover:border-primary/30 rounded-xl p-4 cursor-pointer transition-all group"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      onClick={() => {
+                        navigate(`/courses/${course.id}`);
+                        setShowCourseModal(false);
+                      }}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <div className="flex items-start gap-4">
+                        {/* Иконка планеты */}
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg ${
+                          isCompleted ? 'bg-gradient-to-br from-green-500 to-emerald-600' :
+                          isStarted ? 'bg-gradient-to-br from-primary to-blue-600' :
+                          'bg-gradient-to-br from-gray-500 to-gray-600'
+                        }`}>
+                          {generatePlanetName(course, index).split(' ')[0][0]}
+                        </div>
+
+                        {/* Информация о курсе */}
+                        <div className="flex-1">
+                          <div className="flex items-start justify-between mb-2">
+                            <div>
+                              <h3 className="text-white font-medium group-hover:text-primary transition-colors">
+                                {course.title}
+                              </h3>
+                              <p className="text-white/60 text-sm mt-1">
+                                {generatePlanetName(course, index)}
+                              </p>
+                            </div>
+                            
+                            {/* Статус */}
+                            <div className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              isCompleted ? 'bg-green-500/20 text-green-400' :
+                              isStarted ? 'bg-primary/20 text-primary' :
+                              'bg-gray-500/20 text-gray-400'
+                            }`}>
+                              {isCompleted ? 'Завершено' : isStarted ? 'В процессе' : 'Не начат'}
+                            </div>
+                          </div>
+
+                          {/* Описание */}
+                          {course.description && (
+                            <p className="text-white/50 text-sm mb-3 line-clamp-2">
+                              {course.description}
+                            </p>
+                          )}
+
+                          {/* Прогресс-бар */}
+                          <div className="flex items-center gap-3">
+                            <div className="flex-1 h-2 bg-space-600 rounded-full overflow-hidden">
+                              <motion.div
+                                className={`h-full ${
+                                  isCompleted ? 'bg-gradient-to-r from-green-500 to-emerald-500' :
+                                  'bg-gradient-to-r from-primary to-blue-500'
+                                }`}
+                                initial={{ width: 0 }}
+                                animate={{ width: `${progress}%` }}
+                                transition={{ duration: 1, delay: index * 0.2 }}
+                              />
+                            </div>
+                            <span className="text-white/60 text-sm w-12 text-right">
+                              {Math.round(progress)}%
+                            </span>
+                          </div>
+
+                          {/* Дополнительная информация */}
+                          <div className="flex items-center gap-4 mt-2 text-xs text-white/40">
+                            {course.modules && (
+                              <span>{course.modules} модулей</span>
+                            )}
+                            {course.level && (
+                              <span className="capitalize">{course.level}</span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+
+              {/* Кнопка закрытия внизу */}
+              <div className="flex justify-center mt-6">
+                <motion.button
+                  onClick={() => setShowCourseModal(false)}
+                  className="px-6 py-2 bg-space-700/50 hover:bg-space-600/50 border border-white/20 rounded-lg text-white/70 hover:text-white transition-colors"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Закрыть
+                </motion.button>
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
