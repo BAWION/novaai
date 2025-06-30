@@ -461,10 +461,10 @@ function GalaxyUniverse({ fullScreen = false, onClose }: GalaxyUniverseProps) {
 
   return (
     <div 
-      className={`w-full relative overflow-hidden ${
+      className={`w-full relative bg-gradient-to-b from-space-900 via-space-800 to-space-900 overflow-hidden ${
         fullScreen 
-          ? 'fixed inset-0 z-[9999] bg-gradient-to-br from-purple-900 via-blue-900 to-black' 
-          : 'h-[600px] rounded-xl bg-gradient-to-b from-space-900 via-space-800 to-space-900'
+          ? 'fixed inset-0 z-[9999]' 
+          : 'h-[600px] rounded-xl'
       }`}
       style={fullScreen ? { backgroundColor: '#0f172a' } : {}}
       onWheel={(e) => {
@@ -576,14 +576,20 @@ function GalaxyUniverse({ fullScreen = false, onClose }: GalaxyUniverseProps) {
           </div>
         </motion.div>
       </div>
-      {/* Простой тест для полноэкранного режима */}
-      {fullScreen && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center">
-          <div className="text-white text-4xl font-bold bg-black/50 p-8 rounded-lg">
-            ГАЛАКТИЧЕСКАЯ КАРТА РАБОТАЕТ!
-          </div>
-        </div>
-      )}
+      {/* Простой тестовый фон для отладки */}
+      <div className={`absolute inset-0 ${fullScreen ? 'bg-gradient-to-br from-purple-900 via-blue-900 to-black' : 'bg-transparent'}`}>
+        {fullScreen && (
+          <>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-2xl font-bold">
+              Галактическая карта загружается...
+            </div>
+            <div className="absolute top-10 left-10 w-4 h-4 bg-yellow-400 rounded-full animate-pulse"></div>
+            <div className="absolute top-20 right-20 w-3 h-3 bg-blue-400 rounded-full animate-pulse"></div>
+            <div className="absolute bottom-20 left-20 w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
+            <div className="absolute top-32 left-1/2 w-3 h-3 bg-green-400 rounded-full animate-bounce"></div>
+          </>
+        )}
+      </div>
 
       {/* Живое звездное небо с туманностями */}
       <div className="absolute inset-0 pointer-events-none">
