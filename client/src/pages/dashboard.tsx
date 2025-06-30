@@ -471,7 +471,7 @@ export default function Dashboard() {
 
           {/* Горизонтальная карта во весь экран */}
           <div className="w-full h-full pt-16">
-            <GalaxyUniverse fullscreen={true} />
+            <GalaxyUniverse fullScreen={true} onClose={() => setIsFullscreenMap(false)} />
           </div>
 
           {/* Подсказки управления */}

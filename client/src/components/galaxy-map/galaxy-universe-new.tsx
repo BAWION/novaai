@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
-import { Rocket, ArrowLeft, ZoomIn, ZoomOut, Telescope, Home, Navigation, Route } from 'lucide-react';
+import { Rocket, ArrowLeft, ZoomIn, ZoomOut, Telescope, Home, Navigation, Route, X } from 'lucide-react';
 
 // Типы данных
 interface Course {
@@ -126,7 +126,7 @@ interface GalaxyUniverseProps {
   onClose?: () => void;
 }
 
-function GalaxyUniverse({ fullScreen = false, onClose }: GalaxyUniverseProps = {}) {
+function GalaxyUniverse({ fullScreen = false, onClose }: GalaxyUniverseProps) {
   const [, navigate] = useLocation();
   const containerRef = useRef<HTMLDivElement>(null);
   
@@ -493,6 +493,20 @@ function GalaxyUniverse({ fullScreen = false, onClose }: GalaxyUniverseProps = {
         }
       }}
     >
+      {/* Close button for fullscreen mode */}
+      {fullScreen && onClose && (
+        <motion.button
+          className="absolute top-4 right-4 z-50 bg-space-800/90 backdrop-blur-sm p-2 rounded-lg border border-white/20 text-white hover:bg-space-700/90 transition-colors"
+          onClick={onClose}
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <X className="w-5 h-5" />
+        </motion.button>
+      )}
+
       {/* Advanced Breadcrumb Navigation */}
       <div className="absolute top-4 left-4 z-50">
         <motion.div 
