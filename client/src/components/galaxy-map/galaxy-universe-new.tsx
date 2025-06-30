@@ -161,6 +161,21 @@ function GalaxyUniverse() {
     retry: false,
   });
 
+  // Создаем демо-данные дорожной карты для неавторизованных пользователей
+  const demoRoadmapData = roadmapMode && roadmapError ? {
+    connections: [
+      { from: 2, to: 1, recommended: true }, // AI Literacy -> Python
+      { from: 1, to: 7, recommended: true }, // Python -> ML Course  
+      { from: 7, to: 6, recommended: false }, // ML -> Advanced course
+    ],
+    recommendedCourses: [2, 1, 7], // AI Literacy, Python, ML
+    currentLevel: 'beginner',
+    totalTime: '4-6 недель'
+  } : null;
+
+  // Используем реальные данные если есть, иначе демо
+  const activeRoadmapData = roadmapData || demoRoadmapData;
+
   // Закрываем панель при смене уровня и обновляем позицию при перемещении карты
   useEffect(() => {
     if (viewConfig.state !== 'galaxy') {
@@ -993,9 +1008,9 @@ function GalaxyUniverse() {
               </motion.div>
 
               {/* Дорожная карта - светящиеся пути между планетами */}
-              {roadmapMode && roadmapData && roadmapData.connections && (
+              {roadmapMode && activeRoadmapData && (activeRoadmapData as any).connections && (
                 <svg className="absolute inset-0 w-full h-full pointer-events-none z-5" style={{ overflow: 'visible' }}>
-                  {roadmapData.connections.map((connection: any, connectionIndex: number) => {
+                  {(activeRoadmapData as any).connections.map((connection: any, connectionIndex: number) => {
                     const fromPlanet = planets.find(p => p.course.id === connection.from);
                     const toPlanet = planets.find(p => p.course.id === connection.to);
                     
@@ -1129,7 +1144,7 @@ function GalaxyUniverse() {
                       style={{
                         width: planetSize,
                         height: planetSize,
-                        boxShadow: roadmapMode && roadmapData && roadmapData.recommendedCourses?.some((rec: any) => rec.id === planet.course.id)
+                        boxShadow: roadmapMode && activeRoadmapData && (activeRoadmapData as any).recommendedCourses?.includes(planet.course.id)
                           ? `0 0 ${planetSize}px rgba(139, 224, 247, 0.8), 0 0 ${planetSize*1.5}px rgba(139, 224, 247, 0.4)`
                           : `0 0 ${planetSize/2}px rgba(59, 130, 246, 0.4)`,
                       }}
@@ -1358,6 +1373,82 @@ function GalaxyUniverse() {
           )}
         </motion.div>
       </div>
+
+      {/* Информационная панель дорожной карты */}
+      <AnimatePresence>
+        {roadmapMode && activeRoadmapData && (
+          <motion.div
+            className="absolute top-4 right-4 z-50 w-80"
+            initial={{ opacity: 0, x: 300 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 300 }}
+            transition={{ duration: 0.5 }}
+          >
+            <div className="bg-gradient-to-br from-space-800/95 to-space-900/95 backdrop-blur-md p-4 rounded-xl border border-primary/30 shadow-2xl">
+              <div className="flex items-center gap-2 mb-3">
+                <Route className="w-5 h-5 text-primary" />
+                <h3 className="text-white font-orbitron font-bold">Персональный маршрут</h3>
+              </div>
+              
+              {roadmapError ? (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-amber-400">
+                    <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse" />
+                    <span className="text-sm">Демонстрационный режим</span>
+                  </div>
+                  <p className="text-white/80 text-sm">
+                    Войдите в систему для персонализированной дорожной карты на основе вашего Skills DNA профиля
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-green-400">
+                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                    <span className="text-sm">Активный маршрут</span>
+                  </div>
+                  {roadmapLoading && (
+                    <p className="text-white/60 text-sm">Загрузка персонального маршрута...</p>
+                  )}
+                </div>
+              )}
+
+              <div className="mt-4 space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-white/70">Уровень:</span>
+                  <span className="text-primary">{(activeRoadmapData as any).currentLevel || 'Начинающий'}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-white/70">Время прохождения:</span>
+                  <span className="text-primary">{(activeRoadmapData as any).totalTime || '4-6 недель'}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-white/70">Рекомендованных курсов:</span>
+                  <span className="text-primary">{(activeRoadmapData as any).recommendedCourses?.length || 0}</span>
+                </div>
+              </div>
+
+              <div className="mt-4 pt-3 border-t border-white/10">
+                <h4 className="text-xs font-medium text-white/60 mb-2">ЛЕГЕНДА</h4>
+                <div className="space-y-1 text-xs">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-0.5 bg-gradient-to-r from-cyan-400 to-blue-500 rounded"></div>
+                    <span className="text-white/70">Рекомендованный путь</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-0.5 bg-gradient-to-r from-purple-400 to-indigo-500 rounded border-dashed border border-purple-400/50"></div>
+                    <span className="text-white/70">Дополнительный путь</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-full" style={{ boxShadow: '0 0 8px rgba(139, 224, 247, 0.6)' }}></div>
+                    <span className="text-white/70">Рекомендованный курс</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Toast уведомления об открытиях */}
       <AnimatePresence>
         {newDiscovery && (
