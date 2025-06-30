@@ -576,14 +576,7 @@ function GalaxyUniverse({ fullScreen = false, onClose }: GalaxyUniverseProps) {
           </div>
         </motion.div>
       </div>
-      {/* Простой тест для полноэкранного режима */}
-      {fullScreen && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center">
-          <div className="text-white text-4xl font-bold bg-black/50 p-8 rounded-lg">
-            ГАЛАКТИЧЕСКАЯ КАРТА РАБОТАЕТ!
-          </div>
-        </div>
-      )}
+
 
       {/* Живое звездное небо с туманностями */}
       <div className="absolute inset-0 pointer-events-none">
