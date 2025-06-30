@@ -459,7 +459,9 @@ export default function Dashboard() {
           {roadmapType === 'traditional' ? (
             <RoadmapWidget />
           ) : (
-            <SkillsDnaRoadmap />
+            <SkillsDnaRoadmap 
+              onSwitchToTraditional={() => setRoadmapType('traditional')}
+            />
           )}
         </motion.div>
       </div>
