@@ -384,31 +384,20 @@ export default function Dashboard() {
             <h2 className="font-orbitron text-xl font-semibold">
               Все курсы
             </h2>
-            <div className="flex items-center gap-2">
-              <div className="flex items-center bg-space-900/50 rounded-lg overflow-hidden">
-                <button 
-                  onClick={() => setViewMode('orbital')}
-                  className={`px-3 py-1.5 text-sm ${viewMode === 'orbital' ? 'bg-primary/30 text-white' : 'text-white/60'}`}
-                >
-                  <i className="fas fa-globe-americas mr-1"></i>
-                  Орбиты
-                </button>
-                <button 
-                  onClick={() => setViewMode('tracks')}
-                  className={`px-3 py-1.5 text-sm ${viewMode === 'tracks' ? 'bg-primary/30 text-white' : 'text-white/60'}`}
-                >
-                  <i className="fas fa-road mr-1"></i>
-                  По навыкам
-                </button>
-              </div>
+            <div className="flex items-center bg-space-900/50 rounded-lg overflow-hidden">
               <button 
-                onClick={() => setIsFullscreenMap(true)}
-                className="px-3 py-1.5 text-sm bg-gradient-to-r from-[#6E3AFF]/20 to-[#2EBAE1]/20 border border-[#6E3AFF]/30 rounded-lg text-white/80 hover:text-white hover:bg-gradient-to-r hover:from-[#6E3AFF]/30 hover:to-[#2EBAE1]/30 transition-all duration-200"
-                title="Открыть карту во весь экран"
+                onClick={() => setViewMode('orbital')}
+                className={`px-3 py-1.5 text-sm ${viewMode === 'orbital' ? 'bg-primary/30 text-white' : 'text-white/60'}`}
               >
-                <i className="fas fa-expand-arrows-alt mr-1"></i>
-                <span className="hidden sm:inline">Карта</span>
-                <span className="sm:hidden">🗺️</span>
+                <i className="fas fa-globe-americas mr-1"></i>
+                Орбиты
+              </button>
+              <button 
+                onClick={() => setViewMode('tracks')}
+                className={`px-3 py-1.5 text-sm ${viewMode === 'tracks' ? 'bg-primary/30 text-white' : 'text-white/60'}`}
+              >
+                <i className="fas fa-road mr-1"></i>
+                По навыкам
               </button>
             </div>
           </div>
