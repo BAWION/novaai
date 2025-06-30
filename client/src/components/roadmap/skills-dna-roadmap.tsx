@@ -282,6 +282,45 @@ export function SkillsDnaRoadmap({ className = '', onSwitchToTraditional }: Skil
     );
   }
 
+  // Демо-режим для неавторизованных пользователей
+  if (!skillsProgress || !(skillsProgress as any)?.data) {
+    return (
+      <div className={`space-y-6 ${className}`}>
+        <Glassmorphism className="rounded-xl p-6">
+          <div className="text-center py-8">
+            <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] rounded-full flex items-center justify-center">
+              <i className="fas fa-dna text-2xl text-white"></i>
+            </div>
+            <h3 className="text-xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-[#B28DFF] via-[#8BE0F7] to-[#B28DFF]">
+              Персональная дорожная карта Skills DNA
+            </h3>
+            <p className="text-white/70 mb-6 max-w-md mx-auto">
+              Пройдите диагностику Skills DNA, чтобы получить персональную дорожную карту обучения, 
+              адаптированную под ваши слабые места и цели
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Link href="/diagnosis">
+                <button className="px-6 py-3 bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] text-white rounded-lg hover:scale-105 transition-all">
+                  <i className="fas fa-brain mr-2"></i>
+                  Пройти диагностику
+                </button>
+              </Link>
+              {onSwitchToTraditional && (
+                <button 
+                  onClick={onSwitchToTraditional}
+                  className="px-6 py-3 bg-space-800 text-white rounded-lg hover:bg-space-700 transition-all"
+                >
+                  <i className="fas fa-route mr-2"></i>
+                  Стандартная карта
+                </button>
+              )}
+            </div>
+          </div>
+        </Glassmorphism>
+      </div>
+    );
+  }
+
   return (
     <div className={`space-y-6 ${className}`}>
       {/* Заголовок с анализом Skills DNA */}
