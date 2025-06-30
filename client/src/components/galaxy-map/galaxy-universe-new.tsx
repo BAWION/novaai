@@ -921,14 +921,14 @@ function GalaxyUniverse() {
             >
               {/* Орбитальные траектории */}
               {planets.map((_, index) => {
-                const baseRadius = 140;
-                const orbitSpacing = 50;
+                const baseRadius = 160;
+                const orbitSpacing = 70;
                 const radius = baseRadius + (index * orbitSpacing);
                 
                 return (
                   <div
                     key={`orbit-ring-${index}`}
-                    className="absolute border border-white/6 rounded-full pointer-events-none"
+                    className="absolute border border-white/8 rounded-full pointer-events-none"
                     style={{
                       width: radius * 2,
                       height: radius * 2,
@@ -987,17 +987,18 @@ function GalaxyUniverse() {
               {/* Планеты-курсы с орбитами */}
               {planets.map((planet, index) => {
                 // Каждая планета на уникальной орбите
-                const baseRadius = 140; // Стартовый радиус
-                const orbitSpacing = 50; // Расстояние между орбитами
+                const baseRadius = 160; // Стартовый радиус
+                const orbitSpacing = 70; // Расстояние между орбитами
                 const radius = baseRadius + (index * orbitSpacing);
                 
-                // Уникальные параметры для каждой планеты
-                const orbitSpeed = 0.00005 * (1 / Math.sqrt(radius / 140)); // Медленнее для дальних орбит
-                const baseAngle = (index * 71.5) * (Math.PI / 180); // Случайные начальные углы
-                const angle = Date.now() * orbitSpeed + baseAngle;
+                // Медленное орбитальное вращение планет
+                const orbitSpeed = 0.00002 * (1 / Math.sqrt(radius / 160)); // Медленнее для дальних орбит
+                const baseAngle = (index * (360 / planets.length)) * (Math.PI / 180); // Равномерное начальное распределение
+                const timeOffset = index * 1000; // Уникальное время для каждой планеты
+                const currentAngle = (Date.now() + timeOffset) * orbitSpeed + baseAngle;
                 
-                const x = Math.cos(angle) * radius;
-                const y = Math.sin(angle) * radius;
+                const x = Math.cos(currentAngle) * radius;
+                const y = Math.sin(currentAngle) * radius;
                 
                 // Определяем размер планеты по объему курса (модули + уроки)
                 const modules = planet.course.modules || 1;
