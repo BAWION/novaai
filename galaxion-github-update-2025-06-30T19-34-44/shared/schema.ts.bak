@@ -1,0 +1,428 @@
+import { sql } from "drizzle-orm";
+import {
+  pgTable,
+  text,
+  integer,
+  serial,
+  boolean,
+  timestamp,
+  primaryKey,
+  index,
+  varchar,
+  json,
+  pgEnum
+} from "drizzle-orm/pg-core";
+import { createInsertSchema } from "drizzle-zod";
+import { z } from "zod";
+
+// Определение перечислений
+export const userRoleEnum = pgEnum('user_role', ['student', 'teacher', 'admin']);
+export const experienceEnum = pgEnum('experience_level', ['beginner', 'learning-basics', 'practical-experience', 'professional', 'expert']);
+export const interestEnum = pgEnum('interest_area', ['machine-learning', 'neural-networks', 'data-science', 'computer-vision', 'nlp', 'robotics', 'other']);
+export const goalEnum = pgEnum('learning_goal', ['learn-basics', 'broaden-knowledge', 'practice-skills', 'certification', 'career-change', 'research']);
+export const learningStyleEnum = pgEnum('learning_style', ['visual', 'auditory', 'reading', 'practical']);
+export const difficultyEnum = pgEnum('difficulty', ['easy', 'moderate', 'challenging']);
+export const accessEnum = pgEnum('access_level', ['free', 'premium', 'enterprise']);
+export const courseLevelEnum = pgEnum('course_level', ['basic', 'intermediate', 'advanced', 'expert']);
+export const progressStatusEnum = pgEnum('progress_status', ['not_started', 'in_progress', 'completed']);
+
+// Определение таблицы пользователей
+export const users = pgTable(
+  "users",
+  {
+    id: serial("id").primaryKey(),
+    username: varchar("username", { length: 255 }).notNull().unique(),
+    password: text("password").notNull(), // В реальном приложении хранить зашифрованный пароль
+    displayName: varchar("display_name", { length: 255 }),
+    email: varchar("email", { length: 255 }),
+    avatarUrl: text("avatar_url"),
+    role: userRoleEnum("role"),
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at").defaultNow(),
+  }
+);
+
+// Определение таблицы профилей пользователей
+export const userProfiles = pgTable(
+  "user_profiles",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id").notNull().references(() => users.id),
+    role: varchar("role", { length: 50 }).notNull(), // student, teacher, employee, researcher, other
+    pythonLevel: integer("python_level").notNull(), // 0-5
+    experience: experienceEnum("experience"),
+    interest: interestEnum("interest"),
+    goal: goalEnum("goal"),
+    recommendedTrack: varchar("recommended_track", { length: 50 }), // zero-to-hero, applied-ds, research-ai, nlp-expert
+    progress: integer("progress"), // общий прогресс в процентах
+    streakDays: integer("streak_days"), // дни непрерывного обучения
+    lastActiveAt: timestamp("last_active_at"),
+    industry: varchar("industry", { length: 100 }), // отрасль (для сотрудников компаний, исследователей)
+    jobTitle: varchar("job_title", { length: 100 }), // должность
+    specificGoals: json("specific_goals"), // конкретные цели обучения
+    preferredLearningStyle: learningStyleEnum("preferred_learning_style"), // visual, auditory, reading, practical
+    availableTimePerWeek: integer("available_time_per_week"), // доступное время для обучения в часах
+    preferredDifficulty: difficultyEnum("preferred_difficulty"), // easy, moderate, challenging
+    completedOnboarding: boolean("completed_onboarding").default(false),
+    onboardingCompletedAt: timestamp("onboarding_completed_at"),
+    recommendedCourseIds: json("recommended_course_ids"), // JSON массив ID рекомендованных курсов
+  }
+);
+
+// Определение таблицы навыков
+export const skills = pgTable(
+  "skills",
+  {
+    id: serial("id").primaryKey(),
+    name: varchar("name", { length: 255 }).notNull(),
+    displayName: varchar("display_name", { length: 255 }).notNull(),
+    description: text("description"),
+    category: varchar("category", { length: 100 }).notNull(), // ml-basics, deep-learning, data-science, etc.
+    level: integer("level"), // уровень сложности (1-5)
+    parentSkillId: integer("parent_skill_id").references(() => skills.id),
+    prerequisites: json("prerequisites"), // JSON массив ID предварительных навыков
+    icon: text("icon"),
+    color: varchar("color", { length: 50 }),
+  }
+);
+
+// Определение таблицы курсов
+export const courses = pgTable(
+  "courses",
+  {
+    id: serial("id").primaryKey(),
+    title: varchar("title", { length: 255 }).notNull(),
+    slug: varchar("slug", { length: 255 }).notNull().unique(),
+    description: text("description"),
+    icon: text("icon"),
+    difficulty: integer("difficulty").notNull(), // 1-5
+    level: courseLevelEnum("level").notNull(), // basic, intermediate, advanced, expert
+    modules: integer("modules").notNull(), // количество модулей
+    estimatedDuration: integer("estimated_duration"), // в минутах
+    tags: json("tags"), // JSON массив тегов
+    color: varchar("color", { length: 50 }), // цвет для интерфейса
+    access: accessEnum("access").notNull(), // free, premium, enterprise
+    authorId: integer("author_id").references(() => users.id),
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at").defaultNow(),
+  }
+);
+
+// Определение таблицы модулей курса
+export const modules = pgTable(
+  "modules",
+  {
+    id: serial("id").primaryKey(),
+    courseId: integer("course_id").notNull().references(() => courses.id),
+    title: varchar("title", { length: 255 }).notNull(),
+    description: text("description"),
+    order: integer("order").notNull(),
+    estimatedDuration: integer("estimated_duration"), // в минутах
+  }
+);
+
+// Определение таблицы разделов модуля
+export const sections = pgTable(
+  "sections",
+  {
+    id: serial("id").primaryKey(),
+    moduleId: integer("module_id").notNull().references(() => modules.id),
+    title: varchar("title", { length: 255 }).notNull(),
+    description: text("description"),
+    order: integer("order").notNull(),
+  }
+);
+
+// Определение таблицы уроков
+export const lessons = pgTable(
+  "lessons",
+  {
+    id: serial("id").primaryKey(),
+    moduleId: integer("module_id").notNull().references(() => modules.id),
+    sectionId: integer("section_id").references(() => sections.id),
+    title: varchar("title", { length: 255 }).notNull(),
+    description: text("description"),
+    content: text("content"),
+    contentType: varchar("content_type", { length: 50 }).notNull(), // text, video, interactive, quiz
+    estimatedDuration: integer("estimated_duration"), // в минутах
+    order: integer("order").notNull(),
+    status: varchar("status", { length: 50 }).default("draft"), // draft, published, archived
+  }
+);
+
+// Связь уроков с навыками
+export const lessonSkills = pgTable(
+  "lesson_skills",
+  {
+    id: serial("id").primaryKey(),
+    lessonId: integer("lesson_id").notNull().references(() => lessons.id),
+    skillId: integer("skill_id").notNull().references(() => skills.id),
+    weight: integer("weight").default(1), // вес навыка в этом уроке (1-5)
+  }
+);
+
+// Варианты уроков для персонализации
+export const lessonVariants = pgTable(
+  "lesson_variants",
+  {
+    id: serial("id").primaryKey(),
+    lessonId: integer("lesson_id").notNull().references(() => lessons.id),
+    title: varchar("title", { length: 255 }).notNull(),
+    content: text("content").notNull(),
+    contentType: varchar("content_type", { length: 50 }).notNull(),
+    learningStyle: learningStyleEnum("learning_style"), // visual, auditory, reading, practical
+    difficultyLevel: difficultyEnum("difficulty_level"), // easy, moderate, challenging
+    isDefault: boolean("is_default").default(false),
+  }
+);
+
+// Прогресс пользователя по курсам
+export const userCourseProgress = pgTable(
+  "user_course_progress",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id").notNull().references(() => users.id),
+    courseId: integer("course_id").notNull().references(() => courses.id),
+    progress: integer("progress").default(0), // процент выполнения
+    completedModules: integer("completed_modules").default(0),
+    startedAt: timestamp("started_at").defaultNow(),
+    lastAccessedAt: timestamp("last_accessed_at").defaultNow(),
+    completedAt: timestamp("completed_at"),
+  }
+);
+
+// Прогресс пользователя по урокам
+export const userLessonProgress = pgTable(
+  "user_lesson_progress",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id").notNull().references(() => users.id),
+    lessonId: integer("lesson_id").notNull().references(() => lessons.id),
+    status: progressStatusEnum("status").default("not_started"), // not_started, in_progress, completed
+    progress: integer("progress").default(0),
+    timeSpent: integer("time_spent").default(0), // в секундах
+    completedAt: timestamp("completed_at"),
+    lastAccessedAt: timestamp("last_accessed_at"),
+    selectedVariantId: integer("selected_variant_id").references(() => lessonVariants.id),
+  }
+);
+
+// Избранные курсы пользователя
+export const userFavoriteCourses = pgTable(
+  "user_favorite_courses",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id").notNull().references(() => users.id),
+    courseId: integer("course_id").notNull().references(() => courses.id),
+    createdAt: timestamp("created_at").defaultNow(),
+  }
+);
+
+// Оценки курсов пользователями
+export const courseRatings = pgTable(
+  "course_ratings",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id").notNull().references(() => users.id),
+    courseId: integer("course_id").notNull().references(() => courses.id),
+    rating: integer("rating").notNull(), // 1-5
+    review: text("review"),
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at").defaultNow(),
+  }
+);
+
+// Навыки пользователя
+export const userSkills = pgTable(
+  "user_skills",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id").notNull().references(() => users.id),
+    skillId: integer("skill_id").notNull().references(() => skills.id),
+    level: integer("level").notNull(), // текущий уровень владения (0-100)
+    targetLevel: integer("target_level"), // целевой уровень
+    lastPracticed: timestamp("last_practiced"),
+    timesReviewed: integer("times_reviewed").default(0),
+  }
+);
+
+// Пробелы в навыках пользователя
+export const userSkillGaps = pgTable(
+  "user_skill_gaps",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id").notNull().references(() => users.id),
+    skillId: integer("skill_id").notNull().references(() => skills.id),
+    gapSize: integer("gap_size").notNull(), // размер пробела (0-100)
+    priority: integer("priority"), // приоритет для изучения (1-5)
+    recommendedResources: json("recommended_resources"), // рекомендуемые ресурсы для устранения пробела
+    detectedAt: timestamp("detected_at").defaultNow(),
+  }
+);
+
+// История чатов с ИИ
+export const aiChatHistory = pgTable(
+  "ai_chat_history",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id").notNull().references(() => users.id),
+    lessonId: integer("lesson_id").references(() => lessons.id),
+    courseId: integer("course_id").references(() => courses.id),
+    query: text("query").notNull(),
+    response: text("response").notNull(),
+    assistantType: varchar("assistant_type", { length: 50 }), // tutor, mentor, reviewer, etc.
+    createdAt: timestamp("created_at").defaultNow(),
+    metadata: json("metadata"), // Дополнительные данные (контекст, модель и т.д.)
+  }
+);
+
+// События обучения
+export const learningEvents = pgTable(
+  "learning_events",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id").notNull().references(() => users.id),
+    eventType: varchar("event_type", { length: 50 }).notNull(), // lesson_start, lesson_complete, quiz_attempt, etc.
+    entityType: varchar("entity_type", { length: 50 }).notNull(), // lesson, quiz, course, skill, etc.
+    entityId: integer("entity_id").notNull(),
+    metadata: json("metadata"), // Дополнительные данные о событии
+    createdAt: timestamp("created_at").defaultNow(),
+  }
+);
+
+// Сессии обучения
+export const learningSessions = pgTable(
+  "learning_sessions",
+  {
+    id: varchar("id", { length: 255 }).primaryKey(),
+    userId: integer("user_id").notNull().references(() => users.id),
+    startedAt: timestamp("started_at").defaultNow(),
+    endedAt: timestamp("ended_at"),
+    duration: integer("duration"), // в секундах
+    deviceInfo: json("device_info"), // Информация об устройстве
+    activitySummary: json("activity_summary"), // Сводка активности в сессии
+  }
+);
+
+// Схемы для вставки
+export const insertUserSchema = createInsertSchema(users).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertUserProfileSchema = createInsertSchema(userProfiles).omit({
+  id: true,
+  completedOnboarding: true,
+  onboardingCompletedAt: true,
+});
+
+export const insertSkillSchema = createInsertSchema(skills).omit({
+  id: true,
+});
+
+export const insertUserSkillSchema = createInsertSchema(userSkills).omit({
+  id: true,
+});
+
+export const insertUserSkillGapSchema = createInsertSchema(userSkillGaps).omit({
+  id: true,
+  detectedAt: true,
+});
+
+export const insertCourseSchema = createInsertSchema(courses).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertUserCourseProgressSchema = createInsertSchema(userCourseProgress).omit({
+  id: true,
+  startedAt: true,
+  lastAccessedAt: true,
+  completedAt: true,
+});
+
+export const insertUserFavoriteCourseSchema = createInsertSchema(userFavoriteCourses).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertCourseRatingSchema = createInsertSchema(courseRatings).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertLearningEventSchema = createInsertSchema(learningEvents).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertUserLessonProgressSchema = createInsertSchema(userLessonProgress).omit({
+  id: true,
+  completedAt: true,
+  lastAccessedAt: true,
+});
+
+export const insertUserQuizAttemptSchema = createInsertSchema(userCourseProgress).omit({
+  id: true,
+  startedAt: true,
+  completedAt: true,
+});
+
+export const insertUserQuizAnswerSchema = createInsertSchema(userCourseProgress).omit({
+  id: true,
+});
+
+export const insertLessonSkillSchema = createInsertSchema(lessonSkills).omit({
+  id: true,
+});
+
+export const insertAIChatHistorySchema = createInsertSchema(aiChatHistory).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertLearningSessionSchema = createInsertSchema(learningSessions).omit({
+  startedAt: true,
+  endedAt: true,
+});
+
+// Типы для вставки
+export type InsertUser = z.infer<typeof insertUserSchema>;
+export type InsertUserProfile = z.infer<typeof insertUserProfileSchema>;
+export type InsertSkill = z.infer<typeof insertSkillSchema>;
+export type InsertUserSkill = z.infer<typeof insertUserSkillSchema>;
+export type InsertUserSkillGap = z.infer<typeof insertUserSkillGapSchema>;
+export type InsertCourse = z.infer<typeof insertCourseSchema>;
+export type InsertUserCourseProgress = z.infer<typeof insertUserCourseProgressSchema>;
+export type InsertUserFavoriteCourse = z.infer<typeof insertUserFavoriteCourseSchema>;
+export type InsertCourseRating = z.infer<typeof insertCourseRatingSchema>;
+export type InsertLearningEvent = z.infer<typeof insertLearningEventSchema>;
+export type InsertUserLessonProgress = z.infer<typeof insertUserLessonProgressSchema>;
+export type InsertUserQuizAttempt = z.infer<typeof insertUserQuizAttemptSchema>;
+export type InsertUserQuizAnswer = z.infer<typeof insertUserQuizAnswerSchema>;
+export type InsertLessonSkill = z.infer<typeof insertLessonSkillSchema>;
+export type InsertAIChatHistory = z.infer<typeof insertAIChatHistorySchema>;
+export type InsertLearningSession = z.infer<typeof insertLearningSessionSchema>;
+
+// Типы выборки
+export type User = typeof users.$inferSelect;
+export type UserProfile = typeof userProfiles.$inferSelect;
+export type Skill = typeof skills.$inferSelect;
+export type UserSkill = typeof userSkills.$inferSelect;
+export type UserSkillGap = typeof userSkillGaps.$inferSelect;
+export type Course = typeof courses.$inferSelect;
+export type Module = typeof modules.$inferSelect;
+export type Section = typeof sections.$inferSelect;
+export type Lesson = typeof lessons.$inferSelect;
+export type LessonSkill = typeof lessonSkills.$inferSelect;
+export type LessonVariant = typeof lessonVariants.$inferSelect;
+export type UserCourseProgress = typeof userCourseProgress.$inferSelect;
+export type UserLessonProgress = typeof userLessonProgress.$inferSelect;
+export type UserFavoriteCourse = typeof userFavoriteCourses.$inferSelect;
+export type CourseRating = typeof courseRatings.$inferSelect;
+export type AIChatHistory = typeof aiChatHistory.$inferSelect;
+export type LearningEvent = typeof learningEvents.$inferSelect;
+export type LearningSession = typeof learningSessions.$inferSelect;
