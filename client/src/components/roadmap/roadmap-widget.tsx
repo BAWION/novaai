@@ -10,6 +10,7 @@ interface RoadmapNode {
   description: string;
   progress: number;
   status: 'completed' | 'in-progress' | 'available' | 'locked';
+  duration: string;
   children: string[];
 }
 
@@ -36,6 +37,7 @@ export function RoadmapWidget() {
         description: 'Добро пожаловать в NovaAI University! Это начало вашего путешествия в мир искусственного интеллекта.',
         progress: 100,
         status: 'completed',
+        duration: '45 мин',
         children: ['python-basics', 'math-foundations']
       };
       
@@ -46,6 +48,7 @@ export function RoadmapWidget() {
         description: 'Изучение основ программирования на Python: переменные, типы данных, условия, циклы, функции.',
         progress: 85,
         status: 'in-progress',
+        duration: '2ч 30м',
         children: ['data-structures']
       };
       
@@ -55,6 +58,7 @@ export function RoadmapWidget() {
         description: 'Линейная алгебра, статистика и исчисление для машинного обучения.',
         progress: 40,
         status: 'in-progress',
+        duration: '3ч 15м',
         children: ['ml-intro']
       };
       
@@ -64,6 +68,7 @@ export function RoadmapWidget() {
         description: 'Изучение списков, словарей, множеств и других структур данных в Python.',
         progress: 0,
         status: 'available',
+        duration: '1ч 45м',
         children: ['numpy-pandas']
       };
       
@@ -73,6 +78,7 @@ export function RoadmapWidget() {
         description: 'Работа с массивами, матрицами и таблицами данных с использованием NumPy и Pandas.',
         progress: 0,
         status: 'locked',
+        duration: '2ч 10м',
         children: ['data-visualization']
       };
       
@@ -82,6 +88,7 @@ export function RoadmapWidget() {
         description: 'Использование Matplotlib, Seaborn и Plotly для визуализации данных.',
         progress: 0,
         status: 'locked',
+        duration: '1ч 30м',
         children: ['deep-learning']
       };
       
@@ -91,6 +98,7 @@ export function RoadmapWidget() {
         description: 'Основные концепции и алгоритмы машинного обучения: регрессия, классификация, кластеризация.',
         progress: 0,
         status: 'locked',
+        duration: '4ч 20м',
         children: ['deep-learning']
       };
       
@@ -100,6 +108,7 @@ export function RoadmapWidget() {
         description: 'Нейронные сети, функции активации, оптимизаторы. Работа с TensorFlow и PyTorch.',
         progress: 0,
         status: 'locked',
+        duration: '6ч 45м',
         children: []
       };
       
@@ -111,6 +120,7 @@ export function RoadmapWidget() {
           description: 'Методики проведения исследований в области машинного обучения, написание научных статей.',
           progress: 0,
           status: 'locked',
+          duration: '5ч 30м',
           children: []
         };
         
@@ -122,6 +132,7 @@ export function RoadmapWidget() {
           description: 'Развертывание и поддержка ML-моделей в production-среде.',
           progress: 0,
           status: 'locked',
+          duration: '4ч 15м',
           children: []
         };
         
@@ -785,6 +796,10 @@ export function RoadmapWidget() {
               </div>
 
               <div className="mb-4">
+                <div className="flex justify-between text-sm mb-2">
+                  <span className="text-white/80">Длительность</span>
+                  <span className="text-primary font-semibold">{roadmapData[selectedNode].duration}</span>
+                </div>
                 <div className="flex justify-between text-sm mb-2">
                   <span className="text-white/80">Прогресс</span>
                   <span className="text-white/80">{roadmapData[selectedNode].progress}%</span>
