@@ -9,7 +9,7 @@ import { ConnectionStatus, PWAModeBadge } from "@/components/pwa/offline-status"
 import { Providers } from "@/context/providers";
 import HomePage from "@/pages/home-page";
 import CosmicHome from "@/pages/cosmic-home";
-import Login from "@/pages/login";
+import Login from "@/pages/login.tsx";
 import Register from "@/pages/register";
 import Onboarding from "@/pages/onboarding";
 import OnboardingPage from "@/pages/onboarding-page";
