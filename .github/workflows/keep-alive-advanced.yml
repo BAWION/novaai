@@ -1,0 +1,117 @@
+name: Galaxion API Advanced Keep-Alive
+on:
+  schedule:
+    # Каждые 3 минуты (агрессивнее для надежности)
+    - cron: '*/3 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    
+    steps:
+      - name: Multi-endpoint Health Check
+        run: |
+          # Конфигурация
+          API_ENDPOINTS=(
+            "https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/api/health"
+            "https://workspace.vgulcheev.replit.dev/api/health"
+          )
+          
+          TIMEOUT=15
+          SUCCESS_COUNT=0
+          TOTAL_ENDPOINTS=${#API_ENDPOINTS[@]}
+          
+          echo "🚀 Galaxion API Keep-Alive - проверяем $TOTAL_ENDPOINTS endpoints"
+          echo "⏰ Время: $(date '+%Y-%m-%d %H:%M:%S UTC')"
+          
+          # Проверяем каждый endpoint
+          for i in "${!API_ENDPOINTS[@]}"; do
+            ENDPOINT="${API_ENDPOINTS[$i]}"
+            ENDPOINT_NUM=$((i + 1))
+            
+            echo "📡 Проверка endpoint $ENDPOINT_NUM/$TOTAL_ENDPOINTS: $ENDPOINT"
+            
+            # Выполняем запрос с таймаутом
+            if RESPONSE=$(curl -s -m $TIMEOUT \
+              -H "User-Agent: GitHub-Actions-KeepAlive/2.0" \
+              -H "Accept: application/json" \
+              -w "HTTP_CODE:%{http_code}|TIME:%{time_total}" \
+              "$ENDPOINT" 2>/dev/null); then
+              
+              # Извлекаем HTTP код и время
+              HTTP_CODE=$(echo "$RESPONSE" | grep -o 'HTTP_CODE:[0-9]*' | cut -d':' -f2)
+              TIME_TOTAL=$(echo "$RESPONSE" | grep -o 'TIME:[0-9.]*' | cut -d':' -f2)
+              RESPONSE_BODY=$(echo "$RESPONSE" | sed 's/HTTP_CODE:[0-9]*|TIME:[0-9.]*//')
+              
+              if [ "$HTTP_CODE" = "200" ]; then
+                SUCCESS_COUNT=$((SUCCESS_COUNT + 1))
+                
+                # Извлекаем uptime если доступен
+                UPTIME=$(echo "$RESPONSE_BODY" | grep -o '"uptime":[0-9]*' | cut -d':' -f2 || echo "unknown")
+                echo "✅ Endpoint $ENDPOINT_NUM: OK | HTTP $HTTP_CODE | ${TIME_TOTAL}s | Uptime: ${UPTIME}s"
+              else
+                echo "⚠️ Endpoint $ENDPOINT_NUM: HTTP $HTTP_CODE | ${TIME_TOTAL}s"
+              fi
+            else
+              echo "❌ Endpoint $ENDPOINT_NUM: Timeout/Error после ${TIMEOUT}s"
+            fi
+          done
+          
+          # Итоговый результат
+          SUCCESS_RATE=$((SUCCESS_COUNT * 100 / TOTAL_ENDPOINTS))
+          echo ""
+          echo "📊 Результат: $SUCCESS_COUNT/$TOTAL_ENDPOINTS успешных ($SUCCESS_RATE%)"
+          
+          if [ $SUCCESS_COUNT -gt 0 ]; then
+            echo "🎉 API активен - минимум один endpoint отвечает"
+            exit 0
+          else
+            echo "💥 Все endpoints недоступны - возможны проблемы"
+            exit 1
+          fi
+
+  # Дополнительная задача для wake-up запросов
+  wake-up:
+    runs-on: ubuntu-latest
+    needs: keep-alive
+    if: always()
+    timeout-minutes: 3
+    
+    steps:
+      - name: Wake-up Requests
+        run: |
+          echo "🔄 Выполняем wake-up запросы для активации спящих сервисов"
+          
+          # Основные endpoints для "пробуждения"
+          WAKE_ENDPOINTS=(
+            "https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/"
+            "https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/api/health"
+            "https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/api/courses"
+          )
+          
+          for ENDPOINT in "${WAKE_ENDPOINTS[@]}"; do
+            echo "⚡ Wake-up: $ENDPOINT"
+            curl -s -m 10 \
+              -H "User-Agent: GitHub-WakeUp-Bot/1.0" \
+              "$ENDPOINT" > /dev/null 2>&1 || true
+          done
+          
+          echo "🌟 Wake-up завершен"
+
+  # Уведомления о статусе (опционально)
+  notify:
+    runs-on: ubuntu-latest
+    needs: [keep-alive, wake-up]
+    if: failure()
+    timeout-minutes: 2
+    
+    steps:
+      - name: Log Failure
+        run: |
+          echo "🚨 Keep-alive неудачен - все endpoints недоступны"
+          echo "🕐 Время: $(date '+%Y-%m-%d %H:%M:%S UTC')"
+          echo "🔄 Следующая проверка через 3 минуты"
