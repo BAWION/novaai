@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galaxion API Monitor</title>
+    <style>
+        body {
+            font-family: 'Monaco', 'Menlo', monospace;
+            background: #0a0f1c;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #1a1f35;
+            border-radius: 10px;
+            padding: 30px;
+            border: 1px solid #334155;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #3b82f6;
+            padding-bottom: 20px;
+        }
+        .status {
+            display: flex;
+            justify-content: space-between;
+            margin: 15px 0;
+            padding: 15px;
+            border-radius: 8px;
+            background: #0f172a;
+            border-left: 4px solid #3b82f6;
+        }
+        .status.success { border-left-color: #10b981; }
+        .status.error { border-left-color: #ef4444; }
+        .status.warning { border-left-color: #f59e0b; }
+        .log {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 20px;
+            height: 300px;
+            overflow-y: auto;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+        .success { color: #10b981; }
+        .error { color: #ef4444; }
+        .warning { color: #f59e0b; }
+        .info { color: #3b82f6; }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        button:hover { background: #2563eb; }
+        button:disabled { background: #6b7280; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Galaxion API Keep-Alive Monitor</h1>
+            <p>Предотвращает засыпание Replit бэкенда для стабильной работы galaxion.ai</p>
+        </div>
+
+        <div class="status" id="mainStatus">
+            <span><strong>Статус:</strong> Инициализация...</span>
+            <span id="uptime">Время работы: 0s</span>
+        </div>
+
+        <div class="status">
+            <span><strong>Интервал пинга:</strong> 3 минуты</span>
+            <span><strong>Всего пингов:</strong> <span id="totalPings">0</span></span>
+        </div>
+
+        <div class="status">
+            <span><strong>Успешных:</strong> <span id="successCount" class="success">0</span></span>
+            <span><strong>Ошибок:</strong> <span id="errorCount" class="error">0</span></span>
+        </div>
+
+        <div class="controls">
+            <button onclick="startMonitoring()" id="startBtn">▶️ Запустить мониторинг</button>
+            <button onclick="stopMonitoring()" id="stopBtn" disabled>⏹️ Остановить</button>
+            <button onclick="clearLog()">🗑️ Очистить лог</button>
+            <button onclick="testPing()">🧪 Тест пинга</button>
+        </div>
+
+        <div class="log" id="logContainer"></div>
+    </div>
+
+    <script>
+        // Конфигурация
+        const API_URLS = [
+            'https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/api/health',
+            // Добавьте дополнительные URL при необходимости
+        ];
+        
+        const PING_INTERVAL = 3 * 60 * 1000; // 3 минуты
+        const PING_TIMEOUT = 15000; // 15 секунд таймаут
+        
+        let monitoringInterval = null;
+        let startTime = Date.now();
+        let totalPings = 0;
+        let successCount = 0;
+        let errorCount = 0;
+
+        // Элементы DOM
+        const logContainer = document.getElementById('logContainer');
+        const mainStatus = document.getElementById('mainStatus');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        
+        function formatTime() {
+            return new Date().toISOString().slice(11, 19);
+        }
+
+        function log(message, type = 'info') {
+            const timestamp = formatTime();
+            const logEntry = document.createElement('div');
+            logEntry.className = type;
+            logEntry.innerHTML = `[${timestamp}] ${message}`;
+            
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+            
+            // Ограничиваем количество записей
+            if (logContainer.children.length > 100) {
+                logContainer.removeChild(logContainer.firstChild);
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('totalPings').textContent = totalPings;
+            document.getElementById('successCount').textContent = successCount;
+            document.getElementById('errorCount').textContent = errorCount;
+            
+            const uptime = Math.floor((Date.now() - startTime) / 1000);
+            document.getElementById('uptime').textContent = `Время работы: ${uptime}s`;
+            
+            const successRate = totalPings > 0 ? ((successCount / totalPings) * 100).toFixed(1) : 0;
+            
+            if (successRate >= 90) {
+                mainStatus.className = 'status success';
+                mainStatus.querySelector('span').innerHTML = `<strong>Статус:</strong> ✅ Отлично (${successRate}% успешных)`;
+            } else if (successRate >= 70) {
+                mainStatus.className = 'status warning';
+                mainStatus.querySelector('span').innerHTML = `<strong>Статус:</strong> ⚠️ Нестабильно (${successRate}% успешных)`;
+            } else {
+                mainStatus.className = 'status error';
+                mainStatus.querySelector('span').innerHTML = `<strong>Статус:</strong> ❌ Проблемы (${successRate}% успешных)`;
+            }
+        }
+
+        async function pingAPI(url) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), PING_TIMEOUT);
+            
+            try {
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'User-Agent': 'Galaxion-External-Monitor/2.0',
+                        'Cache-Control': 'no-cache'
+                    },
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    return { success: true, data, status: response.status };
+                } else {
+                    return { success: false, error: `HTTP ${response.status}`, status: response.status };
+                }
+            } catch (error) {
+                clearTimeout(timeoutId);
+                return { 
+                    success: false, 
+                    error: error.name === 'AbortError' ? 'Timeout' : error.message 
+                };
+            }
+        }
+
+        async function performPing() {
+            totalPings++;
+            log(`🏃 Пинг #${totalPings} начат - проверяем ${API_URLS.length} endpoint(s)...`);
+            
+            const results = await Promise.allSettled(
+                API_URLS.map(url => pingAPI(url))
+            );
+            
+            let anySuccess = false;
+            
+            for (let i = 0; i < results.length; i++) {
+                const result = results[i];
+                const url = API_URLS[i];
+                
+                if (result.status === 'fulfilled' && result.value.success) {
+                    anySuccess = true;
+                    const uptime = result.value.data?.uptime || 'unknown';
+                    log(`✅ Endpoint ${i + 1} активен | Uptime: ${Math.floor(uptime)}s`, 'success');
+                } else {
+                    const error = result.status === 'fulfilled' 
+                        ? result.value.error 
+                        : result.reason.message;
+                    log(`❌ Endpoint ${i + 1} недоступен: ${error}`, 'error');
+                }
+            }
+            
+            if (anySuccess) {
+                successCount++;
+                log(`🎉 Пинг #${totalPings} успешен - API активен`, 'success');
+            } else {
+                errorCount++;
+                log(`💥 Пинг #${totalPings} неудачен - все endpoints недоступны`, 'error');
+            }
+            
+            updateStats();
+        }
+
+        function startMonitoring() {
+            if (monitoringInterval) return;
+            
+            startTime = Date.now();
+            log('🚀 Мониторинг запущен', 'info');
+            
+            // Немедленный первый пинг
+            performPing();
+            
+            // Регулярные пинги
+            monitoringInterval = setInterval(performPing, PING_INTERVAL);
+            
+            startBtn.disabled = true;
+            stopBtn.disabled = false;
+        }
+
+        function stopMonitoring() {
+            if (monitoringInterval) {
+                clearInterval(monitoringInterval);
+                monitoringInterval = null;
+                log('⏹️ Мониторинг остановлен', 'warning');
+            }
+            
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+        }
+
+        function testPing() {
+            log('🧪 Выполняем тестовый пинг...', 'info');
+            performPing();
+        }
+
+        function clearLog() {
+            logContainer.innerHTML = '';
+            log('🗑️ Лог очищен', 'info');
+        }
+
+        // Автозапуск при загрузке страницы
+        window.addEventListener('load', () => {
+            log('📡 Galaxion API Monitor инициализирован', 'info');
+            log(`⏰ Интервал пинга: ${PING_INTERVAL / 1000 / 60} минут`, 'info');
+            log(`🎯 Endpoints: ${API_URLS.length}`, 'info');
+            
+            // Автоматический запуск через 3 секунды
+            setTimeout(() => {
+                startMonitoring();
+            }, 3000);
+        });
+
+        // Остановка при закрытии страницы
+        window.addEventListener('beforeunload', () => {
+            stopMonitoring();
+        });
+
+        // Обновление статистики каждую секунду
+        setInterval(updateStats, 1000);
+    </script>
+</body>
+</html>
