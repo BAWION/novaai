@@ -1,11 +1,21 @@
 name: Keep Galaxion API Alive
+
 on:
   schedule:
     - cron: '*/8 * * * *'
   workflow_dispatch:
+
 jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
-      - name: Ping API
-        run: curl -f https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/api/health
+      - name: Ping Galaxion API
+        run: |
+          echo "Pinging Galaxion API to prevent sleep..."
+          curl -f -s -H "User-Agent: GitHub-Actions-KeepAlive" https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/api/health
+          echo "API ping successful at $(date)"
+      
+      - name: Secondary ping
+        run: |
+          echo "Additional ping for reliability..."
+          curl -s https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/api/courses || echo "Secondary ping completed"
