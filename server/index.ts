@@ -101,12 +101,65 @@ async function initializeApplication() {
       reusePort: true,
     }, () => {
       log(`serving on port ${port}`);
+      
+      // Keep-alive механизм для предотвращения засыпания Replit
+      // Активируем для всех случаев на Replit
+      setupKeepAlive();
     });
     
   } catch (error) {
     console.error('[Server] Ошибка при инициализации приложения:', error);
     process.exit(1); // Завершаем процесс при критической ошибке
   }
+}
+
+// Keep-alive механизм для Replit
+function setupKeepAlive() {
+  const keepAliveInterval = 4 * 60 * 1000; // 4 минуты (агрессивнее чем 10-минутный таймаут Replit)
+  
+  // Получаем текущий URL сервера
+  const serverUrl = process.env.REPL_SLUG 
+    ? `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER || 'unknown'}.replit.dev`
+    : 'http://localhost:5000';
+  
+  setInterval(async () => {
+    try {
+      // Множественные пинги для надежности
+      const requests = [
+        // Внутренний пинг
+        fetch('http://localhost:5000/api/health', { 
+          method: 'GET',
+          headers: { 'User-Agent': 'Internal-KeepAlive/1.0' }
+        }),
+        // Внешний пинг (если доступен)
+        serverUrl !== 'http://localhost:5000' 
+          ? fetch(`${serverUrl}/api/health`, { 
+              method: 'GET', 
+              headers: { 'User-Agent': 'External-KeepAlive/1.0' }
+            })
+          : null
+      ].filter(Boolean);
+      
+      const results = await Promise.allSettled(requests);
+      const successful = results.filter(r => r.status === 'fulfilled').length;
+      
+      if (successful > 0) {
+        try {
+          const firstSuccessful = results.find(r => r.status === 'fulfilled');
+          const data = firstSuccessful ? await (firstSuccessful as any).value.json() : { uptime: 'unknown' };
+          console.log(`[Keep-Alive] ✅ Сервер активен | Пингов: ${successful}/${requests.length} | Uptime: ${Math.floor(data.uptime || 0)}s`);
+        } catch {
+          console.log(`[Keep-Alive] ✅ Сервер активен | Пингов: ${successful}/${requests.length}`);
+        }
+      } else {
+        console.log('[Keep-Alive] ⚠️ Все пинги не удались, но сервер продолжает работу');
+      }
+    } catch (error) {
+      console.log('[Keep-Alive] ❌ Ошибка keep-alive:', (error as Error).message || 'Unknown error');
+    }
+  }, keepAliveInterval);
+  
+  console.log(`[Keep-Alive] 🚀 Мульти-пинг система активирована (каждые 4 мин) | URL: ${serverUrl}`);
 }
 
 // Запускаем инициализацию
