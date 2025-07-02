@@ -350,7 +350,7 @@ export class CourseManagementService {
    */
   async getUserLessonProgress(userId: number, courseId: number): Promise<LessonProgress[]> {
 
-    const progress = await db
+    const progressData = await db
       .select({
         lessonId: userLessonProgress.lessonId,
         userId: userLessonProgress.userId,
@@ -367,7 +367,15 @@ export class CourseManagementService {
         eq(userLessonProgress.userId, userId)
       ));
 
-    return progress;
+    // Преобразуем данные, заменяя null значения на допустимые
+    return progressData.map(progress => ({
+      lessonId: progress.lessonId,
+      userId: progress.userId,
+      status: (progress.status || 'not_started') as 'not_started' | 'in_progress' | 'completed',
+      lastPosition: progress.lastPosition || 0,
+      completedAt: progress.completedAt || undefined,
+      notes: progress.notes || undefined
+    }));
   }
 
   /**
@@ -420,100 +428,6 @@ export class CourseManagementService {
         eq(userCourseProgress.userId, userId),
         eq(userCourseProgress.courseId, courseId)
       ));
-  }
-
-  /**
-   * Получает прогресс пользователя по курсу
-   */
-  async getUserCourseProgress(userId: number, courseId: number) {
-    // Получаем общий прогресс курса
-    const courseProgressQuery = await db
-      .select()
-      .from(userCourseProgress)
-      .where(and(
-        eq(userCourseProgress.userId, userId),
-        eq(userCourseProgress.courseId, courseId)
-      ))
-      .limit(1);
-
-    const courseProgress = courseProgressQuery[0];
-
-    // Получаем все уроки курса с их статусом прогресса
-    const lessonsProgressQuery = await db
-      .select({
-        lessonId: lessons.id,
-        lessonTitle: lessons.title,
-        moduleId: lessons.moduleId,
-        moduleTitle: courseModules.title,
-        status: sql<string>`COALESCE(${userLessonProgress.status}, 'not_started')`,
-        completedAt: userLessonProgress.completedAt
-      })
-      .from(lessons)
-      .innerJoin(courseModules, eq(lessons.moduleId, courseModules.id))
-      .leftJoin(userLessonProgress, and(
-        eq(userLessonProgress.lessonId, lessons.id),
-        eq(userLessonProgress.userId, userId)
-      ))
-      .where(eq(courseModules.courseId, courseId))
-      .orderBy(courseModules.orderIndex, lessons.orderIndex);
-
-    // Считаем статистику
-    const totalLessonsQuery = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(lessons)
-      .innerJoin(courseModules, eq(lessons.moduleId, courseModules.id))
-      .where(eq(courseModules.courseId, courseId));
-
-    const completedLessonsQuery = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(userLessonProgress)
-      .innerJoin(lessons, eq(userLessonProgress.lessonId, lessons.id))
-      .innerJoin(courseModules, eq(lessons.moduleId, courseModules.id))
-      .where(and(
-        eq(userLessonProgress.userId, userId),
-        eq(courseModules.courseId, courseId),
-        eq(userLessonProgress.status, 'completed')
-      ));
-
-    const totalLessons = totalLessonsQuery[0]?.count || 0;
-    const completedLessons = completedLessonsQuery[0]?.count || 0;
-    const overallProgress = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
-
-    // Группируем прогресс по модулям
-    const moduleProgress = new Map();
-    lessonsProgressQuery.forEach(lesson => {
-      if (!moduleProgress.has(lesson.moduleId)) {
-        moduleProgress.set(lesson.moduleId, {
-          moduleId: lesson.moduleId,
-          moduleTitle: lesson.moduleTitle,
-          lessons: [],
-          completed: 0,
-          total: 0
-        });
-      }
-      
-      const module = moduleProgress.get(lesson.moduleId);
-      module.lessons.push({
-        lessonId: lesson.lessonId,
-        title: lesson.lessonTitle,
-        status: lesson.status || 'not_started',
-        progress: lesson.progress || 0,
-        completedAt: lesson.completedAt
-      });
-      module.total++;
-      if (lesson.status === 'completed') {
-        module.completed++;
-      }
-    });
-
-    return {
-      overallProgress,
-      completedLessons,
-      totalLessons,
-      courseProgress: courseProgress || null,
-      modules: Array.from(moduleProgress.values()),
-      lessons: lessonsProgressQuery
-    };
   }
 
   /**
