@@ -1,0 +1,11 @@
+name: Keep Galaxion API Alive
+on:
+  schedule:
+    - cron: '*/8 * * * *'
+  workflow_dispatch:
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping API
+        run: curl -f https://49c11d52-b1fc-4151-bb61-b9097616c44f-00-3h2ne9cwwtbvn.janeway.replit.dev/api/health
