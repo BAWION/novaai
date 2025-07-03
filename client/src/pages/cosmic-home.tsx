@@ -4,6 +4,11 @@ import { Link, useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import screenshot0 from '@/assets/screenshot0.png';
+import screenshot1 from '@/assets/screenshot1.png';
+import screenshot2 from '@/assets/screenshot2.png';
+import screenshot3 from '@/assets/screenshot3.png';
+import screenshot4 from '@/assets/screenshot4.png';
 import { 
   Rocket, 
   Brain, 
@@ -364,27 +369,27 @@ const PlatformScreenshotsSlider = () => {
   
   const screenshots = [
     {
-      src: "/screenshot0.png",
+      src: screenshot0,
       title: "Мостик управления",
       description: "Персональная траектория обучения и Skills DNA диагностика"
     },
     {
-      src: "/screenshot1.png",
+      src: screenshot1,
       title: "Вселенная ИИ",
       description: "Космическая дорожная карта обучения с галактиками знаний"
     },
     {
-      src: "/screenshot2.png", 
+      src: screenshot2, 
       title: "Каталог курсов",
       description: "Обширная библиотека курсов по ИИ и Data Science"
     },
     {
-      src: "/screenshot3.png",
+      src: screenshot3,
       title: "ИИ-Тьютор NovaAI",
       description: "Персональный помощник для изучения искусственного интеллекта"
     },
     {
-      src: "/screenshot4.png",
+      src: screenshot4,
       title: "Хранилище знаний",
       description: "Библиотека статей, туториалов и знаний по ИИ"
     }
@@ -418,7 +423,6 @@ const PlatformScreenshotsSlider = () => {
       <h3 className="text-lg sm:text-xl font-bold text-white mb-3 text-center bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
         Платформа Galaxion
       </h3>
-      
       <div 
         className="relative w-full max-w-full"
         onMouseEnter={() => setIsHovered(true)}
@@ -426,7 +430,7 @@ const PlatformScreenshotsSlider = () => {
         style={{ touchAction: 'pan-y' }}
       >
         {/* Slider Container */}
-        <div className="relative overflow-hidden rounded-xl bg-black/30 border border-white/20 shadow-2xl touch-pan-y">
+        <div className="relative overflow-hidden rounded-xl bg-black/30 border border-white/20 shadow-2xl">
           <div 
             className="flex transition-transform duration-500 ease-in-out"
             style={{ transform: `translateX(-${currentSlide * 100}%)` }}
@@ -437,14 +441,15 @@ const PlatformScreenshotsSlider = () => {
                   <img
                     src={screenshot.src}
                     alt={screenshot.title}
-                    className="w-full h-64 sm:h-72 md:h-80 lg:h-96 object-cover object-top"
+                    className="w-full h-48 sm:h-64 md:h-80 lg:h-96 object-cover object-center"
                     loading="lazy"
                   />
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-4 sm:p-6">
-                    <h4 className="text-white font-bold text-lg sm:text-xl mb-2">
+                  {/* Minimal overlay */}
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/75 to-transparent p-2 sm:p-3">
+                    <h4 className="text-white font-medium text-xs sm:text-sm mb-0.5 sm:mb-1">
                       {screenshot.title}
                     </h4>
-                    <p className="text-white/90 text-sm sm:text-base leading-relaxed">
+                    <p className="text-white/70 text-xs leading-tight hidden sm:block">
                       {screenshot.description}
                     </p>
                   </div>
@@ -453,26 +458,26 @@ const PlatformScreenshotsSlider = () => {
             ))}
           </div>
 
-          {/* Navigation Arrows */}
+          {/* Compact navigation arrows */}
           <button
             onClick={prevSlide}
-            className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 backdrop-blur-sm rounded-full p-3 transition-all duration-200 border border-white/20"
+            className="absolute top-1/2 left-1 sm:left-3 transform -translate-y-1/2 bg-black/60 hover:bg-black/80 rounded-full p-1.5 sm:p-2 transition-all duration-200"
           >
-            <ChevronLeft className="w-5 h-5 text-white" />
+            <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
           </button>
           <button
             onClick={nextSlide}
-            className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 backdrop-blur-sm rounded-full p-3 transition-all duration-200 border border-white/20"
+            className="absolute top-1/2 right-1 sm:right-3 transform -translate-y-1/2 bg-black/60 hover:bg-black/80 rounded-full p-1.5 sm:p-2 transition-all duration-200"
           >
-            <ChevronRight className="w-5 h-5 text-white" />
+            <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
           </button>
+
+          
         </div>
 
 
 
-        <p className="text-center text-white/80 text-sm mt-2 max-w-xl mx-auto">
-          Откройте для себя возможности платформы ИИ
-        </p>
+        <p className="text-center text-white/80 text-sm mt-2 max-w-xl mx-auto">Откройте для себя возможности платформы</p>
       </div>
     </div>
   );
@@ -537,7 +542,7 @@ const CosmicHome = () => {
       {/* Navigation Header */}
       <header className="relative z-20 px-6 py-4 backdrop-blur-md bg-black/50 border-b border-white/10">
         <div className="container mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center space-x-3">
+          <Link href="/" className="flex items-center space-x-3 -ml-2 md:ml-0">
             <span className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
               Galaxion
             </span>
@@ -638,7 +643,7 @@ const CosmicHome = () => {
                 </h1>
 
                 <p className="text-base sm:text-lg md:text-xl text-white/80 mb-6 sm:mb-8 max-w-xl">
-                  <span className="font-bold text-white">Galaxion</span> — это <span className="font-bold text-white">преимущественно бесплатная</span> образовательная платформа для <span className="font-bold text-white">всех уровней</span> — от школьников до Senior-разработчиков, с адаптивной AI-системой обучения от NovaAI.
+                  <span className="font-bold text-white">Galaxion</span> — это <span className="font-bold text-white">новая образовательная платформа</span> в стадии разработки для изучения ИИ и Data Science с персонализированным подходом на основе Skills DNA и ИИ-ассистента NovaAI.
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-3">
@@ -674,10 +679,10 @@ const CosmicHome = () => {
           <div className="container mx-auto">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8">
               {[
-                { value: "30+", label: "Авторских курсов" },
-                { value: "50k+", label: "Активных учеников" },
-                { value: "96%", label: "Трудоустройство" },
-                { value: "4.8", label: "Средняя оценка" }
+                { value: "9", label: "Готовых курсов" },
+                { value: "Beta", label: "Версия платформы" },
+                { value: "2025", label: "Год запуска" },
+                { value: "Free", label: "Доступ к контенту" }
               ].map((stat, index) => (
                 <motion.div 
                   key={index}
@@ -936,9 +941,15 @@ const CosmicHome = () => {
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
               Галактики знаний ИИ
             </h2>
-            <p className="text-lg text-gray-400 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-400 max-w-2xl mx-auto mb-4">
               Выберите галактику для изучения направления искусственного интеллекта
             </p>
+            <div className="inline-flex items-center px-4 py-2 bg-blue-500/20 border border-blue-400/30 rounded-lg backdrop-blur-sm">
+              <Sparkles className="w-4 h-4 text-blue-400 mr-2" />
+              <span className="text-blue-300 text-sm font-medium">
+                Beta-версия • 9 готовых курсов • Активная разработка
+              </span>
+            </div>
           </motion.div>
 
           <CourseGalaxyFilter />
@@ -1023,9 +1034,7 @@ const CosmicHome = () => {
             <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
               Готовы к запуску?
             </h2>
-            <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-              Ваш корабль Galaxion ждет команды к старту. Присоединяйтесь к сообществу из более чем 50,000 исследователей и начните персональное путешествие в мир ИИ уже сегодня.
-            </p>
+            <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">Ваш корабль Galaxion ждет команды к старту. Присоединяйтесь к сообществу исследователей и начните персональное путешествие в мир ИИ уже сегодня.</p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-2xl mx-auto">
               <Link href="/onboarding-intro" className="flex-1 sm:flex-none">
                 <Button size="sm" className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-sm px-4 py-2 h-9 w-full sm:w-auto min-w-[140px]">
@@ -1054,6 +1063,45 @@ const CosmicHome = () => {
                 <p className="text-gray-400 mb-4 leading-relaxed">
                   Образовательная платформа нового поколения для изучения искусственного интеллекта и науки о данных. Преимущественно бесплатная для всех уровней.
                 </p>
+                
+                {/* Social Media Icons */}
+                <div className="flex items-center space-x-4">
+                  <a 
+                    href="https://t.me/humanreadytech" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-gray-400 hover:text-blue-400 transition-colors"
+                    title="Telegram"
+                  >
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+                    </svg>
+                  </a>
+                  
+                  <a 
+                    href="https://vk.com/galaxion_ai" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-gray-400 hover:text-blue-500 transition-colors"
+                    title="ВКонтакте"
+                  >
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M15.684 0H8.316C1.592 0 0 1.592 0 8.316v7.368C0 22.408 1.592 24 8.316 24h7.368C22.408 24 24 22.408 24 15.684V8.316C24 1.592 22.408 0 15.684 0zm3.692 17.123h-1.744c-.66 0-.864-.525-2.05-1.727-1.033-1.01-1.49-.9-1.608-.9-.336 0-.431.097-.431.574v1.575c0 .431-.134.69-1.275.69-1.844 0-3.89-1.112-5.332-3.174-2.184-3.092-2.78-5.4-2.78-5.881 0-.336.097-.646.574-.646.435 0 .646.097.875.646.336.798.875 2.07 1.744 3.23.69 1.01 1.133 1.303 1.404 1.303.188 0 .336-.097.336-.621V9.578c-.097-.862-.525-1.04-.525-1.374 0-.188.15-.37.37-.37h2.916c.431 0 .574.22.574.646v3.473c0 .431.188.574.336.574.188 0 .431-.143.862-.574 1.289-1.444 2.204-3.66 2.204-3.66.12-.24.336-.47.72-.47h1.744c.523 0 .634.27.523.646-.336 1.363-2.164 4.166-2.164 4.166-.188.336-.24.48 0 .793 1.98 2.375 2.262 3.54 2.262 3.54.188.574-.336.882-.336.882z"/>
+                    </svg>
+                  </a>
+                  
+                  <a 
+                    href="https://zen.yandex.ru/galaxion" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-gray-400 hover:text-orange-400 transition-colors"
+                    title="Яндекс Дзен"
+                  >
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.568 7.432c0 3.267-2.177 6.91-6.568 6.91-1.781 0-3.203-.633-4.262-1.897l-.023-.028c-.616-.736-.977-1.638-.977-2.667 0-1.97 1.43-3.75 4.262-3.75 1.781 0 3.203.633 4.262 1.897.616.736.977 1.638.977 2.667.023 1.97-1.43 3.75-4.262 3.75z"/>
+                    </svg>
+                  </a>
+                </div>
               </div>
               
               <div>
@@ -1186,7 +1234,6 @@ const CosmicHome = () => {
           </div>
         </footer>
       </div>
-      
       {/* Admin Login Modal */}
       <AnimatePresence>
         {showAdminLogin && (
