@@ -355,41 +355,26 @@ export default function Dashboard() {
           transition={{ duration: 0.5, delay: 0.6 }}
           className="mt-8"
         >
-          <div className="mb-6">
-            <h2 className="font-orbitron text-xl font-semibold mb-2">
-              Дорожная карта
-            </h2>
-            <p className="text-white/70 text-sm">Ваш персональный путь обучения</p>
-          </div>
           <RoadmapWidget />
         </motion.div>
       </div>
       {/* Полноэкранная карта галактики */}
       {isFullscreenMap && (
         <div className="fixed inset-0 z-50 bg-black">
-          {/* Заголовок и кнопка закрытия */}
-          <div className="absolute top-0 left-0 right-0 z-10 bg-gradient-to-b from-black/80 via-black/40 to-transparent p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] flex items-center justify-center">
-                    <i className="fas fa-rocket text-white text-sm"></i>
-                  </div>
-                  <h1 className="text-white font-orbitron text-xl font-bold">
-                    Галактическая карта ИИ
-                  </h1>
+          {/* Заголовок полноэкранной карты */}
+          <div className="absolute top-0 left-0 right-0 z-10 bg-gradient-to-b from-black/80 via-black/40 to-transparent p-4 pointer-events-none">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] flex items-center justify-center">
+                  <i className="fas fa-rocket text-white text-sm"></i>
                 </div>
-                <div className="hidden sm:block text-white/60 text-sm">
-                  Исследуйте вселенную знаний
-                </div>
+                <h1 className="text-white font-orbitron text-xl font-bold">
+                  Галактическая карта ИИ
+                </h1>
               </div>
-              <button
-                onClick={() => setIsFullscreenMap(false)}
-                className="w-10 h-10 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 flex items-center justify-center text-white hover:text-white/80 transition-all duration-200"
-                title="Закрыть полноэкранный режим"
-              >
-                <i className="fas fa-times text-lg"></i>
-              </button>
+              <div className="hidden sm:block text-white/60 text-sm">
+                Исследуйте вселенную знаний
+              </div>
             </div>
           </div>
 
