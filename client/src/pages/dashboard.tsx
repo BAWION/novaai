@@ -19,7 +19,7 @@ import { TimeSavedPage } from "@/components/time-saved/TimeSavedPage";
 import { diagnosisApi } from "@/api/diagnosis-api";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { RoadmapWidget } from "@/components/roadmap/roadmap-widget";
+import RoadmapWidget from "@/components/roadmap/roadmap-widget";
 import { 
   Dialog,
   DialogContent,
