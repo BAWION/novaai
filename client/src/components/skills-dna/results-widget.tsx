@@ -312,6 +312,15 @@ export function SkillsDnaResultsWidget({ userId }: SkillsDnaResultsWidgetProps) 
               ))}
             </div>
             
+            {/* Кнопка подробного анализа Skills DNA */}
+            <Button 
+              onClick={() => setLocation('/skills-dna')}
+              variant="outline" 
+              className="w-full border-purple-500/30 text-purple-300 hover:bg-purple-500/10 text-sm"
+            >
+              <Brain className="h-4 w-4 mr-2" />
+              Подробный анализ Skills DNA
+            </Button>
             
           </div>
 
