@@ -78,7 +78,7 @@ export function BusinessBreadcrumbs({ className = '' }: BusinessBreadcrumbsProps
   return (
     <div className={`flex items-center text-sm space-x-2 ${className}`}>
       {items.map((item, index) => (
-        <React.Fragment key={item.path}>
+        <div key={item.path} className="flex items-center">
           {index > 0 && (
             <span className="text-white/30 mx-1">
               <i className="fas fa-chevron-right text-xs"></i>
@@ -96,7 +96,7 @@ export function BusinessBreadcrumbs({ className = '' }: BusinessBreadcrumbsProps
               </a>
             </Link>
           )}
-        </React.Fragment>
+        </div>
       ))}
     </div>
   );
