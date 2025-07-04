@@ -29,7 +29,7 @@ interface Galaxy {
 }
 
 interface Planet {
-  id: number;
+  id: string; // Изменен на string для уникальных составных ключей
   course: Course;
   galaxy: string;
   position: { x: number; y: number };
@@ -128,7 +128,7 @@ interface GalaxyUniverseProps {
 
 function GalaxyUniverse({ fullScreen = false, onClose }: GalaxyUniverseProps) {
   // Отладка пропсов
-  console.log('GalaxyUniverse: fullScreen =', fullScreen, 'onClose =', !!onClose);
+
   const [, navigate] = useLocation();
   const containerRef = useRef<HTMLDivElement>(null);
   
@@ -230,7 +230,7 @@ function GalaxyUniverse({ fullScreen = false, onClose }: GalaxyUniverseProps) {
           const planetY = galaxy.position.y + Math.sin(angle * Math.PI / 180) * distance;
 
           newPlanets.push({
-            id: course.id,
+            id: `${galaxyId}-${course.id}`, // Уникальный ключ: галактика + курс
             course,
             galaxy: galaxyId,
             position: { x: planetX, y: planetY },
@@ -343,8 +343,6 @@ function GalaxyUniverse({ fullScreen = false, onClose }: GalaxyUniverseProps) {
 
   const handlePlanetClick = (planet: Planet) => {
     // Щелчок по планете открывает карточку курса
-    console.log('Открываем карточку курса:', planet.name);
-    // Можно показать панель сбоку или оверлей
     navigate(`/courses/${planet.course.id}`);
   };
 
@@ -360,9 +358,10 @@ function GalaxyUniverse({ fullScreen = false, onClose }: GalaxyUniverseProps) {
     });
   };
 
-  // Скролл-навигация согласно спецификации
+  // Скролл-навигация согласно спецификации с non-passive обработчиком
   const handleScrollNavigation = (event: React.WheelEvent) => {
-    event.preventDefault();
+    // Предотвращаем стандартное поведение прокрутки только внутри карты
+    event.stopPropagation();
     
     if (event.deltaY > 0) {
       // Скролл-аут - возвращаемся к предыдущему уровню
@@ -463,12 +462,14 @@ function GalaxyUniverse({ fullScreen = false, onClose }: GalaxyUniverseProps) {
     <div 
       className={`w-full relative overflow-hidden ${
         fullScreen 
-          ? 'fixed inset-0 z-[9999] bg-gradient-to-br from-purple-900 via-blue-900 to-black' 
+          ? 'h-full bg-gradient-to-br from-purple-900 via-blue-900 to-black' 
           : 'h-[600px] rounded-xl bg-gradient-to-b from-space-900 via-space-800 to-space-900'
       }`}
       style={fullScreen ? { backgroundColor: '#0f172a' } : {}}
       onWheel={(e) => {
-        e.preventDefault();
+        // Останавливаем всплытие события, но не предотвращаем default поведение
+        e.stopPropagation();
+        
         const delta = e.deltaY * 0.008; // Более медленное изменение зума
         const newZoom = Math.max(0.15, Math.min(20, viewConfig.zoom + delta));
         
@@ -498,32 +499,16 @@ function GalaxyUniverse({ fullScreen = false, onClose }: GalaxyUniverseProps) {
     >
       {/* Кнопка закрытия для полноэкранного режима */}
       {fullScreen && onClose && (
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 z-[10000] w-10 h-10 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 flex items-center justify-center text-white hover:text-white/80 transition-all duration-200"
-          title="Закрыть полноэкранный режим"
-        >
-          <i className="fas fa-times text-lg"></i>
-        </button>
-      )}
-      {/* Debug info for fullscreen mode */}
-      {fullScreen && (
-        <div className="absolute top-2 left-2 z-[9998] text-white text-sm bg-black/50 p-2 rounded">
-          Полноэкранная карта активна
-        </div>
-      )}
-
-      {/* Close button for fullscreen mode */}
-      {fullScreen && onClose && (
         <motion.button
-          className="absolute top-4 right-4 z-[9998] bg-space-800/90 backdrop-blur-sm p-2 rounded-lg border border-white/20 text-white hover:bg-space-700/90 transition-colors"
+          className="absolute top-4 right-4 z-[9998] bg-space-800/90 backdrop-blur-sm p-3 rounded-lg border border-white/20 text-white hover:bg-space-700/90 transition-colors"
           onClick={onClose}
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
+          title="Закрыть полноэкранный режим"
         >
-          <X className="w-5 h-5" />
+          <X className="w-6 h-6" />
         </motion.button>
       )}
 
@@ -802,7 +787,7 @@ function GalaxyUniverse({ fullScreen = false, onClose }: GalaxyUniverseProps) {
               }}
               onDoubleClick={() => handleGalaxyDoubleClick(galaxy.id)}
               onMouseEnter={() => {
-                console.log(`${galaxy.name} — ${Math.round(Math.random() * 100)}% пройдено`);
+
               }}
             >
               <motion.div
@@ -852,7 +837,7 @@ function GalaxyUniverse({ fullScreen = false, onClose }: GalaxyUniverseProps) {
                   {/* Спиральные рукава */}
                   {[0, 120, 240].map((rotation, armIndex) => (
                     <div
-                      key={armIndex}
+                      key={`${galaxy.id}-arm-${armIndex}`}
                       className="absolute top-1/2 left-1/2 origin-left"
                       style={{
                         width: galaxy.size * 0.4,
@@ -969,9 +954,9 @@ function GalaxyUniverse({ fullScreen = false, onClose }: GalaxyUniverseProps) {
                     }}
                   >
                     {/* Солнечные лучи */}
-                    {[0, 45, 90, 135, 180, 225, 270, 315].map((rotation) => (
+                    {[0, 45, 90, 135, 180, 225, 270, 315].map((rotation, rayIndex) => (
                       <div
-                        key={rotation}
+                        key={`system-${systemIndex}-ray-${rayIndex}`}
                         className="absolute w-12 h-0.5 bg-gradient-to-r from-yellow-400 to-transparent"
                         style={{
                           left: '50%',
@@ -1005,12 +990,12 @@ function GalaxyUniverse({ fullScreen = false, onClose }: GalaxyUniverseProps) {
               transition={{ duration: 0.8 }}
             >
               {/* Орбитальные траектории */}
-              {planets.map((_, index) => {
+              {planets.map((planet, index) => {
                 const orbitRadius = 220 + (index * 100);
                 
                 return (
                   <div
-                    key={`orbit-ring-${index}`}
+                    key={`orbit-ring-${planet.id}`}
                     className="absolute border border-white/15 rounded-full pointer-events-none"
                     style={{
                       width: orbitRadius * 2,
@@ -1524,7 +1509,7 @@ function GalaxyUniverse({ fullScreen = false, onClose }: GalaxyUniverseProps) {
               <div className="absolute inset-0 overflow-hidden rounded-xl">
                 {Array.from({ length: 6 }).map((_, i) => (
                   <motion.div
-                    key={i}
+                    key={`discovery-spark-${i}`}
                     className="absolute w-1 h-1 bg-white rounded-full"
                     style={{
                       left: `${20 + Math.random() * 60}%`,
@@ -1632,7 +1617,7 @@ function GalaxyUniverse({ fullScreen = false, onClose }: GalaxyUniverseProps) {
               <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-xl">
                 {[...Array(12)].map((_, i) => (
                   <motion.div
-                    key={i}
+                    key={`toast-spark-${i}`}
                     className="absolute w-2 h-2 bg-gradient-to-br from-primary/60 to-purple-600/60 rounded-full"
                     style={{
                       left: `${10 + Math.random() * 80}%`,
