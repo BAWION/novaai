@@ -204,7 +204,7 @@ export default function Dashboard() {
   };
 
   return (
-    <DashboardLayout title="Мостик" subtitle="Управление обучением и персональная траектория">
+    <DashboardLayout title="" subtitle="">
       {/* Приветственное модальное окно для новых пользователей */}
       <WelcomeModal 
         isOpen={showWelcomeModal} 
@@ -235,28 +235,15 @@ export default function Dashboard() {
         </DialogContent>
       </Dialog>
       <div className="flex flex-col gap-6">
-        {/* Header with breadcrumb & search */}
+        {/* Header - Заметный заголовок "Мостик" */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="flex justify-between items-center bg-space-900/50 rounded-lg py-2 px-4"
+          className="text-center mb-6"
         >
-          <div className="text-white/60 text-sm flex items-center gap-2">
-            <span className="text-primary">NovaAI</span>
-            <i className="fas fa-chevron-right text-xs"></i>
-            <span>Образовательный центр</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="hidden md:flex items-center gap-2 bg-space-800/50 rounded-lg px-3 py-1.5 text-white/50 text-sm">
-              <i className="fas fa-search text-xs"></i>
-              <span>Cmd+K</span>
-            </div>
-            <div className="relative">
-              <i className="fas fa-bell text-white/60 hover:text-white cursor-pointer transition"></i>
-              <div className="absolute top-0 right-0 w-2 h-2 rounded-full bg-primary"></div>
-            </div>
-          </div>
+          <h1 className="font-orbitron text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#B28DFF] via-[#8BE0F7] to-[#B28DFF] mb-2">Мостик</h1>
+          <p className="text-white/70 text-lg">Командный центр вашего космического путешествия в мире ИИ</p>
         </motion.div>
       
         {/* Подсказка для прохождения онбординга */}
@@ -308,59 +295,16 @@ export default function Dashboard() {
           </motion.div>
         )}
 
-        {/* Main title */}
+        {/* Main title - упрощенный заголовок */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="mb-2"
+          className="mb-6"
         >
-          <h1 className="font-orbitron text-2xl md:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#B28DFF] via-[#8BE0F7] to-[#B28DFF]">
+          <h2 className="font-orbitron text-xl md:text-2xl font-semibold text-white mb-2">
             Мой образовательный путь
-          </h1>
-          <div className="flex items-center gap-2 mt-1">
-            <p className="text-white/70 text-md">Персонализированная траектория развития </p>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <div className="inline-flex items-center gap-1 px-2 py-0.5 bg-gradient-to-r from-[#6E3AFF]/20 to-[#2EBAE1]/20 rounded-full border border-[#6E3AFF]/30 cursor-help">
-                    <div className="w-3 h-3 rounded-full bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1]"></div>
-                    <span className="text-xs font-medium text-white/80">{userLevel.title}</span>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent className="max-w-xs">
-                  <div>
-                    <div className="mb-2">
-                      <span className="font-semibold">{userLevel.title} уровень</span>
-                      <p className="text-sm opacity-80">{userLevel.description}</p>
-                    </div>
-                    <div className="mb-1 flex justify-between text-xs">
-                      <span>Новичок</span>
-                      <span>Продвинутый</span>
-                      <span>Эксперт</span>
-                    </div>
-                    <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden relative mb-2">
-                      <div 
-                        className="h-full bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] rounded-full" 
-                        style={{ width: `${userLevel.progress}%` }}
-                      ></div>
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <div 
-                          key={i} 
-                          className={`absolute top-0 w-px h-full bg-white/30 ${i < userLevel.level ? 'opacity-0' : 'opacity-100'}`} 
-                          style={{ left: `${(i + 1) * 20}%` }}
-                        ></div>
-                      ))}
-                    </div>
-                    <p className="text-xs text-center">
-                      <span>До следующего уровня: </span>
-                      <span className="font-semibold">{userLevel.nextMilestone}</span>
-                    </p>
-                  </div>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
+          </h2>
         </motion.div>
         
         {/* Main Content - Skills DNA and Recommended Courses */}
@@ -420,7 +364,6 @@ export default function Dashboard() {
           <RoadmapWidget />
         </motion.div>
       </div>
-
       {/* Полноэкранная карта галактики */}
       {isFullscreenMap && (
         <div className="fixed inset-0 z-50 bg-black">
