@@ -17,11 +17,9 @@ interface RoadmapNode {
   system: string;
 }
 
-interface CompactRoadmapWidgetProps {
-  userId?: number;
-}
 
-export function CompactRoadmapWidget({ userId }: CompactRoadmapWidgetProps) {
+
+export function RoadmapWidget() {
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
 
@@ -446,3 +444,5 @@ export function CompactRoadmapWidget({ userId }: CompactRoadmapWidgetProps) {
     </div>
   );
 }
+
+export default RoadmapWidget;
