@@ -2,7 +2,7 @@ name: Galaxion API Advanced Keep-Alive
 on:
   schedule:
     # Каждые 3 минуты (агрессивнее для надежности)
-    - cron: '*/3 * * * *'
+    - cron: '*/10 * * * *'
   workflow_dispatch:
   push:
     branches: [main]
@@ -10,7 +10,7 @@ on:
 jobs:
   keep-alive:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 15
     
     steps:
       - name: Multi-endpoint Health Check
