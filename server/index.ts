@@ -48,6 +48,9 @@ app.use((req, res, next) => {
   next();
 });
 
+// Middleware для автоматического определения реального URL сервера (самый первый!)
+app.use(detectExternalUrl);
+
 // Критически важно для Replit - доверие прокси для правильной работы HTTPS cookies
 app.set('trust proxy', 1);
 
@@ -71,7 +74,11 @@ async function initializeApplication() {
     
     console.log('[Server] Система сессий успешно инициализирована');
     
-    // Регистрируем маршруты только после инициализации сессий
+    // Критический фикс: запускаем отдельный сервер для tools API
+    await import('./tools-server');
+    console.log('[Server] Tools сервер запущен на отдельном порту 5001');
+
+    // Регистрируем остальные маршруты только после инициализации сессий
     const server = await registerRoutes(app);
     
     app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
@@ -113,53 +120,80 @@ async function initializeApplication() {
   }
 }
 
-// Keep-alive механизм для Replit
-function setupKeepAlive() {
-  const keepAliveInterval = 4 * 60 * 1000; // 4 минуты (агрессивнее чем 10-минутный таймаут Replit)
-  
-  // Получаем текущий URL сервера
-  const serverUrl = process.env.REPL_SLUG 
-    ? `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER || 'unknown'}.replit.dev`
-    : 'http://localhost:5000';
-  
-  setInterval(async () => {
-    try {
-      // Множественные пинги для надежности
-      const requests = [
-        // Внутренний пинг
-        fetch('http://localhost:5000/api/health', { 
-          method: 'GET',
-          headers: { 'User-Agent': 'Internal-KeepAlive/1.0' }
-        }),
-        // Внешний пинг (если доступен)
-        serverUrl !== 'http://localhost:5000' 
-          ? fetch(`${serverUrl}/api/health`, { 
-              method: 'GET', 
-              headers: { 'User-Agent': 'External-KeepAlive/1.0' }
-            })
-          : null
-      ].filter(Boolean);
-      
-      const results = await Promise.allSettled(requests);
-      const successful = results.filter(r => r.status === 'fulfilled').length;
-      
-      if (successful > 0) {
-        try {
-          const firstSuccessful = results.find(r => r.status === 'fulfilled');
-          const data = firstSuccessful ? await (firstSuccessful as any).value.json() : { uptime: 'unknown' };
-          console.log(`[Keep-Alive] ✅ Сервер активен | Пингов: ${successful}/${requests.length} | Uptime: ${Math.floor(data.uptime || 0)}s`);
-        } catch {
-          console.log(`[Keep-Alive] ✅ Сервер активен | Пингов: ${successful}/${requests.length}`);
-        }
-      } else {
-        console.log('[Keep-Alive] ⚠️ Все пинги не удались, но сервер продолжает работу');
-      }
-    } catch (error) {
-      console.log('[Keep-Alive] ❌ Ошибка keep-alive:', (error as Error).message || 'Unknown error');
+// Глобальная переменная для хранения реального URL сервера
+let detectedServerUrl = 'http://localhost:5000';
+
+// Middleware для автоматического определения внешнего URL
+function detectExternalUrl(req: any, res: any, next: any) {
+  const host = req.get('host');
+  if (host && host.includes('.replit.dev')) {
+    const newUrl = `https://${host}`;
+    if (detectedServerUrl !== newUrl) {
+      console.log(`[URL-Detection] Обновляем URL: ${detectedServerUrl} → ${newUrl}`);
+      detectedServerUrl = newUrl;
     }
-  }, keepAliveInterval);
+  }
+  next();
+}
+
+async function pingMultipleEndpoints() {
+  try {
+    const endpoints = ['/api/health', '/api/courses', '/api/auth/me'];
+    
+    for (const endpoint of endpoints) {
+      try {
+        const response = await fetch(`${detectedServerUrl}${endpoint}`, {
+          method: 'GET',
+          headers: { 'User-Agent': 'Galaxion-MultiPing/2.0' }
+        });
+        if (response.ok) {
+          console.log(`[Multi-Ping] ✅ ${endpoint} активен`);
+        }
+      } catch (e) {
+        // Тихо игнорируем ошибки отдельных пингов
+      }
+    }
+  } catch (error) {
+    // Тихо игнорируем общие ошибки
+  }
+}
+
+// Keep-alive механизм для Replit (максимально тихий)
+function setupKeepAlive() {
+  const keepAliveInterval = 15 * 60 * 1000; // 15 МИНУТ - максимально спокойный режим
   
-  console.log(`[Keep-Alive] 🚀 Мульти-пинг система активирована (каждые 4 мин) | URL: ${serverUrl}`);
+  // Минимальная активность Event Loop - только раз в 5 минут
+  let activityCounter = 0;
+  const antiIdleInterval = setInterval(() => {
+    activityCounter++;
+    process.nextTick(() => {
+      // Минимальная активность для event loop
+    });
+  }, 5 * 60 * 1000); // 5 минут
+  
+  // Основные пинги каждые 15 минут (UptimeRobot каждые 5 минут обеспечивает основной мониторинг)
+  setInterval(pingServer, keepAliveInterval);
+
+  console.log(`[Keep-Alive] 🚀 Тихий режим (каждые 15 минут) + UptimeRobot основной мониторинг | URL: ${detectedServerUrl}`);
+}
+
+async function pingServer() {
+  try {
+    // Простой тихий пинг только основного эндпоинта
+    const response = await fetch(`${detectedServerUrl}/api/health`, { 
+      method: 'GET',
+      headers: { 'User-Agent': 'Keep-Alive/3.0' }
+    });
+    
+    if (response.ok) {
+      // Тихий успешный пинг без подробностей в логах
+      console.log(`[Keep-Alive] ✅ Сервер активен`);
+    } else {
+      console.log(`[Keep-Alive] ⚠️ Неудачный пинг: ${response.status}`);
+    }
+  } catch (error) {
+    console.log('[Keep-Alive] ❌ Ошибка пинга:', (error as Error).message || 'Unknown error');
+  }
 }
 
 // Запускаем инициализацию
