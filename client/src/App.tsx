@@ -30,6 +30,7 @@ import BusinessAIOverview from "@/pages/business";
 import CaseLibrary from "@/pages/business/cases";
 import CourseAI from "@/pages/course-ai";
 import CoursePage from "@/pages/course-page";
+import CourseDetails from "@/pages/course-details";
 import KnowledgeVault from "@/pages/knowledge-vault";
 import SkillsPage from "@/pages/skills-page";
 import AIAssistantPage from "@/pages/ai-assistant-page";
@@ -50,6 +51,15 @@ import AdminDashboard from "@/pages/admin/index";
 import AdminPage from "@/pages/admin";
 import AiTutorPage from "@/pages/ai-tutor";
 import BusinessAIPage from "@/pages/business-ai";
+import LightningEthicsPage from "@/pages/lightning-ethics";
+import AIEthicsToolkitPage from "@/pages/ai-ethics-toolkit";
+import AIEthicsToolkitV2Page from "@/pages/ai-ethics-toolkit-v2";
+import CardSortDemo from "@/pages/card-sort-demo";
+import SliderDemo from "@/pages/slider-demo";
+import MatchingDemo from "@/pages/matching-demo";
+import ScenarioDemo from "@/pages/scenario-demo";
+import ActivitiesDemo from "@/pages/activities-demo";
+import AIEthicsV2Course from "@/pages/ai-ethics-v2-course";
 
 interface ProtectedRouteProps {
   component: React.ComponentType;
@@ -131,6 +141,15 @@ function Router() {
           <Route path="/investor-presentation" component={InvestorPresentation} />
           <Route path="/presentation-selector" component={PresentationSelector} />
           <Route path="/product-demo" component={ProductDemo} />
+          <Route path="/lightning-ethics" component={LightningEthicsPage} />
+          <Route path="/ai-ethics-toolkit" component={AIEthicsToolkitPage} />
+          <Route path="/ai-ethics-toolkit-v2" component={AIEthicsToolkitV2Page} />
+          <Route path="/card-sort-demo" component={CardSortDemo} />
+          <Route path="/slider-demo" component={SliderDemo} />
+          <Route path="/matching-demo" component={MatchingDemo} />
+          <Route path="/scenario-demo" component={ScenarioDemo} />
+          <Route path="/activities-demo" component={ActivitiesDemo} />
+          <Route path="/ai-ethics-v2" component={AIEthicsV2Course} />
           
           {/* Admin Panel - Public access with authentication check */}
           <Route path="/admin" component={AdminDashboard} />
@@ -138,7 +157,7 @@ function Router() {
           {/* Protected Routes */}
           <ProtectedRoute path="/dashboard" component={Dashboard} />
           <ProtectedRoute path="/roadmap" component={Roadmap} />
-          <ProtectedRoute path="/courses" component={Courses} />
+          <ProtectedRoute path="/catalog" component={Courses} />
           <ProtectedRoute path="/labhub" component={LabHub} />
           <ProtectedRoute path="/admin/lesson-structure" component={LessonStructurePage} />
           <ProtectedRoute path="/community" component={Community} />
@@ -155,6 +174,9 @@ function Router() {
           
           {/* Курсы с ИИ-ассистентом */}
           <ProtectedRoute path="/course-ai/:courseId?" component={CourseAI} />
+          
+          {/* Страница деталей курса - защищенный доступ */}
+          <ProtectedRoute path="/course-details/:slug" component={CourseDetails} />
           
           {/* Детальная страница курса - защищенный доступ */}
           <ProtectedRoute path="/courses/:slug" component={CoursePage} />
