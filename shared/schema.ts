@@ -46,7 +46,12 @@ export const users = pgTable("users", {
   // Telegram поля
   telegramId: varchar("telegram_id", { length: 50 }).unique(),
   telegramUsername: varchar("telegram_username", { length: 255 }),
+  // Google OAuth поля
   authProvider: varchar("auth_provider", { length: 50 }).default("email"), // "email", "telegram", "google", etc.
+  authProviderId: varchar("auth_provider_id", { length: 255 }), // ID пользователя у провайдера
+  firstName: varchar("first_name", { length: 255 }),
+  lastName: varchar("last_name", { length: 255 }),
+  isEmailVerified: boolean("is_email_verified").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -77,7 +82,7 @@ export const userProfiles = pgTable("user_profiles", {
 });
 
 // Определение категории курса
-export const categoryEnum = pgEnum('course_category', ['tech', 'ethics', 'law', 'business', 'ml', 'other']);
+export const categoryEnum = pgEnum('course_category', ['tech', 'ethics', 'law', 'business', 'ml', 'toolkit', 'other']);
 
 // Определение таблицы курсов
 export const courses = pgTable("courses", {
@@ -98,6 +103,9 @@ export const courses = pgTable("courses", {
   objectives: json("objectives"), // Цели обучения
   prerequisites: json("prerequisites"), // Предварительные требования 
   skillsGained: json("skills_gained"), // Навыки, полученные после прохождения
+  version: varchar("version", { length: 10 }).default("1.0"), // Версия курса
+  practicalRate: real("practical_rate").default(0), // Доля практических заданий (0-1)
+  metadata: json("metadata"), // Расширенные метаданные для флагманских курсов
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -125,6 +133,7 @@ export const lessons = pgTable("lessons", {
   type: varchar("type", { length: 50 }).notNull(), // Тип урока: видео, текст, практика и т.д.
   estimatedDuration: integer("estimated_duration"), // В минутах
   mediaUrls: json("media_urls"), // Ссылки на медиафайлы
+  videoUrl: text("video_url"), // Основное видео урока
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -467,6 +476,58 @@ export const courseSkillRequirements = pgTable("course_skill_requirements", {
   };
 });
 
+// Таблица для инструментов AI Ethics Toolkit
+export const toolkitTools = pgTable("toolkit_tools", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull().unique(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
+  description: text("description"),
+  endpoint: varchar("endpoint", { length: 255 }).notNull(),
+  inputSchema: json("input_schema").notNull(), // JSON Schema для валидации входных данных
+  outputTypes: json("output_types"), // Типы выходных файлов ["PDF", "Excel", "DOCX"]
+  estimatedDuration: integer("estimated_duration").default(5), // В минутах
+  difficulty: integer("difficulty").default(1), // 1-3
+  tokenCost: integer("token_cost").default(0), // Примерная стоимость в токенах
+  active: boolean("active").default(true),
+  metadata: json("metadata"), // Дополнительные настройки инструмента
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Результаты запуска инструментов пользователями
+export const userToolRuns = pgTable("user_tool_runs", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  toolId: integer("tool_id").notNull().references(() => toolkitTools.id),
+  inputData: json("input_data").notNull(), // Входные данные пользователя
+  outputFiles: json("output_files"), // Ссылки на сгенерированные файлы
+  status: varchar("status", { length: 50 }).default("running"), // running, completed, failed
+  jobId: varchar("job_id", { length: 255 }), // ID для отслеживания фонового задания
+  errorMessage: text("error_message"), // Сообщение об ошибке если status = failed
+  tokensUsed: integer("tokens_used").default(0),
+  processingTime: integer("processing_time"), // Время обработки в секундах
+  feedback: json("feedback"), // Обратная связь пользователя о качестве результата
+  createdAt: timestamp("created_at").defaultNow(),
+  completedAt: timestamp("completed_at"),
+}, (table) => {
+  return {
+    userToolIdx: index("user_tool_idx").on(table.userId, table.toolId),
+    statusIdx: index("tool_status_idx").on(table.status),
+  };
+});
+
+// Связь модулей курса с инструментами
+export const moduleToolMapping = pgTable("module_tool_mapping", {
+  id: serial("id").primaryKey(),
+  moduleId: integer("module_id").notNull().references(() => courseModules.id),
+  toolId: integer("tool_id").references(() => toolkitTools.id), // null для обычных модулей
+  orderIndex: integer("order_index").default(0),
+}, (table) => {
+  return {
+    moduleToolIdx: uniqueIndex("module_tool_idx").on(table.moduleId, table.toolId),
+  };
+});
+
 // Навыки, которые развиваются в ходе курса
 export const courseSkillOutcomes = pgTable("course_skill_outcomes", {
   id: serial("id").primaryKey(),
@@ -735,6 +796,32 @@ export type InsertCourseSkillRequirement = z.infer<typeof insertCourseSkillRequi
 export type InsertCourseSkillOutcome = z.infer<typeof insertCourseSkillOutcomeSchema>;
 export type InsertUserSkillGap = z.infer<typeof insertUserSkillGapSchema>;
 
+// Добавляем схемы для новых таблиц toolkit (после определения таблиц)
+export const insertToolkitToolSchema = createInsertSchema(toolkitTools).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertUserToolRunSchema = createInsertSchema(userToolRuns).omit({
+  id: true,
+  createdAt: true,
+  completedAt: true,
+});
+
+export const insertModuleToolMappingSchema = createInsertSchema(moduleToolMapping).omit({
+  id: true,
+});
+
+export type InsertToolkitTool = z.infer<typeof insertToolkitToolSchema>;
+export type InsertUserToolRun = z.infer<typeof insertUserToolRunSchema>;
+export type InsertModuleToolMapping = z.infer<typeof insertModuleToolMappingSchema>;
+
+// Добавляем типы для toolkit таблиц
+export type ToolkitTool = typeof toolkitTools.$inferSelect;
+export type UserToolRun = typeof userToolRuns.$inferSelect;
+export type ModuleToolMapping = typeof moduleToolMapping.$inferSelect;
+
 // Определение таблиц для S2 SKILL-PROBE (5-мин тесты)
 export const skillProbeEnum = pgEnum('skill_probe_type', ['multiple_choice', 'coding', 'fill_blanks', 'matching', 'practical']);
 export const skillProbeDifficultyEnum = pgEnum('skill_probe_difficulty', ['basic', 'intermediate', 'advanced', 'expert']);
@@ -821,10 +908,7 @@ export type UserProfile = typeof userProfiles.$inferSelect;
 export type Course = typeof courses.$inferSelect;
 export type CourseModule = typeof courseModules.$inferSelect;
 export type Lesson = typeof lessons.$inferSelect;
-export type LessonNote = typeof lessonNotes.$inferSelect;
 export type Assignment = typeof assignments.$inferSelect;
-
-export type InsertLessonNote = typeof lessonNotes.$inferInsert;
 export type UserCourseProgress = typeof userCourseProgress.$inferSelect;
 export type UserLessonProgress = typeof userLessonProgress.$inferSelect;
 export type UserAssignmentResult = typeof userAssignmentResults.$inferSelect;
