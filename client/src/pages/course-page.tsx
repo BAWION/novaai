@@ -55,21 +55,7 @@ export default function CoursePage() {
     }
   });
   
-  // Получаем модули курса из API
-  const { data: apiModules, isLoading: isLoadingModules } = useQuery({
-    queryKey: [`/api/courses/${params?.slug}/modules`],
-    enabled: !!params?.slug,
-    queryFn: async () => {
-      console.log(`Загрузка модулей для курса: ${params?.slug}`);
-      const response = await fetch(`/api/courses/${params?.slug}/modules`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch modules');
-      }
-      const data = await response.json();
-      console.log('API модули:', data);
-      return data;
-    }
-  });
+  // УБРАНА ДУБЛИРОВАННАЯ ЗАГРУЗКА МОДУЛЕЙ - теперь они приходят вместе с курсом
 
   // Обработчик клика по уроку
   const handleLessonClick = (lessonId: number, moduleId: number) => {
@@ -107,9 +93,9 @@ export default function CoursePage() {
     setCurrentView("outline");
   };
 
-  // Переход к выбору всех курсов
+  // Переход к каталогу курсов
   const backToCatalog = () => {
-    setLocation("/courses");
+    setLocation("/catalog");
   };
 
   // Найти текущий урок по ID (stub для совместимости)
@@ -170,15 +156,16 @@ export default function CoursePage() {
 
   // Преобразование данных API в формат для компонента
   const prepareCourse = () => {
-    if (!apiCourse || !apiModules) {
+    if (!apiCourse) {
       return null;
     }
     
+    // ИСПРАВЛЕНО: Используем модули из курса (теперь приходят вместе с курсом)
     return {
       id: apiCourse.id,
       title: apiCourse.title,
       description: apiCourse.description,
-      modules: apiModules,
+      modules: apiCourse.modules || [], // Используем модули из курса
       progress: 0,
       estimatedDuration: apiCourse.estimatedDuration || 0,
       currentModuleId: null,
@@ -188,8 +175,8 @@ export default function CoursePage() {
 
   const course = prepareCourse();
 
-  // Показываем загрузку
-  if (isLoadingCourse || isLoadingModules) {
+  // Показываем загрузку  
+  if (isLoadingCourse) {
     return (
       <DashboardLayout title="Загрузка курса...">
         <div className="flex items-center justify-center min-h-[400px]">
@@ -210,8 +197,8 @@ export default function CoursePage() {
           <div className="text-center">
             <h2 className="text-2xl font-semibold mb-4">Курс не найден</h2>
             <p className="text-white/60 mb-6">Курс с указанным идентификатором не существует или недоступен.</p>
-            <Button onClick={() => setLocation('/courses')}>
-              Вернуться к курсам
+            <Button onClick={() => setLocation('/catalog')}>
+              Вернуться к каталогу
             </Button>
           </div>
         </div>
@@ -232,7 +219,7 @@ export default function CoursePage() {
               className="hover:text-white transition"
               onClick={backToCatalog}
             >
-              Курсы
+              Каталог курсов
             </button>
             <i className="fas fa-chevron-right mx-2 text-xs"></i>
             <span className="text-white">{course.title}</span>
@@ -242,14 +229,14 @@ export default function CoursePage() {
             <h1 className="text-xl sm:text-2xl font-semibold">{course.title}</h1>
             <div className="flex flex-col sm:flex-row gap-2 sm:space-x-2">
               <Button 
-                onClick={() => setLocation(`/courses/${params?.slug}/competency-map`)}
+                onClick={() => setLocation('/skills-dna')}
                 variant="outline"
                 className="flex items-center justify-center space-x-2 text-sm py-2 px-3"
                 size="sm"
               >
-                <i className="fas fa-map text-sm"></i>
-                <span className="hidden sm:inline">Карта компетенций</span>
-                <span className="sm:hidden">Компетенции</span>
+                <i className="fas fa-dna text-sm"></i>
+                <span className="hidden sm:inline">Мой Skills DNA</span>
+                <span className="sm:hidden">Skills DNA</span>
               </Button>
               <Button 
                 onClick={backToCatalog}

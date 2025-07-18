@@ -317,12 +317,22 @@ export default function Dashboard() {
           <SkillsDnaResultsWidget userId={user?.id} />
         </motion.div>
 
-        {/* All Courses Section */}
+        {/* Roadmap Section */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.4 }}
-          className="bg-space-800/50 rounded-xl p-4"
+          className="mt-8"
+        >
+          <RoadmapWidget />
+        </motion.div>
+
+        {/* All Courses Section */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+          className="bg-space-800/50 rounded-xl p-4 mt-8"
         >
           <div className="flex justify-between items-center mb-4">
             <h2 className="font-orbitron text-xl font-semibold">
@@ -346,16 +356,6 @@ export default function Dashboard() {
               </div>
             </Link>
           </div>
-        </motion.div>
-
-        {/* Roadmap Section */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.6 }}
-          className="mt-8"
-        >
-          <RoadmapWidget />
         </motion.div>
       </div>
       {/* Полноэкранная карта галактики */}

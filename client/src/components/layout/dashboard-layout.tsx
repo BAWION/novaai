@@ -80,3 +80,5 @@ export function DashboardLayout({ children, title, subtitle }: DashboardLayoutPr
     </div>
   );
 }
+
+export default DashboardLayout;

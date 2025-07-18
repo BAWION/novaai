@@ -203,7 +203,6 @@ export default function RegisterAfterOnboarding() {
         <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-purple-500/5 rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 left-0 w-1/4 h-1/4 bg-blue-500/5 rounded-full blur-3xl"></div>
       </div>
-      
       {/* Верхний блок с логотипом и названием */}
       <header className="pt-10 pb-8 px-4">
         <motion.div
@@ -212,15 +211,12 @@ export default function RegisterAfterOnboarding() {
           transition={{ duration: 0.5 }}
           className="text-center"
         >
-          <h1 className="text-4xl font-orbitron bg-clip-text text-transparent bg-gradient-to-r from-[#B28DFF] via-[#8BE0F7] to-[#B28DFF]">
-            NovaAI University
-          </h1>
+          <h1 className="text-4xl font-orbitron bg-clip-text text-transparent bg-gradient-to-r from-[#B28DFF] via-[#8BE0F7] to-[#B28DFF]">GALAXION</h1>
           <p className="text-white/60 mt-2">
             Последний шаг для получения персонализированных рекомендаций
           </p>
         </motion.div>
       </header>
-      
       {/* Основной контент */}
       <main className="container mx-auto px-4 py-8">
         <div className="flex flex-col md:flex-row gap-8 max-w-6xl mx-auto">

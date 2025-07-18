@@ -9,6 +9,7 @@ import { ethicsCourse, lawCourse } from "@/data";
 import { useQuery } from "@tanstack/react-query";
 import { coursesCatalog, courseCategories, courseSubCategories } from "@/data/courses-catalog";
 
+
 // Define course types and data
 interface Course {
   id: number | string;
@@ -34,7 +35,27 @@ interface Course {
 
 const SAMPLE_COURSES: Course[] = [
   {
-    id: -1, // Новый курс по промпт-инженерии (ставим первым)
+    id: "ai-ethics-v2", // Новый интерактивный курс этики ИИ
+    title: "Этика и безопасность ИИ 2.0",
+    description: "Интерактивный курс по этике искусственного интеллекта с практическими упражнениями. Изучите принципы ответственного ИИ через игровые механики, кейсы и симуляции реальных сценариев.",
+    icon: "shield-check", // Иконка безопасности для этики ИИ
+    modules: 5,
+    level: "intermediate",
+    category: ["ai", "ethics", "safety"],
+    instructor: "NOVA AI Ассистент",
+    duration: "4 часа 15 минут",
+    rating: 4.9,
+    enrolled: 623,
+    updated: "2025-07-15",
+    color: "secondary",
+    skillMatch: {
+      percentage: 100,
+      label: "🎯 Интерактивная методология",
+      isRecommended: true
+    }
+  },
+  {
+    id: -1, // Новый курс по промпт-инженерии (ставим вторым)
     title: "Prompt-инжиниринг для GPT-моделей",
     description: "Курс обучает созданию эффективных промптов для GPT-моделей с практикой в чат-песочнице. Изучите роли, контекст, техники улучшения ответов и создайте свой мини-бот для AI-ассистентов.",
     icon: "sparkles", // Иконка для промпт-инженерии
@@ -219,6 +240,8 @@ const SAMPLE_COURSES: Course[] = [
   }
 ];
 
+
+
 // Helper components
 const LevelBadge = ({ level }: { level: string }) => {
   const getColor = () => {
@@ -286,7 +309,7 @@ export default function Courses() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
   const [selectedTrack, setSelectedTrack] = useState<string | null>(null);
-  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+
   const [showAllCourses, setShowAllCourses] = useState(false);
   const [showBusinessOnly, setShowBusinessOnly] = useState(false);
   
@@ -398,10 +421,13 @@ export default function Courses() {
   // Конвертируем новый каталог курсов в старый формат
   const catalogCoursesFormatted = coursesCatalog.map(convertCatalogCourseToOldFormat);
   
+  // Получаем только курс "Этика и безопасность ИИ 2.0" для показа всегда
+  const ethicsV2Course = SAMPLE_COURSES.find(course => course.id === "ai-ethics-v2");
+  
   // Объединяем курсы из API с локальными курсами и новым каталогом
   const allCourses = showAllCourses 
     ? [...SAMPLE_COURSES, ...formattedApiCourses, ethicsCourseFormatted, lawCourseFormatted, ...catalogCoursesFormatted]
-    : [...formattedApiCourses, ...catalogCoursesFormatted]; // Показываем API курсы по умолчанию
+    : [ethicsV2Course, ...formattedApiCourses, ...catalogCoursesFormatted].filter(Boolean); // Всегда показываем новый интерактивный курс
 
   // Filter courses based on search and filters
   // Преобразовать id в строки для поддержки строковых идентификаторов
@@ -460,7 +486,7 @@ export default function Courses() {
       title="Каталог курсов" 
       subtitle="Исследуйте нашу библиотеку курсов по AI и Data Science"
     >
-      {selectedCourse ? (
+      {false ? (
         <div className="space-y-6">
           {/* Course Details */}
           <div className="flex flex-col lg:flex-row gap-6">
@@ -710,6 +736,32 @@ export default function Courses() {
         </div>
       ) : (
         <div className="space-y-6">
+          {/* Lightning Lab Quick Access */}
+          <Glassmorphism className="p-6 rounded-xl border border-[#6E3AFF]/30 bg-gradient-to-r from-[#6E3AFF]/10 to-[#2EBAE1]/10">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] p-3 rounded-lg">
+                  <i className="fas fa-bolt text-white text-xl"></i>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-white mb-1">
+                    ⚡ Lightning Lab: Экспресс-аудит этики за 20 минут
+                  </h3>
+                  <p className="text-white/70 text-sm">
+                    Быстрая оценка этичности вашего ИИ-проекта → готовый отчёт для руководства
+                  </p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setLocation('/lightning-ethics')}
+                className="bg-gradient-to-r from-[#6E3AFF] to-[#2EBAE1] hover:from-[#4922B2] hover:to-[#1682A1] text-white py-2 px-4 rounded-lg font-medium transition duration-300 flex items-center text-sm"
+              >
+                <i className="fas fa-rocket mr-2"></i>
+                Начать за 20 мин
+              </button>
+            </div>
+          </Glassmorphism>
+
           {/* Search and filters */}
           <div className="space-y-4">
             <div className="flex flex-col md:flex-row gap-4">
@@ -840,7 +892,7 @@ export default function Courses() {
                         course.color === 'primary' ? 'from-[#6E3AFF] to-[#9E6AFF]' :
                         course.color === 'secondary' ? 'from-[#2EBAE1] to-[#5ED1F9]' :
                         'from-[#FF3A8C] to-[#FF6AB5]'
-                      } flex items-center justify-center text-white`}>
+                      } flex items-center justify-center text-white relative`}>
                         <i className={`fas fa-${course.icon} text-lg`}></i>
                       </div>
                       <LevelBadge level={course.level || 'beginner'} />
@@ -895,7 +947,53 @@ export default function Courses() {
                     )}
                     
                     <button 
-                      onClick={() => setSelectedCourse(course)}
+                      onClick={() => {
+                        // Получаем ID курса из API или используем стандартный slug
+                        const courseId = String(course.id).startsWith('api_') 
+                          ? course.id.substring(4) // Убираем префикс 'api_'
+                          : course.id;
+                          
+                        // Получаем slug курса из API или используем стандартный slug
+                        let courseSlug;
+                        if (apiCourses && apiCourses.length > 0) {
+                          // Ищем курс в API курсах по ID
+                          const apiCourse = apiCourses.find((c: any) => c.id === Number(courseId));
+                          
+                          if (apiCourse && apiCourse.slug) {
+                            courseSlug = apiCourse.slug;
+                            console.log(`Найден slug курса в API: ${courseSlug}`);
+                          }
+                        }
+                        
+                        // Если не нашли slug, используем стандартное поведение
+                        if (!courseSlug) {
+                          if (course.id === "ai-ethics-v2") {
+                            // Этика и безопасность ИИ 2.0 - интерактивный курс
+                            console.log(`Переход на интерактивный курс: /ai-ethics-v2`);
+                            setLocation("/ai-ethics-v2");
+                            return;
+                          } else if (course.id === "0") {
+                            setLocation("/course-details/python-for-ai-beginners");
+                            return;
+                          } else if (course.title.includes("AI Ethics Toolkit")) {
+                            // AI Ethics Toolkit 1.0 - ведем на новую страницу toolkit
+                            console.log(`Переход на AI Ethics Toolkit: /ai-ethics-toolkit`);
+                            setLocation("/ai-ethics-toolkit");
+                            return;
+                          } else if (course.id === 7 || course.title.includes("AI Ethics")) {
+                            // AI Ethics курсы - ведем на страницу деталей курса
+                            courseSlug = "ai-ethics";
+                          } else if (course.title.includes("AI Literacy")) {
+                            courseSlug = "ai-literacy-101";
+                          } else {
+                            // По умолчанию используем индекс курса
+                            courseSlug = String(courseId);
+                          }
+                        }
+                        
+                        console.log(`Переход на страницу деталей курса: /course-details/${courseSlug}`);
+                        setLocation(`/course-details/${courseSlug}`);
+                      }}
                       className="w-full bg-white/10 hover:bg-white/20 text-white py-2 px-4 rounded-lg transition duration-300"
                     >
                       {course.progress ? 'Продолжить' : 'Подробнее'}

@@ -66,6 +66,11 @@ export default function Login() {
     }
   };
 
+  // Функция для обработки Google OAuth
+  const handleGoogleAuth = () => {
+    window.location.href = '/api/google/auth';
+  };
+
   // Инициализация Telegram Login Widget
   useEffect(() => {
     // Добавляем глобальную функцию для Telegram Widget

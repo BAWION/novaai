@@ -8,16 +8,17 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, ArrowLeft, ArrowRight, BookOpen, Clock, Video, FileText, HelpCircle, LayersIcon, Edit3, Save, Trash2 } from "lucide-react";
+import { CheckCircle, ArrowLeft, ArrowRight, BookOpen, Clock, Video, FileText, HelpCircle, Edit3, Save, Trash2, CheckSquare } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { AIAssistantPanel } from "@/components/courses/ai-assistant-panel";
 import { Glassmorphism } from "@/components/ui/glassmorphism";
 import { queryClient } from "@/lib/queryClient";
 import ReactMarkdown from "react-markdown";
-import { ProgressiveLessonStructure } from "@/components/courses/progressive-lesson-structure";
+
 import { ContextualAIAssistant } from "@/components/courses/contextual-ai-assistant";
 import InlineQuiz from "@/components/courses/inline-quiz";
+import AssignmentViewer from "@/components/assignments/assignment-viewer";
 
 interface Lesson {
   id: number;
@@ -55,7 +56,7 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
   const [showAIAssistant, setShowAIAssistant] = useState(false);
   const [isAIMinimized, setIsAIMinimized] = useState(false);
   const [userSkillsLevel, setUserSkillsLevel] = useState<'beginner' | 'intermediate' | 'advanced'>('intermediate');
-  const [useProgressiveLearning, setUseProgressiveLearning] = useState(false);
+
   const [noteContent, setNoteContent] = useState("");
   const [isNoteSaving, setIsNoteSaving] = useState(false);
 
@@ -135,6 +136,20 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
       setNoteContent(lessonNote.content || "");
     }
   }, [lessonNote]);
+
+  // Load lesson assignments
+  const { data: assignments, isLoading: assignmentsLoading } = useQuery({
+    queryKey: [`/api/lessons/${lessonId}/assignments`],
+    enabled: !!lessonId,
+    queryFn: async () => {
+      const response = await fetch(`/api/lessons/${lessonId}/assignments`);
+      if (!response.ok) {
+        if (response.status === 404) return [];
+        throw new Error('Не удалось загрузить практические задания');
+      }
+      return await response.json();
+    }
+  });
 
   // Запрос данных модуля
   const { data: module, isLoading: moduleLoading } = useQuery<Module>({
@@ -467,9 +482,14 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                     <BookOpen className="h-4 w-4" />
                     <span className="hidden sm:inline">Урок</span>
                   </TabsTrigger>
-                  <TabsTrigger value="quiz" className="flex items-center gap-2">
-                    <HelpCircle className="h-4 w-4" />
-                    <span className="hidden sm:inline">Квиз</span>
+                  <TabsTrigger value="assignments" className="flex items-center gap-2">
+                    <CheckSquare className="h-4 w-4" />
+                    <span className="hidden sm:inline">Задания</span>
+                    {assignments && assignments.length > 0 && (
+                      <Badge variant="secondary" className="ml-1 h-5 text-xs bg-blue-500/20 text-blue-300">
+                        {assignments.length}
+                      </Badge>
+                    )}
                   </TabsTrigger>
                   <TabsTrigger value="notes" className="flex items-center gap-2">
                     <Edit3 className="h-4 w-4" />
@@ -478,14 +498,7 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                 </TabsList>
                 
                 <TabsContent value="content">
-                  {useProgressiveLearning && user ? (
-                    <ProgressiveLessonStructure 
-                      lessonId={parseInt(lessonId || "0")}
-                      userId={user.id}
-                      onComplete={handleLessonComplete}
-                    />
-                  ) : (
-                    <Card className="shadow-lg border-white/10 bg-space-800/30 backdrop-blur-sm">
+                  <Card className="shadow-lg border-white/10 bg-space-800/30 backdrop-blur-sm">
                       <CardHeader className="pb-4">
                         <div className="flex justify-between items-center">
                           <div className="flex items-center gap-3">
@@ -542,12 +555,8 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                         ) : (
                           <div>
                             {lesson.content ? (
-                              <div>
+                              <div className="dark:text-white text-black">
                                 <ReactMarkdown>{lesson.content}</ReactMarkdown>
-                                <div className="mt-6 border-t pt-6">
-                                  <h3 className="text-xl font-medium">Практическое задание</h3>
-                                  <p className="text-muted-foreground">Интерактивная часть урока будет доступна в будущих версиях</p>
-                                </div>
                               </div>
                             ) : (
                               <div className="flex flex-col items-center justify-center py-10">
@@ -600,76 +609,40 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                         </div>
                       </CardFooter>
                     </Card>
-                  )}
                 </TabsContent>
                 
-                <TabsContent value="quiz">
+
+
+                <TabsContent value="assignments">
                   <Card className="shadow-lg border-white/10 bg-space-800/30 backdrop-blur-sm">
                     <CardHeader>
-                      <CardTitle>Проверка знаний</CardTitle>
+                      <CardTitle className="flex items-center gap-2">
+                        <CheckSquare className="h-5 w-5" />
+                        Практические задания
+                      </CardTitle>
                       <CardDescription>
-                        Тест по материалам урока
+                        Выполните задания для закрепления материала урока
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <InlineQuiz
-                        lessonId={lesson.id}
-                        questions={[
-                          {
-                            id: "q1",
-                            type: "multiple-choice",
-                            question: "Что из перечисленного НЕ является характеристикой современного искусственного интеллекта?",
-                            options: [
-                              "Способность обучаться на данных",
-                              "Распознавание образов и речи",
-                              "Полная независимость от человеческого контроля",
-                              "Обработка естественного языка"
-                            ],
-                            correctAnswer: 2,
-                            explanation: "Современный ИИ не является полностью независимым от человеческого контроля. ИИ-системы требуют надзора, настройки и проверки результатов человеком."
-                          },
-                          {
-                            id: "q2",
-                            type: "multiple-choice",
-                            question: "Какой тип ИИ существует в настоящее время?",
-                            options: [
-                              "Только общий искусственный интеллект (AGI)",
-                              "Только узкий искусственный интеллект (ANI)",
-                              "И узкий, и общий искусственный интеллект",
-                              "Сверхинтеллект (ASI)"
-                            ],
-                            correctAnswer: 1,
-                            explanation: "В настоящее время существует только узкий (слабый) ИИ - системы, специализирующиеся на конкретных задачах. Общий ИИ пока остается целью исследований."
-                          },
-                          {
-                            id: "q3",
-                            type: "true-false",
-                            question: "Машинное обучение является подразделом искусственного интеллекта",
-                            correctAnswer: 0,
-                            explanation: "Верно. Машинное обучение - это метод достижения искусственного интеллекта, при котором системы автоматически улучшаются через опыт."
-                          },
-                          {
-                            id: "q4",
-                            type: "multiple-choice",
-                            question: "Выберите все области применения современного ИИ:",
-                            options: [
-                              "Медицинская диагностика",
-                              "Автономные транспортные средства", 
-                              "Рекомендательные системы",
-                              "Все перечисленное"
-                            ],
-                            correctAnswer: 3,
-                            explanation: "ИИ активно применяется во всех перечисленных областях: от медицинской диагностики до автопилотов и персонализации контента."
-                          }
-                        ]}
-                        onComplete={(score: number) => {
-                          toast({
-                            title: "Квиз завершен!",
-                            description: `Ваш результат: ${score}%`,
-                            variant: "default"
-                          });
-                        }}
-                      />
+                      {assignmentsLoading ? (
+                        <div className="flex items-center justify-center py-8">
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                          <p className="ml-3">Загрузка заданий...</p>
+                        </div>
+                      ) : (
+                        <AssignmentViewer 
+                          assignments={assignments || []}
+                          lessonId={lesson.id}
+                          onComplete={(assignmentId, score) => {
+                            toast({
+                              title: "Задание выполнено!",
+                              description: `Получено баллов: ${score}`,
+                              variant: "default"
+                            });
+                          }}
+                        />
+                      )}
                     </CardContent>
                   </Card>
                 </TabsContent>
@@ -768,33 +741,7 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                 
                 {/* Сетка функций */}
                 <div className="grid grid-cols-2 gap-3">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="justify-center border-dashed hover:border-solid transition-all duration-200"
-                    style={{ 
-                      minHeight: '55px', 
-                      height: 'auto', 
-                      padding: '8px 4px',
-                      whiteSpace: 'normal'
-                    }}
-                    onClick={() => setUseProgressiveLearning(!useProgressiveLearning)}
-                  >
-                    <div className="flex flex-col items-center min-w-0">
-                      <LayersIcon className="h-4 w-4 mb-1 flex-shrink-0 text-purple-500" />
-                      <span 
-                        className="font-medium text-center"
-                        style={{ 
-                          fontSize: '11px',
-                          lineHeight: '1.2',
-                          wordBreak: 'break-word',
-                          overflowWrap: 'break-word'
-                        }}
-                      >
-                        {useProgressiveLearning ? "Обычный" : "Пошаговый"}
-                      </span>
-                    </div>
-                  </Button>
+
                   
                   <Button
                     variant="outline"
@@ -834,22 +781,7 @@ export default function LessonPage({ inCourseContext }: LessonPageProps = {}) {
                   <CardTitle className="text-sm font-medium">Функции урока</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3 pt-0">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full flex items-center justify-start text-left border-dashed hover:border-solid transition-all duration-200 h-auto min-h-[70px] p-3"
-                    onClick={() => setUseProgressiveLearning(!useProgressiveLearning)}
-                  >
-                    <LayersIcon className="h-4 w-4 mr-3 flex-shrink-0 text-purple-500" />
-                    <div className="flex flex-col items-start text-left flex-1 min-w-0">
-                      <div className="text-sm font-medium leading-5 text-foreground">
-                        {useProgressiveLearning ? "Обычный вид" : "Пошагово"}
-                      </div>
-                      <div className="text-xs text-muted-foreground leading-4 mt-1">
-                        {useProgressiveLearning ? "Стандартный режим" : "Пошаговый режим"}
-                      </div>
-                    </div>
-                  </Button>
+
                   
                   <Button
                     variant="outline"
