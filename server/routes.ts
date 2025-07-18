@@ -46,7 +46,9 @@ import courseManagementRouter from "./routes/course-management-api";
 import courseInitRouter from "./routes/course-initialization";
 import telegramRouter from "./routes/telegram";
 import telegramAuthRouter from "./routes/telegram-auth";
+import googleAuthRouter from "./routes/google-auth";
 import roadmapRouter from "./routes/roadmap-api";
+import toolsRouter from "./routes/tools";
 
 // Add any middleware needed
 const authMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -125,6 +127,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/course-init', courseInitRouter);
   // Добавляем маршрут для космической дорожной карты
   app.use('/api/roadmap', roadmapRouter);
+  // Добавляем маршрут для AI Ethics Toolkit инструментов
+  app.use('/api/tools', toolsRouter);
   
   // AI Tutor routes
   const aiTutorRouter = await import('./routes/ai-tutor.js');
@@ -511,6 +515,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     });
   });
+
+  // Keep-alive эндпоинт для предотвращения засыпания Replit
+  app.get("/api/health", (req, res) => {
+    res.json({
+      status: "active",
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      message: "Galaxion API активен"
+    });
+  });
   
   app.get("/api/auth/me", (req, res) => {
     // Структура для расширенного логирования
@@ -845,21 +859,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Проверяем, может быть это slug или id
       const idParam = req.params.id;
       let course;
+      let courseId: number;
       
       // Пробуем сначала как число (id)
-      const courseId = parseInt(idParam);
-      if (!isNaN(courseId)) {
-        course = await storage.getCourse(courseId);
+      const parsedId = parseInt(idParam);
+      if (!isNaN(parsedId)) {
+        course = await storage.getCourse(parsedId);
+        courseId = parsedId;
       } else {
         // Если не число, считаем что это slug
         course = await storage.getCourseBySlug(idParam);
+        courseId = course?.id || 0;
       }
       
       if (!course) {
         return res.status(404).json({ message: "Course not found" });
       }
+
+      // КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Загружаем модули курса
+      const modules = await storage.getCourseModules(courseId);
+      console.log(`[Course API] Курс "${course.title}" (ID: ${courseId}) содержит ${modules.length} модулей`);
       
-      res.json(course);
+      // Для каждого модуля загружаем уроки
+      const modulesWithLessons = await Promise.all(
+        modules.map(async (module) => {
+          const lessons = await storage.getModuleLessons(module.id);
+          return {
+            ...module,
+            lessons
+          };
+        })
+      );
+      
+      const courseWithModules = {
+        ...course,
+        modules: modulesWithLessons
+      };
+      
+      res.json(courseWithModules);
     } catch (error) {
       console.error("Get course error:", error);
       res.status(500).json({ message: "Failed to get course" });
@@ -959,6 +996,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Get lesson error:", error);
       res.status(500).json({ message: "Failed to get lesson" });
+    }
+  });
+
+  // Маршрут для получения практических заданий урока
+  app.get("/api/lessons/:id/assignments", async (req, res) => {
+    try {
+      const lessonId = parseInt(req.params.id);
+      
+      if (isNaN(lessonId)) {
+        return res.status(400).json({ message: "Invalid lesson ID" });
+      }
+
+      const assignments = await storage.getLessonAssignments(lessonId);
+      res.json(assignments);
+    } catch (error) {
+      console.error("Get lesson assignments error:", error);
+      res.status(500).json({ message: "Failed to get lesson assignments" });
     }
   });
 
@@ -1385,6 +1439,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Маршрутизатор для диагностики и Skills DNA
   app.use("/api/diagnosis", diagnosisRouter);
   
+  // Маршрутизатор для AI Ethics Toolkit инструментов
+  app.use("/api/tools", toolsRouter);
+  
   // API endpoint for quick explanations (TutorAI feature)
   app.post("/api/ai/quick-explain", async (req, res) => {
     try {
@@ -1451,6 +1508,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/course-init', courseInitRouter);
   app.use('/api/telegram', telegramRouter);
   app.use('/api/telegram', telegramAuthRouter);
+  
+  // Добавляем маршрут для Google OAuth авторизации
+  app.use('/api/google', googleAuthRouter);
 
   // Admin панель - архитектура курсов
   app.get('/api/admin/course-architecture', async (req, res) => {
