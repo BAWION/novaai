@@ -1,7 +1,7 @@
 import express from "express";
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import { storage } from "./storage.js";
 import { 
   insertUserSchema, 
   insertUserProfileSchema,
@@ -11,44 +11,44 @@ import {
 import { z } from "zod";
 import session from "express-session";
 import memorystore from "memorystore";
-import { checkSecrets } from "./routes/check-secrets";
-import mlApiRouter from "./routes/ml-api";
-import aiAssistantRouter from "./routes/ai-assistant-api";
-import profilesRouter from "./routes/profiles-api";
-import eventLogsRouter from "./routes/event-logs-api";
-import { setCurrentUserId } from "./storage-integration";
-import { enhancedAuthMiddleware } from "./auth-middleware";
+import { checkSecrets } from "./routes/check-secrets.js";
+import mlApiRouter from "./routes/ml-api.js";
+import aiAssistantRouter from "./routes/ai-assistant-api.js";
+import profilesRouter from "./routes/profiles-api.js";
+import eventLogsRouter from "./routes/event-logs-api.js";
+import { setCurrentUserId } from "./storage-integration.js";
+import { enhancedAuthMiddleware } from "./auth-middleware.js";
 // Для хранения сессий в PostgreSQL
 import connectPgSimple from "connect-pg-simple";
-import { pool } from "./db";
+import { pool } from "./db.js";
 // Добавляем кириллическую поддержку
 import 'express';
 // Импортируем маршрутизаторы
-import moduleRouter from "./routes/modules";
-import skillsDnaRouter from "./routes/skills-dna-api";
-import lessonStructureRouter from "./routes/lesson-structure-api";
-import competencyMapRouter from "./routes/competency-map-api";
-import aiAgentRouter from "./routes/ai-agent-api";
-import diagnosisRouter from "./routes/diagnosis-api";
+import moduleRouter from "./routes/modules.js";
+import skillsDnaRouter from "./routes/skills-dna-api.js";
+import lessonStructureRouter from "./routes/lesson-structure-api.js";
+import competencyMapRouter from "./routes/competency-map-api.js";
+import aiAgentRouter from "./routes/ai-agent-api.js";
+import diagnosisRouter from "./routes/diagnosis-api.js";
 // Временно отключаем маршруты, для которых у нас пока нет определенных типов в схеме
 // import { learningEventsRouter } from "./routes/learning-events";
 // import { lessonProgressRouter } from "./routes/lesson-progress";
-import recommendedCoursesRouter from "./routes/recommended-courses";
-import userCoursesRouter from "./routes/user-courses";
-import skillsRadarRouter from "./routes/skills-radar-api";
-import skillProbeRouter from "./routes/skill-probe-api";
+import recommendedCoursesRouter from "./routes/recommended-courses.js";
+import userCoursesRouter from "./routes/user-courses.js";
+import skillsRadarRouter from "./routes/skills-radar-api.js";
+import skillProbeRouter from "./routes/skill-probe-api.js";
 // Импортируем маршрут для функциональности S4 (INSIGHT "Time-Saved")
-import { timeSavedRouter } from "./routes/time-saved-api";
-import { skillsRouter } from "./routes/skills-api";
+import { timeSavedRouter } from "./routes/time-saved-api.js";
+import { skillsRouter } from "./routes/skills-api.js";
 // Импортируем маршрутизатор для AB-тестирования
-import { abTestRouter } from "./routes/ab-test";
-import courseManagementRouter from "./routes/course-management-api";
-import courseInitRouter from "./routes/course-initialization";
-import telegramRouter from "./routes/telegram";
-import telegramAuthRouter from "./routes/telegram-auth";
-import googleAuthRouter from "./routes/google-auth";
-import roadmapRouter from "./routes/roadmap-api";
-import toolsRouter from "./routes/tools";
+import { abTestRouter } from "./routes/ab-test.js";
+import courseManagementRouter from "./routes/course-management-api.js";
+import courseInitRouter from "./routes/course-initialization.js";
+import telegramRouter from "./routes/telegram.js";
+import telegramAuthRouter from "./routes/telegram-auth.js";
+import googleAuthRouter from "./routes/google-auth.js";
+import roadmapRouter from "./routes/roadmap-api.js";
+import toolsRouter from "./routes/tools.js";
 
 // Add any middleware needed
 const authMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
