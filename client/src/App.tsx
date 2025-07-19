@@ -152,7 +152,7 @@ function Router() {
           <Route path="/ai-ethics-v2" component={AIEthicsV2Course} />
           
           {/* Admin Panel - Public access with authentication check */}
-          <Route path="/admin" component={AdminDashboard} />
+          <ProtectedRoute path="/ai-ethics-v2" component={AIEthicsV2Course} />
           
           {/* Protected Routes */}
           <ProtectedRoute path="/dashboard" component={Dashboard} />
