@@ -5,15 +5,27 @@ import type { InsertUser } from "@shared/schema";
 
 const router = express.Router();
 
-// Инициализация Google OAuth2 Client
-const oauth2Client = new OAuth2Client(
-  process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET,
-  process.env.GOOGLE_REDIRECT_URI || `${process.env.BASE_URL}/api/google/callback`
-);
+// Функция для создания OAuth2 клиента с актуальными переменными окружения
+function createOAuth2Client() {
+  const redirectUri = process.env.GOOGLE_REDIRECT_URI || `${process.env.BASE_URL}/api/google/callback`;
+  return new OAuth2Client(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    redirectUri
+  );
+}
 
 // Маршрут для инициации Google OAuth
 router.get("/auth", (req, res) => {
+  const oauth2Client = createOAuth2Client();
+  const redirectUri = process.env.GOOGLE_REDIRECT_URI || `${process.env.BASE_URL}/api/google/callback`;
+  
+  console.log("[Google Auth] Инициация OAuth, конфигурация:");
+  console.log("- Client ID:", process.env.GOOGLE_CLIENT_ID ? "установлен" : "отсутствует");
+  console.log("- Client Secret:", process.env.GOOGLE_CLIENT_SECRET ? "установлен" : "отсутствует"); 
+  console.log("- Redirect URI:", redirectUri);
+  console.log("- Base URL:", process.env.BASE_URL);
+  
   const authUrl = oauth2Client.generateAuthUrl({
     access_type: "offline",
     scope: [
@@ -25,18 +37,30 @@ router.get("/auth", (req, res) => {
     })
   });
   
+  console.log("[Google Auth] Создан auth URL:", authUrl);
   res.redirect(authUrl);
 });
 
 // Callback маршрут для обработки ответа от Google
 router.get("/callback", async (req, res) => {
+  console.log("[Google Auth Callback] Получен запрос callback:", {
+    code: req.query.code ? "присутствует" : "отсутствует",
+    state: req.query.state,
+    url: req.url,
+    query: req.query
+  });
+  
   try {
     const { code, state } = req.query;
     
     if (!code) {
+      console.error("[Google Auth Callback] Отсутствует authorization code");
       return res.status(400).json({ error: "Authorization code not provided" });
     }
 
+    // Создаем новый OAuth2 клиент для callback
+    const oauth2Client = createOAuth2Client();
+    
     // Обмениваем code на токены
     const { tokens } = await oauth2Client.getToken(code as string);
     oauth2Client.setCredentials(tokens);
@@ -88,11 +112,19 @@ router.get("/callback", async (req, res) => {
 
     // Создаем сессию пользователя
     req.session.user = user;
+    req.session.authenticated = true;  // КРИТИЧЕСКИ ВАЖНО!
     req.session.loginTime = new Date();
     req.session.method = "google";
+    req.session.lastActivity = new Date().toISOString();
     req.session.save();
 
     console.log(`[Google Auth] Пользователь ${user.username} авторизован через Google`);
+    console.log(`[Google Auth] Сессия создана:`, {
+      userId: user.id,
+      username: user.username,
+      authenticated: req.session.authenticated,
+      method: req.session.method
+    });
 
     // Перенаправляем на нужную страницу
     let redirectUrl = "/dashboard";
