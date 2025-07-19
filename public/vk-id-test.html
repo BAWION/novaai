@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VK ID SDK Test - Galaxion</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #1a1a1a;
+            color: #ffffff;
+        }
+        .test-button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            background-color: #4c75a3;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        .test-button:hover {
+            background-color: #5a87ba;
+        }
+        .test-button.old {
+            background-color: #6b6b6b;
+        }
+        .test-button.old:hover {
+            background-color: #7c7c7c;
+        }
+        .config-info {
+            background-color: #333;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-family: monospace;
+        }
+        .error {
+            color: #ff6b6b;
+        }
+        .success {
+            color: #51cf66;
+        }
+        #result {
+            background-color: #333;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            white-space: pre-wrap;
+        }
+        .vk-sdk-container {
+            background-color: #333;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .sdk-status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .sdk-loading {
+            background-color: #2d5016;
+            color: #51cf66;
+        }
+        .sdk-ready {
+            background-color: #1a472a;
+            color: #51cf66;
+        }
+        .sdk-error {
+            background-color: #5c1e1e;
+            color: #ff6b6b;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 VK ID SDK Test - Galaxion</h1>
+    
+    <div id="config-section">
+        <h2>📋 Конфигурация VK</h2>
+        <div id="config-info" class="config-info">Загрузка конфигурации...</div>
+        <button onclick="loadConfig()" class="test-button">🔄 Обновить конфигурацию</button>
+    </div>
+
+    <div id="vk-sdk-section">
+        <h2>🆕 Новый VK ID SDK (One Tap)</h2>
+        <div class="vk-sdk-container">
+            <div id="sdk-status" class="sdk-status sdk-loading">⏳ Загрузка VK ID SDK...</div>
+            <div id="vk-id-button-container"></div>
+        </div>
+    </div>
+
+    <div id="legacy-tests-section">
+        <h2>🔙 Старые OAuth методы</h2>
+        
+        <h3>Метод 1: Обычная авторизация (с email scope)</h3>
+        <a href="/api/vk/auth" class="test-button old">
+            👤 Войти через VK OAuth (scope=email)
+        </a>
+        
+        <h3>Метод 2: Упрощенная авторизация (без email scope)</h3>
+        <a href="/api/vk/auth-simple" class="test-button old">
+            🎯 Упрощенный OAuth тест (без scope)
+        </a>
+    </div>
+
+    <div id="result-section">
+        <h2>📊 Результаты тестирования</h2>
+        <div id="result"></div>
+    </div>
+
+    <div id="instructions">
+        <h2>📖 Инструкции по устранению проблем</h2>
+        <p><strong>Если VK ID SDK не работает:</strong></p>
+        <ol>
+            <li>Откройте <a href="https://dev.vk.com/admin/apps/53936548" target="_blank">VK Developer Console</a></li>
+            <li>Перейдите в "Интеграция элементов" → "Кнопка One Tap"</li>
+            <li><strong>Активируйте VK ID/One Tap авторизацию</strong></li>
+            <li>В разделе "Доступ" настройте права и внешние авторизации</li>
+            <li>Убедитесь что приложение <strong>"Включено и видно всем"</strong></li>
+            <li>Сохраните изменения и подождите 5-10 минут</li>
+        </ol>
+    </div>
+
+    <!-- VK ID SDK -->
+    <script src="https://unpkg.com/@vkid/sdk@<3.0.0/dist-sdk/umd/index.js"></script>
+    
+    <script>
+        let vkidInitialized = false;
+        
+        async function loadConfig() {
+            try {
+                const response = await fetch('/api/vk/config');
+                const data = await response.json();
+                
+                document.getElementById('config-info').innerHTML = `
+                    <strong>VK App ID:</strong> ${data.client_id || 'Не установлен'}<br>
+                    <strong>Redirect URI:</strong> ${data.redirect_uri}<br>
+                    <strong>Client Secret:</strong> ${data.has_secret ? '✅ Установлен' : '❌ Отсутствует'}<br>
+                    <strong>Environment:</strong> ${data.node_env}<br>
+                    <strong>Base URL:</strong> ${data.base_url || 'Не установлен'}
+                `;
+            } catch (error) {
+                document.getElementById('config-info').innerHTML = `<span class="error">Ошибка загрузки конфигурации: ${error.message}</span>`;
+            }
+        }
+
+        function initVKIDSDK() {
+            if ('VKIDSDK' in window && !vkidInitialized) {
+                const VKID = window.VKIDSDK;
+                
+                try {
+                    const isProduction = window.location.hostname === 'www.galaxion.ai' || window.location.hostname === 'galaxion.ai';
+                    const redirectUrl = isProduction 
+                        ? 'https://www.galaxion.ai/auth/vk/callback'
+                        : `${window.location.origin}/auth/vk/callback`;
+
+                    VKID.Config.init({
+                        app: 53936548,
+                        redirectUrl: redirectUrl,
+                        responseMode: VKID.ConfigResponseMode.Callback,
+                        source: VKID.ConfigSource.LOWCODE,
+                        scope: '', // Начинаем без email scope
+                    });
+
+                    const oneTap = new VKID.OneTap();
+                    const container = document.getElementById('vk-id-button-container');
+
+                    oneTap.render({
+                        container: container,
+                        showAlternativeLogin: true
+                    })
+                    .on(VKID.WidgetEvents.ERROR, function(error) {
+                        console.error('[VK ID SDK] Ошибка виджета:', error);
+                        document.getElementById('sdk-status').className = 'sdk-status sdk-error';
+                        document.getElementById('sdk-status').innerHTML = `❌ Ошибка VK ID SDK: ${error.message || 'Неизвестная ошибка'}`;
+                        
+                        // Показываем результат
+                        document.getElementById('result').innerHTML = `❌ Ошибка VK ID SDK:\n${JSON.stringify(error, null, 2)}`;
+                    })
+                    .on(VKID.OneTapInternalEvents.LOGIN_SUCCESS, async function(payload) {
+                        console.log('[VK ID SDK] Успешная авторизация:', payload);
+                        
+                        document.getElementById('sdk-status').className = 'sdk-status sdk-ready';
+                        document.getElementById('sdk-status').innerHTML = '✅ Авторизация в VK прошла успешно! Обрабатываем данные...';
+
+                        const code = payload.code;
+                        const deviceId = payload.device_id;
+
+                        try {
+                            // Обмениваем код на токен через VK ID SDK
+                            const data = await VKID.Auth.exchangeCode(code, deviceId);
+                            console.log('[VK ID SDK] Токен получен:', data);
+                            
+                            // Отправляем данные на наш backend
+                            const response = await fetch('/api/vk/auth', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    access_token: data.access_token,
+                                    user: data.user,
+                                    email: data.email
+                                })
+                            });
+
+                            const result = await response.json();
+                            
+                            if (response.ok) {
+                                document.getElementById('result').innerHTML = `✅ VK ID авторизация успешна!\nПользователь: ${result.user.displayName}\nПеренаправление в dashboard...`;
+                                
+                                // Перенаправляем в dashboard через 2 секунды
+                                setTimeout(() => {
+                                    if (result.redirect) {
+                                        window.location.href = result.redirect;
+                                    }
+                                }, 2000);
+                            } else {
+                                throw new Error(result.error || 'Backend authentication failed');
+                            }
+                        } catch (error) {
+                            console.error('[VK ID SDK] Ошибка обмена кода:', error);
+                            document.getElementById('sdk-status').className = 'sdk-status sdk-error';
+                            document.getElementById('sdk-status').innerHTML = '❌ Ошибка при обработке авторизации';
+                            document.getElementById('result').innerHTML = `❌ Ошибка обработки VK ID:\n${error.message}`;
+                        }
+                    });
+
+                    document.getElementById('sdk-status').className = 'sdk-status sdk-ready';
+                    document.getElementById('sdk-status').innerHTML = '✅ VK ID SDK готов к использованию';
+                    vkidInitialized = true;
+
+                } catch (error) {
+                    console.error('[VK ID SDK] Ошибка инициализации:', error);
+                    document.getElementById('sdk-status').className = 'sdk-status sdk-error';
+                    document.getElementById('sdk-status').innerHTML = `❌ Ошибка инициализации VK ID SDK: ${error.message}`;
+                }
+            } else if (!('VKIDSDK' in window)) {
+                document.getElementById('sdk-status').className = 'sdk-status sdk-error';
+                document.getElementById('sdk-status').innerHTML = '❌ VK ID SDK не загрузился';
+            }
+        }
+
+        // Проверяем URL параметры на предмет callback данных (для старых методов)
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('error')) {
+            document.getElementById('result').innerHTML = `❌ OAuth Ошибка: ${urlParams.get('error')}\nОписание: ${urlParams.get('error_description') || 'Нет описания'}`;
+        } else if (urlParams.has('code')) {
+            document.getElementById('result').innerHTML = `✅ OAuth авторизация успешна!\nПолучен код: ${urlParams.get('code').substring(0, 20)}...`;
+        }
+
+        // Загружаем конфигурацию при старте
+        loadConfig();
+        
+        // Инициализируем VK ID SDK когда скрипт загрузится
+        if ('VKIDSDK' in window) {
+            initVKIDSDK();
+        } else {
+            // Ждем загрузки скрипта
+            setTimeout(initVKIDSDK, 1000);
+        }
+    </script>
+</body>
+</html>
