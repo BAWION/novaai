@@ -129,6 +129,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/roadmap', roadmapRouter);
   // Добавляем маршрут для AI Ethics Toolkit инструментов
   app.use('/api/tools', toolsRouter);
+  // Добавляем Google OAuth авторизацию
+  app.use('/api/google', googleAuthRouter);
   
   // AI Tutor routes
   const aiTutorRouter = await import('./routes/ai-tutor.js');
