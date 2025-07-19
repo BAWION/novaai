@@ -1,13 +1,34 @@
 import express from "express";
 import { OAuth2Client } from "google-auth-library";
-import { storage } from "../storage";
+import type { IStorage } from "../storage";
 import type { InsertUser } from "@shared/schema";
 
 const router = express.Router();
 
 // Функция для создания OAuth2 клиента с актуальными переменными окружения
 function createOAuth2Client() {
-  const redirectUri = process.env.GOOGLE_REDIRECT_URI || `${process.env.BASE_URL}/api/google/callback`;
+  // Всегда используем GOOGLE_REDIRECT_URI если он установлен (для продакшн)
+  // Иначе определяем среду автоматически
+  let redirectUri;
+  let baseUrl;
+  
+  if (process.env.GOOGLE_REDIRECT_URI) {
+    // Используем явно заданный redirect URI (продакшн конфигурация)
+    redirectUri = process.env.GOOGLE_REDIRECT_URI;
+    baseUrl = process.env.BASE_URL || 'https://www.galaxion.ai';
+    console.log(`[Google OAuth] Продакшн режим - используем явный redirect URI`);
+  } else {
+    // Режим разработки - используем текущий домен
+    baseUrl = process.env.BASE_URL || 'https://novacademy.replit.app';
+    redirectUri = `${baseUrl}/api/google/callback`;
+    console.log(`[Google OAuth] Режим разработки - генерируем redirect URI`);
+  }
+  
+  console.log(`[Google OAuth] NODE_ENV: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`[Google OAuth] Base URL: ${baseUrl}`);
+  console.log(`[Google OAuth] Redirect URI: ${redirectUri}`);
+  console.log(`[Google OAuth] Client ID: ${process.env.GOOGLE_CLIENT_ID ? 'установлен' : 'отсутствует'}`);
+  
   return new OAuth2Client(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
@@ -18,143 +39,113 @@ function createOAuth2Client() {
 // Маршрут для инициации Google OAuth
 router.get("/auth", (req, res) => {
   const oauth2Client = createOAuth2Client();
-  const redirectUri = process.env.GOOGLE_REDIRECT_URI || `${process.env.BASE_URL}/api/google/callback`;
   
   console.log("[Google Auth] Инициация OAuth, конфигурация:");
   console.log("- Client ID:", process.env.GOOGLE_CLIENT_ID ? "установлен" : "отсутствует");
-  console.log("- Client Secret:", process.env.GOOGLE_CLIENT_SECRET ? "установлен" : "отсутствует"); 
-  console.log("- Redirect URI:", redirectUri);
-  console.log("- Base URL:", process.env.BASE_URL);
-  
+  console.log("- Client Secret:", process.env.GOOGLE_CLIENT_SECRET ? "установлен" : "отсутствует");
+
+  // Генерируем URL для авторизации Google
   const authUrl = oauth2Client.generateAuthUrl({
-    access_type: "offline",
+    access_type: 'offline',
     scope: [
-      "https://www.googleapis.com/auth/userinfo.profile",
-      "https://www.googleapis.com/auth/userinfo.email"
+      'https://www.googleapis.com/auth/userinfo.profile',
+      'https://www.googleapis.com/auth/userinfo.email'
     ],
-    state: JSON.stringify({ 
-      redirect: req.query.redirect || "/dashboard" 
-    })
+    state: JSON.stringify({ redirect: "/dashboard" })
   });
-  
+
   console.log("[Google Auth] Создан auth URL:", authUrl);
   res.redirect(authUrl);
 });
 
-// Callback маршрут для обработки ответа от Google
+// Обработчик callback от Google OAuth
 router.get("/callback", async (req, res) => {
-  console.log("[Google Auth Callback] Получен запрос callback:", {
-    code: req.query.code ? "присутствует" : "отсутствует",
-    state: req.query.state,
-    url: req.url,
-    query: req.query
-  });
+  const { code, state } = req.query;
   
-  try {
-    const { code, state } = req.query;
-    
-    if (!code) {
-      console.error("[Google Auth Callback] Отсутствует authorization code");
-      return res.status(400).json({ error: "Authorization code not provided" });
-    }
+  console.log("[Google Callback] Получен callback:", { 
+    hasCode: !!code, 
+    hasState: !!state 
+  });
 
-    // Создаем новый OAuth2 клиент для callback
+  if (!code) {
+    console.error("[Google Callback] Отсутствует authorization code");
+    return res.redirect("/login?error=google_auth_failed");
+  }
+
+  try {
     const oauth2Client = createOAuth2Client();
     
-    // Обмениваем code на токены
+    // Обмениваем код на токены
     const { tokens } = await oauth2Client.getToken(code as string);
     oauth2Client.setCredentials(tokens);
+    console.log("[Google Callback] Токены получены успешно");
 
     // Получаем информацию о пользователе
     const ticket = await oauth2Client.verifyIdToken({
       idToken: tokens.id_token!,
-      audience: process.env.GOOGLE_CLIENT_ID!
+      audience: process.env.GOOGLE_CLIENT_ID
     });
 
     const payload = ticket.getPayload();
     if (!payload) {
-      return res.status(400).json({ error: "Invalid token payload" });
+      throw new Error("Не удалось получить данные пользователя из Google");
     }
 
-    // Создаем или обновляем пользователя в базе данных
-    const userData: InsertUser = {
-      username: payload.email!,
-      email: payload.email!,
-      displayName: payload.name!,
-      firstName: payload.given_name || null,
-      lastName: payload.family_name || null,
-      profileImageUrl: payload.picture || null,
-      authProvider: "google",
-      authProviderId: payload.sub,
-      isEmailVerified: payload.email_verified || false
-    };
-
-    // Проверяем, существует ли пользователь
-    let user = await storage.getUserByEmail(userData.email!);
-    
-    if (!user) {
-      // Создаем нового пользователя
-      user = await storage.createUser(userData);
-      console.log(`[Google Auth] Создан новый пользователь: ${user.username}`);
-    } else {
-      // Обновляем существующего пользователя
-      user = await storage.updateUser(user.id, {
-        displayName: userData.displayName,
-        firstName: userData.firstName,
-        lastName: userData.lastName,
-        profileImageUrl: userData.profileImageUrl,
-        authProvider: userData.authProvider,
-        authProviderId: userData.authProviderId,
-        isEmailVerified: userData.isEmailVerified
-      });
-      console.log(`[Google Auth] Обновлен пользователь: ${user.username}`);
-    }
-
-    // Создаем сессию пользователя
-    req.session.user = user;
-    req.session.authenticated = true;  // КРИТИЧЕСКИ ВАЖНО!
-    req.session.loginTime = new Date();
-    req.session.method = "google";
-    req.session.lastActivity = new Date().toISOString();
-    req.session.save();
-
-    console.log(`[Google Auth] Пользователь ${user.username} авторизован через Google`);
-    console.log(`[Google Auth] Сессия создана:`, {
-      userId: user.id,
-      username: user.username,
-      authenticated: req.session.authenticated,
-      method: req.session.method
+    console.log("[Google Callback] Данные пользователя получены:", {
+      email: payload.email,
+      name: payload.name,
+      googleId: payload.sub
     });
 
-    // Перенаправляем на нужную страницу
+    // Проверяем/создаем пользователя в базе данных
+    const storage = req.app.locals.storage as IStorage;
+    let user = await storage.getUserByGoogleId(payload.sub);
+
+    if (!user) {
+      // Создаем нового пользователя
+      const newUser: InsertUser = {
+        email: payload.email || "",
+        google_id: payload.sub,
+        first_name: payload.given_name || "",
+        last_name: payload.family_name || "",
+        display_name: payload.name || "",
+        is_email_verified: payload.email_verified || false,
+        avatar_url: payload.picture || null,
+        // Не устанавливаем username и password для Google OAuth
+      };
+
+      user = await storage.createUser(newUser);
+      console.log("[Google Callback] Создан новый пользователь:", user.id);
+    } else {
+      console.log("[Google Callback] Найден существующий пользователь:", user.id);
+    }
+
+    // Создаем сессию
+    req.session.userId = user.id;
+    req.session.authenticated = true;
+    req.session.loginTime = new Date().toISOString();
+    req.session.method = "google";
+
+    console.log("[Google Callback] Сессия создана для пользователя:", user.id);
+
+    // Парсим состояние для редиректа
     let redirectUrl = "/dashboard";
     if (state) {
       try {
-        const stateData = JSON.parse(state as string);
-        redirectUrl = stateData.redirect || "/dashboard";
+        const stateObj = JSON.parse(state as string);
+        redirectUrl = stateObj.redirect || "/dashboard";
       } catch (e) {
-        console.warn("[Google Auth] Не удалось разобрать state:", e);
+        console.warn("[Google Callback] Не удалось парсить state:", e);
       }
     }
 
+    console.log("[Google Callback] Редирект на:", redirectUrl);
     res.redirect(redirectUrl);
 
   } catch (error) {
-    console.error("[Google Auth] Ошибка при авторизации:", error);
-    res.status(500).json({ 
-      error: "Ошибка авторизации через Google",
-      details: error instanceof Error ? error.message : "Unknown error"
-    });
+    console.error("[Google Callback] Ошибка:", error);
+    res.redirect("/login?error=google_auth_failed");
   }
-});
-
-// Маршрут для получения данных текущего пользователя
-router.get("/user", (req, res) => {
-  if (!req.session.user) {
-    return res.status(401).json({ message: "Not authenticated" });
-  }
-  
-  res.json(req.session.user);
 });
 
 export default router;
