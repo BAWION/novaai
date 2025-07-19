@@ -6,6 +6,8 @@ import { ParticlesBackground } from "@/components/particles-background";
 import { useAuth } from "@/context/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import { TelegramLogin } from "@/components/auth/telegram-login";
+// Временно отключен VKIDButton из-за множественных кнопок
+// import { VKIDButton } from "@/components/VKIDButton";
 
 export default function Login() {
   const [location, navigate] = useLocation();
@@ -71,10 +73,118 @@ export default function Login() {
     window.location.href = '/api/google/auth';
   };
 
-  // Инициализация Telegram Login Widget
+  // VK авторизация временно отключена из-за множественных кнопок
+  /*
+  const handleVKSuccess = async (authResult: any) => {
+    try {
+      console.log('VK авторизация успешна:', authResult);
+      
+      // Обновляем контекст авторизации
+      login(authResult.user);
+      
+      toast({
+        title: "Успешный вход через VK",
+        description: `Добро пожаловать, ${authResult.user.display_name}!`,
+      });
+      
+      // Перенаправляем на dashboard
+      if (authResult.redirect) {
+        navigate(authResult.redirect);
+      } else {
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      console.error('Ошибка обработки VK авторизации:', error);
+      handleVKError(error);
+    }
+  };
+
+  const handleVKError = (error: any) => {
+    console.error('VK Auth error:', error);
+    toast({
+      variant: "destructive",
+      title: "Ошибка входа через VK",
+      description: error?.message || "Не удалось авторизоваться через VK",
+    });
+  };
+  */
+
+
+
+  // Инициализация виджетов авторизации
   useEffect(() => {
+    // VK ID SDK инициализация
+    const initVKIDSDK = () => {
+      if (!document.querySelector('script[src*="@vkid/sdk"]')) {
+        const vkScript = document.createElement('script');
+        vkScript.src = 'https://unpkg.com/@vkid/sdk@<3.0.0/dist-sdk/umd/index.js';
+        vkScript.onload = () => {
+          if ('VKIDSDK' in window) {
+            const VKID = (window as any).VKIDSDK;
+
+            VKID.Config.init({
+              app: 53936548,
+              redirectUrl: `${window.location.origin}/auth/vk/callback`,
+              responseMode: VKID.ConfigResponseMode.Callback,
+              source: VKID.ConfigSource.LOWCODE,
+              scope: 'vkid.personal_info email phone',
+            });
+
+            const oneTap = new VKID.OneTap();
+            const container = document.getElementById('vk-id-one-tap-container');
+
+            if (container) {
+              oneTap.render({
+                container: container,
+                showAlternativeLogin: true
+              })
+              .on(VKID.WidgetEvents.ERROR, (error: any) => {
+                console.error('[VK ID SDK] Ошибка:', error);
+              })
+              .on(VKID.OneTapInternalEvents.LOGIN_SUCCESS, (payload: any) => {
+                console.log('[VK ID SDK] Успешная авторизация:', payload);
+                const code = payload.code;
+                const deviceId = payload.device_id;
+
+                VKID.Auth.exchangeCode(code, deviceId)
+                  .then((data: any) => {
+                    console.log('[VK ID SDK] Обмен кода успешен:', data);
+                    // Отправляем данные на backend
+                    fetch('/api/vk/auth', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      credentials: 'include',
+                      body: JSON.stringify(data)
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                      if (result.success) {
+                        window.location.href = '/dashboard';
+                      } else {
+                        console.error('[VK ID SDK] Ошибка backend:', result);
+                      }
+                    })
+                    .catch(error => {
+                      console.error('[VK ID SDK] Ошибка отправки на backend:', error);
+                    });
+                  })
+                  .catch((error: any) => {
+                    console.error('[VK ID SDK] Ошибка обмена кода:', error);
+                  });
+              });
+            }
+          }
+        };
+        
+        document.head.appendChild(vkScript);
+      }
+    };
+
     // Добавляем глобальную функцию для Telegram Widget
     (window as any).onTelegramAuth = handleTelegramAuth;
+    
+    // Инициализируем VK ID SDK
+    initVKIDSDK();
     
     // Загружаем скрипт Telegram Widget, если его еще нет
     if (!document.querySelector('script[src*="telegram-widget"]')) {
@@ -286,7 +396,23 @@ export default function Login() {
 
             {!showLoginForm ? (
               <>
+                {/* VK ID SDK One Tap - ОСНОВНОЙ МЕТОД ВХОДА */}
                 <div className="mb-6">
+                  <div id="vk-id-one-tap-container" className="mb-4">
+                    {/* VK ID One Tap будет загружен здесь */}
+                  </div>
+                  <p className="text-xs text-white/60 text-center">
+                    Поддерживает ВКонтакте • Одноклассники • Mail.ru
+                  </p>
+                </div>
+
+                <div className="flex items-center my-6">
+                  <div className="flex-grow h-px bg-white/10"></div>
+                  <span className="px-3 text-white/50 text-sm">другие способы</span>
+                  <div className="flex-grow h-px bg-white/10"></div>
+                </div>
+
+                <div className="mb-4">
                   <div id="telegram-login-widget" className="flex justify-center min-h-[46px]">
                     {/* Telegram Login Widget загружается здесь автоматически */}
                   </div>
@@ -303,12 +429,6 @@ export default function Login() {
                       </span>
                     </div>
                   </div>
-                </div>
-
-                <div className="flex items-center my-6">
-                  <div className="flex-grow h-px bg-white/10"></div>
-                  <span className="px-3 text-white/50 text-sm">или</span>
-                  <div className="flex-grow h-px bg-white/10"></div>
                 </div>
 
                 <div className="space-y-4">
@@ -339,6 +459,14 @@ export default function Login() {
                   >
                     <span>Начать знакомство</span>
                     <i className="fas fa-arrow-right ml-2"></i>
+                  </button>
+
+                  {/* Debug кнопка для тестирования VK ID SDK */}
+                  <button
+                    onClick={() => window.open('/vk-id-test.html', '_blank')}
+                    className="w-full bg-orange-600/20 border border-orange-400/30 hover:bg-orange-600/30 text-orange-200 py-2 px-4 rounded-lg text-sm font-medium transition duration-300 flex items-center justify-center tap-highlight-none btn-mobile"
+                  >
+                    <span>🧪 Тест VK ID SDK</span>
                   </button>
                 </div>
               </>
