@@ -149,10 +149,10 @@ function Router() {
           <Route path="/matching-demo" component={MatchingDemo} />
           <Route path="/scenario-demo" component={ScenarioDemo} />
           <Route path="/activities-demo" component={ActivitiesDemo} />
-          <Route path="/ai-ethics-v2" component={AIEthicsV2Course} />
+          <ProtectedRoute path="/ai-ethics-v2" component={AIEthicsV2Course} />
           
           {/* Admin Panel - Public access with authentication check */}
-          <ProtectedRoute path="/ai-ethics-v2" component={AIEthicsV2Course} />
+          <Route path="/admin" component={AdminDashboard} />
           
           {/* Protected Routes */}
           <ProtectedRoute path="/dashboard" component={Dashboard} />
