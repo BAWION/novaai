@@ -158,6 +158,7 @@ function Router() {
           <ProtectedRoute path="/dashboard" component={Dashboard} />
           <ProtectedRoute path="/roadmap" component={Roadmap} />
           <ProtectedRoute path="/catalog" component={Courses} />
+          <ProtectedRoute path="/courses" component={Courses} />
           <ProtectedRoute path="/labhub" component={LabHub} />
           <ProtectedRoute path="/admin/lesson-structure" component={LessonStructurePage} />
           <ProtectedRoute path="/community" component={Community} />
