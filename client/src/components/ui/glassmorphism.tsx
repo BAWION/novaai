@@ -26,3 +26,5 @@ export const Glassmorphism = ({
     </div>
   );
 };
+
+export default Glassmorphism;
