@@ -52,12 +52,39 @@ export function UserProfileProvider({ children }: { children: React.ReactNode })
     try {
       const url = user?.id ? `/api/profile?userId=${user.id}` : "/api/profile";
       const response = await apiRequest("GET", url);
+      
+      // Check if profile not found (404) - this is expected for new users
+      if (response.status === 404) {
+        console.log(`[Profile] Создание базового профиля для нового пользователя ${user?.id}`);
+        // Create default profile for new users
+        if (user) {
+          setUserProfile({
+            role: "student",
+            pythonLevel: 1,
+            experience: "beginner",
+            interest: "machine-learning",
+            goal: "find-internship",
+            recommendedTrack: "zero-to-hero",
+            displayName: user.displayName || user.firstName || "Пользователь",
+            streakDays: 1, // New user starts with 1 day streak
+            completedOnboarding: false,
+            userId: user.id
+          });
+        }
+        return;
+      }
+
       const profileData = await response.json();
       setUserProfile(profileData);
-    } catch (error) {
-      console.error("Failed to fetch user profile", error);
+    } catch (error: any) {
+      // Only log as error if it's not a 404 (profile not found)
+      if (error?.response?.status === 404) {
+        console.log(`[Profile] Профиль не найден для пользователя ${user?.id}, создаем базовый`);
+      } else {
+        console.error("Failed to fetch user profile", error);
+      }
       
-      // For demo purposes, create a default profile
+      // Create default profile for new users
       if (user) {
         setUserProfile({
           role: "student",
@@ -66,8 +93,8 @@ export function UserProfileProvider({ children }: { children: React.ReactNode })
           interest: "machine-learning",
           goal: "find-internship",
           recommendedTrack: "zero-to-hero",
-          displayName: user.displayName || "Анна",
-          streakDays: Math.floor(Math.random() * 7) + 1, // Random streak between 1-7 days
+          displayName: user.displayName || user.firstName || "Пользователь",
+          streakDays: 1, // New user starts with 1 day streak
           completedOnboarding: false,
           userId: user.id
         });
