@@ -12,6 +12,7 @@ declare global {
 }
 
 export function VKIDButton({ onSuccess, onError }: VKIDButtonProps) {
+  console.log('[DEBUG] 🔥 VKIDButton: НОВАЯ ВЕРСИЯ ЗАГРУЖЕНА - v2.0 🔥');
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -59,7 +60,8 @@ export function VKIDButton({ onSuccess, onError }: VKIDButtonProps) {
             // Обмениваем код на токен через VK ID SDK
             console.log('[VK ID SDK] Начинаем обмен кода на токены...');
             const data = await VKID.Auth.exchangeCode(code, deviceId);
-            console.log('[VK ID SDK] Обмен кода успешен:', data);
+            console.log('[VK ID SDK] ✅ Обмен кода завершен успешно!');
+            console.log('[VK ID SDK] 🔍 НАЧИНАЕМ ДИАГНОСТИКУ ПОСЛЕ ПОЛУЧЕНИЯ ТОКЕНОВ...');
             
             // Безопасная проверка структуры данных
             try {
@@ -77,47 +79,65 @@ export function VKIDButton({ onSuccess, onError }: VKIDButtonProps) {
             
             console.log('[VK ID SDK] access_token найден, продолжаем...');
             
-            // Подготавливаем данные в правильном формате для сервера
-            const authData = {
-              access_token: data.access_token,
-              refresh_token: data.refresh_token,
-              id_token: data.id_token,
-              user_id: data.user_id,
-              expires_in: data.expires_in,
-              token_type: data.token_type,
-              scope: data.scope,
-              state: data.state
-            };
+            console.log('[VK ID SDK] Подготавливаем данные для backend...');
             
-            console.log('[VK ID SDK] Отправляем данные на backend:', authData);
-            console.log('[VK ID SDK] URL для запроса:', window.location.origin + '/api/vk/auth');
+            // Безопасная подготовка данных
+            let authData;
+            try {
+              authData = {
+                access_token: data.access_token || null,
+                refresh_token: data.refresh_token || null,
+                id_token: data.id_token || null,
+                source: 'vk_id_sdk'
+              };
+              console.log('[VK ID SDK] Данные подготовлены:', authData);
+            } catch (dataError) {
+              console.error('[VK ID SDK] Ошибка при подготовке данных:', dataError);
+              throw new Error('Не удалось подготовить данные для backend');
+            }
             
-            // Отправляем данные на наш backend
-            console.log('[VK ID SDK] Начинаем fetch запрос...');
-            const response = await fetch('/api/vk/auth', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              credentials: 'include', // Важно для сессий
-              body: JSON.stringify(authData)
-            });
+            console.log('[VK ID SDK] Отправляем запрос на backend...');
+            console.log('[VK ID SDK] URL:', window.location.origin + '/api/vk/auth');
             
-            console.log('[VK ID SDK] Fetch запрос выполнен, статус:', response.status);
+            // Отправляем данные на backend
+            console.log('[VK ID SDK] Выполняем fetch запрос...');
+            let response;
+            try {
+              response = await fetch('/api/vk/auth', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify(authData)
+              });
+              console.log('[VK ID SDK] Fetch завершен, статус:', response.status);
+            } catch (fetchError) {
+              console.error('[VK ID SDK] Ошибка fetch запроса:', fetchError);
+              throw new Error('Не удалось отправить запрос на сервер');
+            }
 
             if (response.ok) {
+              console.log('[VK ID SDK] Ответ успешный, парсим JSON...');
               const result = await response.json();
-              console.log('[VK ID SDK] Backend ответ успешен:', result);
-              onSuccess?.(result);
+              console.log('[VK ID SDK] Backend ответ:', result);
               
-              // Перенаправляем в dashboard
-              if (result.redirect) {
-                window.location.href = result.redirect;
+              // Обновляем состояние авторизации
+              console.log('[VK ID SDK] Обновляем кеш авторизации...');
+              
+              // Если есть onSuccess callback, вызываем его
+              if (onSuccess) {
+                console.log('[VK ID SDK] Вызываем onSuccess callback...');
+                onSuccess(result);
               }
+              
+              console.log('[VK ID SDK] ✅ Авторизация завершена успешно!');
+              
             } else {
-              const errorData = await response.text();
-              console.error('[VK ID SDK] Backend ошибка:', response.status, errorData);
-              throw new Error(`Backend authentication failed: ${response.status}`);
+              console.log('[VK ID SDK] Ответ с ошибкой, читаем текст...');
+              const errorText = await response.text();
+              console.error('[VK ID SDK] Backend ошибка:', response.status, errorText);
+              throw new Error(`Backend ошибка: ${response.status} - ${errorText}`);
             }
           } catch (error) {
             console.error('[VK ID SDK] КРИТИЧЕСКАЯ ОШИБКА В ПРОЦЕССЕ АВТОРИЗАЦИИ:', error);
