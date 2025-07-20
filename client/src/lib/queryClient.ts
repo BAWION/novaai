@@ -30,21 +30,31 @@ export async function apiRequest(
       Array.from(res.headers.entries()).map(([key, value]) => `${key}: ${value}`).join(', '));
     
     if (!res.ok) {
-      console.error(`API Error: ${method} ${url} - Status: ${res.status} ${res.statusText}`);
-      // Клонируем ответ, чтобы можно было прочитать тело для логирования, но оставить для обработки ошибки
-      const clonedRes = res.clone();
-      try {
-        const errorBody = await clonedRes.text();
-        console.error('Error body:', errorBody);
-      } catch (e) {
-        console.error('Could not read error body');
+      // Don't log 404 errors for profile endpoints as critical - they're expected for new users
+      if (res.status === 404 && url.includes('/api/profile')) {
+        console.log(`[Profile] Профиль не найден для ${url}, создаем базовый`);
+      } else {
+        console.error(`API Error: ${method} ${url} - Status: ${res.status} ${res.statusText}`);
+        // Клонируем ответ, чтобы можно было прочитать тело для логирования, но оставить для обработки ошибки
+        const clonedRes = res.clone();
+        try {
+          const errorBody = await clonedRes.text();
+          console.error('Error body:', errorBody);
+        } catch (e) {
+          console.error('Could not read error body');
+        }
       }
     }
 
     await throwIfResNotOk(res);
     return res;
-  } catch (error) {
-    console.error(`API Request Failed: ${method} ${url}`, error);
+  } catch (error: any) {
+    // Don't log 404 profile errors as failures - they're expected for new users
+    if (error?.message?.includes('404') && url.includes('/api/profile')) {
+      console.log(`[Profile] Ожидаемая 404 ошибка для ${url} (новый пользователь)`);
+    } else {
+      console.error(`API Request Failed: ${method} ${url}`, error);
+    }
     throw error;
   }
 }
